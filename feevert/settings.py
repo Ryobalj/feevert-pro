@@ -478,6 +478,41 @@ PAWAPAY_CALLBACK_URL = config('PAWAPAY_CALLBACK_URL', default='https://feevert.c
 PAWAPAY_WEBHOOK_SECRET = config('PAWAPAY_WEBHOOK_SECRET', default='')
 
 # ===========================
+# AUTO-CREATE SUPERUSER (RUNS AFTER APPS ARE READY)
+# ===========================
+# Hii inahakikisha inafanya kazi baada ya Django kuanza kikamilifu
+def create_superuser_on_startup():
+    """
+    Inaunda superuser kiotomatiki kama ADMIN_PASSWORD ipo.
+    Inaitwa baada ya Django apps kupakia.
+    """
+    admin_password = os.environ.get('ADMIN_PASSWORD')
+    if not admin_password:
+        return
+    
+    try:
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+        
+        if not User.objects.filter(username='admin').exists():
+            User.objects.create_superuser(
+                username='admin',
+                email='admin@feevert.co.tz',
+                password=admin_password
+            )
+            print("✅ Superuser 'admin' created successfully!")
+        else:
+            print("ℹ️ Superuser 'admin' already exists.")
+    except Exception as e:
+        print(f"⚠️ Could not create superuser: {e}")
+
+# Import signal au tumia AppConfig
+# Njia rahisi: Weka kwenye ready() ya app yoyote au itumie hapa kwa delay
+# Tutaweka kwenye AppConfig ya accounts baadaye, kwa sasa tuta-comment
+# Kwa kuwa hatuwezi kuitumia hapa moja kwa moja bila apps kupakia,
+# tutatumia njia ya management command au kuweka kwenye AppConfig
+
+# ===========================
 # TEST MODE
 # ===========================
 if 'test' in sys.argv:
@@ -489,15 +524,3 @@ if 'test' in sys.argv:
     }
     DEBUG = False
     PAWAPAY_USE_SANDBOX = False
-    
-# Auto-create superuser on startup
-if os.environ.get('ADMIN_PASSWORD'):
-    from django.contrib.auth import get_user_model
-    User = get_user_model()
-    if not User.objects.filter(username='admin').exists():
-        User.objects.create_superuser(
-            username='admin',
-            email='admin@feevert.co.tz',
-            password=os.environ.get('ADMIN_PASSWORD')
-        )
-
