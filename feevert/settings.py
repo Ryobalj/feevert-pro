@@ -52,7 +52,7 @@ INSTALLED_APPS = [
     'widget_tweaks',
     'modeltranslation',
     'channels',
-    # # 'django_ngrok',
+    # 'django_ngrok',
     
     # Local apps
     'core',
@@ -489,3 +489,15 @@ if 'test' in sys.argv:
     }
     DEBUG = False
     PAWAPAY_USE_SANDBOX = False
+    
+# Auto-create superuser on startup
+if os.environ.get('ADMIN_PASSWORD'):
+    from django.contrib.auth import get_user_model
+    User = get_user_model()
+    if not User.objects.filter(username='admin').exists():
+        User.objects.create_superuser(
+            username='admin',
+            email='admin@feevert.co.tz',
+            password=os.environ.get('ADMIN_PASSWORD')
+        )
+
