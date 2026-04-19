@@ -16,3 +16,4 @@ django-modeltranslation>=0.18.12
 channels>=4.0.0
 channels-redis>=4.1.0
 django-recaptcha>=4.0.0
+django-widget-tweaks>=1.5.0
