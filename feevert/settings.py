@@ -52,7 +52,7 @@ INSTALLED_APPS = [
     'widget_tweaks',
     'modeltranslation',
     'channels',
-    'django_ngrok',
+    # # 'django_ngrok',
     
     # Local apps
     'core',
