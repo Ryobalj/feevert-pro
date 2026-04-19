@@ -1,0 +1,306 @@
+<!-- templates/admin/index.html -->
+{% extends "admin/index.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="welcome-banner">
+        <div class="welcome-content">
+            <h2 id="welcome-title">Welcome to FeeVert Admin Panel</h2>
+            <p id="welcome-subtitle">Manage your consultancy website from one central dashboard</p>
+        </div>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">📊</div>
+                <div class="stat-info">
+                    <h3 id="stat-users">Total Users</h3>
+                    <p>{{ user_count|default:"0" }}</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📞</div>
+                <div class="stat-info">
+                    <h3 id="stat-messages">Contact Messages</h3>
+                    <p>{{ contact_count|default:"0" }}</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📅</div>
+                <div class="stat-info">
+                    <h3 id="stat-bookings">Bookings</h3>
+                    <p>{{ booking_count|default:"0" }}</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">💰</div>
+                <div class="stat-info">
+                    <h3 id="stat-revenue">Revenue</h3>
+                    <p>TZS {{ revenue|default:"0" }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="action-buttons">
+        <a href="/feevert-admin/home/contactmessage/add/" class="action-btn primary" id="add-contact">
+            <span>✉️</span> <span id="add-contact-text">Add Contact Message</span>
+        </a>
+        <a href="/feevert-admin/bookings/booking/add/" class="action-btn primary" id="add-booking">
+            <span>📅</span> <span id="add-booking-text">Add Booking</span>
+        </a>
+        <a href="/feevert-admin/consultations/consultationservice/add/" class="action-btn secondary" id="add-service">
+            <span>🛠️</span> <span id="add-service-text">Add Service</span>
+        </a>
+        <a href="/feevert-admin/projects/project/add/" class="action-btn secondary" id="add-project">
+            <span>🖼️</span> <span id="add-project-text">Add Project</span>
+        </a>
+    </div>
+
+    <div class="recent-activity">
+        <h3 id="recent-title">Recent Activity</h3>
+        <div class="activity-list">
+            {% for log in recent_logs %}
+            <div class="activity-item">
+                <span class="activity-time">{{ log.action_time|date:"H:i" }}</span>
+                <span class="activity-user">{{ log.user }}</span>
+                <span class="activity-action">{{ log.change_message }}</span>
+            </div>
+            {% empty %}
+            <p class="no-activity" id="no-activity-text">No recent activity</p>
+            {% endfor %}
+        </div>
+    </div>
+    
+    {{ block.super }}
+</div>
+
+<style>
+    .dashboard-container {
+        padding: 20px;
+    }
+    
+    .welcome-banner {
+        background: linear-gradient(135deg, #2d6a4f 0%, #1b4332 100%);
+        border-radius: 16px;
+        padding: 30px;
+        margin-bottom: 30px;
+        color: white;
+    }
+    
+    .welcome-content h2 {
+        margin: 0 0 10px 0;
+        font-size: 1.8rem;
+        color: white;
+    }
+    
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
+    }
+    
+    .stat-card {
+        background: rgba(255,255,255,0.1);
+        border-radius: 12px;
+        padding: 15px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        backdrop-filter: blur(10px);
+    }
+    
+    .stat-icon {
+        font-size: 2rem;
+    }
+    
+    .stat-info h3 {
+        margin: 0;
+        font-size: 0.8rem;
+        opacity: 0.8;
+    }
+    
+    .stat-info p {
+        margin: 5px 0 0;
+        font-size: 1.5rem;
+        font-weight: bold;
+    }
+    
+    .quick-actions {
+        background: white;
+        border-radius: 16px;
+        padding: 20px;
+        margin-bottom: 30px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    
+    .quick-actions h3 {
+        margin: 0 0 15px 0;
+        color: #1b4332;
+    }
+    
+    .action-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+    
+    .action-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 20px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    
+    .action-btn.primary {
+        background: #2d6a4f;
+        color: white;
+    }
+    
+    .action-btn.primary:hover {
+        background: #40916c;
+        transform: translateY(-2px);
+    }
+    
+    .action-btn.secondary {
+        background: #d8f3dc;
+        color: #1b4332;
+    }
+    
+    .action-btn.secondary:hover {
+        background: #c8e6d0;
+        transform: translateY(-2px);
+    }
+    
+    .recent-activity {
+        background: white;
+        border-radius: 16px;
+        padding: 20px;
+        margin-bottom: 30px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    
+    .recent-activity h3 {
+        margin: 0 0 15px 0;
+        color: #1b4332;
+    }
+    
+    .activity-list {
+        max-height: 300px;
+        overflow-y: auto;
+    }
+    
+    .activity-item {
+        padding: 10px 0;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        gap: 15px;
+        align-items: center;
+        font-size: 0.9rem;
+    }
+    
+    .activity-time {
+        color: #6c757d;
+        font-size: 0.8rem;
+    }
+    
+    .activity-user {
+        font-weight: 500;
+        color: #2d6a4f;
+    }
+    
+    .activity-action {
+        flex: 1;
+        color: #1a1a1a;
+    }
+    
+    .no-activity {
+        color: #6c757d;
+        text-align: center;
+        padding: 20px;
+    }
+    
+    @media (max-width: 768px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        .action-buttons {
+            flex-direction: column;
+        }
+        .action-btn {
+            justify-content: center;
+        }
+    }
+</style>
+
+<script>
+    const translations = {
+        en: {
+            welcome_title: 'Welcome to FeeVert Admin Panel',
+            welcome_subtitle: 'Manage your consultancy website from one central dashboard',
+            stat_users: 'Total Users',
+            stat_messages: 'Contact Messages',
+            stat_bookings: 'Bookings',
+            stat_revenue: 'Revenue',
+            quick_actions: 'Quick Actions',
+            add_contact: 'Add Contact Message',
+            add_booking: 'Add Booking',
+            add_service: 'Add Service',
+            add_project: 'Add Project',
+            recent_activity: 'Recent Activity',
+            no_activity: 'No recent activity'
+        },
+        sw: {
+            welcome_title: 'Karibu kwenye Paneli ya Admin ya FeeVert',
+            welcome_subtitle: 'Dhibiti tovuti yako ya ushauri kutoka kwenye dashibodi moja kuu',
+            stat_users: 'Jumla ya Watumiaji',
+            stat_messages: 'Ujumbe wa Mawasiliano',
+            stat_bookings: 'Miadi',
+            stat_revenue: 'Mapato',
+            quick_actions: 'Vitendo vya Haraka',
+            add_contact: 'Ongeza Ujumbe',
+            add_booking: 'Ongeza Miadi',
+            add_service: 'Ongeza Huduma',
+            add_project: 'Ongeza Mradi',
+            recent_activity: 'Shughuli za Hivi Karibuni',
+            no_activity: 'Hakuna shughuli za hivi karibuni'
+        }
+    };
+
+    function getCookie(name) {
+        let value = `; ${document.cookie}`;
+        let parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+        return 'en';
+    }
+
+    function updateLanguage() {
+        const lang = getCookie('django_language') || 'en';
+        const t = translations[lang];
+        
+        if (t) {
+            document.getElementById('welcome-title').textContent = t.welcome_title;
+            document.getElementById('welcome-subtitle').textContent = t.welcome_subtitle;
+            document.getElementById('stat-users').textContent = t.stat_users;
+            document.getElementById('stat-messages').textContent = t.stat_messages;
+            document.getElementById('stat-bookings').textContent = t.stat_bookings;
+            document.getElementById('stat-revenue').textContent = t.stat_revenue;
+            document.getElementById('quick-actions-title').textContent = t.quick_actions;
+            document.getElementById('add-contact-text').textContent = t.add_contact;
+            document.getElementById('add-booking-text').textContent = t.add_booking;
+            document.getElementById('add-service-text').textContent = t.add_service;
+            document.getElementById('add-project-text').textContent = t.add_project;
+            document.getElementById('recent-title').textContent = t.recent_activity;
+            const noActivity = document.getElementById('no-activity-text');
+            if (noActivity) noActivity.textContent = t.no_activity;
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', updateLanguage);
+</script>
+{% endblock %}

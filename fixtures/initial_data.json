@@ -1,0 +1,87 @@
+[
+  {
+    "model": "home.sitesetting",
+    "pk": 1,
+    "fields": {
+      "created_at": "2025-01-01 00:00:00+00:00",
+      "updated_at": "2025-01-01 00:00:00+00:00",
+      "is_active": true,
+      "site_name": "Fee-Vert Solution Limited",
+      "site_tagline": "Your Trusted Consultancy Partner",
+      "contact_email": "info@feevert.co.tz",
+      "contact_phone": "+255 123 456 789",
+      "contact_address": "Dar es Salaam, Tanzania",
+      "meta_description": "Expert consultancy in Agriculture, Environment and OHS",
+      "primary_color": "#2d6a4f",
+      "secondary_color": "#1a1a1a",
+      "accent_color": "#d8f3dc",
+      "footer_copyright_text": "© 2025 Fee-Vert Solution Limited. All rights reserved."
+    }
+  },
+  {
+    "model": "consultations.consultationcategory",
+    "pk": 1,
+    "fields": {
+      "created_at": "2025-01-01 00:00:00+00:00",
+      "updated_at": "2025-01-01 00:00:00+00:00",
+      "is_active": true,
+      "name": "Agriculture Consultancy",
+      "slug": "agriculture",
+      "description": "Expert advice on crop management, livestock, and agribusiness",
+      "order": 1
+    }
+  },
+  {
+    "model": "consultations.consultationcategory",
+    "pk": 2,
+    "fields": {
+      "created_at": "2025-01-01 00:00:00+00:00",
+      "updated_at": "2025-01-01 00:00:00+00:00",
+      "is_active": true,
+      "name": "Environment & OHS",
+      "slug": "environment",
+      "description": "Sustainable environmental management and workplace safety",
+      "order": 2
+    }
+  },
+  {
+    "model": "consultations.consultationcategory",
+    "pk": 3,
+    "fields": {
+      "created_at": "2025-01-01 00:00:00+00:00",
+      "updated_at": "2025-01-01 00:00:00+00:00",
+      "is_active": true,
+      "name": "Business Advisory",
+      "slug": "business",
+      "description": "Strategic business planning and development consulting",
+      "order": 3
+    }
+  },
+  {
+    "model": "home.herosection",
+    "pk": 1,
+    "fields": {
+      "created_at": "2025-01-01 00:00:00+00:00",
+      "updated_at": "2025-01-01 00:00:00+00:00",
+      "is_active": true,
+      "title": "Expert Consultancy Services",
+      "subtitle": "We provide high-quality services at reasonable prices",
+      "cta_text": "Get Started",
+      "cta_link": "#contact",
+      "order": 1
+    }
+  },
+  {
+    "model": "home.aboutsection",
+    "pk": 1,
+    "fields": {
+      "created_at": "2025-01-01 00:00:00+00:00",
+      "updated_at": "2025-01-01 00:00:00+00:00",
+      "is_active": true,
+      "title": "About Fee-Vert",
+      "description": "Fee-Vert is registered to provide consultancy and mentorship services on Agriculture & Livestock, Environment and Occupational Health & Safety (OHS).",
+      "mission": "To provide high-quality services at reasonable prices",
+      "vision": "To be the leading consultancy firm in East Africa"
+    }
+  }
+]

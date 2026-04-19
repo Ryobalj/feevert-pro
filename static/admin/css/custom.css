@@ -1,0 +1,270 @@
+/* FeeVert Custom Admin CSS */
+
+/* Login page customization */
+.login .container {
+    background: linear-gradient(135deg, #1b4332 0%, #2d6a4f 100%);
+    min-height: 100vh;
+}
+
+.login #content {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    padding: 30px;
+}
+
+/* Table styling */
+.results table th {
+    background: #d8f3dc;
+    color: #1b4332;
+}
+
+/* Action buttons */
+.submit-row input.default {
+    background: #2d6a4f;
+}
+
+/* Messages */
+.messagelist li.success {
+    background: #d8f3dc;
+    color: #1b4332;
+    border-left-color: #2d6a4f;
+}
+
+/* Pagination */
+.paginator a:link, .paginator a:visited {
+    background: #2d6a4f;
+    color: white;
+    border-radius: 4px;
+}
+
+.paginator a:hover {
+    background: #40916c;
+}
+
+/* ========================================
+   DARK MODE SUPPORT
+   ======================================== */
+
+/* Dark mode variables */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --primary: #40916c;
+        --secondary: #52b788;
+        --accent: #2d6a4f;
+        --primary-fg: #fff;
+        --body-fg: #e0e0e0;
+        --body-bg: #121212;
+        --body-quiet-color: #a0a0a0;
+        --body-loud-color: #ffffff;
+        --header-color: #fff;
+        --header-branding-color: #fff;
+        --header-bg: #0d2b1f;
+        --header-link-color: #fff;
+        --link-fg: #74c69d;
+        --link-hover-color: #95d5b2;
+        --link-selected-fg: #74c69d;
+        --button-bg: #2d6a4f;
+        --button-hover-bg: #40916c;
+        --default-button-bg: #1b4332;
+        --default-button-hover-bg: #2d6a4f;
+        --close-button-bg: #dc3545;
+        --close-button-hover-bg: #c82333;
+        --delete-button-bg: #dc3545;
+        --delete-button-hover-bg: #c82333;
+        --object-tools-fg: #74c69d;
+        --object-tools-hover-bg: #2d6a4f;
+    }
+}
+
+/* Dark mode body background */
+@media (prefers-color-scheme: dark) {
+    body {
+        background: #121212;
+    }
+    
+    /* Card backgrounds */
+    .dashboard .module table,
+    .dashboard .module,
+    #content-main .module,
+    .module {
+        background: #1e1e1e;
+        border-radius: 12px;
+    }
+    
+    /* Table styling */
+    .results table {
+        background: #1e1e1e;
+    }
+    
+    .results table th {
+        background: #0d2b1f;
+        color: #74c69d;
+    }
+    
+    .results table tr {
+        border-bottom: 1px solid #2a2a2a;
+    }
+    
+    .results table tr:nth-child(even) {
+        background: #1a1a1a;
+    }
+    
+    .results table tr:nth-child(odd) {
+        background: #222222;
+    }
+    
+    .results table tr:hover {
+        background: #2a2a2a;
+    }
+    
+    /* Form styling */
+    form .aligned label,
+    .form-row label {
+        color: #e0e0e0;
+    }
+    
+    input, textarea, select {
+        background: #2a2a2a;
+        border: 1px solid #3a3a3a;
+        color: #e0e0e0;
+    }
+    
+    input:focus, textarea:focus, select:focus {
+        border-color: #40916c;
+        outline: none;
+    }
+    
+    /* Breadcrumbs */
+    div.breadcrumbs {
+        background: #0d2b1f;
+        color: #74c69d;
+    }
+    
+    div.breadcrumbs a {
+        color: #95d5b2;
+    }
+    
+    /* Sidebar */
+    #nav-sidebar .current-model {
+        background: #0d2b1f;
+        border-left-color: #40916c;
+    }
+    
+    #nav-sidebar a {
+        color: #e0e0e0;
+    }
+    
+    #nav-sidebar a:hover {
+        background: #2a2a2a;
+    }
+    
+    /* Quick actions section */
+    .quick-actions {
+        background: #1e1e1e;
+    }
+    
+    .quick-actions h3 {
+        color: #74c69d;
+    }
+    
+    /* Recent activity */
+    .recent-activity {
+        background: #1e1e1e;
+    }
+    
+    .recent-activity h3 {
+        color: #74c69d;
+    }
+    
+    .activity-item {
+        border-bottom-color: #2a2a2a;
+    }
+    
+    .activity-action {
+        color: #e0e0e0;
+    }
+    
+    /* Submit row */
+    .submit-row {
+        background: #1a1a1a;
+    }
+    
+    /* Messages */
+    .messagelist li.success {
+        background: #0d2b1f;
+        color: #74c69d;
+        border-left-color: #40916c;
+    }
+    
+    .messagelist li.warning {
+        background: #332700;
+        color: #ffd966;
+        border-left-color: #ffc107;
+    }
+    
+    .messagelist li.error {
+        background: #2b1a1a;
+        color: #e57373;
+        border-left-color: #dc3545;
+    }
+    
+    /* Pagination */
+    .paginator a:link, .paginator a:visited {
+        background: #2d6a4f;
+        color: white;
+    }
+    
+    .paginator a:hover {
+        background: #40916c;
+    }
+    
+    .paginator .this-page {
+        background: #1b4332;
+        color: white;
+    }
+    
+    /* Filter sidebar */
+    #changelist-filter {
+        background: #1e1e1e;
+    }
+    
+    #changelist-filter h2 {
+        background: #0d2b1f;
+        color: #74c69d;
+    }
+    
+    #changelist-filter h3 {
+        color: #e0e0e0;
+    }
+    
+    #changelist-filter a {
+        color: #95d5b2;
+    }
+    
+    /* Date picker */
+    .calendar {
+        background: #1e1e1e;
+        border-color: #2a2a2a;
+    }
+    
+    .calendar th {
+        background: #0d2b1f;
+        color: #74c69d;
+    }
+    
+    .calendar td a {
+        color: #e0e0e0;
+    }
+    
+    /* Login page dark mode */
+    @media (prefers-color-scheme: dark) {
+        .login #content {
+            background: #1e1e1e;
+        }
+        
+        .login .form-row label {
+            color: #e0e0e0;
+        }
+    }
+}
