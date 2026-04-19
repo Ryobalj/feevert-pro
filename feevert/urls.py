@@ -203,7 +203,13 @@ urlpatterns = [
     path('api/homepage/', get_homepage_data, name='homepage-data'),
 ]
 
-# Serve media files in development
+# ============================================================
+# SERVE MEDIA AND STATIC FILES (DEVELOPMENT & PRODUCTION)
+# ============================================================
+# Hii inahakikisha media files (picha, logos) zinaservewa hata kwenye Render
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+else:
+    # Kwenye production, Whitenoise inaserve static files, lakini media tunaziserve manually
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
