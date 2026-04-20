@@ -309,8 +309,8 @@ REST_FRAMEWORK = {
     'DEFAULT_THROTTLE_RATES': {
         'anon': '10000/day',
         'user': '100000/day',
-        'register': '100/hour',  # <-- ONGEZA HII
-        'login': '200/hour',     # <-- ONGEZA HII
+        'register': '100/hour',
+        'login': '200/hour',
     },
 }
 
