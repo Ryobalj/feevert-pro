@@ -5,6 +5,7 @@ import api from '../../../app/api'
 
 const HomePage = () => {
   const [loading, setLoading] = useState(true)
+  const [siteSettings, setSiteSettings] = useState(null)
   const [services, setServices] = useState([])
   const [projects, setProjects] = useState([])
   const [team, setTeam] = useState([])
@@ -16,7 +17,8 @@ const HomePage = () => {
   useEffect(() => {
     const loadAllData = async () => {
       try {
-        const [servicesRes, projectsRes, teamRes, testimonialsRes, faqRes, partnersRes] = await Promise.all([
+        const [settingsRes, servicesRes, projectsRes, teamRes, testimonialsRes, faqRes, partnersRes] = await Promise.all([
+          api.get('/site-settings/'),
           api.get('/consultation-services/'),
           api.get('/projects/'),
           api.get('/team-members/'),
@@ -31,6 +33,7 @@ const HomePage = () => {
           return []
         }
         
+        const settingsData = extractData(settingsRes)[0] || {}
         const servicesData = extractData(servicesRes)
         const projectsData = extractData(projectsRes)
         const teamData = extractData(teamRes)
@@ -47,6 +50,7 @@ const HomePage = () => {
           partners: partnersData.length
         })
         
+        setSiteSettings(settingsData)
         setServices(servicesData)
         setProjects(projectsData)
         setTeam(teamData)
@@ -54,28 +58,34 @@ const HomePage = () => {
         setFaqs(faqData)
         setPartners(partnersData)
         
-        // Animate counters
-        const targetProjects = projectsData.length || 9
-        const targetClients = testimonialsData.length || 48
+        // Animate counters - REAL DATA ONLY
+        const targetProjects = projectsData.length
+        const targetClients = testimonialsData.length
+        const targetYears = settingsData?.years_experience || 0
         
-        const duration = 2000
-        const steps = 60
-        const interval = duration / steps
-        let step = 0
-        
-        const timer = setInterval(() => {
-          step++
-          const progress = step / steps
-          setCounters({
-            projects: Math.floor(targetProjects * progress),
-            clients: Math.floor(targetClients * progress),
-            years: Math.floor(5 * progress)
-          })
-          if (step >= steps) {
-            setCounters({ projects: targetProjects, clients: targetClients, years: 5 })
-            clearInterval(timer)
-          }
-        }, interval)
+        // Only animate if there's data
+        if (targetProjects > 0 || targetClients > 0 || targetYears > 0) {
+          const duration = 2000
+          const steps = 60
+          const interval = duration / steps
+          let step = 0
+          
+          const timer = setInterval(() => {
+            step++
+            const progress = step / steps
+            setCounters({
+              projects: Math.floor(targetProjects * progress),
+              clients: Math.floor(targetClients * progress),
+              years: Math.floor(targetYears * progress)
+            })
+            if (step >= steps) {
+              setCounters({ projects: targetProjects, clients: targetClients, years: targetYears })
+              clearInterval(timer)
+            }
+          }, interval)
+          
+          return () => clearInterval(timer)
+        }
         
       } catch (error) {
         console.error('Error loading data:', error)
@@ -95,151 +105,154 @@ const HomePage = () => {
     )
   }
 
+  // Only show stats if there's actual data
+  const hasStats = counters.projects > 0 || counters.clients > 0 || counters.years > 0
+
   return (
     <div className="bg-white dark:bg-gray-900">
-      {/* Stats Section */}
-      <section className="py-10 bg-green-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-        <div className="container-main">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-            <div>
-              <div className="text-2xl md:text-3xl font-bold text-green-700 dark:text-green-400">{counters.projects}+</div>
-              <div className="text-xs text-gray-600 dark:text-gray-400">Projects</div>
-            </div>
-            <div>
-              <div className="text-2xl md:text-3xl font-bold text-green-700 dark:text-green-400">{counters.clients}+</div>
-              <div className="text-xs text-gray-600 dark:text-gray-400">Happy Clients</div>
-            </div>
-            <div>
-              <div className="text-2xl md:text-3xl font-bold text-green-700 dark:text-green-400">{counters.years}+</div>
-              <div className="text-xs text-gray-600 dark:text-gray-400">Years Experience</div>
-            </div>
-            <div>
-              <div className="text-2xl md:text-3xl font-bold text-green-700 dark:text-green-400">24/7</div>
-              <div className="text-xs text-gray-600 dark:text-gray-400">Support</div>
+      {/* Stats Section - Only show if there's data */}
+      {hasStats && (
+        <section className="py-10 bg-green-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+          <div className="container-main">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+              {counters.projects > 0 && (
+                <div>
+                  <div className="text-2xl md:text-3xl font-bold text-green-700 dark:text-green-400">{counters.projects}+</div>
+                  <div className="text-xs text-gray-600 dark:text-gray-400">Projects</div>
+                </div>
+              )}
+              {counters.clients > 0 && (
+                <div>
+                  <div className="text-2xl md:text-3xl font-bold text-green-700 dark:text-green-400">{counters.clients}+</div>
+                  <div className="text-xs text-gray-600 dark:text-gray-400">Happy Clients</div>
+                </div>
+              )}
+              {counters.years > 0 && (
+                <div>
+                  <div className="text-2xl md:text-3xl font-bold text-green-700 dark:text-green-400">{counters.years}+</div>
+                  <div className="text-xs text-gray-600 dark:text-gray-400">Years Experience</div>
+                </div>
+              )}
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
-      {/* Services Section */}
-      <section className="py-12">
-        <div className="container-main">
-          <h2 className="text-xl md:text-2xl font-bold text-center text-gray-800 dark:text-white mb-2">Our Services</h2>
-          <p className="text-center text-gray-600 dark:text-gray-400 text-sm mb-6">Comprehensive solutions tailored to your needs</p>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {services.slice(0, 6).map((service, i) => (
-              <motion.div
-                key={service.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.05 }}
-              >
-                <Link to={`/services/${service.id}`}>
-                  <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-green-300 dark:hover:border-green-600 hover:shadow-md transition-all h-full">
-                    <h3 className="font-semibold text-gray-800 dark:text-white mb-1">{service.name}</h3>
-                    <p className="text-gray-600 dark:text-gray-400 text-xs mb-2 line-clamp-2">{service.description}</p>
-                    {service.price && (
-                      <p className="text-green-700 dark:text-green-400 font-medium text-xs">
-                        From TZS {parseInt(service.price).toLocaleString()}
-                      </p>
-                    )}
-                  </div>
-                </Link>
-              </motion.div>
-            ))}
+      {/* Services Section - Only show if there's data */}
+      {services.length > 0 && (
+        <section className="py-12">
+          <div className="container-main">
+            <h2 className="text-xl md:text-2xl font-bold text-center text-gray-800 dark:text-white mb-2">Our Services</h2>
+            <p className="text-center text-gray-600 dark:text-gray-400 text-sm mb-6">Comprehensive solutions tailored to your needs</p>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {services.slice(0, 6).map((service, i) => (
+                <motion.div
+                  key={service.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.05 }}
+                >
+                  <Link to={`/services/${service.id}`}>
+                    <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-green-300 dark:hover:border-green-600 hover:shadow-md transition-all h-full">
+                      <h3 className="font-semibold text-gray-800 dark:text-white mb-1">{service.name}</h3>
+                      <p className="text-gray-600 dark:text-gray-400 text-xs mb-2 line-clamp-2">{service.description}</p>
+                      {service.price && service.price !== '0.00' && (
+                        <p className="text-green-700 dark:text-green-400 font-medium text-xs">
+                          From TZS {parseInt(service.price).toLocaleString()}
+                        </p>
+                      )}
+                    </div>
+                  </Link>
+                </motion.div>
+              ))}
+            </div>
+            
+            <div className="text-center mt-6">
+              <Link to="/services" className="text-green-700 dark:text-green-400 text-sm hover:underline">
+                View All Services →
+              </Link>
+            </div>
           </div>
-          
-          <div className="text-center mt-6">
-            <Link to="/services" className="text-green-700 dark:text-green-400 text-sm hover:underline">
-              View All Services →
-            </Link>
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
 
-      {/* Projects Section */}
-      <section className="py-12 bg-gray-50 dark:bg-gray-800 border-y border-gray-200 dark:border-gray-700">
-        <div className="container-main">
-          <h2 className="text-xl md:text-2xl font-bold text-center text-gray-800 dark:text-white mb-2">Featured Projects</h2>
-          <p className="text-center text-gray-600 dark:text-gray-400 text-sm mb-6">Success stories from our clients</p>
-          
-          {projects.length > 0 ? (
-            <>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {projects.slice(0, 4).map((project, i) => (
-                  <motion.div
-                    key={project.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.05 }}
-                  >
-                    <Link to={`/projects/${project.id}`}>
-                      <div className="bg-white dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all h-full">
-                        <h3 className="font-semibold text-gray-800 dark:text-white mb-1">{project.title}</h3>
-                        <p className="text-gray-600 dark:text-gray-400 text-xs mb-2 line-clamp-2">{project.description}</p>
-                        <span className="text-green-700 dark:text-green-400 text-xs">{project.category_name || 'Project'}</span>
+      {/* Projects Section - Only show if there's data */}
+      {projects.length > 0 && (
+        <section className="py-12 bg-gray-50 dark:bg-gray-800 border-y border-gray-200 dark:border-gray-700">
+          <div className="container-main">
+            <h2 className="text-xl md:text-2xl font-bold text-center text-gray-800 dark:text-white mb-2">Featured Projects</h2>
+            <p className="text-center text-gray-600 dark:text-gray-400 text-sm mb-6">Success stories from our clients</p>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {projects.slice(0, 4).map((project, i) => (
+                <motion.div
+                  key={project.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.05 }}
+                >
+                  <Link to={`/projects/${project.id}`}>
+                    <div className="bg-white dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all h-full">
+                      <h3 className="font-semibold text-gray-800 dark:text-white mb-1">{project.title}</h3>
+                      <p className="text-gray-600 dark:text-gray-400 text-xs mb-2 line-clamp-2">{project.description}</p>
+                      <span className="text-green-700 dark:text-green-400 text-xs">{project.category_name || 'Project'}</span>
+                    </div>
+                  </Link>
+                </motion.div>
+              ))}
+            </div>
+            
+            <div className="text-center mt-6">
+              <Link to="/projects" className="text-green-700 dark:text-green-400 text-sm hover:underline">
+                View All Projects →
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Team Section - Only show if there's data */}
+      {team.length > 0 && (
+        <section className="py-12">
+          <div className="container-main">
+            <h2 className="text-xl md:text-2xl font-bold text-center text-gray-800 dark:text-white mb-2">Meet Our Team</h2>
+            <p className="text-center text-gray-600 dark:text-gray-400 text-sm mb-6">Passionate professionals dedicated to your success</p>
+            
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {team.slice(0, 4).map((member, i) => (
+                <motion.div
+                  key={member.id}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.05 }}
+                >
+                  <Link to={`/team/${member.id}`}>
+                    <div className="bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700 text-center hover:shadow-md transition-all h-full">
+                      <div className="w-12 h-12 mx-auto bg-gradient-to-br from-green-600 to-green-800 rounded-full flex items-center justify-center mb-2">
+                        <span className="text-lg font-bold text-white">{member.full_name?.charAt(0) || '?'}</span>
                       </div>
-                    </Link>
-                  </motion.div>
-                ))}
-              </div>
-              <div className="text-center mt-6">
-                <Link to="/projects" className="text-green-700 dark:text-green-400 text-sm hover:underline">
-                  View All Projects →
-                </Link>
-              </div>
-            </>
-          ) : (
-            <p className="text-center text-gray-500 dark:text-gray-400 py-4 text-sm">No projects yet.</p>
-          )}
-        </div>
-      </section>
+                      <h3 className="font-medium text-gray-800 dark:text-white text-sm">{member.full_name}</h3>
+                      <p className="text-green-700 dark:text-green-400 text-xs">{member.role || member.position}</p>
+                    </div>
+                  </Link>
+                </motion.div>
+              ))}
+            </div>
+            
+            <div className="text-center mt-6">
+              <Link to="/team" className="text-green-700 dark:text-green-400 text-sm hover:underline">
+                Meet the Whole Team →
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
 
-      {/* Team Section */}
-      <section className="py-12">
-        <div className="container-main">
-          <h2 className="text-xl md:text-2xl font-bold text-center text-gray-800 dark:text-white mb-2">Meet Our Team</h2>
-          <p className="text-center text-gray-600 dark:text-gray-400 text-sm mb-6">Passionate professionals dedicated to your success</p>
-          
-          {team.length > 0 ? (
-            <>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {team.slice(0, 4).map((member, i) => (
-                  <motion.div
-                    key={member.id}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.05 }}
-                  >
-                    <Link to={`/team/${member.id}`}>
-                      <div className="bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700 text-center hover:shadow-md transition-all h-full">
-                        <div className="w-12 h-12 mx-auto bg-gradient-to-br from-green-600 to-green-800 rounded-full flex items-center justify-center mb-2">
-                          <span className="text-lg font-bold text-white">{member.full_name?.charAt(0) || '?'}</span>
-                        </div>
-                        <h3 className="font-medium text-gray-800 dark:text-white text-sm">{member.full_name}</h3>
-                        <p className="text-green-700 dark:text-green-400 text-xs">{member.role || member.position}</p>
-                      </div>
-                    </Link>
-                  </motion.div>
-                ))}
-              </div>
-              <div className="text-center mt-6">
-                <Link to="/team" className="text-green-700 dark:text-green-400 text-sm hover:underline">
-                  Meet the Whole Team →
-                </Link>
-              </div>
-            </>
-          ) : (
-            <p className="text-center text-gray-500 dark:text-gray-400 py-4 text-sm">Team members coming soon!</p>
-          )}
-        </div>
-      </section>
-
-      {/* Testimonials Section */}
+      {/* Testimonials Section - Only show if there's data */}
       {testimonials.length > 0 && (
         <section className="py-12 bg-gray-50 dark:bg-gray-800 border-y border-gray-200 dark:border-gray-700">
           <div className="container-main">
@@ -271,7 +284,7 @@ const HomePage = () => {
         </section>
       )}
 
-      {/* FAQ Section */}
+      {/* FAQ Section - Only show if there's data */}
       {faqs.length > 0 && (
         <section className="py-12">
           <div className="container-main max-w-3xl">
@@ -291,6 +304,22 @@ const HomePage = () => {
                   <h3 className="font-medium text-gray-800 dark:text-white text-sm mb-1">{faq.question}</h3>
                   <p className="text-gray-600 dark:text-gray-400 text-xs">{faq.answer}</p>
                 </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Partners Section - Only show if there's data */}
+      {partners.length > 0 && (
+        <section className="py-12 bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
+          <div className="container-main">
+            <h3 className="text-center text-gray-600 dark:text-gray-400 text-sm mb-6">Trusted by</h3>
+            <div className="flex flex-wrap justify-center items-center gap-6">
+              {partners.slice(0, 6).map((partner) => (
+                <span key={partner.id} className="text-gray-500 dark:text-gray-400 font-medium">
+                  {partner.name}
+                </span>
               ))}
             </div>
           </div>

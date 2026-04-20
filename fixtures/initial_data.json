@@ -3,71 +3,32 @@
     "model": "home.sitesetting",
     "pk": 1,
     "fields": {
-      "created_at": "2025-01-01 00:00:00+00:00",
-      "updated_at": "2025-01-01 00:00:00+00:00",
+      "created_at": "2026-01-01T00:00:00Z",
+      "updated_at": "2026-01-01T00:00:00Z",
       "is_active": true,
       "site_name": "Fee-Vert Solution Limited",
       "site_tagline": "Your Trusted Consultancy Partner",
       "contact_email": "info@feevert.co.tz",
-      "contact_phone": "+255 123 456 789",
+      "contact_phone": "+255768560308",
       "contact_address": "Dar es Salaam, Tanzania",
-      "meta_description": "Expert consultancy in Agriculture, Environment and OHS",
+      "meta_description": "Expert consultancy in Agriculture (Beekeeping), Environment, and Occupational Health & Safety",
       "primary_color": "#2d6a4f",
       "secondary_color": "#1a1a1a",
       "accent_color": "#d8f3dc",
-      "footer_copyright_text": "© 2025 Fee-Vert Solution Limited. All rights reserved."
-    }
-  },
-  {
-    "model": "consultations.consultationcategory",
-    "pk": 1,
-    "fields": {
-      "created_at": "2025-01-01 00:00:00+00:00",
-      "updated_at": "2025-01-01 00:00:00+00:00",
-      "is_active": true,
-      "name": "Agriculture Consultancy",
-      "slug": "agriculture",
-      "description": "Expert advice on crop management, livestock, and agribusiness",
-      "order": 1
-    }
-  },
-  {
-    "model": "consultations.consultationcategory",
-    "pk": 2,
-    "fields": {
-      "created_at": "2025-01-01 00:00:00+00:00",
-      "updated_at": "2025-01-01 00:00:00+00:00",
-      "is_active": true,
-      "name": "Environment & OHS",
-      "slug": "environment",
-      "description": "Sustainable environmental management and workplace safety",
-      "order": 2
-    }
-  },
-  {
-    "model": "consultations.consultationcategory",
-    "pk": 3,
-    "fields": {
-      "created_at": "2025-01-01 00:00:00+00:00",
-      "updated_at": "2025-01-01 00:00:00+00:00",
-      "is_active": true,
-      "name": "Business Advisory",
-      "slug": "business",
-      "description": "Strategic business planning and development consulting",
-      "order": 3
+      "footer_copyright_text": "© 2026 Fee-Vert Solution Limited. All rights reserved."
     }
   },
   {
     "model": "home.herosection",
     "pk": 1,
     "fields": {
-      "created_at": "2025-01-01 00:00:00+00:00",
-      "updated_at": "2025-01-01 00:00:00+00:00",
+      "created_at": "2026-01-01T00:00:00Z",
+      "updated_at": "2026-01-01T00:00:00Z",
       "is_active": true,
       "title": "Expert Consultancy Services",
-      "subtitle": "We provide high-quality services at reasonable prices",
+      "subtitle": "Professional services in Commercial Beekeeping, Environmental Management, and Occupational Health & Safety",
       "cta_text": "Get Started",
-      "cta_link": "#contact",
+      "cta_link": "/contact",
       "order": 1
     }
   },
@@ -75,13 +36,307 @@
     "model": "home.aboutsection",
     "pk": 1,
     "fields": {
-      "created_at": "2025-01-01 00:00:00+00:00",
-      "updated_at": "2025-01-01 00:00:00+00:00",
+      "created_at": "2026-01-01T00:00:00Z",
+      "updated_at": "2026-01-01T00:00:00Z",
       "is_active": true,
       "title": "About Fee-Vert",
-      "description": "Fee-Vert is registered to provide consultancy and mentorship services on Agriculture & Livestock, Environment and Occupational Health & Safety (OHS).",
-      "mission": "To provide high-quality services at reasonable prices",
-      "vision": "To be the leading consultancy firm in East Africa"
+      "description": "Fee-Vert is registered to provide consultancy and mentorship services on Agriculture & Livestock (including Commercial Beekeeping), Environment, and Occupational Health & Safety (OHS). We serve smallholder farmers, cooperatives, NGOs, government institutions, private agribusiness companies, and conservation organizations.",
+      "mission": "To provide high-quality, practical, and compliant consultancy services at reasonable prices",
+      "vision": "To be the leading consultancy firm in East Africa for sustainable agriculture, environmental stewardship, and workplace safety"
+    }
+  },
+  {
+    "model": "consultations.consultationcategory",
+    "pk": 1,
+    "fields": {
+      "created_at": "2026-01-01T00:00:00Z",
+      "updated_at": "2026-01-01T00:00:00Z",
+      "is_active": true,
+      "name": "Commercial Beekeeping",
+      "slug": "beekeeping",
+      "description": "Apiary establishment, honey processing, training, pollination services, and beekeeping consultancy",
+      "order": 1
+    }
+  },
+  {
+    "model": "consultations.consultationcategory",
+    "pk": 2,
+    "fields": {
+      "created_at": "2026-01-01T00:00:00Z",
+      "updated_at": "2026-01-01T00:00:00Z",
+      "is_active": true,
+      "name": "Environmental Services",
+      "slug": "environment",
+      "description": "EIA/ESIA, environmental audits, pollution control, climate change, natural resources management, and GIS services",
+      "order": 2
+    }
+  },
+  {
+    "model": "consultations.consultationcategory",
+    "pk": 3,
+    "fields": {
+      "created_at": "2026-01-01T00:00:00Z",
+      "updated_at": "2026-01-01T00:00:00Z",
+      "is_active": true,
+      "name": "Occupational Health & Safety",
+      "slug": "ohs",
+      "description": "OHS compliance, risk assessment, workplace audits, training, incident investigation, and safety management systems",
+      "order": 3
+    }
+  },
+  {
+    "model": "consultations.consultationservice",
+    "pk": 1,
+    "fields": {
+      "created_at": "2026-01-01T00:00:00Z",
+      "updated_at": "2026-01-01T00:00:00Z",
+      "is_active": true,
+      "category": 1,
+      "name": "Apiary Establishment & Management",
+      "slug": "apiary-establishment",
+      "description": "Site selection, design and installation of modern beehives (Langstroth, Top-bar), apiary layout planning, colony stocking, routine hive inspection, pest and disease control, and seasonal management.",
+      "price": "0.00",
+      "duration_minutes": 0,
+      "is_featured": true,
+      "order": 1
+    }
+  },
+  {
+    "model": "consultations.consultationservice",
+    "pk": 2,
+    "fields": {
+      "created_at": "2026-01-01T00:00:00Z",
+      "updated_at": "2026-01-01T00:00:00Z",
+      "is_active": true,
+      "category": 1,
+      "name": "Supply of Beekeeping Equipment & Inputs",
+      "slug": "beekeeping-equipment",
+      "description": "Supply of beehives, protective gear (bee suits, gloves, smokers), hive tools, bee colonies (nucleus colonies and queen bees), and honey harvesting equipment.",
+      "price": "0.00",
+      "duration_minutes": 0,
+      "is_featured": true,
+      "order": 2
+    }
+  },
+  {
+    "model": "consultations.consultationservice",
+    "pk": 3,
+    "fields": {
+      "created_at": "2026-01-01T00:00:00Z",
+      "updated_at": "2026-01-01T00:00:00Z",
+      "is_active": true,
+      "category": 1,
+      "name": "Honey & Bee Products Processing",
+      "slug": "honey-processing",
+      "description": "Honey harvesting and extraction, processing, filtration, packaging, and production of value-added products (beeswax, propolis, royal jelly, bee venom). Quality control and certification support.",
+      "price": "0.00",
+      "duration_minutes": 0,
+      "is_featured": true,
+      "order": 3
+    }
+  },
+  {
+    "model": "consultations.consultationservice",
+    "pk": 4,
+    "fields": {
+      "created_at": "2026-01-01T00:00:00Z",
+      "updated_at": "2026-01-01T00:00:00Z",
+      "is_active": true,
+      "category": 1,
+      "name": "Beekeeping Training & Capacity Building",
+      "slug": "beekeeping-training",
+      "description": "Practical training for beginner and advanced beekeepers, farmer field schools, demonstration apiaries, modern beekeeping techniques, hive management, post-harvest handling, and value addition.",
+      "price": "0.00",
+      "duration_minutes": 0,
+      "is_featured": false,
+      "order": 4
+    }
+  },
+  {
+    "model": "consultations.consultationservice",
+    "pk": 5,
+    "fields": {
+      "created_at": "2026-01-01T00:00:00Z",
+      "updated_at": "2026-01-01T00:00:00Z",
+      "is_active": true,
+      "category": 1,
+      "name": "Pollination Services",
+      "slug": "pollination-services",
+      "description": "Provision of managed bee colonies for crop pollination, pollination contracts with farmers and agribusinesses, monitoring and evaluation of pollination efficiency, and advisory services.",
+      "price": "0.00",
+      "duration_minutes": 0,
+      "is_featured": false,
+      "order": 5
+    }
+  },
+  {
+    "model": "consultations.consultationservice",
+    "pk": 6,
+    "fields": {
+      "created_at": "2026-01-01T00:00:00Z",
+      "updated_at": "2026-01-01T00:00:00Z",
+      "is_active": true,
+      "category": 2,
+      "name": "Environmental Impact Assessment (EIA/ESIA)",
+      "slug": "environmental-impact-assessment",
+      "description": "Screening and scoping of projects, full Environmental and Social Impact Assessments (ESIA), preparation of Environmental Impact Statements (EIS), stakeholder consultations, and Environmental and Social Management Plans (ESMPs).",
+      "price": "0.00",
+      "duration_minutes": 0,
+      "is_featured": true,
+      "order": 1
+    }
+  },
+  {
+    "model": "consultations.consultationservice",
+    "pk": 7,
+    "fields": {
+      "created_at": "2026-01-01T00:00:00Z",
+      "updated_at": "2026-01-01T00:00:00Z",
+      "is_active": true,
+      "category": 2,
+      "name": "Environmental Audits & Compliance Monitoring",
+      "slug": "environmental-audits",
+      "description": "Environmental compliance audits, performance monitoring and reporting, legal compliance registers, post-EIA audit and follow-up studies, due diligence audits for investors and financiers.",
+      "price": "0.00",
+      "duration_minutes": 0,
+      "is_featured": true,
+      "order": 2
+    }
+  },
+  {
+    "model": "consultations.consultationservice",
+    "pk": 8,
+    "fields": {
+      "created_at": "2026-01-01T00:00:00Z",
+      "updated_at": "2026-01-01T00:00:00Z",
+      "is_active": true,
+      "category": 2,
+      "name": "Pollution Control & Waste Management",
+      "slug": "pollution-control",
+      "description": "Solid waste management planning, hazardous waste management, waste minimization and circular economy solutions, air pollution control strategies, wastewater treatment and effluent management.",
+      "price": "0.00",
+      "duration_minutes": 0,
+      "is_featured": true,
+      "order": 3
+    }
+  },
+  {
+    "model": "consultations.consultationservice",
+    "pk": 9,
+    "fields": {
+      "created_at": "2026-01-01T00:00:00Z",
+      "updated_at": "2026-01-01T00:00:00Z",
+      "is_active": true,
+      "category": 2,
+      "name": "Climate Change & Sustainability Services",
+      "slug": "climate-change-sustainability",
+      "description": "Climate risk and vulnerability assessments, greenhouse gas (GHG) inventories and carbon footprinting, carbon credit and offset project development, climate adaptation and mitigation strategies, ESG advisory and reporting.",
+      "price": "0.00",
+      "duration_minutes": 0,
+      "is_featured": false,
+      "order": 4
+    }
+  },
+  {
+    "model": "consultations.consultationservice",
+    "pk": 10,
+    "fields": {
+      "created_at": "2026-01-01T00:00:00Z",
+      "updated_at": "2026-01-01T00:00:00Z",
+      "is_active": true,
+      "category": 2,
+      "name": "Environmental Data Management & GIS Services",
+      "slug": "gis-services",
+      "description": "Geographic Information Systems (GIS) mapping, remote sensing and environmental data analysis, environmental database development, monitoring dashboards and reporting systems.",
+      "price": "0.00",
+      "duration_minutes": 0,
+      "is_featured": false,
+      "order": 5
+    }
+  },
+  {
+    "model": "consultations.consultationservice",
+    "pk": 11,
+    "fields": {
+      "created_at": "2026-01-01T00:00:00Z",
+      "updated_at": "2026-01-01T00:00:00Z",
+      "is_active": true,
+      "category": 3,
+      "name": "OHS Compliance & Legal Advisory",
+      "slug": "ohs-compliance",
+      "description": "Interpretation and implementation of national OHS laws and regulations (OSHA), workplace registration and compliance support, development of compliance checklists and legal registers, representation during inspections and audits.",
+      "price": "0.00",
+      "duration_minutes": 0,
+      "is_featured": true,
+      "order": 1
+    }
+  },
+  {
+    "model": "consultations.consultationservice",
+    "pk": 12,
+    "fields": {
+      "created_at": "2026-01-01T00:00:00Z",
+      "updated_at": "2026-01-01T00:00:00Z",
+      "is_active": true,
+      "category": 3,
+      "name": "Workplace Risk Assessment & Hazard Identification",
+      "slug": "risk-assessment",
+      "description": "Comprehensive workplace risk assessments (HIRA), Job Safety Analysis (JSA), hazard identification (physical, chemical, biological, ergonomic, psychosocial), risk control planning using hierarchy of controls.",
+      "price": "0.00",
+      "duration_minutes": 0,
+      "is_featured": true,
+      "order": 2
+    }
+  },
+  {
+    "model": "consultations.consultationservice",
+    "pk": 13,
+    "fields": {
+      "created_at": "2026-01-01T00:00:00Z",
+      "updated_at": "2026-01-01T00:00:00Z",
+      "is_active": true,
+      "category": 3,
+      "name": "Occupational Health & Safety Audits",
+      "slug": "ohs-audits",
+      "description": "Internal and external OHS audits, compliance audits against national laws and international standards (ISO 45001), gap analysis and corrective action planning, pre-certification and surveillance audits.",
+      "price": "0.00",
+      "duration_minutes": 0,
+      "is_featured": true,
+      "order": 3
+    }
+  },
+  {
+    "model": "consultations.consultationservice",
+    "pk": 14,
+    "fields": {
+      "created_at": "2026-01-01T00:00:00Z",
+      "updated_at": "2026-01-01T00:00:00Z",
+      "is_active": true,
+      "category": 3,
+      "name": "OHS Training & Capacity Building",
+      "slug": "ohs-training",
+      "description": "Occupational safety training programs: general workplace safety, fire safety and emergency response, first aid and CPR, working at heights, confined space entry, electrical safety. Toolbox talks and on-site coaching.",
+      "price": "0.00",
+      "duration_minutes": 0,
+      "is_featured": false,
+      "order": 4
+    }
+  },
+  {
+    "model": "consultations.consultationservice",
+    "pk": 15,
+    "fields": {
+      "created_at": "2026-01-01T00:00:00Z",
+      "updated_at": "2026-01-01T00:00:00Z",
+      "is_active": true,
+      "category": 3,
+      "name": "Incident Investigation & Reporting",
+      "slug": "incident-investigation",
+      "description": "Investigation of workplace accidents and near-misses, root cause analysis (RCA), preparation of incident reports and corrective actions, support in legal and insurance documentation.",
+      "price": "0.00",
+      "duration_minutes": 0,
+      "is_featured": false,
+      "order": 5
     }
   }
 ]
