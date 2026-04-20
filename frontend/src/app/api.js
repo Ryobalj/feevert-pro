@@ -32,20 +32,22 @@ api.interceptors.request.use(
 
 api.interceptors.request.use(
   (config) => {
-    // Usiongeze prefix kama URL tayari ina /api
-    if (!config.url.startsWith('/api')) {
-      // Auth endpoints ziko chini ya /api
-      if (config.url.startsWith('/auth/')) {
-        config.url = `/api${config.url}`;
-      } 
-      // Token endpoints ziko chini ya /api
-      else if (config.url.startsWith('/token/')) {
-        config.url = `/api${config.url}`;
-      }
-      // Endpoints nyingine ziko chini ya /api/v1
-      else {
-        config.url = `/api/v1${config.url}`;
-      }
+    // Token endpoints
+    if (config.url.includes('/token/')) {
+      config.url = `/api${config.url}`;
+      return config;
+    }
+    
+    // Auth endpoints
+    if (config.url.includes('/auth/')) {
+      config.url = `/api${config.url}`;
+      return config;
+    }
+    
+    // Endpoints nyingine - HAZIHITAJI /api/v1 mara mbili
+    // Backend tayari ina /api/v1/, hivyo frontend isiongeze tena
+    if (!config.url.startsWith('/api/v1')) {
+      config.url = `/api/v1${config.url}`;
     }
     
     const token = localStorage.getItem('access_token');
