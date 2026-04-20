@@ -1,6 +1,6 @@
 """
 Django settings for feevert project.
-Render Ready Configuration
+Render Ready Configuration - CORS FIXED
 """
 
 import os
@@ -74,7 +74,7 @@ INSTALLED_APPS = [
 # MIDDLEWARE
 # ===========================
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',  # MUST BE FIRST
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -217,28 +217,27 @@ RECAPTCHA_PRIVATE_KEY = config('RECAPTCHA_PRIVATE_KEY_V2', default='')
 SILENCED_SYSTEM_CHECKS = ['django_recaptcha.recaptcha_test_key_error']
 
 # ===========================
-# CORS SETTINGS
+# CORS SETTINGS - FIXED FOR RENDER FRONTEND
 # ===========================
-if DEBUG:
-    CORS_ALLOW_ALL_ORIGINS = True
-else:
-    CORS_ALLOW_ALL_ORIGINS = False
-
 CORS_ALLOW_CREDENTIALS = True
 
+# Ruhusu specific origins
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:5173',
     'http://127.0.0.1:5173',
     'http://localhost:3000',
+    'https://feevert-frontend.onrender.com',  # <-- FRONTEND YA RENDER
     'https://feevert.co.tz',
     'https://www.feevert.co.tz',
     'https://*.ngrok-free.dev',
     'http://*.ngrok-free.dev',
 ]
 
-FRONTEND_RENDER_URL = os.environ.get('FRONTEND_RENDER_URL')
-if FRONTEND_RENDER_URL:
-    CORS_ALLOWED_ORIGINS.append(FRONTEND_RENDER_URL)
+# Kwa debugging, ruhusu zote kama DEBUG = True
+if DEBUG:
+    CORS_ALLOW_ALL_ORIGINS = True
+else:
+    CORS_ALLOW_ALL_ORIGINS = False
 
 CORS_ALLOW_HEADERS = [
     'accept',
@@ -263,6 +262,7 @@ if DEBUG:
     ]
 else:
     CSRF_TRUSTED_ORIGINS = [
+        'https://feevert-frontend.onrender.com',  # <-- FRONTEND YA RENDER
         'https://feevert.co.tz',
         'https://www.feevert.co.tz',
         'https://*.onrender.com',
@@ -480,7 +480,6 @@ PAWAPAY_WEBHOOK_SECRET = config('PAWAPAY_WEBHOOK_SECRET', default='')
 # ===========================
 # AUTO-CREATE SUPERUSER (RUNS AFTER APPS ARE READY)
 # ===========================
-# Hii inahakikisha inafanya kazi baada ya Django kuanza kikamilifu
 def create_superuser_on_startup():
     """
     Inaunda superuser kiotomatiki kama ADMIN_PASSWORD ipo.
@@ -505,12 +504,6 @@ def create_superuser_on_startup():
             print("ℹ️ Superuser 'admin' already exists.")
     except Exception as e:
         print(f"⚠️ Could not create superuser: {e}")
-
-# Import signal au tumia AppConfig
-# Njia rahisi: Weka kwenye ready() ya app yoyote au itumie hapa kwa delay
-# Tutaweka kwenye AppConfig ya accounts baadaye, kwa sasa tuta-comment
-# Kwa kuwa hatuwezi kuitumia hapa moja kwa moja bila apps kupakia,
-# tutatumia njia ya management command au kuweka kwenye AppConfig
 
 # ===========================
 # TEST MODE
