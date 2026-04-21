@@ -6,21 +6,25 @@ const BASE_URL = isProduction
   ? 'https://feevert-api.onrender.com'  // Production backend
   : 'http://127.0.0.1:8000';            // Local development
 
-// Base URL without /api/v1 - we'll add it in the request
 const api = axios.create({
   baseURL: BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
+  headers: { 'Content-Type': 'application/json' },
   timeout: 30000,
 });
 
+// ⚠️ INTERCEPTOR MOJA TU
 api.interceptors.request.use(
   (config) => {
-    // Add /api/v1 prefix to all requests except token endpoints
-    if (!config.url.includes('/token/') && !config.url.includes('/auth/')) {
+    if (config.url.includes('/token/')) {
+      config.url = `/api${config.url}`;
+    } else if (config.url.includes('/auth/')) {
+      config.url = `/api${config.url}`;
+    } else if (config.url.includes('/payments/')) {
+      config.url = `/api${config.url}`;
+    } else if (!config.url.startsWith('/api/') && !config.url.startsWith('/webhooks/')) {
       config.url = `/api/v1${config.url}`;
     }
+    
     const token = localStorage.getItem('access_token');
     if (token && !config.url.includes('/token/')) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -30,33 +34,27 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-api.interceptors.request.use(
-  (config) => {
-    // Token endpoints
-    if (config.url.includes('/token/')) {
-      config.url = `/api${config.url}`;
-      return config;
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+      try {
+        const refreshToken = localStorage.getItem('refresh_token');
+        const response = await axios.post(`${BASE_URL}/api/token/refresh/`, { refresh: refreshToken });
+        localStorage.setItem('access_token', response.data.access);
+        originalRequest.headers.Authorization = `Bearer ${response.data.access}`;
+        return api(originalRequest);
+      } catch (refreshError) {
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        window.location.href = '/login';
+        return Promise.reject(refreshError);
+      }
     }
-    
-    // Auth endpoints
-    if (config.url.includes('/auth/')) {
-      config.url = `/api${config.url}`;
-      return config;
-    }
-    
-    // Endpoints nyingine - HAZIHITAJI /api/v1 mara mbili
-    // Backend tayari ina /api/v1/, hivyo frontend isiongeze tena
-    if (!config.url.startsWith('/api/v1')) {
-      config.url = `/api/v1${config.url}`;
-    }
-    
-    const token = localStorage.getItem('access_token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
+    return Promise.reject(error);
+  }
 );
 
 export default api;
