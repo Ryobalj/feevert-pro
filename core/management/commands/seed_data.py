@@ -142,7 +142,7 @@ class Command(BaseCommand):
                         for key, value in processed_fields.items():
                             if hasattr(obj, key) and not key.startswith('_'):
                                 current_value = getattr(obj, key)
-                                if current_value != value:
+                                if current_value != value and value is not None:
                                     setattr(obj, key, value)
                                     has_changes = True
                         
@@ -159,15 +159,46 @@ class Command(BaseCommand):
         return created, updated, skipped
     
     def _process_fields(self, fields, model):
-        """Process fields - remove those that don't exist on model"""
+        """Process fields - handle ForeignKeys and remove those that don't exist on model"""
         processed = {}
         model_fields = [f.name for f in model._meta.get_fields()]
         
+        # ForeignKey mapping
+        fk_mapping = {
+            'category': ('consultations', 'ConsultationCategory'),
+            'user': ('accounts', 'User'),
+            'client': ('accounts', 'User'),
+            'consultant': ('accounts', 'User'),
+            'service': ('consultations', 'ConsultationService'),
+            'project': ('projects', 'Project'),
+            'department': ('team', 'Department'),
+            'role': ('accounts', 'Role'),
+        }
+        
         for key, value in fields.items():
             # Skip fields that don't exist on model
-            if key not in model_fields:
+            if key not in model_fields and key not in fk_mapping.keys():
                 continue
-            processed[key] = value
+            
+            # Handle ForeignKey fields
+            if key in fk_mapping and value is not None:
+                app_label, model_name = fk_mapping[key]
+                try:
+                    related_model = apps.get_model(app_label, model_name)
+                    # Try to get by pk first
+                    related_obj = related_model.objects.filter(pk=value).first()
+                    if not related_obj:
+                        # Try to get by name or slug
+                        related_obj = related_model.objects.filter(name=value).first() or \
+                                      related_model.objects.filter(slug=value).first()
+                    if related_obj:
+                        processed[key] = related_obj
+                    else:
+                        self.stdout.write(self.style.WARNING(f'     ⚠️ Related {model_name} with pk/name/slug "{value}" not found'))
+                except Exception as e:
+                    self.stdout.write(self.style.WARNING(f'     ⚠️ Error finding {model_name}: {e}'))
+            else:
+                processed[key] = value
         
         return processed
     
