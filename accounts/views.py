@@ -7,12 +7,12 @@ from rest_framework.response import Response
 
 from django.contrib.auth import authenticate
 from django.utils import timezone
+from django.conf import settings  # <-- ONGEZA HII
 
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from .services.auth_service import AuthService
 from .services.email_service import EmailService
-from core.utils.urls import build_url
 
 from .models import (
     User,
@@ -90,12 +90,11 @@ def register(request):
     # create email verification token
     token_obj = AuthService.create_email_verification(user)
 
-    # build correct URL (dev + production safe)
-    verify_url = build_url(
-        path=f"/api/auth/verify-email/?token={token_obj.token}",
-        request=request,
-        production_domain="https://feevert.co.tz"
-    )
+    # Build verification URL - FIXED (no build_url)
+    if settings.IS_PRODUCTION:
+        verify_url = f"https://feevert-api.onrender.com/api/auth/verify-email/?token={token_obj.token}"
+    else:
+        verify_url = f"http://127.0.0.1:8000/api/auth/verify-email/?token={token_obj.token}"
 
     # send email
     if user.email:
@@ -235,7 +234,7 @@ class RoleViewSet(viewsets.ModelViewSet):
         if self.action in ['list', 'retrieve']:
             permission_classes = [IsAuthenticated]
         else:
-            permission_classes = [IsAuthenticated]  # Admin only in production
+            permission_classes = [IsAuthenticated]
         return [permission() for permission in permission_classes]
 
 
@@ -312,11 +311,11 @@ def resend_verification_email(request):
 
         token_obj = AuthService.create_email_verification(user)
 
-        verify_url = build_url(
-            path=f"/api/auth/verify-email/?token={token_obj.token}",
-            request=request,
-            production_domain="https://feevert.co.tz"
-        )
+        # Build verification URL - FIXED (no build_url)
+        if settings.IS_PRODUCTION:
+            verify_url = f"https://feevert-api.onrender.com/api/auth/verify-email/?token={token_obj.token}"
+        else:
+            verify_url = f"http://127.0.0.1:8000/api/auth/verify-email/?token={token_obj.token}"
 
         EmailService.send_verification_email(user, token_obj.token, verify_url=verify_url)
 
