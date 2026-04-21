@@ -50,7 +50,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        if user.role == 'admin':
+        if user.role and user.role.name == 'admin':
             return User.objects.all()
         return User.objects.filter(id=user.id)
 
@@ -83,7 +83,8 @@ def register(request):
         user=user,
         action='REGISTER',
         description=f"User {user.username} registered",
-        ip_address=request.META.get('REMOTE_ADDR')
+        ip_address=request.META.get('REMOTE_ADDR'),
+        user_agent=request.META.get('HTTP_USER_AGENT', '')
     )
 
     # create email verification token
@@ -141,7 +142,8 @@ def login_view(request):
         user=user,
         action='LOGIN',
         description=f"User {user.username} logged in",
-        ip_address=request.META.get('REMOTE_ADDR')
+        ip_address=request.META.get('REMOTE_ADDR'),
+        user_agent=request.META.get('HTTP_USER_AGENT', '')
     )
 
     return Response({
@@ -167,7 +169,8 @@ def logout_view(request):
             user=request.user,
             action='LOGOUT',
             description=f"User {request.user.username} logged out",
-            ip_address=request.META.get('REMOTE_ADDR')
+            ip_address=request.META.get('REMOTE_ADDR'),
+            user_agent=request.META.get('HTTP_USER_AGENT', '')
         )
 
         return Response({"success": True})
@@ -199,7 +202,8 @@ def change_password(request):
         user=user,
         action='CHANGE_PASSWORD',
         description="Password changed",
-        ip_address=request.META.get('REMOTE_ADDR')
+        ip_address=request.META.get('REMOTE_ADDR'),
+        user_agent=request.META.get('HTTP_USER_AGENT', '')
     )
 
     return Response({"success": True})
@@ -226,7 +230,13 @@ class ProfileViewSet(viewsets.ModelViewSet):
 class RoleViewSet(viewsets.ModelViewSet):
     queryset = Role.objects.all()
     serializer_class = RoleSerializer
-    permission_classes = [IsAuthenticated]
+    
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']:
+            permission_classes = [IsAuthenticated]
+        else:
+            permission_classes = [IsAuthenticated]  # Admin only in production
+        return [permission() for permission in permission_classes]
 
 
 # =========================
@@ -238,7 +248,8 @@ class UserActivityLogViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        if self.request.user.role == 'admin':
+        user = self.request.user
+        if user.role and user.role.name == 'admin':
             return UserActivityLog.objects.all()
         return UserActivityLog.objects.filter(user=self.request.user)
 
@@ -271,7 +282,8 @@ def verify_email(request):
             user=user,
             action='EMAIL_VERIFIED',
             description="Email verified successfully",
-            ip_address=request.META.get('REMOTE_ADDR')
+            ip_address=request.META.get('REMOTE_ADDR'),
+            user_agent=request.META.get('HTTP_USER_AGENT', '')
         )
 
         return Response({
@@ -281,6 +293,7 @@ def verify_email(request):
 
     except EmailVerificationToken.DoesNotExist:
         return Response({"error": "Invalid token"}, status=400)
+
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -295,21 +308,16 @@ def resend_verification_email(request):
         user = User.objects.get(email=email)
 
         if user.email_verified:
-            return Response({
-                "message": "Email already verified"
-            })
+            return Response({"message": "Email already verified"})
 
-        # create new token
         token_obj = AuthService.create_email_verification(user)
 
-        # build production-safe URL
         verify_url = build_url(
             path=f"/api/auth/verify-email/?token={token_obj.token}",
             request=request,
             production_domain="https://feevert.co.tz"
         )
 
-        # send email
         EmailService.send_verification_email(user, token_obj.token, verify_url=verify_url)
 
         return Response({
@@ -319,4 +327,3 @@ def resend_verification_email(request):
 
     except User.DoesNotExist:
         return Response({"error": "User not found"}, status=404)
-

@@ -1,4 +1,4 @@
-# accoints/models.py
+# accounts/models.py
 
 from django.db import models
 from django.contrib.auth.models import AbstractUser
@@ -8,17 +8,39 @@ from django.utils import timezone
 import uuid
 
 
-class User(AbstractUser, BaseModel):
-    ROLE_CHOICES = (
-        ('client', 'Client'),
-        ('consultant', 'Consultant'),
-        ('admin', 'Admin'),
-        ('hr', 'HR'),
-        ('marketing', 'Marketing'),
-    )
+class Role(BaseModel):
+    """Dynamic Roles - Admin anaweza kuunda, kuhariri, kufuta"""
+    name = models.CharField(max_length=50, unique=True)
+    description = models.TextField(blank=True)
+    permissions = models.JSONField(default=dict, blank=True)
+    is_system_role = models.BooleanField(default=False, help_text="System roles cannot be deleted")
+    priority_level = models.IntegerField(default=0)
 
+    class Meta:
+        ordering = ['priority_level', 'name']
+        verbose_name = "Role"
+        verbose_name_plural = "Roles"
+
+    def __str__(self):
+        return self.name
+    
+    def delete(self, *args, **kwargs):
+        if self.is_system_role:
+            raise ValueError(f"Role '{self.name}' is a system role and cannot be deleted.")
+        super().delete(*args, **kwargs)
+
+
+class User(AbstractUser, BaseModel):
+    # Dynamic Role ForeignKey
+    role = models.ForeignKey(
+        Role,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='users'
+    )
+    
     phone = PhoneNumberField(blank=True, null=True)
-    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='client')
     profile_picture = models.ImageField(upload_to='profiles/', blank=True, null=True)
     bio = models.TextField(blank=True)
     is_verified = models.BooleanField(default=False)
@@ -47,6 +69,10 @@ class User(AbstractUser, BaseModel):
 
     def __str__(self):
         return self.username or self.email or str(self.phone)
+    
+    @property
+    def role_name(self):
+        return self.role.name if self.role else "No Role"
 
 
 class Profile(BaseModel):
@@ -67,25 +93,11 @@ class Profile(BaseModel):
         return f"Profile of {self.user.username}"
 
 
-class Role(BaseModel):
-    name = models.CharField(max_length=50, unique=True)
-    description = models.TextField(blank=True)
-    permissions = models.JSONField(default=dict, blank=True)
-    is_system_role = models.BooleanField(default=False)
-    priority_level = models.IntegerField(default=0)
-
-    class Meta:
-        ordering = ['priority_level', 'name']
-
-    def __str__(self):
-        return self.name
-
-
 class UserActivityLog(BaseModel):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='activity_logs')
     action = models.CharField(max_length=100)
     ip_address = models.GenericIPAddressField(blank=True, null=True)
-    user_agent = models.TextField(blank=True)
+    user_agent = models.TextField(blank=True, null=True)
     details = models.JSONField(default=dict, blank=True)
 
     class Meta:
@@ -98,7 +110,6 @@ class UserActivityLog(BaseModel):
     def __str__(self):
         return f"{self.user.username} - {self.action} at {self.created_at}"
 
-    # ✅ FIXED METHOD (your bug fix)
     @classmethod
     def log_action(cls, user, action, description="", ip_address=None, user_agent=None):
         return cls.objects.create(
@@ -106,7 +117,7 @@ class UserActivityLog(BaseModel):
             action=action,
             details={"description": description},
             ip_address=ip_address,
-            user_agent=user_agent
+            user_agent=user_agent or ""
         )
 
 
@@ -122,20 +133,6 @@ class PasswordResetToken(BaseModel):
 
     def __str__(self):
         return f"Reset token for {self.user.username}"
-
-
-class EmailVerificationToken(BaseModel):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='email_verification_tokens')
-    token = models.CharField(max_length=255, unique=True)
-    expires_at = models.DateTimeField()
-    verified_at = models.DateTimeField(blank=True, null=True)
-
-    def is_valid(self):
-        from django.utils import timezone
-        return not self.verified_at and self.expires_at > timezone.now()
-
-    def __str__(self):
-        return f"Email verification for {self.user.username}"
 
 
 class EmailVerificationToken(BaseModel):

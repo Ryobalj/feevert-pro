@@ -11,11 +11,12 @@ class UserSerializer(serializers.ModelSerializer):
     """Serializer for User model"""
     full_name = serializers.SerializerMethodField()
     profile_picture_url = serializers.SerializerMethodField()
+    role_name = serializers.CharField(source='role.name', read_only=True)
     
     class Meta:
         model = User
         fields = [
-            'id', 'username', 'email', 'phone', 'role', 
+            'id', 'username', 'email', 'phone', 'role', 'role_name',
             'full_name', 'profile_picture', 'profile_picture_url',
             'bio', 'is_verified', 'preferred_language',
             'date_joined', 'last_login', 'is_active'
@@ -35,10 +36,11 @@ class UserCreateSerializer(serializers.ModelSerializer):
     """Serializer for creating new users"""
     password = serializers.CharField(write_only=True, min_length=8)
     password_confirm = serializers.CharField(write_only=True, min_length=8)
+    role_id = serializers.IntegerField(required=False, allow_null=True, write_only=True)
     
     class Meta:
         model = User
-        fields = ['username', 'email', 'phone', 'password', 'password_confirm', 'role']
+        fields = ['username', 'email', 'phone', 'password', 'password_confirm', 'role_id']
     
     def validate(self, data):
         if data['password'] != data['password_confirm']:
@@ -47,8 +49,20 @@ class UserCreateSerializer(serializers.ModelSerializer):
     
     def create(self, validated_data):
         validated_data.pop('password_confirm')
+        role_id = validated_data.pop('role_id', None)
         password = validated_data.pop('password')
+        
         user = User(**validated_data)
+        
+        # Set role: use provided role_id OR default to 'client'
+        if role_id:
+            try:
+                user.role = Role.objects.get(id=role_id)
+            except Role.DoesNotExist:
+                user.role = Role.objects.get(name='client')
+        else:
+            user.role = Role.objects.get(name='client')
+        
         user.set_password(password)
         user.save()
         return user
@@ -71,10 +85,12 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 class RoleSerializer(serializers.ModelSerializer):
     """Serializer for Role model"""
+    users_count = serializers.IntegerField(source='users.count', read_only=True)
+    
     class Meta:
         model = Role
-        fields = ['id', 'name', 'description', 'permissions', 'is_system_role', 'priority_level']
-        read_only_fields = ['id']
+        fields = ['id', 'name', 'description', 'permissions', 'is_system_role', 'priority_level', 'users_count']
+        read_only_fields = ['id', 'users_count']
 
 
 class UserActivityLogSerializer(serializers.ModelSerializer):
