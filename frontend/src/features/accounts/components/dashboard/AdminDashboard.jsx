@@ -23,10 +23,15 @@ const AdminDashboard = ({ user, darkMode }) => {
           api.get('/payments/transactions/').catch(() => ({ data: { results: [] } }))
         ])
         
-        setUsers(usersRes.data?.results || usersRes.data || [])
-        setConsultations(consultationsRes.data?.results || consultationsRes.data || [])
-        setBookings(bookingsRes.data?.results || bookingsRes.data || [])
-        setPayments(paymentsRes.data?.results || paymentsRes.data || [])
+        // Ensure we always set arrays
+        setUsers(Array.isArray(usersRes.data?.results) ? usersRes.data.results : 
+                 Array.isArray(usersRes.data) ? usersRes.data : [])
+        setConsultations(Array.isArray(consultationsRes.data?.results) ? consultationsRes.data.results : 
+                        Array.isArray(consultationsRes.data) ? consultationsRes.data : [])
+        setBookings(Array.isArray(bookingsRes.data?.results) ? bookingsRes.data.results : 
+                   Array.isArray(bookingsRes.data) ? bookingsRes.data : [])
+        setPayments(Array.isArray(paymentsRes.data?.results) ? paymentsRes.data.results : 
+                   Array.isArray(paymentsRes.data) ? paymentsRes.data : [])
       } catch (error) {
         console.error('Error loading admin dashboard:', error)
       } finally {
@@ -40,9 +45,16 @@ const AdminDashboard = ({ user, darkMode }) => {
     return <div className="min-h-screen flex items-center justify-center"><div className="spinner"></div></div>
   }
 
-  const pendingConsultations = consultations.filter(c => c.status === 'pending').length
-  const pendingBookings = bookings.filter(b => b.status === 'pending').length
-  const totalRevenue = payments.filter(p => p.status === 'completed').reduce((sum, p) => sum + parseFloat(p.amount || 0), 0)
+  // Safe filter operations
+  const pendingConsultations = Array.isArray(consultations) 
+    ? consultations.filter(c => c?.status === 'pending').length 
+    : 0
+  const pendingBookings = Array.isArray(bookings) 
+    ? bookings.filter(b => b?.status === 'pending').length 
+    : 0
+  const totalRevenue = Array.isArray(payments) 
+    ? payments.filter(p => p?.status === 'completed').reduce((sum, p) => sum + parseFloat(p.amount || 0), 0)
+    : 0
 
   return (
     <motion.div 
@@ -110,7 +122,7 @@ const QuickActionLink = ({ to, color, darkMode, children }) => {
     purple: darkMode ? 'bg-purple-700 hover:bg-purple-600' : 'bg-purple-600 hover:bg-purple-700'
   }
   return (
-    <Link to={to} className={`px-5 py-2.5 rounded-lg font-medium text-white ${colors[color] || (darkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-100 text-gray-700 hover:bg-gray-200')}`}>
+    <Link to={to} className={`px-5 py-2.5 rounded-lg font-medium text-white transition-colors ${colors[color] || (darkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-100 text-gray-700 hover:bg-gray-200')}`}>
       {children}
     </Link>
   )
