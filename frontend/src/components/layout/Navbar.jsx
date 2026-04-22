@@ -96,7 +96,11 @@ const Navbar = () => {
   }, [activeModal])
 
   const handleDropdownEnter = (name) => {
-    if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current)
+    // Clear any existing timeout
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current)
+      closeTimeoutRef.current = null
+    }
     
     const button = buttonRefs.current[name]
     if (button) {
@@ -110,7 +114,8 @@ const Navbar = () => {
   }
 
   const handleDropdownLeave = () => {
-    closeTimeoutRef.current = setTimeout(() => setOpenDropdown(null), 150)
+    // Longer delay to allow user to reach dropdown
+    closeTimeoutRef.current = setTimeout(() => setOpenDropdown(null), 300)
   }
 
   const toggleLanguage = () => {
@@ -488,7 +493,7 @@ const DropdownButton = ({ name, label, onEnter, onLeave, buttonRefs, open }) => 
   >
     <button 
       ref={(el) => buttonRefs.current[name] = el}
-      className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--primary)] whitespace-nowrap transition-colors"
+      className="dropdown-button flex items-center gap-1 px-3 py-2 text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--primary)] whitespace-nowrap transition-colors"
     >
       {label}
       <motion.span 
@@ -505,35 +510,58 @@ const DropdownButton = ({ name, label, onEnter, onLeave, buttonRefs, open }) => 
 // ============================================
 // DROPDOWN CONTENT COMPONENT
 // ============================================
-const DropdownContent = ({ items, position, onClose }) => (
-  <motion.div
-    initial={{ opacity: 0, y: -5 }}
-    animate={{ opacity: 1, y: 0 }}
-    exit={{ opacity: 0, y: -5 }}
-    className="fixed glass rounded-xl shadow-xl border border-[var(--border-light)] overflow-hidden"
-    style={{
-      top: position.top,
-      left: position.left,
-      minWidth: 220,
-      zIndex: 9999
-    }}
-    onMouseLeave={onClose}
-  >
-    {items.map((item, index) => {
-      if (item.divider) return <div key={index} className="h-px bg-[var(--border-light)] my-1" />
-      return (
-        <Link 
-          key={item.path} 
-          to={item.path} 
-          className="block px-4 py-2.5 text-sm hover:bg-[var(--border-light)] transition-colors"
-          onClick={onClose}
-        >
-          {item.label}
-        </Link>
-      )
-    })}
-  </motion.div>
-)
+const DropdownContent = ({ items, position, onClose }) => {
+  const dropdownRef = useRef(null)
+  const closeTimeoutRef = useRef(null)
+  
+  // Only close dropdown if mouse leaves both dropdown and button
+  const handleMouseLeave = (e) => {
+    // Check if mouse is going to the button
+    const relatedTarget = e.relatedTarget
+    if (relatedTarget && relatedTarget.closest('.dropdown-button')) {
+      return // Don't close if mouse is moving to button
+    }
+    onClose()
+  }
+  
+  return (
+    <motion.div
+      ref={dropdownRef}
+      initial={{ opacity: 0, y: -5 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -5 }}
+      className="fixed glass rounded-xl shadow-xl border border-[var(--border-light)] overflow-hidden"
+      style={{
+        top: position.top,
+        left: position.left,
+        minWidth: 220,
+        zIndex: 9999
+      }}
+      onMouseLeave={handleMouseLeave}
+      onMouseEnter={() => {
+        // Cancel any pending close timeout when mouse enters dropdown
+        if (closeTimeoutRef.current) {
+          clearTimeout(closeTimeoutRef.current)
+          closeTimeoutRef.current = null
+        }
+      }}
+    >
+      {items.map((item, index) => {
+        if (item.divider) return <div key={index} className="h-px bg-[var(--border-light)] my-1" />
+        return (
+          <Link 
+            key={item.path} 
+            to={item.path} 
+            className="block px-4 py-2.5 text-sm hover:bg-[var(--border-light)] transition-colors"
+            onClick={onClose}
+          >
+            {item.label}
+          </Link>
+        )
+      })}
+    </motion.div>
+  )
+}
 
 // ============================================
 // MOBILE DROPDOWN COMPONENT
