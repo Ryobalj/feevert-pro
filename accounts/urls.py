@@ -13,4 +13,6 @@ urlpatterns = [
     # Email Verification
     path('verify-email/', views.verify_email, name='verify-email'),
     path('resend-verification/', views.resend_verification_email, name='resend-verification'),
+    path('users/me/', views.current_user, name='current-user'),
+
 ]

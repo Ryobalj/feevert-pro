@@ -66,9 +66,6 @@ import PaymentPage from './features/payments/pages/PaymentPage'
 // Notifications
 import NotificationList from './features/notifications/pages/NotificationList'
 
-// Chat
-import ChatBox from './features/realtime/components/ChatBox'
-
 function App() {
   const location = useLocation()
   const hideNavbar = location.pathname === '/'
@@ -202,7 +199,8 @@ function App() {
         </AnimatePresence>
       </main>
       {!hideNavbar && <Footer />}
-      <ChatBox recipientId={1} recipientName="FeeVert Support" />
+      
+      {/* Floating components removed - Chat and Support now in User Dropdown Menu */}
     </div>
   )
 }

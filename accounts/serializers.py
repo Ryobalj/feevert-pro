@@ -7,11 +7,29 @@ from .models import Profile, Role, UserActivityLog
 User = get_user_model()
 
 
+class ProfileSerializer(serializers.ModelSerializer):
+    """Serializer for User Profile"""
+    username = serializers.CharField(source='user.username', read_only=True)
+    email = serializers.EmailField(source='user.email', read_only=True)
+    
+    class Meta:
+        model = Profile
+        fields = [
+            'id', 'user', 'username', 'email', 'address', 'city',
+            'country', 'postal_code', 'date_of_birth', 'gender',
+            'newsletter_subscribed', 'created_at', 'updated_at'
+        ]
+        read_only_fields = ['id', 'created_at', 'updated_at']
+
+
 class UserSerializer(serializers.ModelSerializer):
-    """Serializer for User model"""
+    """Serializer for User model with nested profile"""
     full_name = serializers.SerializerMethodField()
     profile_picture_url = serializers.SerializerMethodField()
     role_name = serializers.CharField(source='role.name', read_only=True)
+    
+    # Nested profile - inaonyesha profile data moja kwa moja
+    profile = ProfileSerializer(read_only=True)
     
     class Meta:
         model = User
@@ -19,7 +37,8 @@ class UserSerializer(serializers.ModelSerializer):
             'id', 'username', 'email', 'phone', 'role', 'role_name',
             'full_name', 'profile_picture', 'profile_picture_url',
             'bio', 'is_verified', 'preferred_language',
-            'date_joined', 'last_login', 'is_active'
+            'date_joined', 'last_login', 'is_active',
+            'profile'  # <-- NESTED PROFILE
         ]
         read_only_fields = ['id', 'date_joined', 'last_login']
     
@@ -44,7 +63,17 @@ class UserCreateSerializer(serializers.ModelSerializer):
     
     def validate(self, data):
         if data['password'] != data['password_confirm']:
-            raise serializers.ValidationError({"password": "Passwords do not match"})
+            raise serializers.ValidationError({"password_confirm": "Passwords do not match."})
+        
+        # Password strength validation
+        password = data['password']
+        if len(password) < 8:
+            raise serializers.ValidationError({"password": "Password must be at least 8 characters long."})
+        if not any(c.isalpha() for c in password):
+            raise serializers.ValidationError({"password": "Password must contain at least one letter."})
+        if not any(c.isdigit() for c in password):
+            raise serializers.ValidationError({"password": "Password must contain at least one number."})
+        
         return data
     
     def create(self, validated_data):
@@ -61,26 +90,22 @@ class UserCreateSerializer(serializers.ModelSerializer):
             except Role.DoesNotExist:
                 user.role = Role.objects.get(name='client')
         else:
-            user.role = Role.objects.get(name='client')
+            user.role, _ = Role.objects.get_or_create(
+                name='client',
+                defaults={
+                    'description': 'Default client role - Basic access',
+                    'is_system_role': True,
+                    'priority_level': 10
+                }
+            )
         
         user.set_password(password)
         user.save()
+        
+        # Create profile automatically
+        Profile.objects.get_or_create(user=user)
+        
         return user
-
-
-class ProfileSerializer(serializers.ModelSerializer):
-    """Serializer for User Profile"""
-    username = serializers.CharField(source='user.username', read_only=True)
-    email = serializers.EmailField(source='user.email', read_only=True)
-    
-    class Meta:
-        model = Profile
-        fields = [
-            'id', 'user', 'username', 'email', 'address', 'city',
-            'country', 'postal_code', 'date_of_birth', 'gender',
-            'newsletter_subscribed', 'created_at', 'updated_at'
-        ]
-        read_only_fields = ['id', 'created_at', 'updated_at']
 
 
 class RoleSerializer(serializers.ModelSerializer):
@@ -111,7 +136,15 @@ class ChangePasswordSerializer(serializers.Serializer):
     
     def validate(self, data):
         if data['new_password'] != data['confirm_password']:
-            raise serializers.ValidationError({"confirm_password": "New passwords do not match"})
+            raise serializers.ValidationError({"confirm_password": "New passwords do not match."})
+        
+        # Password strength
+        new_password = data['new_password']
+        if not any(c.isalpha() for c in new_password):
+            raise serializers.ValidationError({"new_password": "Password must contain at least one letter."})
+        if not any(c.isdigit() for c in new_password):
+            raise serializers.ValidationError({"new_password": "Password must contain at least one number."})
+        
         return data
 
 

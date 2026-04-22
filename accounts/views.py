@@ -1,13 +1,13 @@
 # accounts/views.py
 
 from rest_framework import viewsets, status
-from rest_framework.decorators import api_view, permission_classes, throttle_classes
+from rest_framework.decorators import api_view, permission_classes, throttle_classes, action
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 
 from django.contrib.auth import authenticate
 from django.utils import timezone
-from django.conf import settings  # <-- ONGEZA HII
+from django.conf import settings
 
 from rest_framework_simplejwt.tokens import RefreshToken
 
@@ -36,7 +36,7 @@ from .throttles import LoginThrottle, RegisterThrottle
 
 
 # =========================
-# USER VIEWSET
+# USER VIEWSET - ENHANCED
 # =========================
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -44,8 +44,8 @@ class UserViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_permissions(self):
-        if self.action == 'create':
-            self.permission_classes = [AllowAny]
+        if self.action in ['create', 'me']:
+            self.permission_classes = [AllowAny] if self.action == 'create' else [IsAuthenticated]
         return super().get_permissions()
 
     def get_queryset(self):
@@ -54,103 +54,222 @@ class UserViewSet(viewsets.ModelViewSet):
             return User.objects.all()
         return User.objects.filter(id=user.id)
 
-    def update_profile(self, request):
+    @action(detail=False, methods=['get', 'put', 'patch'], url_path='me')
+    def me(self, request):
+        """
+        Get or update current authenticated user.
+        
+        GET: Returns current user profile
+        PUT/PATCH: Updates current user profile
+        """
         user = request.user
+        
+        if request.method == 'GET':
+            serializer = self.get_serializer(user)
+            return Response(serializer.data)
+        
         serializer = self.get_serializer(user, data=request.data, partial=True)
-
+        
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data)
+            
+            UserActivityLog.log_action(
+                user=user,
+                action='UPDATE_PROFILE',
+                description=f"User {user.username} updated their profile",
+                ip_address=request.META.get('REMOTE_ADDR'),
+                user_agent=request.META.get('HTTP_USER_AGENT', '')
+            )
+            
+            return Response({
+                "success": True,
+                "message": "Profile updated successfully",
+                "user": serializer.data
+            })
+        
+        return Response({
+            "success": False,
+            "error": "Validation failed",
+            "details": serializer.errors
+        }, status=status.HTTP_400_BAD_REQUEST)
 
-        return Response(serializer.errors, status=400)
+    def update_profile(self, request):
+        """Legacy method - kept for backward compatibility"""
+        return self.me(request)
 
 
 # =========================
-# REGISTER
+# REGISTER - ENHANCED (EMAIL FIXED)
 # =========================
 @api_view(['POST'])
 @permission_classes([AllowAny])
 @throttle_classes([RegisterThrottle])
 def register(request):
+    """
+    Register a new user account.
+    """
+    request_data = request.data.copy()
+    if 'password' in request_data:
+        request_data['password'] = '***'
+    if 'password_confirm' in request_data:
+        request_data['password_confirm'] = '***'
+    
+    print(f"📥 Register request: {request_data}")
+    
     serializer = UserCreateSerializer(data=request.data)
-
+    
     if not serializer.is_valid():
-        return Response(serializer.errors, status=400)
-
-    user = serializer.save()
-
+        errors = {}
+        for field, error_list in serializer.errors.items():
+            errors[field] = error_list[0] if isinstance(error_list, list) else str(error_list)
+        
+        print(f"❌ Registration validation failed: {errors}")
+        
+        return Response(
+            {
+                "success": False,
+                "error": "Validation failed",
+                "details": errors
+            },
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    try:
+        user = serializer.save()
+        print(f"✅ User created: {user.username} (ID: {user.id})")
+    except Exception as e:
+        print(f"❌ Error saving user: {str(e)}")
+        return Response(
+            {
+                "success": False,
+                "error": "Unable to create account. Please try again."
+            },
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+    
     UserActivityLog.log_action(
         user=user,
         action='REGISTER',
-        description=f"User {user.username} registered",
+        description=f"User {user.username} registered with email {user.email}",
         ip_address=request.META.get('REMOTE_ADDR'),
         user_agent=request.META.get('HTTP_USER_AGENT', '')
     )
-
-    # create email verification token
-    token_obj = AuthService.create_email_verification(user)
-
-    # Build verification URL - FIXED (no build_url)
-    if settings.IS_PRODUCTION:
-        verify_url = f"https://feevert-api.onrender.com/api/auth/verify-email/?token={token_obj.token}"
-    else:
-        verify_url = f"http://127.0.0.1:8000/api/auth/verify-email/?token={token_obj.token}"
-
-    # send email
+    
+    email_sent = False
+    token = None
+    
     if user.email:
-        EmailService.send_verification_email(user, token_obj.token, verify_url=verify_url)
-
+        try:
+            token_obj = AuthService.create_email_verification(user)
+            token = token_obj.token
+            EmailService.send_verification_email(user, token)
+            email_sent = True
+            print(f"📧 Verification email sent to: {user.email}")
+        except Exception as e:
+            print(f"⚠️ Failed to send verification email: {str(e)}")
+            email_sent = False
+    
     refresh = RefreshToken.for_user(user)
-
-    return Response({
+    
+    response_data = {
         "success": True,
-        "message": "Account created. Check email for verification.",
+        "message": "Account created successfully.",
         "user": UserSerializer(user).data,
         "access": str(refresh.access_token),
         "refresh": str(refresh),
-        "email_verification_required": True
-    }, status=201)
+        "email_verification_required": True,
+        "email_sent": email_sent
+    }
+    
+    if not email_sent and user.email:
+        response_data["message"] += " However, verification email could not be sent. You can request a new one from your profile."
+    
+    if not settings.IS_PRODUCTION and token:
+        response_data["verification_url"] = f"http://127.0.0.1:8000/api/auth/verify-email/?token={token}"
+    
+    print(f"✅ Registration complete for: {user.username}")
+    
+    return Response(response_data, status=status.HTTP_201_CREATED)
 
 
 # =========================
-# LOGIN (JWT)
+# LOGIN (JWT) - ENHANCED
 # =========================
 @api_view(['POST'])
 @permission_classes([AllowAny])
 @throttle_classes([LoginThrottle])
 def login_view(request):
+    """
+    Authenticate user and return JWT tokens.
+    """
     serializer = LoginSerializer(data=request.data)
-
+    
     if not serializer.is_valid():
-        return Response(serializer.errors, status=400)
-
-    user = authenticate(
-        username=serializer.validated_data['username'],
-        password=serializer.validated_data['password']
-    )
-
-    if not user:
+        print(f"⚠️ Login validation failed: {serializer.errors}")
         return Response(
-            {"error": "Invalid credentials"},
-            status=status.HTTP_401_UNAUTHORIZED
+            {"error": "Invalid request data", "details": serializer.errors},
+            status=status.HTTP_400_BAD_REQUEST
         )
 
+    username = serializer.validated_data.get('username')
+    password = serializer.validated_data.get('password')
+    
+    user = authenticate(request, username=username, password=password)
+    
+    if not user:
+        try:
+            from django.contrib.auth import get_user_model
+            User = get_user_model()
+            user_obj = User.objects.get(email=username)
+            user = authenticate(request, username=user_obj.username, password=password)
+        except User.DoesNotExist:
+            user = None
+    
+    if not user:
+        print(f"🔐 Failed login attempt for: {username} from IP: {request.META.get('REMOTE_ADDR')}")
+        return Response(
+            {
+                "success": False,
+                "error": "Invalid username/email or password"
+            },
+            status=status.HTTP_401_UNAUTHORIZED
+        )
+    
+    if not user.is_active:
+        print(f"⚠️ Inactive user attempted login: {user.username}")
+        return Response(
+            {
+                "success": False,
+                "error": "Your account has been deactivated. Please contact support."
+            },
+            status=status.HTTP_403_FORBIDDEN
+        )
+    
     refresh = RefreshToken.for_user(user)
-
+    
     UserActivityLog.log_action(
         user=user,
         action='LOGIN',
-        description=f"User {user.username} logged in",
+        description=f"User {user.username} logged in successfully",
         ip_address=request.META.get('REMOTE_ADDR'),
         user_agent=request.META.get('HTTP_USER_AGENT', '')
     )
-
-    return Response({
+    
+    user.last_login = timezone.now()
+    user.save(update_fields=['last_login'])
+    
+    response_data = {
         "success": True,
+        "message": "Login successful",
         "user": UserSerializer(user).data,
         "access": str(refresh.access_token),
         "refresh": str(refresh),
-    })
+        "expires_in": 7200,
+    }
+    
+    print(f"✅ User {user.username} (role: {user.role_name if hasattr(user, 'role_name') else 'N/A'}) logged in successfully")
+    
+    return Response(response_data, status=status.HTTP_200_OK)
 
 
 # =========================
@@ -310,15 +429,8 @@ def resend_verification_email(request):
             return Response({"message": "Email already verified"})
 
         token_obj = AuthService.create_email_verification(user)
-
-        # Build verification URL - FIXED (no build_url)
-        if settings.IS_PRODUCTION:
-            verify_url = f"https://feevert-api.onrender.com/api/auth/verify-email/?token={token_obj.token}"
-        else:
-            verify_url = f"http://127.0.0.1:8000/api/auth/verify-email/?token={token_obj.token}"
-
-        EmailService.send_verification_email(user, token_obj.token, verify_url=verify_url)
-
+        EmailService.send_verification_email(user, token_obj.token)
+        
         return Response({
             "success": True,
             "message": "Verification email sent again"
@@ -326,3 +438,14 @@ def resend_verification_email(request):
 
     except User.DoesNotExist:
         return Response({"error": "User not found"}, status=404)
+
+
+# =========================
+# CURRENT USER ENDPOINT (FALLBACK)
+# =========================
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def current_user(request):
+    """Get current authenticated user"""
+    serializer = UserSerializer(request.user)
+    return Response(serializer.data)

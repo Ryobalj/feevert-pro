@@ -2,7 +2,6 @@ import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useTheme } from '../../../context/ThemeContext'
-import { useAuth } from '../hooks/useAuth'
 import api from '../../../app/api'
 
 const LoginPage = () => {
@@ -11,22 +10,83 @@ const LoginPage = () => {
   const [error, setError] = useState('')
   const navigate = useNavigate()
   const { darkMode } = useTheme()
-  const { login } = useAuth()
+
+  const getRedirectPath = (user) => {
+    // Kama user hana role kabisa, elekeza kwa /profile
+    if (!user.role && !user.role_name) {
+      console.warn('⚠️ User has no role, redirecting to /profile')
+      return '/profile'
+    }
+    
+    // Kulingana na role, elekeza kwenye dashboard sahihi
+    const roleName = (user.role_name || user.role?.name || '').toLowerCase().trim()
+    
+    // Kama role ni tupu
+    if (!roleName) {
+      console.warn('⚠️ User has empty role, redirecting to /profile')
+      return '/profile'
+    }
+    
+    switch (roleName) {
+      case 'admin':
+        console.log('✅ Admin user, redirecting to /dashboard')
+        return '/dashboard'
+      case 'consultant':
+        console.log('✅ Consultant user, redirecting to /dashboard')
+        return '/dashboard'
+      case 'normal employee':
+        console.log('✅ Employee user, redirecting to /dashboard')
+        return '/dashboard'
+      case 'client':
+        console.log('✅ Client user, redirecting to /dashboard')
+        return '/dashboard'
+      default:
+        // Role haijulikani - elekeza kwa profile
+        console.warn(`⚠️ Unknown role "${roleName}", redirecting to /profile`)
+        return '/profile'
+    }
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    
+    // Prevent double submit
+    if (loading) return
+    
     setLoading(true)
     setError('')
     
+    console.log('📤 Sending login data:', { username: formData.username })
+    
     try {
       const res = await api.post('/auth/login/', formData)
+      
+      console.log('✅ Login success:', {
+        username: res.data.user?.username,
+        role: res.data.user?.role_name || res.data.user?.role?.name || 'none'
+      })
+      
+      // Hifadhi tokens
       localStorage.setItem('access_token', res.data.access)
       localStorage.setItem('refresh_token', res.data.refresh)
-      login(res.data.user)
-      navigate('/home')
+      
+      // Hifadhi user kwenye cache
+      localStorage.setItem('cached_user', JSON.stringify(res.data.user))
+      
+      // Redirect kulingana na role
+      const redirectPath = getRedirectPath(res.data.user)
+      console.log(`🔄 Redirecting to: ${redirectPath}`)
+      
+      // Use setTimeout to ensure state updates complete
+      setTimeout(() => {
+        navigate(redirectPath)
+        // Refresh page to reload auth state
+        window.location.reload()
+      }, 100)
+      
     } catch (err) {
-      setError('Invalid username or password')
-    } finally {
+      console.error('❌ Login error:', err)
+      setError(err.response?.data?.error || 'Invalid username or password')
       setLoading(false)
     }
   }
