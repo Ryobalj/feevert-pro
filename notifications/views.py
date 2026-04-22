@@ -1,7 +1,7 @@
 # notifications/views.py
 
 from rest_framework import viewsets, status
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.utils import timezone
@@ -46,6 +46,16 @@ class NotificationViewSet(viewsets.ReadOnlyModelViewSet):
         notification.is_read = True
         notification.save()
         return Response({'success': True})
+    
+    @action(detail=False, methods=['get'])
+    def unread_count(self, request):
+        """Get total unread notifications count for current user"""
+        count = Notification.objects.filter(
+            recipient=request.user,
+            is_read=False
+        ).count()
+        
+        return Response({'unread_count': count})
 
 
 class NotificationTemplateViewSet(viewsets.ReadOnlyModelViewSet):
@@ -73,3 +83,54 @@ class UserNotificationSettingViewSet(viewsets.ModelViewSet):
         """Get or create settings for the user"""
         obj, created = UserNotificationSetting.objects.get_or_create(user=self.request.user)
         return obj
+
+
+# ============================================
+# STANDALONE UNREAD COUNT ENDPOINT
+# ============================================
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_unread_count(request):
+    """
+    Get total unread notifications count for current user.
+    This is a standalone endpoint for easy access.
+    """
+    count = Notification.objects.filter(
+        recipient=request.user,
+        is_read=False
+    ).count()
+    
+    return Response({'unread_count': count})
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def mark_all_as_read(request):
+    """
+    Mark all notifications as read for current user.
+    """
+    Notification.objects.filter(
+        recipient=request.user,
+        is_read=False
+    ).update(is_read=True, read_at=timezone.now())
+    
+    return Response({'success': True, 'message': 'All notifications marked as read'})
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def mark_as_read(request, notification_id):
+    """
+    Mark a single notification as read.
+    """
+    try:
+        notification = Notification.objects.get(
+            id=notification_id,
+            recipient=request.user
+        )
+        notification.is_read = True
+        notification.read_at = timezone.now()
+        notification.save()
+        return Response({'success': True})
+    except Notification.DoesNotExist:
+        return Response({'error': 'Notification not found'}, status=404)

@@ -25,7 +25,7 @@ from bookings.views import (
 from reviews.views import ReviewViewSet, ReviewImageViewSet, ReviewHelpfulVoteViewSet
 from notifications.views import (
     NotificationViewSet, NotificationTemplateViewSet,
-    UserNotificationSettingViewSet
+    UserNotificationSettingViewSet, get_unread_count, mark_all_as_read, mark_as_read
 )
 from projects.views import (
     ProjectCategoryViewSet, ProjectTagViewSet, ProjectViewSet,
@@ -157,6 +157,11 @@ def api_root(request):
             'webhooks': {
                 'pawapay': '/webhooks/pawapay/',
             },
+            'notifications': {
+                'unread_count': '/api/notifications/unread-count/',
+                'mark_all_read': '/api/notifications/mark-all-read/',
+                'mark_read': '/api/notifications/mark-as-read/<id>/',
+            },
             'language': {
                 'current': '/api/language/',
                 'set': '/api/language/set/',
@@ -177,11 +182,12 @@ urlpatterns = [
     # API v1 - includes all registered routers
     path('api/v1/', include(router.urls)),
     
-    # JWT Authentication (csrf_exempt for API usage - no CSRF needed)
+    # JWT Authentication
     path('api/token/', csrf_exempt(TokenObtainPairView.as_view()), name='token_obtain_pair'),
     path('api/token/refresh/', csrf_exempt(TokenRefreshView.as_view()), name='token_refresh'),
     path('api/token/verify/', csrf_exempt(TokenVerifyView.as_view()), name='token_verify'),
     
+    # Realtime (WebSocket + Messaging)
     path('realtime/', include('realtime.urls')),
     
     # Custom Auth Endpoints
@@ -201,15 +207,20 @@ urlpatterns = [
     
     # Homepage aggregated data API
     path('api/homepage/', get_homepage_data, name='homepage-data'),
+    
+    # ============================================
+    # NOTIFICATIONS STANDALONE ENDPOINTS
+    # ============================================
+    path('api/notifications/unread-count/', get_unread_count, name='notifications-unread-count'),
+    path('api/notifications/mark-all-read/', mark_all_as_read, name='notifications-mark-all-read'),
+    path('api/notifications/mark-as-read/<int:notification_id>/', mark_as_read, name='notifications-mark-as-read'),
 ]
 
 # ============================================================
 # SERVE MEDIA AND STATIC FILES (DEVELOPMENT & PRODUCTION)
 # ============================================================
-# Hii inahakikisha media files (picha, logos) zinaservewa hata kwenye Render
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 else:
-    # Kwenye production, Whitenoise inaserve static files, lakini media tunaziserve manually
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
