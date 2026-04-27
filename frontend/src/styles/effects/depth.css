@@ -1,0 +1,34 @@
+.depth-0 { box-shadow: none; }
+.depth-1 { box-shadow: var(--g-shadow-xs); }
+.depth-2 { box-shadow: var(--g-shadow-sm); }
+.depth-3 { box-shadow: var(--g-shadow-md); }
+.depth-4 { box-shadow: var(--g-shadow-lg); }
+.depth-5 { box-shadow: var(--g-shadow-xl); }
+
+.elevate-hover {
+  transition: all var(--g-duration-base) var(--g-ease-bounce);
+}
+
+.elevate-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--g-shadow-lg);
+}
+
+.elevate-hover-lg:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--g-shadow-xl);
+}
+
+.card-3d {
+  transform-style: preserve-3d;
+  perspective: 1000px;
+  transition: transform var(--g-duration-base) var(--g-ease-default);
+}
+
+.card-3d:hover {
+  transform: rotateX(5deg) rotateY(-5deg) translateZ(10px);
+}
+
+.card-3d-content {
+  transform: translateZ(20px);
+}

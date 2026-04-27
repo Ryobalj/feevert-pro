@@ -1,0 +1,186 @@
+/* ============================================
+   FEEVERT - BUTTON SYSTEM
+   Soft Glass + Glowing Green
+   ============================================ */
+
+/* ============ BASE BUTTON ============ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 28px;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  border-radius: 9999px;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  white-space: nowrap;
+  user-select: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+  filter: grayscale(30%);
+}
+
+/* Button Sizes */
+.btn-sm { padding: 8px 18px; font-size: 0.8125rem; }
+.btn-md { padding: 12px 28px; font-size: 0.9375rem; }
+.btn-lg { padding: 16px 36px; font-size: 1.0625rem; }
+.btn-xl { padding: 20px 44px; font-size: 1.1875rem; }
+
+/* Button Shapes */
+.btn-rounded { border-radius: var(--g-radius-full); }
+.btn-square { border-radius: var(--g-radius-md); }
+.btn-circle { 
+  padding: 12px; 
+  border-radius: 50%; 
+  width: 48px; 
+  height: 48px; 
+}
+.btn-circle.btn-sm { width: 36px; height: 36px; padding: 8px; }
+.btn-circle.btn-lg { width: 56px; height: 56px; padding: 14px; }
+
+/* ============ PRIMARY - Glowing Green ============ */
+.btn-primary {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3), 0 0 40px rgba(16, 185, 129, 0.1);
+}
+
+.btn-primary:hover:not(:disabled) {
+  box-shadow: 0 8px 32px rgba(16, 185, 129, 0.5), 0 0 60px rgba(16, 185, 129, 0.2), 0 0 100px rgba(16, 185, 129, 0.1);
+  transform: translateY(-3px);
+}
+
+.btn-primary:active:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow: 0 2px 10px rgba(16, 185, 129, 0.3);
+}
+
+/* ============ OUTLINE - Glowing Border ============ */
+.btn-outline {
+  background: transparent;
+  color: #10b981;
+  border: 2px solid rgba(16, 185, 129, 0.25);
+}
+
+.btn-outline:hover:not(:disabled) {
+  border-color: #10b981;
+  box-shadow: 0 0 30px rgba(16, 185, 129, 0.2), 0 0 60px rgba(16, 185, 129, 0.1);
+  transform: translateY(-3px);
+  color: #059669;
+}
+
+/* ============ GLASS BUTTON ============ */
+.btn-glass {
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: var(--g-text-primary);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.btn-glass:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(16, 185, 129, 0.4);
+  box-shadow: 0 4px 20px rgba(16, 185, 129, 0.2), 0 0 40px rgba(16, 185, 129, 0.1);
+  transform: translateY(-3px);
+}
+
+/* ============ GRADIENT BUTTON ============ */
+.btn-gradient {
+  background: linear-gradient(135deg, #10b981, #34d399);
+  color: white;
+  box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);
+}
+
+.btn-gradient:hover:not(:disabled) {
+  background: linear-gradient(135deg, #059669, #10b981);
+  box-shadow: 0 8px 32px rgba(16, 185, 129, 0.45), 0 0 60px rgba(16, 185, 129, 0.15);
+  transform: translateY(-3px);
+}
+
+/* ============ DANGER BUTTON ============ */
+.btn-danger {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.25);
+}
+
+.btn-danger:hover:not(:disabled) {
+  box-shadow: 0 8px 28px rgba(239, 68, 68, 0.4);
+  transform: translateY(-3px);
+}
+
+/* ============ SUCCESS BUTTON ============ */
+.btn-success {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.25);
+}
+
+.btn-success:hover:not(:disabled) {
+  box-shadow: 0 8px 28px rgba(16, 185, 129, 0.4);
+  transform: translateY(-3px);
+}
+
+/* ============ ICON BUTTON ============ */
+.btn-icon {
+  padding: 8px;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--g-text-secondary);
+  border: 1px solid transparent;
+}
+
+.btn-icon:hover:not(:disabled) {
+  background: rgba(16, 185, 129, 0.08);
+  color: #10b981;
+  border-color: rgba(16, 185, 129, 0.2);
+  box-shadow: 0 0 16px rgba(16, 185, 129, 0.15);
+}
+
+/* ============ LOADING STATE ============ */
+.btn-loading {
+  position: relative;
+  color: transparent !important;
+}
+
+.btn-loading::after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: rotate 0.6s linear infinite;
+}
+
+/* ============ BLOCK BUTTON ============ */
+.btn-block {
+  width: 100%;
+  display: flex;
+}
+
+/* ============ GLOW ANIMATIONS ============ */
+.btn-glow {
+  animation: btn-glow-pulse 3s ease-in-out infinite;
+}
+
+@keyframes btn-glow-pulse {
+  0%, 100% { 
+    box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3), 0 0 40px rgba(16, 185, 129, 0.1); 
+  }
+  50% { 
+    box-shadow: 0 8px 36px rgba(16, 185, 129, 0.5), 0 0 80px rgba(16, 185, 129, 0.25), 0 0 120px rgba(16, 185, 129, 0.1); 
+  }
+}

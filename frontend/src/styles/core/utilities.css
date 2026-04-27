@@ -1,0 +1,349 @@
+/* ============================================
+   GALILEO LIQUID GLASS - UTILITY SYSTEM
+   Professional Utility Classes
+   ============================================ */
+
+/* --------------------------------------------
+   LAYOUT UTILITIES
+   -------------------------------------------- */
+.container-fluid { width: 100%; margin-left: auto; margin-right: auto; }
+.container-main { max-width: 1280px; margin-left: auto; margin-right: auto; padding-left: 1rem; padding-right: 1rem; }
+.container-narrow { max-width: 1024px; margin-left: auto; margin-right: auto; padding-left: 1rem; padding-right: 1rem; }
+.container-wide { max-width: 1536px; margin-left: auto; margin-right: auto; padding-left: 1rem; padding-right: 1rem; }
+
+.flex-center { display: flex; align-items: center; justify-content: center; }
+.flex-between { display: flex; align-items: center; justify-content: space-between; }
+.flex-start { display: flex; align-items: center; justify-content: flex-start; }
+.flex-end { display: flex; align-items: center; justify-content: flex-end; }
+.flex-column { display: flex; flex-direction: column; }
+
+.grid-center { display: grid; place-items: center; }
+.grid-auto-fit { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+.grid-auto-fill { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); }
+
+/* --------------------------------------------
+   POSITION UTILITIES
+   -------------------------------------------- */
+.absolute-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.absolute-full {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.fixed-center {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.sticky-top { position: sticky; top: 0; z-index: var(--g-z-sticky); }
+.sticky-bottom { position: sticky; bottom: 0; z-index: var(--g-z-sticky); }
+
+/* --------------------------------------------
+   TYPOGRAPHY UTILITIES
+   -------------------------------------------- */
+.text-gradient {
+  background: linear-gradient(135deg, var(--g-color-primary) 0%, var(--g-color-primary-light) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-animated {
+  background: linear-gradient(135deg, var(--g-color-primary), var(--g-color-primary-light), #4ade80, var(--g-color-primary));
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradient-shift 4s ease infinite;
+}
+
+.text-balance { text-wrap: balance; }
+.text-pretty { text-wrap: pretty; }
+.text-truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.text-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.text-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* --------------------------------------------
+   BACKGROUND UTILITIES
+   -------------------------------------------- */
+.bg-gradient-primary {
+  background: linear-gradient(135deg, var(--g-color-primary) 0%, var(--g-color-primary-dark) 100%);
+}
+
+.bg-gradient-liquid {
+  background: linear-gradient(135deg, var(--g-liquid-primary) 0%, var(--g-liquid-accent) 100%);
+}
+
+.bg-gradient-mesh {
+  background: 
+    radial-gradient(circle at 20% 80%, var(--g-liquid-primary) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, var(--g-color-primary-glow) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, var(--g-liquid-secondary) 0%, transparent 50%);
+}
+
+.bg-noise {
+  position: relative;
+}
+
+.bg-noise::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.05'/%3E%3C/svg%3E");
+  pointer-events: none;
+  opacity: 0.3;
+}
+
+.bg-grid {
+  background-image: 
+    linear-gradient(var(--g-border-subtle) 1px, transparent 1px),
+    linear-gradient(90deg, var(--g-border-subtle) 1px, transparent 1px);
+  background-size: 50px 50px;
+}
+
+.bg-dots {
+  background-image: radial-gradient(var(--g-border-medium) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+/* --------------------------------------------
+   BORDER UTILITIES
+   -------------------------------------------- */
+.border-glass { border: 1px solid var(--g-border-glass); }
+.border-gradient {
+  border: 1px solid transparent;
+  background: linear-gradient(var(--g-surface-base), var(--g-surface-base)) padding-box,
+              linear-gradient(135deg, var(--g-color-primary), var(--g-color-primary-light)) border-box;
+}
+
+.border-glow {
+  border: 1px solid var(--g-color-primary);
+  box-shadow: 0 0 10px var(--g-color-primary-glow);
+}
+
+.outline-glass { outline: 1px solid var(--g-border-glass); }
+
+/* --------------------------------------------
+   SHADOW UTILITIES
+   -------------------------------------------- */
+.shadow-glass { box-shadow: var(--g-shadow-glass); }
+.shadow-liquid { box-shadow: var(--g-shadow-liquid); }
+.shadow-glow { box-shadow: 0 0 40px var(--g-color-primary-glow); }
+.shadow-elevate { box-shadow: var(--g-shadow-md); }
+.shadow-elevate-lg { box-shadow: var(--g-shadow-xl); }
+
+/* --------------------------------------------
+   BLUR UTILITIES
+   -------------------------------------------- */
+.blur-none { backdrop-filter: none; -webkit-backdrop-filter: none; }
+.blur-xs { backdrop-filter: blur(var(--g-blur-xs)); -webkit-backdrop-filter: blur(var(--g-blur-xs)); }
+.blur-sm { backdrop-filter: blur(var(--g-blur-sm)); -webkit-backdrop-filter: blur(var(--g-blur-sm)); }
+.blur-md { backdrop-filter: blur(var(--g-blur-md)); -webkit-backdrop-filter: blur(var(--g-blur-md)); }
+.blur-lg { backdrop-filter: blur(var(--g-blur-lg)); -webkit-backdrop-filter: blur(var(--g-blur-lg)); }
+.blur-xl { backdrop-filter: blur(var(--g-blur-xl)); -webkit-backdrop-filter: blur(var(--g-blur-xl)); }
+
+/* --------------------------------------------
+   SCROLL UTILITIES
+   -------------------------------------------- */
+.scroll-smooth { scroll-behavior: smooth; }
+.scroll-auto { scroll-behavior: auto; }
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+
+.scrollbar-thin { scrollbar-width: thin; }
+.scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
+
+.overflow-overlay { overflow: overlay; }
+
+/* --------------------------------------------
+   INTERACTIVE UTILITIES
+   -------------------------------------------- */
+.cursor-pointer { cursor: pointer; }
+.cursor-grab { cursor: grab; }
+.cursor-grabbing { cursor: grabbing; }
+.cursor-none { cursor: none; }
+
+.pointer-events-none { pointer-events: none; }
+.pointer-events-auto { pointer-events: auto; }
+
+.user-select-none { user-select: none; }
+.user-select-all { user-select: all; }
+.user-select-text { user-select: text; }
+
+/* --------------------------------------------
+   TRANSFORM UTILITIES
+   -------------------------------------------- */
+.preserve-3d { transform-style: preserve-3d; }
+.flat { transform-style: flat; }
+
+.perspective-1000 { perspective: 1000px; }
+.perspective-2000 { perspective: 2000px; }
+
+.backface-visible { backface-visibility: visible; }
+.backface-hidden { backface-visibility: hidden; }
+
+.translate-z-10 { transform: translateZ(10px); }
+.translate-z-20 { transform: translateZ(20px); }
+.translate-z-30 { transform: translateZ(30px); }
+
+/* --------------------------------------------
+   TRANSITION UTILITIES
+   -------------------------------------------- */
+.transition-all { transition: all var(--g-duration-base) var(--g-ease-default); }
+.transition-transform { transition: transform var(--g-duration-base) var(--g-ease-default); }
+.transition-opacity { transition: opacity var(--g-duration-base) var(--g-ease-default); }
+.transition-colors { transition: color var(--g-duration-base) var(--g-ease-default), background-color var(--g-duration-base) var(--g-ease-default), border-color var(--g-duration-base) var(--g-ease-default); }
+.transition-shadow { transition: box-shadow var(--g-duration-base) var(--g-ease-default); }
+.transition-liquid { transition: all var(--g-duration-liquid) var(--g-ease-liquid); }
+.transition-bounce { transition: all var(--g-duration-base) var(--g-ease-bounce); }
+.transition-spring { transition: all var(--g-duration-base) var(--g-ease-spring); }
+
+/* --------------------------------------------
+   HOVER EFFECT UTILITIES
+   -------------------------------------------- */
+.hover-lift { transition: transform var(--g-duration-base) var(--g-ease-bounce); }
+.hover-lift:hover { transform: translateY(-4px); }
+.hover-lift-lg:hover { transform: translateY(-8px); }
+
+.hover-scale { transition: transform var(--g-duration-base) var(--g-ease-default); }
+.hover-scale:hover { transform: scale(1.05); }
+.hover-scale-sm:hover { transform: scale(1.02); }
+
+.hover-glow { transition: box-shadow var(--g-duration-base) var(--g-ease-default); }
+.hover-glow:hover { box-shadow: 0 0 30px var(--g-color-primary-glow); }
+
+.hover-brightness { transition: filter var(--g-duration-base) var(--g-ease-default); }
+.hover-brightness:hover { filter: brightness(1.1); }
+
+.hover-overlay {
+  position: relative;
+  overflow: hidden;
+}
+
+.hover-overlay::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--g-liquid-secondary);
+  opacity: 0;
+  transition: opacity var(--g-duration-base);
+}
+
+.hover-overlay:hover::after { opacity: 1; }
+
+/* --------------------------------------------
+   FOCUS UTILITIES
+   -------------------------------------------- */
+.focus-ring {
+  transition: box-shadow var(--g-duration-fast);
+}
+
+.focus-ring:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 4px var(--g-color-primary-glow);
+}
+
+.focus-outline:focus-visible {
+  outline: 2px solid var(--g-color-primary);
+  outline-offset: 2px;
+}
+
+/* --------------------------------------------
+   LOADING UTILITIES
+   -------------------------------------------- */
+.skeleton {
+  background: linear-gradient(90deg, var(--g-border-subtle) 25%, var(--g-border-medium) 50%, var(--g-border-subtle) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--g-border-subtle);
+  border-top-color: var(--g-color-primary);
+  border-radius: 50%;
+  animation: rotate 0.8s linear infinite;
+}
+
+.spinner-sm { width: 20px; height: 20px; border-width: 2px; }
+.spinner-lg { width: 60px; height: 60px; border-width: 4px; }
+
+/* --------------------------------------------
+   VISUAL EFFECT UTILITIES
+   -------------------------------------------- */
+.glass-overlay {
+  position: relative;
+}
+
+.glass-overlay::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: inherit;
+  backdrop-filter: blur(var(--g-blur-md));
+  -webkit-backdrop-filter: blur(var(--g-blur-md));
+  mask: linear-gradient(to bottom, transparent, black);
+}
+
+.reflection {
+  -webkit-box-reflect: below 0px linear-gradient(transparent, rgba(0, 0, 0, 0.1));
+}
+
+.reflection-sm {
+  -webkit-box-reflect: below 2px linear-gradient(transparent, rgba(0, 0, 0, 0.05));
+}
+
+/* --------------------------------------------
+   MASK UTILITIES
+   -------------------------------------------- */
+.mask-gradient-bottom {
+  mask: linear-gradient(to bottom, black 80%, transparent 100%);
+}
+
+.mask-gradient-top {
+  mask: linear-gradient(to top, black 80%, transparent 100%);
+}
+
+.mask-gradient-both {
+  mask: linear-gradient(to bottom, transparent, black 20%, black 80%, transparent);
+}
+
+/* --------------------------------------------
+   FILTER UTILITIES
+   -------------------------------------------- */
+.filter-glow {
+  filter: drop-shadow(0 0 20px var(--g-color-primary-glow));
+}
+
+.filter-glass {
+  filter: blur(0.5px) brightness(1.1) contrast(1.1);
+}
+
+/* --------------------------------------------
+   REDUCED MOTION
+   -------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .hover-lift:hover,
+  .hover-scale:hover,
+  .hover-lift-lg:hover,
+  .hover-scale-sm:hover {
+    transform: none;
+  }
+}

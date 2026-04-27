@@ -1,0 +1,29 @@
+.dark,
+[data-theme="dark"] {
+  --g-surface-base: #0a0a0c;
+  --g-surface-elevated: rgba(20, 20, 25, 0.95);
+  --g-surface-glass: rgba(20, 20, 25, 0.7);
+  --g-surface-liquid: rgba(30, 30, 35, 0.85);
+  
+  --g-text-primary: #f1f5f9;
+  --g-text-secondary: #cbd5e1;
+  --g-text-tertiary: #94a3b8;
+  
+  --g-border-subtle: rgba(255, 255, 255, 0.06);
+  --g-border-medium: rgba(255, 255, 255, 0.1);
+  --g-border-strong: rgba(255, 255, 255, 0.15);
+  
+  --g-shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.2);
+  --g-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --g-shadow-md: 0 8px 24px rgba(0, 0, 0, 0.4);
+  --g-shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.5);
+  --g-shadow-xl: 0 24px 64px rgba(0, 0, 0, 0.6);
+  --g-shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.4);
+  --g-shadow-liquid: 0 20px 40px rgba(45, 106, 79, 0.15), 0 4px 12px rgba(0, 0, 0, 0.2);
+  
+  --g-liquid-primary: rgba(45, 106, 79, 0.25);
+  --g-liquid-secondary: rgba(255, 255, 255, 0.05);
+  --g-liquid-accent: rgba(58, 139, 103, 0.3);
+  
+  color-scheme: dark;
+}

@@ -1,0 +1,54 @@
+/* ============================================
+   FEEVERT - MAIN ENTRY
+   Jungle Green + Glassmorphism
+   ============================================ */
+
+/* Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+/* Core */
+@import './styles/core/tokens.css';
+@import './styles/core/animations.css';
+@import './styles/core/utilities.css';
+
+/* Themes */
+@import './styles/themes/dark.css';
+
+/* Components */
+@import './styles/components/glass.css';
+@import './styles/components/liquid.css';
+@import './styles/components/buttons.css';
+@import './styles/components/cards.css';
+@import './styles/components/forms.css';
+
+/* Effects */
+@import './styles/effects/depth.css';
+@import './styles/effects/light.css';
+@import './styles/effects/motion.css';
+@import './styles/effects/particles.css';
+
+/* Tailwind - with jungle green override */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============ OVERRIDE TAILWIND BASE WHITE BACKGROUND ============ */
+@layer base {
+  html {
+    background: #0d3320 !important;
+  }
+  
+  body {
+    background: #0d3320 !important;
+    background: linear-gradient(135deg, #0a2a19 0%, #0d3320 25%, #104428 50%, #0d3320 75%, #0a2a19 100%) !important;
+    background-size: 400% 400% !important;
+    color: #ffffff !important;
+  }
+  
+  .dark body,
+  [data-theme="dark"] body {
+    background: #061210 !important;
+    background: linear-gradient(135deg, #040d0a 0%, #061210 25%, #091a14 50%, #061210 75%, #040d0a 100%) !important;
+    background-size: 400% 400% !important;
+  }
+}

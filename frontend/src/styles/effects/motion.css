@@ -1,0 +1,51 @@
+.motion-spring {
+  transition-timing-function: var(--g-ease-spring);
+}
+
+.motion-liquid {
+  transition: all var(--g-duration-liquid) var(--g-ease-liquid);
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25% { transform: translateY(-8px) rotate(-1deg); }
+  75% { transform: translateY(4px) rotate(1deg); }
+}
+
+.float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.float-slow {
+  animation: float 8s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px var(--g-color-primary-glow); }
+  50% { box-shadow: 0 0 40px var(--g-color-primary-glow), 0 0 60px var(--g-liquid-primary); }
+}
+
+.pulse-glow {
+  animation: pulse-glow 3s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 200%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, var(--g-liquid-secondary), transparent);
+  animation: shimmer 2s infinite;
+}

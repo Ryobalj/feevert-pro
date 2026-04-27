@@ -1,0 +1,126 @@
+/* ============================================
+   FEEVERT - LIQUID GLASS TOKENS
+   Light Mode = Jungle Green | Dark Mode = Deep Dark
+   ============================================ */
+
+:root {
+  /* ============ PRIMARY - Soft Emerald Green ============ */
+  --g-color-primary: #10b981;
+  --g-color-primary-light: #34d399;
+  --g-color-primary-dark: #059669;
+  --g-color-primary-muted: #064e3b;
+  --g-color-primary-glow: rgba(16, 185, 129, 0.4);
+  
+  /* ============ LIQUID GLASS SURFACES ============ */
+  --g-liquid-primary: rgba(16, 185, 129, 0.12);
+  --g-liquid-secondary: rgba(255, 255, 255, 0.05);
+  --g-liquid-accent: rgba(52, 211, 153, 0.15);
+  
+  /* ============ SURFACES - Light Mode: Jungle Green ============ */
+  --g-surface-base: #0d3320;
+  --g-surface-elevated: rgba(15, 50, 30, 0.8);
+  --g-surface-glass: rgba(255, 255, 255, 0.1);
+  --g-surface-liquid: rgba(255, 255, 255, 0.06);
+  
+  /* ============ TEXT - White for Jungle Green Background ============ */
+  --g-text-primary: #ffffff;
+  --g-text-secondary: #d1fae5;
+  --g-text-tertiary: #6ee7b7;
+  --g-text-inverse: #0d3320;
+  
+  /* ============ BORDERS ============ */
+  --g-border-subtle: rgba(16, 185, 129, 0.1);
+  --g-border-medium: rgba(16, 185, 129, 0.18);
+  --g-border-strong: rgba(16, 185, 129, 0.3);
+  --g-border-glass: rgba(255, 255, 255, 0.12);
+  
+  /* ============ SHADOWS - Green Glow Halo ============ */
+  --g-shadow-xs: 0 1px 3px rgba(16, 185, 129, 0.1);
+  --g-shadow-sm: 0 4px 12px rgba(16, 185, 129, 0.12);
+  --g-shadow-md: 0 8px 24px rgba(16, 185, 129, 0.15);
+  --g-shadow-lg: 0 16px 40px rgba(16, 185, 129, 0.18);
+  --g-shadow-xl: 0 24px 56px rgba(16, 185, 129, 0.2);
+  --g-shadow-glass: 0 8px 32px rgba(16, 185, 129, 0.1);
+  --g-shadow-liquid: 0 20px 40px rgba(16, 185, 129, 0.08);
+  
+  /* ============ BLUR ============ */
+  --g-blur-xs: 6px;
+  --g-blur-sm: 12px;
+  --g-blur-md: 20px;
+  --g-blur-lg: 30px;
+  --g-blur-xl: 48px;
+  
+  /* ============ BORDER RADIUS ============ */
+  --g-radius-xs: 8px;
+  --g-radius-sm: 14px;
+  --g-radius-md: 18px;
+  --g-radius-lg: 24px;
+  --g-radius-xl: 32px;
+  --g-radius-2xl: 40px;
+  --g-radius-full: 9999px;
+  
+  /* ============ SPACING ============ */
+  --g-space-1: 4px;
+  --g-space-2: 8px;
+  --g-space-3: 12px;
+  --g-space-4: 16px;
+  --g-space-5: 20px;
+  --g-space-6: 24px;
+  --g-space-8: 32px;
+  --g-space-10: 40px;
+  --g-space-12: 48px;
+  --g-space-16: 64px;
+  
+  /* ============ EASING ============ */
+  --g-ease-default: cubic-bezier(0.4, 0, 0.2, 1);
+  --g-ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --g-ease-liquid: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --g-ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  
+  /* ============ DURATIONS ============ */
+  --g-duration-instant: 100ms;
+  --g-duration-fast: 200ms;
+  --g-duration-base: 400ms;
+  --g-duration-slow: 600ms;
+  --g-duration-liquid: 800ms;
+  
+  /* ============ Z-INDEX ============ */
+  --g-z-base: 0;
+  --g-z-elevated: 10;
+  --g-z-dropdown: 100;
+  --g-z-sticky: 200;
+  --g-z-overlay: 300;
+  --g-z-modal: 400;
+  --g-z-popover: 500;
+  --g-z-toast: 600;
+  --g-z-tooltip: 700;
+}
+
+/* ============ DARK MODE - Darker Jungle ============ */
+.dark,
+[data-theme="dark"] {
+  --g-surface-base: #061210;
+  --g-surface-elevated: rgba(8, 18, 12, 0.9);
+  --g-surface-glass: rgba(255, 255, 255, 0.07);
+  --g-surface-liquid: rgba(255, 255, 255, 0.04);
+  
+  --g-text-primary: #f0fdf4;
+  --g-text-secondary: #d1fae5;
+  --g-text-tertiary: #6ee7b7;
+  --g-text-inverse: #0d3320;
+  
+  --g-border-subtle: rgba(16, 185, 129, 0.06);
+  --g-border-medium: rgba(16, 185, 129, 0.12);
+  --g-border-strong: rgba(16, 185, 129, 0.2);
+  --g-border-glass: rgba(255, 255, 255, 0.08);
+  
+  --g-shadow-xs: 0 1px 3px rgba(0, 0, 0, 0.2);
+  --g-shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.25);
+  --g-shadow-md: 0 8px 24px rgba(0, 0, 0, 0.3);
+  --g-shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.35);
+  --g-shadow-xl: 0 24px 56px rgba(0, 0, 0, 0.4);
+  --g-shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.3);
+  --g-shadow-liquid: 0 20px 40px rgba(0, 0, 0, 0.25);
+  
+  color-scheme: dark;
+}

@@ -1,0 +1,27 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+<div style="max-width: 600px; margin: 50px auto; padding: 20px;">
+    <h2>📨 Send Test Notification</h2>
+    <form method="post">
+        {% csrf_token %}
+        <div style="margin-bottom: 15px;">
+            <label>Select User:</label>
+            <select name="user_id" required style="width: 100%; padding: 8px;">
+                {% for user in users %}
+                <option value="{{ user.id }}">{{ user.username }} - {{ user.email }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div style="margin-bottom: 15px;">
+            <label>Title:</label>
+            <input type="text" name="title" required style="width: 100%; padding: 8px;">
+        </div>
+        <div style="margin-bottom: 15px;">
+            <label>Message:</label>
+            <textarea name="message" required rows="4" style="width: 100%; padding: 8px;"></textarea>
+        </div>
+        <button type="submit" style="background: #2d6a4f; color: white; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer;">Send Notification</button>
+        <a href="{% url 'admin:realtime_notification_changelist' %}" style="margin-left: 10px;">Cancel</a>
+    </form>
+</div>
+{% endblock %}

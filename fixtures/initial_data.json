@@ -1,0 +1,671 @@
+[
+  {
+    "model": "consultations.consultationcategory",
+    "pk": 1,
+    "fields": {
+      "created_at": "2026-01-01T00:00:00Z",
+      "updated_at": "2026-01-01T00:00:00Z",
+      "is_active": true,
+      "name": "Commercial Beekeeping",
+      "slug": "beekeeping",
+      "description": "Apiary establishment, honey processing, training, pollination services, and beekeeping consultancy",
+      "icon": ":bee:",
+      "image": null,
+      "parent": null,
+      "level": 0,
+      "order": 1,
+      "seo_title": "Commercial Beekeeping Consultancy | FeeVert Tanzania",
+      "seo_description": "Expert beekeeping consultancy services including apiary establishment, honey processing, training, and pollination services in Tanzania."
+    }
+  },
+  {
+    "model": "consultations.consultationcategory",
+    "pk": 2,
+    "fields": {
+      "created_at": "2026-01-01T00:00:00Z",
+      "updated_at": "2026-01-01T00:00:00Z",
+      "is_active": true,
+      "name": "Environmental Services",
+      "slug": "environment",
+      "description": "EIA/ESIA, environmental audits, pollution control, climate change, natural resources management, and GIS services",
+      "icon": ":leaf:",
+      "image": null,
+      "parent": null,
+      "level": 0,
+      "order": 2,
+      "seo_title": "Environmental Consultancy Services | FeeVert Tanzania",
+      "seo_description": "Comprehensive environmental consultancy including EIA, audits, pollution control, climate change, and GIS mapping services."
+    }
+  },
+  {
+    "model": "consultations.consultationcategory",
+    "pk": 3,
+    "fields": {
+      "created_at": "2026-01-01T00:00:00Z",
+      "updated_at": "2026-01-01T00:00:00Z",
+      "is_active": true,
+      "name": "Occupational Health & Safety",
+      "slug": "ohs",
+      "description": "OHS compliance, risk assessment, workplace audits, training, incident investigation, and safety management systems",
+      "icon": ":shield:",
+      "image": null,
+      "parent": null,
+      "level": 0,
+      "order": 3,
+      "seo_title": "Occupational Health & Safety Consultancy | FeeVert Tanzania",
+      "seo_description": "Professional OHS consultancy services including compliance, risk assessment, workplace audits, and safety training in Tanzania."
+    }
+  },
+  {
+    "model": "consultations.consultationservice",
+    "pk": 1,
+    "fields": {
+      "created_at": "2026-01-01T00:00:00Z",
+      "updated_at": "2026-01-01T00:00:00Z",
+      "is_active": true,
+      "category": 1,
+      "name": "Apiary Establishment & Management",
+      "slug": "apiary-establishment",
+      "description": "Site selection, design and installation of modern beehives (Langstroth, Top-bar), apiary layout planning, colony stocking, routine hive inspection, pest and disease control, and seasonal management.",
+      "icon": ":home:",
+      "image": null,
+      "price": null,
+      "currency": "TZS",
+      "price_type": "quote",
+      "price_range_min": null,
+      "price_range_max": null,
+      "duration_minutes": 0,
+      "estimated_delivery_days": 14,
+      "max_clients": 10,
+      "is_featured": true,
+      "popularity_score": 95,
+      "order": 1,
+      "benefits": [
+        "Increased honey production by 40-60%",
+        "Professional apiary setup reducing colony losses",
+        "Modern beehive technology for easier management",
+        "Expert guidance on site selection and hive placement"
+      ],
+      "faq": [
+        {"question": "How long does apiary setup take?", "answer": "Full setup typically takes 2-4 weeks depending on site conditions, scale, and availability of materials."},
+        {"question": "What type of beehives do you recommend?", "answer": "We recommend Langstroth hives for commercial production and Top-bar hives for small-scale farmers."},
+        {"question": "Do you provide ongoing support?", "answer": "Yes, we offer follow-up visits and remote support as part of our service packages."}
+      ],
+      "prerequisites": [
+        "Land with adequate bee forage",
+        "Water source nearby",
+        "Basic farm management knowledge",
+        "Commitment to regular hive inspection"
+      ],
+      "deliverables": [
+        "Apiary layout plan",
+        "Installed beehives",
+        "Management guide (printed)",
+        "Inspection schedule",
+        "Colony health monitoring chart"
+      ],
+      "seo_title": "Apiary Establishment & Management Services | FeeVert Tanzania",
+      "seo_description": "Professional apiary establishment and management services in Tanzania. Site selection, modern beehive installation, colony management, and ongoing beekeeping support."
+    }
+  },
+  {
+    "model": "consultations.consultationservice",
+    "pk": 2,
+    "fields": {
+      "created_at": "2026-01-01T00:00:00Z",
+      "updated_at": "2026-01-01T00:00:00Z",
+      "is_active": true,
+      "category": 1,
+      "name": "Supply of Beekeeping Equipment & Inputs",
+      "slug": "beekeeping-equipment",
+      "description": "Supply of beehives, protective gear (bee suits, gloves, smokers), hive tools, bee colonies (nucleus colonies and queen bees), and honey harvesting equipment.",
+      "icon": ":tools:",
+      "image": null,
+      "price": null,
+      "currency": "TZS",
+      "price_type": "range",
+      "price_range_min": "500000",
+      "price_range_max": "5000000",
+      "duration_minutes": 0,
+      "estimated_delivery_days": 7,
+      "max_clients": 50,
+      "is_featured": true,
+      "popularity_score": 90,
+      "order": 2,
+      "benefits": [
+        "High-quality certified beekeeping equipment",
+        "Competitive pricing with warranty",
+        "Delivery across Tanzania",
+        "Installation and setup guidance included"
+      ],
+      "faq": [
+        {"question": "Do you deliver equipment nationwide?", "answer": "Yes, we deliver to all regions in Tanzania. Delivery time varies by location."},
+        {"question": "What warranty do you offer?", "answer": "We offer 6-12 month warranty on all equipment depending on the product type."}
+      ],
+      "prerequisites": ["Confirmed order", "Payment or deposit"],
+      "deliverables": ["Quality beekeeping equipment", "Equipment manual", "Installation guide", "Warranty documentation"],
+      "seo_title": "Beekeeping Equipment Supply Tanzania | FeeVert",
+      "seo_description": "Quality beekeeping equipment and inputs supply in Tanzania. Beehives, protective gear, bee colonies, honey harvesting equipment, and more."
+    }
+  },
+  {
+    "model": "consultations.consultationservice",
+    "pk": 3,
+    "fields": {
+      "created_at": "2026-01-01T00:00:00Z",
+      "updated_at": "2026-01-01T00:00:00Z",
+      "is_active": true,
+      "category": 1,
+      "name": "Honey & Bee Products Processing",
+      "slug": "honey-processing",
+      "description": "Honey harvesting and extraction, processing, filtration, packaging, and production of value-added products (beeswax, propolis, royal jelly, bee venom). Quality control and certification support.",
+      "icon": ":honey:",
+      "image": null,
+      "price": null,
+      "currency": "TZS",
+      "price_type": "quote",
+      "price_range_min": null,
+      "price_range_max": null,
+      "duration_minutes": 0,
+      "estimated_delivery_days": 21,
+      "max_clients": 20,
+      "is_featured": true,
+      "popularity_score": 88,
+      "order": 3,
+      "benefits": [
+        "Increase product value through professional processing",
+        "Meet TBS and international quality standards",
+        "Access to premium markets",
+        "Value-added product diversification"
+      ],
+      "faq": [
+        {"question": "Can you help with organic certification?", "answer": "Yes, we guide you through the organic certification process and connect you with certifying bodies."},
+        {"question": "What value-added products can be made?", "answer": "Beeswax candles, propolis tinctures, royal jelly supplements, bee venom cosmetics, and more."}
+      ],
+      "prerequisites": ["Functioning apiary", "Honey production capacity", "Processing space or willingness to set up"],
+      "deliverables": ["Processing facility layout", "Quality control manual", "Certification support documents", "Market linkages report"],
+      "seo_title": "Honey Processing & Value Addition Services | FeeVert Tanzania",
+      "seo_description": "Professional honey and bee products processing consultancy. Extraction, filtration, packaging, quality control, and certification support in Tanzania."
+    }
+  },
+  {
+    "model": "consultations.consultationservice",
+    "pk": 4,
+    "fields": {
+      "created_at": "2026-01-01T00:00:00Z",
+      "updated_at": "2026-01-01T00:00:00Z",
+      "is_active": true,
+      "category": 1,
+      "name": "Beekeeping Training & Capacity Building",
+      "slug": "beekeeping-training",
+      "description": "Practical training for beginner and advanced beekeepers, farmer field schools, demonstration apiaries, modern beekeeping techniques, hive management, post-harvest handling, and value addition.",
+      "icon": ":books:",
+      "image": null,
+      "price": null,
+      "currency": "TZS",
+      "price_type": "range",
+      "price_range_min": "200000",
+      "price_range_max": "2000000",
+      "duration_minutes": 480,
+      "estimated_delivery_days": 7,
+      "max_clients": 30,
+      "is_featured": false,
+      "popularity_score": 85,
+      "order": 4,
+      "benefits": [
+        "Hands-on practical training",
+        "Certificate of completion",
+        "Training materials provided",
+        "Follow-up mentorship available"
+      ],
+      "faq": [
+        {"question": "Do you offer on-site training?", "answer": "Yes, we conduct training at your location or at our demonstration apiaries."},
+        {"question": "How long is the training?", "answer": "Training ranges from 1-day workshops to 2-week intensive courses depending on your needs."}
+      ],
+      "prerequisites": ["Interest in beekeeping", "Training venue (or we can arrange)"],
+      "deliverables": ["Training manual", "Certificate of participation", "Practical demonstration", "Follow-up materials"],
+      "seo_title": "Beekeeping Training & Capacity Building | FeeVert Tanzania",
+      "seo_description": "Practical beekeeping training for beginners and advanced beekeepers in Tanzania. Farmer field schools, modern techniques, and post-harvest handling."
+    }
+  },
+  {
+    "model": "consultations.consultationservice",
+    "pk": 5,
+    "fields": {
+      "created_at": "2026-01-01T00:00:00Z",
+      "updated_at": "2026-01-01T00:00:00Z",
+      "is_active": true,
+      "category": 1,
+      "name": "Pollination Services",
+      "slug": "pollination-services",
+      "description": "Provision of managed bee colonies for crop pollination, pollination contracts with farmers and agribusinesses, monitoring and evaluation of pollination efficiency, and advisory services.",
+      "icon": ":sunflower:",
+      "image": null,
+      "price": null,
+      "currency": "TZS",
+      "price_type": "quote",
+      "price_range_min": null,
+      "price_range_max": null,
+      "duration_minutes": 0,
+      "estimated_delivery_days": 14,
+      "max_clients": 15,
+      "is_featured": false,
+      "popularity_score": 75,
+      "order": 5,
+      "benefits": [
+        "Increase crop yields by 30-80%",
+        "Improved fruit quality and size",
+        "Sustainable pollination solution",
+        "Contract-based service for reliability"
+      ],
+      "faq": [
+        {"question": "Which crops benefit from bee pollination?", "answer": "Sunflowers, avocados, watermelons, cucumbers, mangoes, coffee, and many other crops."},
+        {"question": "How many hives do I need?", "answer": "This depends on crop type and farm size. We assess and recommend optimal hive density."}
+      ],
+      "prerequisites": ["Crop farm with flowering plants", "Agreement on pesticide management during pollination"],
+      "deliverables": ["Pollination contract", "Bee colonies placement", "Monitoring report", "Pollination efficiency assessment"],
+      "seo_title": "Bee Pollination Services for Crops | FeeVert Tanzania",
+      "seo_description": "Managed bee pollination services for crop farmers in Tanzania. Increase yields with professional pollination solutions for various crop types."
+    }
+  },
+  {
+    "model": "consultations.consultationservice",
+    "pk": 6,
+    "fields": {
+      "created_at": "2026-01-01T00:00:00Z",
+      "updated_at": "2026-01-01T00:00:00Z",
+      "is_active": true,
+      "category": 2,
+      "name": "Environmental Impact Assessment (EIA/ESIA)",
+      "slug": "environmental-impact-assessment",
+      "description": "Screening and scoping of projects, full Environmental and Social Impact Assessments (ESIA), preparation of Environmental Impact Statements (EIS), stakeholder consultations, and Environmental and Social Management Plans (ESMPs).",
+      "icon": ":clipboard:",
+      "image": null,
+      "price": null,
+      "currency": "TZS",
+      "price_type": "quote",
+      "price_range_min": null,
+      "price_range_max": null,
+      "duration_minutes": 0,
+      "estimated_delivery_days": 60,
+      "max_clients": 5,
+      "is_featured": true,
+      "popularity_score": 92,
+      "order": 1,
+      "benefits": [
+        "NEMC-compliant EIA reports",
+        "Experienced multidisciplinary team",
+        "Stakeholder engagement expertise",
+        "Timely delivery within regulatory timelines"
+      ],
+      "faq": [
+        {"question": "How long does an EIA take?", "answer": "A full EIA typically takes 30-90 days depending on project complexity and regulatory requirements."},
+        {"question": "Do you handle NEMC registration?", "answer": "Yes, we guide clients through the entire NEMC registration and EIA approval process."}
+      ],
+      "prerequisites": ["Project concept note", "Land ownership documents", "Project location details"],
+      "deliverables": ["EIA/ESIA Report", "Environmental Impact Statement", "ESMP Document", "Stakeholder consultation report", "NEMC submission package"],
+      "seo_title": "Environmental Impact Assessment (EIA) Services | FeeVert Tanzania",
+      "seo_description": "NEMC-compliant Environmental Impact Assessment (EIA/ESIA) services in Tanzania. Full project screening, assessments, and regulatory compliance support."
+    }
+  },
+  {
+    "model": "consultations.consultationservice",
+    "pk": 7,
+    "fields": {
+      "created_at": "2026-01-01T00:00:00Z",
+      "updated_at": "2026-01-01T00:00:00Z",
+      "is_active": true,
+      "category": 2,
+      "name": "Environmental Audits & Compliance Monitoring",
+      "slug": "environmental-audits",
+      "description": "Environmental compliance audits, performance monitoring and reporting, legal compliance registers, post-EIA audit and follow-up studies, due diligence audits for investors and financiers.",
+      "icon": ":search:",
+      "image": null,
+      "price": null,
+      "currency": "TZS",
+      "price_type": "quote",
+      "price_range_min": null,
+      "price_range_max": null,
+      "duration_minutes": 0,
+      "estimated_delivery_days": 30,
+      "max_clients": 10,
+      "is_featured": true,
+      "popularity_score": 87,
+      "order": 2,
+      "benefits": [
+        "Identify compliance gaps before regulatory inspections",
+        "Reduce risk of penalties and shutdowns",
+        "Improve environmental performance",
+        "Investor confidence through due diligence"
+      ],
+      "faq": [
+        {"question": "How often should environmental audits be done?", "answer": "We recommend annual audits, though regulatory requirements may vary by sector."},
+        {"question": "Can you help fix compliance issues found?", "answer": "Yes, we provide corrective action plans and can assist with implementation."}
+      ],
+      "prerequisites": ["Existing operations or project", "Previous EIA reports (if any)", "Environmental permits"],
+      "deliverables": ["Audit report", "Compliance register", "Corrective action plan", "Performance monitoring framework"],
+      "seo_title": "Environmental Audit & Compliance Monitoring | FeeVert Tanzania",
+      "seo_description": "Professional environmental audit and compliance monitoring services in Tanzania. Identify gaps, ensure regulatory compliance, and improve environmental performance."
+    }
+  },
+  {
+    "model": "consultations.consultationservice",
+    "pk": 8,
+    "fields": {
+      "created_at": "2026-01-01T00:00:00Z",
+      "updated_at": "2026-01-01T00:00:00Z",
+      "is_active": true,
+      "category": 2,
+      "name": "Pollution Control & Waste Management",
+      "slug": "pollution-control",
+      "description": "Solid waste management planning, hazardous waste management, waste minimization and circular economy solutions, air pollution control strategies, wastewater treatment and effluent management.",
+      "icon": ":recycle:",
+      "image": null,
+      "price": null,
+      "currency": "TZS",
+      "price_type": "quote",
+      "price_range_min": null,
+      "price_range_max": null,
+      "duration_minutes": 0,
+      "estimated_delivery_days": 45,
+      "max_clients": 8,
+      "is_featured": true,
+      "popularity_score": 83,
+      "order": 3,
+      "benefits": [
+        "Reduce waste disposal costs",
+        "Comply with environmental regulations",
+        "Implement circular economy principles",
+        "Improve public image and sustainability ratings"
+      ],
+      "faq": [
+        {"question": "Can you design a full waste management system?", "answer": "Yes, we design comprehensive waste management systems tailored to your operations."},
+        {"question": "Do you handle hazardous waste?", "answer": "Yes, we provide hazardous waste assessment, handling procedures, and disposal guidance."}
+      ],
+      "prerequisites": ["Waste audit or inventory", "Site access", "Operational data"],
+      "deliverables": ["Waste management plan", "Pollution control strategy", "Treatment system design", "Staff training materials"],
+      "seo_title": "Pollution Control & Waste Management Services | FeeVert Tanzania",
+      "seo_description": "Expert pollution control and waste management consultancy in Tanzania. Solid waste, hazardous waste, wastewater treatment, and circular economy solutions."
+    }
+  },
+  {
+    "model": "consultations.consultationservice",
+    "pk": 9,
+    "fields": {
+      "created_at": "2026-01-01T00:00:00Z",
+      "updated_at": "2026-01-01T00:00:00Z",
+      "is_active": true,
+      "category": 2,
+      "name": "Climate Change & Sustainability Services",
+      "slug": "climate-change-sustainability",
+      "description": "Climate risk and vulnerability assessments, greenhouse gas (GHG) inventories and carbon footprinting, carbon credit and offset project development, climate adaptation and mitigation strategies, ESG advisory and reporting.",
+      "icon": ":globe:",
+      "image": null,
+      "price": null,
+      "currency": "TZS",
+      "price_type": "quote",
+      "price_range_min": null,
+      "price_range_max": null,
+      "duration_minutes": 0,
+      "estimated_delivery_days": 60,
+      "max_clients": 5,
+      "is_featured": false,
+      "popularity_score": 80,
+      "order": 4,
+      "benefits": [
+        "Access carbon markets and climate finance",
+        "Meet international sustainability standards",
+        "Enhance corporate ESG ratings",
+        "Climate-proof your operations"
+      ],
+      "faq": [
+        {"question": "What is a carbon footprint?", "answer": "It's the total greenhouse gas emissions caused directly and indirectly by your activities, expressed as carbon dioxide equivalent."},
+        {"question": "Can you help with carbon credits?", "answer": "Yes, we identify, develop, and facilitate carbon credit projects in various sectors."}
+      ],
+      "prerequisites": ["Operational data (energy, transport, waste)", "Organizational boundary definition"],
+      "deliverables": ["GHG Inventory report", "Carbon footprint assessment", "Climate risk assessment", "Sustainability strategy", "ESG report template"],
+      "seo_title": "Climate Change & Sustainability Consultancy | FeeVert Tanzania",
+      "seo_description": "Climate change and sustainability consultancy services. Carbon footprinting, GHG inventories, climate risk assessment, and ESG advisory in Tanzania."
+    }
+  },
+  {
+    "model": "consultations.consultationservice",
+    "pk": 10,
+    "fields": {
+      "created_at": "2026-01-01T00:00:00Z",
+      "updated_at": "2026-01-01T00:00:00Z",
+      "is_active": true,
+      "category": 2,
+      "name": "Environmental Data Management & GIS Services",
+      "slug": "gis-services",
+      "description": "Geographic Information Systems (GIS) mapping, remote sensing and environmental data analysis, environmental database development, monitoring dashboards and reporting systems.",
+      "icon": ":map:",
+      "image": null,
+      "price": null,
+      "currency": "TZS",
+      "price_type": "quote",
+      "price_range_min": null,
+      "price_range_max": null,
+      "duration_minutes": 0,
+      "estimated_delivery_days": 30,
+      "max_clients": 10,
+      "is_featured": false,
+      "popularity_score": 78,
+      "order": 5,
+      "benefits": [
+        "Data-driven environmental decision making",
+        "Interactive maps and dashboards",
+        "Improved monitoring and reporting",
+        "Integration with existing systems"
+      ],
+      "faq": [
+        {"question": "What GIS software do you use?", "answer": "We use industry-standard tools including ArcGIS, QGIS, and Google Earth Engine."},
+        {"question": "Can you create interactive web maps?", "answer": "Yes, we develop web-based GIS dashboards for real-time environmental monitoring."}
+      ],
+      "prerequisites": ["Data requirements assessment", "Access to relevant datasets"],
+      "deliverables": ["GIS maps (digital & print)", "Environmental database", "Monitoring dashboard", "Training on system usage"],
+      "seo_title": "Environmental GIS & Data Management Services | FeeVert Tanzania",
+      "seo_description": "GIS mapping, remote sensing, and environmental data management services in Tanzania. Spatial analysis, database development, and monitoring dashboards."
+    }
+  },
+  {
+    "model": "consultations.consultationservice",
+    "pk": 11,
+    "fields": {
+      "created_at": "2026-01-01T00:00:00Z",
+      "updated_at": "2026-01-01T00:00:00Z",
+      "is_active": true,
+      "category": 3,
+      "name": "OHS Compliance & Legal Advisory",
+      "slug": "ohs-compliance",
+      "description": "Interpretation and implementation of national OHS laws and regulations (OSHA), workplace registration and compliance support, development of compliance checklists and legal registers, representation during inspections and audits.",
+      "icon": ":scroll:",
+      "image": null,
+      "price": null,
+      "currency": "TZS",
+      "price_type": "quote",
+      "price_range_min": null,
+      "price_range_max": null,
+      "duration_minutes": 0,
+      "estimated_delivery_days": 21,
+      "max_clients": 15,
+      "is_featured": true,
+      "popularity_score": 90,
+      "order": 1,
+      "benefits": [
+        "Full OSHA compliance assurance",
+        "Reduced risk of penalties and fines",
+        "Professional representation during inspections",
+        "Up-to-date legal registers"
+      ],
+      "faq": [
+        {"question": "Is workplace registration mandatory?", "answer": "Yes, all workplaces in Tanzania must be registered with OSHA under the OHS Act."},
+        {"question": "How often do regulations change?", "answer": "Regulations are updated periodically. We keep clients informed of changes and help them adapt."}
+      ],
+      "prerequisites": ["Workplace details", "Current compliance status (if known)"],
+      "deliverables": ["Compliance assessment report", "Legal register", "OSHA registration support", "Inspection preparation guide"],
+      "seo_title": "OHS Compliance & Legal Advisory Services | FeeVert Tanzania",
+      "seo_description": "Expert OHS compliance and legal advisory services in Tanzania. OSHA workplace registration, compliance checklists, legal registers, and inspection support."
+    }
+  },
+  {
+    "model": "consultations.consultationservice",
+    "pk": 12,
+    "fields": {
+      "created_at": "2026-01-01T00:00:00Z",
+      "updated_at": "2026-01-01T00:00:00Z",
+      "is_active": true,
+      "category": 3,
+      "name": "Workplace Risk Assessment & Hazard Identification",
+      "slug": "risk-assessment",
+      "description": "Comprehensive workplace risk assessments (HIRA), Job Safety Analysis (JSA), hazard identification (physical, chemical, biological, ergonomic, psychosocial), risk control planning using hierarchy of controls.",
+      "icon": ":warning:",
+      "image": null,
+      "price": null,
+      "currency": "TZS",
+      "price_type": "quote",
+      "price_range_min": null,
+      "price_range_max": null,
+      "duration_minutes": 0,
+      "estimated_delivery_days": 14,
+      "max_clients": 10,
+      "is_featured": true,
+      "popularity_score": 88,
+      "order": 2,
+      "benefits": [
+        "Identify workplace hazards before incidents occur",
+        "Prioritize risks using proven methodologies",
+        "Implement effective control measures",
+        "Create a safer work environment"
+      ],
+      "faq": [
+        {"question": "How often should risk assessments be done?", "answer": "Risk assessments should be reviewed at least annually, and whenever there are changes in processes, equipment, or personnel."},
+        {"question": "What is the hierarchy of controls?", "answer": "It's a system for controlling risks: Elimination > Substitution > Engineering > Administrative > PPE."}
+      ],
+      "prerequisites": ["Workplace access", "Process documentation", "Employee availability for consultation"],
+      "deliverables": ["Risk assessment report", "Hazard register", "Control measures plan", "JSA templates", "Staff awareness poster"],
+      "seo_title": "Workplace Risk Assessment & Hazard Identification | FeeVert Tanzania",
+      "seo_description": "Professional workplace risk assessment and hazard identification services. HIRA, JSA, and risk control planning for safer workplaces in Tanzania."
+    }
+  },
+  {
+    "model": "consultations.consultationservice",
+    "pk": 13,
+    "fields": {
+      "created_at": "2026-01-01T00:00:00Z",
+      "updated_at": "2026-01-01T00:00:00Z",
+      "is_active": true,
+      "category": 3,
+      "name": "Occupational Health & Safety Audits",
+      "slug": "ohs-audits",
+      "description": "Internal and external OHS audits, compliance audits against national laws and international standards (ISO 45001), gap analysis and corrective action planning, pre-certification and surveillance audits.",
+      "icon": ":chart:",
+      "image": null,
+      "price": null,
+      "currency": "TZS",
+      "price_type": "quote",
+      "price_range_min": null,
+      "price_range_max": null,
+      "duration_minutes": 0,
+      "estimated_delivery_days": 21,
+      "max_clients": 8,
+      "is_featured": true,
+      "popularity_score": 85,
+      "order": 3,
+      "benefits": [
+        "Identify gaps against ISO 45001 standards",
+        "Prepare for certification audits",
+        "Improve OHS management systems",
+        "Demonstrate commitment to safety"
+      ],
+      "faq": [
+        {"question": "What is ISO 45001?", "answer": "It's the international standard for Occupational Health and Safety Management Systems, replacing OHSAS 18001."},
+        {"question": "How long does an OHS audit take?", "answer": "Depending on organization size, a full OHS audit takes 3-10 days on-site plus reporting time."}
+      ],
+      "prerequisites": ["OHS documentation", "Workplace access", "Management commitment"],
+      "deliverables": ["OHS audit report", "Gap analysis", "Corrective action plan", "ISO 45001 readiness assessment"],
+      "seo_title": "Occupational Health & Safety Audit Services | FeeVert Tanzania",
+      "seo_description": "Comprehensive OHS audit services in Tanzania. ISO 45001 gap analysis, compliance audits, and corrective action planning for workplace safety."
+    }
+  },
+  {
+    "model": "consultations.consultationservice",
+    "pk": 14,
+    "fields": {
+      "created_at": "2026-01-01T00:00:00Z",
+      "updated_at": "2026-01-01T00:00:00Z",
+      "is_active": true,
+      "category": 3,
+      "name": "OHS Training & Capacity Building",
+      "slug": "ohs-training",
+      "description": "Occupational safety training programs: general workplace safety, fire safety and emergency response, first aid and CPR, working at heights, confined space entry, electrical safety. Toolbox talks and on-site coaching.",
+      "icon": ":graduate:",
+      "image": null,
+      "price": null,
+      "currency": "TZS",
+      "price_type": "range",
+      "price_range_min": "300000",
+      "price_range_max": "3000000",
+      "duration_minutes": 480,
+      "estimated_delivery_days": 7,
+      "max_clients": 30,
+      "is_featured": false,
+      "popularity_score": 82,
+      "order": 4,
+      "benefits": [
+        "Certified OHS training programs",
+        "Practical hands-on exercises",
+        "Certificate of completion for participants",
+        "Customized to your workplace needs"
+      ],
+      "faq": [
+        {"question": "Do you provide certificates?", "answer": "Yes, participants receive certificates of completion recognized by OSHA."},
+        {"question": "Can training be done at our site?", "answer": "Yes, we conduct both on-site and off-site training programs."}
+      ],
+      "prerequisites": ["Training venue or facility access", "Minimum 10 participants", "Training needs assessment"],
+      "deliverables": ["Training materials", "Participant certificates", "Training report", "Post-training evaluation"],
+      "seo_title": "OHS Training & Capacity Building Programs | FeeVert Tanzania",
+      "seo_description": "Certified occupational health and safety training programs in Tanzania. Fire safety, first aid, working at heights, confined space, and electrical safety."
+    }
+  },
+  {
+    "model": "consultations.consultationservice",
+    "pk": 15,
+    "fields": {
+      "created_at": "2026-01-01T00:00:00Z",
+      "updated_at": "2026-01-01T00:00:00Z",
+      "is_active": true,
+      "category": 3,
+      "name": "Incident Investigation & Reporting",
+      "slug": "incident-investigation",
+      "description": "Investigation of workplace accidents and near-misses, root cause analysis (RCA), preparation of incident reports and corrective actions, support in legal and insurance documentation.",
+      "icon": ":detective:",
+      "image": null,
+      "price": null,
+      "currency": "TZS",
+      "price_type": "quote",
+      "price_range_min": null,
+      "price_range_max": null,
+      "duration_minutes": 0,
+      "estimated_delivery_days": 14,
+      "max_clients": 5,
+      "is_featured": false,
+      "popularity_score": 76,
+      "order": 5,
+      "benefits": [
+        "Identify true root causes of incidents",
+        "Prevent recurrence through effective corrective actions",
+        "Professional documentation for legal purposes",
+        "Reduce incident rates over time"
+      ],
+      "faq": [
+        {"question": "How soon should an incident be investigated?", "answer": "As soon as possible, ideally within 24 hours, while evidence is fresh and witnesses are available."},
+        {"question": "Do you provide legal support?", "answer": "We provide technical investigation reports that can support legal and insurance processes."}
+      ],
+      "prerequisites": ["Incident details", "Access to incident site", "Availability of witnesses"],
+      "deliverables": ["Incident investigation report", "Root cause analysis", "Corrective action plan", "Prevention recommendations"],
+      "seo_title": "Workplace Incident Investigation & Reporting | FeeVert Tanzania",
+      "seo_description": "Professional workplace incident investigation and reporting services. Root cause analysis, corrective actions, and legal documentation support in Tanzania."
+    }
+  }
+]

@@ -1,0 +1,395 @@
+/* ============================================
+   FEEVERT - GLOWING GLASS FORM SYSTEM
+   Pill-Shaped + Soft Glass
+   ============================================ */
+
+/* ============ FORM GROUP ============ */
+.form-group {
+  margin-bottom: var(--g-space-4);
+}
+
+/* ============ LABEL ============ */
+.form-label {
+  display: block;
+  margin-bottom: var(--g-space-2);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--g-text-secondary);
+}
+
+.form-label-required::after {
+  content: ' *';
+  color: #ef4444;
+}
+
+/* ============ BASE INPUT - Pill Shape ============ */
+.form-input {
+  width: 100%;
+  padding: 14px 20px;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  border-radius: 9999px;
+  color: var(--g-text-primary);
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.form-input:hover:not(:disabled) {
+  border-color: rgba(16, 185, 129, 0.25);
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #10b981;
+  box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1), 0 0 20px rgba(16, 185, 129, 0.1);
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.form-input::placeholder {
+  color: rgba(0, 0, 0, 0.3);
+}
+
+.form-input:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ============ LIQUID INPUT ============ */
+.form-input-liquid {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
+  border-radius: 9999px;
+  padding: 14px 20px;
+  color: var(--g-text-primary);
+  font-size: 1rem;
+  width: 100%;
+  transition: all 0.3s ease;
+}
+
+.form-input-liquid:focus {
+  outline: none;
+  background: rgba(255, 255, 255, 0.18);
+  border-color: #10b981;
+  box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1), 0 0 30px rgba(16, 185, 129, 0.1);
+}
+
+/* ============ GLASS INPUT ============ */
+.form-input-glass {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 9999px;
+  padding: 14px 20px;
+  color: var(--g-text-primary);
+  font-size: 1rem;
+  width: 100%;
+  transition: all 0.3s ease;
+}
+
+.form-input-glass:focus {
+  outline: none;
+  border-color: #10b981;
+  box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1), 0 0 30px rgba(16, 185, 129, 0.15);
+}
+
+/* ============ INPUT SIZES ============ */
+.form-input-sm { padding: 10px 16px; font-size: 0.8125rem; }
+.form-input-md { padding: 14px 20px; font-size: 1rem; }
+.form-input-lg { padding: 18px 24px; font-size: 1.125rem; }
+
+/* ============ INPUT WITH ICON ============ */
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon {
+  position: absolute;
+  left: 18px;
+  color: var(--g-text-tertiary);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.input-wrapper .form-input,
+.input-wrapper .form-input-liquid,
+.input-wrapper .form-input-glass {
+  padding-left: 48px;
+}
+
+.input-icon-right {
+  position: absolute;
+  right: 18px;
+  color: var(--g-text-tertiary);
+  cursor: pointer;
+  z-index: 1;
+}
+
+/* ============ TEXTAREA - Soft Rounded ============ */
+.form-textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 16px 20px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
+  border-radius: 24px;
+  color: var(--g-text-primary);
+  font-size: 1rem;
+  resize: vertical;
+  transition: all 0.3s ease;
+}
+
+.form-textarea:focus {
+  outline: none;
+  border-color: #10b981;
+  box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1), 0 0 20px rgba(16, 185, 129, 0.1);
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.form-textarea::placeholder {
+  color: rgba(0, 0, 0, 0.3);
+}
+
+/* ============ SELECT - Pill Shape ============ */
+.form-select {
+  width: 100%;
+  padding: 14px 20px;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  border-radius: 9999px;
+  color: var(--g-text-primary);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2310b981'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  background-size: 20px;
+}
+
+.form-select:focus {
+  outline: none;
+  border-color: #10b981;
+  box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1), 0 0 20px rgba(16, 185, 129, 0.1);
+}
+
+/* ============ CHECKBOX & RADIO ============ */
+.form-checkbox {
+  display: flex;
+  align-items: center;
+  gap: var(--g-space-2);
+  cursor: pointer;
+}
+
+.form-checkbox input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  accent-color: #10b981;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.form-checkbox-label {
+  font-size: 0.9375rem;
+  color: var(--g-text-secondary);
+}
+
+.form-radio {
+  display: flex;
+  align-items: center;
+  gap: var(--g-space-2);
+  cursor: pointer;
+}
+
+.form-radio input[type="radio"] {
+  width: 20px;
+  height: 20px;
+  accent-color: #10b981;
+  cursor: pointer;
+}
+
+/* ============ SWITCH/TOGGLE ============ */
+.form-switch {
+  position: relative;
+  display: inline-block;
+  width: 52px;
+  height: 28px;
+}
+
+.form-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.form-switch-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 9999px;
+  transition: all 0.3s ease;
+}
+
+.form-switch-slider::before {
+  content: '';
+  position: absolute;
+  height: 22px;
+  width: 22px;
+  left: 2px;
+  bottom: 2px;
+  background: white;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.form-switch input:checked + .form-switch-slider {
+  background: #10b981;
+  border-color: #10b981;
+}
+
+.form-switch input:checked + .form-switch-slider::before {
+  transform: translateX(24px);
+}
+
+/* ============ HELPER TEXT ============ */
+.form-helper {
+  margin-top: var(--g-space-1);
+  font-size: 0.8125rem;
+  color: var(--g-text-tertiary);
+}
+
+.form-error {
+  margin-top: var(--g-space-1);
+  font-size: 0.8125rem;
+  color: #ef4444;
+}
+
+.form-success {
+  margin-top: var(--g-space-1);
+  font-size: 0.8125rem;
+  color: #10b981;
+}
+
+/* ============ FILE INPUT ============ */
+.form-file {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+.form-file input[type="file"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.form-file-label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--g-space-2);
+  padding: 14px 24px;
+  background: rgba(16, 185, 129, 0.08);
+  border: 1.5px dashed rgba(16, 185, 129, 0.25);
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+  justify-content: center;
+  color: var(--g-text-secondary);
+}
+
+.form-file-label:hover {
+  border-color: #10b981;
+  background: rgba(16, 185, 129, 0.12);
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.1);
+}
+
+/* ============ FORM ROW ============ */
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--g-space-4);
+}
+
+/* ============ FLOATING LABEL ============ */
+.form-floating {
+  position: relative;
+}
+
+.form-floating .form-input,
+.form-floating .form-textarea {
+  padding-top: 24px;
+  padding-bottom: 8px;
+}
+
+.form-floating-label {
+  position: absolute;
+  top: 14px;
+  left: 20px;
+  font-size: 0.875rem;
+  color: var(--g-text-tertiary);
+  pointer-events: none;
+  transition: all 0.2s ease;
+}
+
+.form-floating .form-input:focus ~ .form-floating-label,
+.form-floating .form-input:not(:placeholder-shown) ~ .form-floating-label {
+  top: 6px;
+  font-size: 0.7rem;
+  color: #10b981;
+}
+
+/* ============ DARK MODE ============ */
+.dark .form-input,
+.dark .form-input-liquid,
+.dark .form-input-glass,
+.dark .form-textarea,
+.dark .form-select,
+[data-theme="dark"] .form-input,
+[data-theme="dark"] .form-input-liquid,
+[data-theme="dark"] .form-input-glass,
+[data-theme="dark"] .form-textarea,
+[data-theme="dark"] .form-select {
+  background: rgba(15, 20, 20, 0.3);
+  border-color: rgba(16, 185, 129, 0.1);
+  color: #f1f5f9;
+}
+
+.dark .form-input::placeholder,
+.dark .form-input-liquid::placeholder,
+.dark .form-textarea::placeholder,
+[data-theme="dark"] .form-input::placeholder,
+[data-theme="dark"] .form-input-liquid::placeholder,
+[data-theme="dark"] .form-textarea::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.dark .form-input:focus,
+.dark .form-input-liquid:focus,
+.dark .form-textarea:focus,
+.dark .form-select:focus,
+[data-theme="dark"] .form-input:focus,
+[data-theme="dark"] .form-input-liquid:focus,
+[data-theme="dark"] .form-textarea:focus,
+[data-theme="dark"] .form-select:focus {
+  border-color: #10b981;
+  background: rgba(20, 25, 25, 0.4);
+}
