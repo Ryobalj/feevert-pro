@@ -38,102 +38,98 @@ const getDisplayPrice = (service) => {
   return 'Contact for pricing'
 }
 
-// ============ 🆕 SERVICE CARD IMAGE - VERY SMOOTH RANDOM TRANSITIONS ============
-const ServiceCardImage = ({ service }) => {
+// ============ 🆕 IMAGE CAROUSEL - SAME AS HOMEPAGE ============
+const CardImage = ({ item, type = 'service' }) => {
   const [currentImage, setCurrentImage] = React.useState(0)
   const [isHovering, setIsHovering] = React.useState(false)
   const [transitionType, setTransitionType] = React.useState('fade')
   const [prevImage, setPrevImage] = React.useState(null)
 
-  // Kusanya images zote
   const images = React.useMemo(() => {
     const imgs = []
 
-    if (service.primary_image_url) {
-      imgs.push(service.primary_image_url)
+    const addImage = (url) => {
+      if (url && typeof url === 'string' && url.length > 0 && !imgs.includes(url)) {
+        imgs.push(url)
+      }
     }
 
-    if (service.all_images && Array.isArray(service.all_images)) {
-      service.all_images.forEach(img => {
-        if (img.image_url && !imgs.includes(img.image_url)) {
-          imgs.push(img.image_url)
-        }
-      })
+    const extractUrl = (field) => {
+      if (!field) return null
+      if (typeof field === 'string') return field
+      if (typeof field === 'object') {
+        if (field.url) return field.url
+        if (field.image_url) return typeof field.image_url === 'string' ? field.image_url : field.image_url.url
+        if (field.image) return typeof field.image === 'string' ? field.image : field.image.url
+      }
+      return null
     }
 
-    if (imgs.length === 0 && service.gallery && Array.isArray(service.gallery)) {
-      service.gallery.forEach(img => {
-        const url = typeof img === 'string' ? img : img.image_url || img.image
-        if (url && !imgs.includes(url)) imgs.push(url)
-      })
-    }
-
-    if (imgs.length === 0 && service.image_url) {
-      imgs.push(service.image_url)
-    }
-
-    if (imgs.length === 0 && service.image) {
-      const url = typeof service.image === 'string' ? service.image : service.image.url || service.image
-      if (url) imgs.push(url)
+    if (type === 'project') {
+      addImage(extractUrl(item.featured_image))
+      addImage(extractUrl(item.image))
+      addImage(item.image_url)
+      if (item.gallery && Array.isArray(item.gallery)) {
+        item.gallery.forEach(img => {
+          addImage(extractUrl(img))
+        })
+      }
+    } else {
+      // Service
+      addImage(item.primary_image_url)
+      addImage(extractUrl(item.image))
+      addImage(item.image_url)
+      if (item.all_images && Array.isArray(item.all_images)) {
+        item.all_images.forEach(img => {
+          addImage(extractUrl(img))
+          if (img && typeof img === 'object') {
+            addImage(img.image_url)
+          }
+        })
+      }
+      if (item.gallery && Array.isArray(item.gallery)) {
+        item.gallery.forEach(img => {
+          addImage(extractUrl(img))
+          if (img && typeof img === 'object') {
+            addImage(img.image_url)
+          }
+        })
+      }
     }
 
     return imgs
-  }, [service])
+  }, [item, type])
 
   const hasMultipleImages = images.length > 1
 
-  // Random transition styles
-  const transitions = [
-    'fade',
-    'slide-left',
-    'slide-right',
-    'slide-up',
-    'slide-down',
-    'zoom-in',
-    'zoom-out',
-  ]
+  const transitions = ['fade', 'slide-left', 'slide-right', 'slide-up', 'slide-down', 'zoom-in', 'zoom-out']
 
-  // Change image with random transition
   const changeImage = React.useCallback((newIndex, transition = null) => {
     setPrevImage(currentImage)
-    const randomTransition = transition || transitions[Math.floor(Math.random() * transitions.length)]
-    setTransitionType(randomTransition)
+    setTransitionType(transition || transitions[Math.floor(Math.random() * transitions.length)])
     setCurrentImage(newIndex)
   }, [currentImage])
 
-  // Next image
   const goNext = React.useCallback(() => {
-    const newIndex = (currentImage + 1) % images.length
-    changeImage(newIndex)
+    changeImage((currentImage + 1) % images.length)
   }, [currentImage, images.length, changeImage])
 
-  // Previous image
   const goPrev = React.useCallback(() => {
-    const newIndex = (currentImage - 1 + images.length) % images.length
-    changeImage(newIndex)
+    changeImage((currentImage - 1 + images.length) % images.length)
   }, [currentImage, images.length, changeImage])
 
-  // Auto-slide - VERY SLOW (6000ms)
   React.useEffect(() => {
     if (!isHovering && hasMultipleImages) {
-      const interval = setInterval(() => {
-        goNext()
-      }, 6000)
+      const interval = setInterval(goNext, 6000)
       return () => clearInterval(interval)
     }
   }, [isHovering, hasMultipleImages, goNext])
 
-  // Get smooth transition classes
   const getTransitionClasses = (index) => {
     const isActive = index === currentImage
     const isLeaving = index === prevImage && prevImage !== currentImage
 
-    // Active image - always fully visible
-    if (isActive) {
-      return 'opacity-100 translate-x-0 translate-y-0 scale-100'
-    }
-
-    // Leaving image - animate out based on transition type
+    if (isActive) return 'opacity-100 translate-x-0 translate-y-0 scale-100'
     if (isLeaving) {
       switch (transitionType) {
         case 'slide-left': return 'opacity-0 -translate-x-full'
@@ -142,12 +138,9 @@ const ServiceCardImage = ({ service }) => {
         case 'slide-down': return 'opacity-0 translate-y-full'
         case 'zoom-in': return 'opacity-0 scale-150'
         case 'zoom-out': return 'opacity-0 scale-50'
-        case 'fade':
         default: return 'opacity-0'
       }
     }
-
-    // Incoming image - start position based on transition type
     switch (transitionType) {
       case 'slide-left': return 'opacity-100 translate-x-full'
       case 'slide-right': return 'opacity-100 -translate-x-full'
@@ -155,26 +148,11 @@ const ServiceCardImage = ({ service }) => {
       case 'slide-down': return 'opacity-100 -translate-y-full'
       case 'zoom-in': return 'opacity-0 scale-50'
       case 'zoom-out': return 'opacity-0 scale-150'
-      case 'fade':
       default: return 'opacity-0'
     }
   }
 
-  // Kama hakuna images, onyesha gradient placeholder
-  if (images.length === 0) {
-    return (
-      <div className="relative h-44 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/20 via-green-500/10 to-teal-500/20 flex items-center justify-center">
-          <div className="absolute top-4 right-4 w-20 h-20 rounded-full bg-white/5 group-hover:scale-150 transition-transform duration-1000" />
-          <div className="absolute bottom-4 left-4 w-14 h-14 rounded-full bg-emerald-400/5 group-hover:scale-125 transition-transform duration-700" />
-          <div className="absolute top-1/2 right-1/3 w-8 h-8 rounded-full bg-white/8 group-hover:scale-150 transition-transform duration-700 delay-100" />
-          <span className="text-5xl relative z-10 opacity-60 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500">
-            {service.icon ? getIcon(service.icon) : '🛠️'}
-          </span>
-        </div>
-      </div>
-    )
-  }
+  if (images.length === 0) return null
 
   return (
     <div
@@ -182,84 +160,40 @@ const ServiceCardImage = ({ service }) => {
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
     >
-      {/* Images with VERY SMOOTH transitions */}
       {images.map((img, index) => (
         <div
           key={index}
-          className={`absolute inset-0 transition-all duration-1000 ease-[cubic-bezier(0.4,0,0.2,1)] ${
-            getTransitionClasses(index)
-          }`}
+          className={`absolute inset-0 transition-all duration-1000 ease-[cubic-bezier(0.4,0,0.2,1)] ${getTransitionClasses(index)}`}
         >
           <img
             src={img}
-            alt={`${service.name} - ${index + 1}`}
+            alt=""
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 ease-[cubic-bezier(0.4,0,0.2,1)]"
             loading="lazy"
-            onError={(e) => {
-              e.target.style.display = 'none'
-            }}
+            onError={(e) => { e.target.style.display = 'none' }}
           />
         </div>
       ))}
-
-      {/* Gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-t from-[#0d3320] via-[#0d3320]/30 to-transparent pointer-events-none" />
 
-      {/* ============ CONTROLS (FOR MULTIPLE IMAGES ONLY) ============ */}
       {hasMultipleImages && (
         <>
-          {/* Counter (top right) */}
-          <div className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-black/50 backdrop-blur-sm text-white text-[10px] font-medium z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            {currentImage + 1}/{images.length}
-          </div>
-
-          {/* Dots indicator */}
-          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
-            {images.map((_, index) => (
+          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
+            {images.map((_, i) => (
               <button
-                key={index}
-                onClick={(e) => {
-                  e.preventDefault()
-                  e.stopPropagation()
-                  changeImage(index)
-                }}
-                className={`rounded-full transition-all duration-500 ${
-                  index === currentImage
-                    ? 'bg-emerald-400 w-5 h-2 shadow-lg shadow-emerald-500/30'
-                    : 'bg-white/50 w-2 h-2 hover:bg-white/80'
-                }`}
-                aria-label={`Image ${index + 1}`}
+                key={i}
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); changeImage(i) }}
+                className={`rounded-full transition-all duration-500 ${i === currentImage ? 'bg-emerald-400 w-4 h-2' : 'bg-white/50 w-2 h-2 hover:bg-white/80'}`}
               />
             ))}
           </div>
-
-          {/* Navigation arrows (visible on hover) */}
-          <button
-            onClick={(e) => {
-              e.preventDefault()
-              e.stopPropagation()
-              goPrev()
-            }}
-            className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/50 backdrop-blur-sm text-white/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500 z-10 hover:bg-black/70 hover:text-white hover:scale-110 border border-white/10"
-            aria-label="Previous image"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
+          <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); goPrev() }}
+            className="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/40 text-white/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500 z-10 hover:bg-black/60">
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
           </button>
-          <button
-            onClick={(e) => {
-              e.preventDefault()
-              e.stopPropagation()
-              goNext()
-            }}
-            className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/50 backdrop-blur-sm text-white/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500 z-10 hover:bg-black/70 hover:text-white hover:scale-110 border border-white/10"
-            aria-label="Next image"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
+          <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); goNext() }}
+            className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/40 text-white/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500 z-10 hover:bg-black/60">
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
           </button>
         </>
       )}
@@ -386,8 +320,8 @@ const ServicesPage = () => {
                 <Link to={`/services/${service.id}`} className="block group h-full">
                   <div className="glass-card h-full flex flex-col relative overflow-hidden hover:border-emerald-400/30 hover:shadow-lg hover:shadow-emerald-500/5 transition-all duration-500 p-0">
 
-                    {/* 🆕 VERY SMOOTH IMAGE CAROUSEL */}
-                    <ServiceCardImage service={service} />
+                    {/* ✅ SAME IMAGE CAROUSEL AS HOMEPAGE */}
+                    <CardImage item={service} type="service" />
 
                     {/* Top accent */}
                     <div className="h-1 bg-gradient-to-r from-emerald-400/0 via-emerald-400/0 to-emerald-400/0 group-hover:from-emerald-400/20 group-hover:via-emerald-400/40 group-hover:to-emerald-400/20 transition-all duration-500" />

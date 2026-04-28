@@ -20,6 +20,173 @@ const getIcon = (icon) => {
   return iconMap[icon] || icon
 }
 
+// ============ 🆕 IMAGE CAROUSEL COMPONENT (kwa card zote) ============
+const CardImage = ({ item, type = 'service' }) => {
+  const [currentImage, setCurrentImage] = React.useState(0)
+  const [isHovering, setIsHovering] = React.useState(false)
+  const [transitionType, setTransitionType] = React.useState('fade')
+  const [prevImage, setPrevImage] = React.useState(null)
+
+  const images = React.useMemo(() => {
+    const imgs = []
+
+    const addImage = (url) => {
+      if (url && typeof url === 'string' && url.length > 0 && !imgs.includes(url)) {
+        imgs.push(url)
+      }
+    }
+
+    const extractUrl = (field) => {
+      if (!field) return null
+      if (typeof field === 'string') return field
+      if (typeof field === 'object') {
+        if (field.url) return field.url
+        if (field.image_url) return typeof field.image_url === 'string' ? field.image_url : field.image_url.url
+        if (field.image) return typeof field.image === 'string' ? field.image : field.image.url
+      }
+      return null
+    }
+
+    if (type === 'project') {
+      addImage(extractUrl(item.featured_image))
+      addImage(extractUrl(item.image))
+      addImage(item.image_url)
+      if (item.gallery && Array.isArray(item.gallery)) {
+        item.gallery.forEach(img => {
+          addImage(extractUrl(img))
+        })
+      }
+    } else {
+      // Service
+      addImage(item.primary_image_url)
+      addImage(extractUrl(item.image))
+      addImage(item.image_url)
+      if (item.all_images && Array.isArray(item.all_images)) {
+        item.all_images.forEach(img => {
+          addImage(extractUrl(img))
+          if (img && typeof img === 'object') {
+            addImage(img.image_url)
+          }
+        })
+      }
+      if (item.gallery && Array.isArray(item.gallery)) {
+        item.gallery.forEach(img => {
+          addImage(extractUrl(img))
+          if (img && typeof img === 'object') {
+            addImage(img.image_url)
+          }
+        })
+      }
+    }
+
+    return imgs
+  }, [item, type])
+
+  const hasMultipleImages = images.length > 1
+
+  const transitions = ['fade', 'slide-left', 'slide-right', 'slide-up', 'slide-down', 'zoom-in', 'zoom-out']
+
+  const changeImage = React.useCallback((newIndex, transition = null) => {
+    setPrevImage(currentImage)
+    setTransitionType(transition || transitions[Math.floor(Math.random() * transitions.length)])
+    setCurrentImage(newIndex)
+  }, [currentImage])
+
+  const goNext = React.useCallback(() => {
+    changeImage((currentImage + 1) % images.length)
+  }, [currentImage, images.length, changeImage])
+
+  const goPrev = React.useCallback(() => {
+    changeImage((currentImage - 1 + images.length) % images.length)
+  }, [currentImage, images.length, changeImage])
+
+  React.useEffect(() => {
+    if (!isHovering && hasMultipleImages) {
+      const interval = setInterval(goNext, 6000)
+      return () => clearInterval(interval)
+    }
+  }, [isHovering, hasMultipleImages, goNext])
+
+  const getTransitionClasses = (index) => {
+    const isActive = index === currentImage
+    const isLeaving = index === prevImage && prevImage !== currentImage
+
+    if (isActive) return 'opacity-100 translate-x-0 translate-y-0 scale-100'
+    if (isLeaving) {
+      switch (transitionType) {
+        case 'slide-left': return 'opacity-0 -translate-x-full'
+        case 'slide-right': return 'opacity-0 translate-x-full'
+        case 'slide-up': return 'opacity-0 -translate-y-full'
+        case 'slide-down': return 'opacity-0 translate-y-full'
+        case 'zoom-in': return 'opacity-0 scale-150'
+        case 'zoom-out': return 'opacity-0 scale-50'
+        default: return 'opacity-0'
+      }
+    }
+    switch (transitionType) {
+      case 'slide-left': return 'opacity-100 translate-x-full'
+      case 'slide-right': return 'opacity-100 -translate-x-full'
+      case 'slide-up': return 'opacity-100 translate-y-full'
+      case 'slide-down': return 'opacity-100 -translate-y-full'
+      case 'zoom-in': return 'opacity-0 scale-50'
+      case 'zoom-out': return 'opacity-0 scale-150'
+      default: return 'opacity-0'
+    }
+  }
+
+  if (images.length === 0) return null
+
+  // Kwa service cards, onyesha image carousel ndogo
+  const heightClass = type === 'project' ? 'h-48' : 'h-40'
+
+  return (
+    <div
+      className={`relative ${heightClass} overflow-hidden rounded-t-3xl`}
+      onMouseEnter={() => setIsHovering(true)}
+      onMouseLeave={() => setIsHovering(false)}
+    >
+      {images.map((img, index) => (
+        <div
+          key={index}
+          className={`absolute inset-0 transition-all duration-1000 ease-[cubic-bezier(0.4,0,0.2,1)] ${getTransitionClasses(index)}`}
+        >
+          <img
+            src={img}
+            alt=""
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 ease-[cubic-bezier(0.4,0,0.2,1)]"
+            loading="lazy"
+            onError={(e) => { e.target.style.display = 'none' }}
+          />
+        </div>
+      ))}
+      <div className="absolute inset-0 bg-gradient-to-t from-[#0d3320] via-[#0d3320]/30 to-transparent pointer-events-none" />
+
+      {hasMultipleImages && (
+        <>
+          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
+            {images.map((_, i) => (
+              <button
+                key={i}
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); changeImage(i) }}
+                className={`rounded-full transition-all duration-500 ${i === currentImage ? 'bg-emerald-400 w-4 h-2' : 'bg-white/50 w-2 h-2 hover:bg-white/80'}`}
+              />
+            ))}
+          </div>
+          <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); goPrev() }}
+            className="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/40 text-white/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500 z-10 hover:bg-black/60">
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+          </button>
+          <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); goNext() }}
+            className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/40 text-white/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500 z-10 hover:bg-black/60">
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+          </button>
+        </>
+      )}
+    </div>
+  )
+}
+
+// ============ MAIN HOME PAGE ============
 const HomePage = () => {
   const [loading, setLoading] = useState(true)
   const [siteSettings, setSiteSettings] = useState(null)
@@ -58,7 +225,6 @@ const HomePage = () => {
         setFaqs(extractData(faqRes))
         setPartners(extractData(partnersRes))
         
-        // Animate counters
         const targetProjects = extractData(projectsRes).length
         const targetClients = extractData(testimonialsRes).length
         const targetYears = extractData(settingsRes)[0]?.years_experience || 0
@@ -168,10 +334,13 @@ const HomePage = () => {
               {services.slice(0, 6).map((service, i) => (
                 <motion.div key={service.id} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.08 }} whileHover={{ y: -6 }}>
                   <Link to={`/services/${service.id}`} className="block group h-full">
-                    <div className="glass-card h-full flex flex-col hover:border-emerald-400/30 hover:shadow-lg hover:shadow-emerald-500/5 transition-all duration-500">
+                    <div className="glass-card h-full flex flex-col overflow-hidden hover:border-emerald-400/30 hover:shadow-lg hover:shadow-emerald-500/5 transition-all duration-500 p-0">
+                      
+                      {/* 🆕 IMAGE CAROUSEL */}
+                      <CardImage item={service} type="service" />
+
                       <div className="h-1 bg-gradient-to-r from-emerald-400/0 via-emerald-400/0 to-emerald-400/0 group-hover:from-emerald-400/30 group-hover:via-emerald-400/50 group-hover:to-emerald-400/30 transition-all duration-500" />
                       <div className="p-6 flex flex-col h-full">
-                        {/* ICON - Now using getIcon() converter like ServicesPage */}
                         {service.icon && (
                           <span className="text-2xl mb-3 group-hover:scale-110 transition-transform duration-300 inline-block">
                             {getIcon(service.icon)}
@@ -223,7 +392,11 @@ const HomePage = () => {
               {projects.slice(0, 4).map((project, i) => (
                 <motion.div key={project.id} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.08 }} whileHover={{ y: -6 }}>
                   <Link to={`/projects/${project.id}`} className="block group h-full">
-                    <div className="glass-card h-full flex flex-col hover:border-emerald-400/30 transition-all duration-300">
+                    <div className="glass-card h-full flex flex-col overflow-hidden hover:border-emerald-400/30 transition-all duration-300 p-0">
+                      
+                      {/* 🆕 PROJECT IMAGE CAROUSEL */}
+                      <CardImage item={project} type="project" />
+
                       <div className="p-6">
                         <h3 className="text-lg font-bold text-white mb-2 group-hover:text-emerald-400 transition-colors">{project.title}</h3>
                         <p className="text-white/40 text-sm mb-4 flex-1 line-clamp-2 leading-relaxed">{project.description}</p>
@@ -270,9 +443,24 @@ const HomePage = () => {
                   <Link to={`/team/${member.id}`} className="block group">
                     <div className="glass-card text-center hover:border-emerald-400/30 transition-all duration-300">
                       <div className="p-5">
-                        <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-emerald-400 to-green-600 flex items-center justify-center ring-2 ring-white/10 group-hover:ring-emerald-400/40 group-hover:shadow-lg group-hover:shadow-emerald-500/10 transition-all duration-300">
-                          <span className="text-2xl font-bold text-white">{(member.full_name || '?').charAt(0)}</span>
-                        </div>
+                        {/* 🆕 Team avatar - image au initial */}
+                        {member.profile_picture || member.photo || member.image ? (
+                          <div className="w-20 h-20 mx-auto mb-4 rounded-full overflow-hidden ring-2 ring-white/10 group-hover:ring-emerald-400/40 group-hover:shadow-lg transition-all duration-300">
+                            <img
+                              src={member.profile_picture || member.photo || member.image}
+                              alt={member.full_name || member.name}
+                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                              onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex' }}
+                            />
+                            <div className="w-full h-full bg-gradient-to-br from-emerald-400 to-green-600 items-center justify-center hidden">
+                              <span className="text-2xl font-bold text-white">{(member.full_name || '?').charAt(0)}</span>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-emerald-400 to-green-600 flex items-center justify-center ring-2 ring-white/10 group-hover:ring-emerald-400/40 group-hover:shadow-lg group-hover:shadow-emerald-500/10 transition-all duration-300">
+                            <span className="text-2xl font-bold text-white">{(member.full_name || '?').charAt(0)}</span>
+                          </div>
+                        )}
                         <h3 className="font-bold text-white group-hover:text-emerald-400 transition-colors">{member.full_name}</h3>
                         <p className="text-xs text-emerald-400/80 font-semibold uppercase tracking-wider mt-1">{member.role || member.position}</p>
                       </div>
@@ -294,7 +482,7 @@ const HomePage = () => {
         </section>
       )}
 
-      {/* ============ TESTIMONIALS SECTION ============ */}
+      {/* ============ TESTIMONIALS SECTION (unchanged) ============ */}
       {testimonials.length > 0 && (
         <section className="py-20 md:py-28 relative">
           <div className="absolute inset-0 bg-emerald-500/[0.015]" />
@@ -338,7 +526,7 @@ const HomePage = () => {
         </section>
       )}
 
-      {/* ============ FAQ SECTION ============ */}
+      {/* ============ FAQ SECTION (unchanged) ============ */}
       {faqs.length > 0 && (
         <section className="py-20 md:py-28 relative">
           <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-[#0a2a19]/50 to-transparent pointer-events-none" />
@@ -372,7 +560,7 @@ const HomePage = () => {
         </section>
       )}
 
-      {/* ============ PARTNERS SECTION ============ */}
+      {/* ============ PARTNERS SECTION (unchanged) ============ */}
       {partners.length > 0 && (
         <section className="py-16 relative">
           <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-emerald-400/15 to-transparent" />
@@ -395,7 +583,7 @@ const HomePage = () => {
         </section>
       )}
 
-      {/* ============ CTA SECTION ============ */}
+      {/* ============ CTA SECTION (unchanged) ============ */}
       <section className="relative py-24 md:py-32 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-[#0a2a19] via-[#0d3320] to-[#104428]" />
         <motion.div className="absolute top-0 right-0 w-[500px] h-[500px] bg-emerald-500/15 rounded-full blur-[120px]" animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }} transition={{ duration: 8, repeat: Infinity }} />
