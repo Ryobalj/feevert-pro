@@ -38,12 +38,11 @@ const getDisplayPrice = (service) => {
   return 'Contact for pricing'
 }
 
-// ============ 🆕 IMAGE CAROUSEL - SAME AS HOMEPAGE ============
+// ============ ✅ FIXED IMAGE CAROUSEL (SAME LOGIC AS ServiceImageHero) ============
 const CardImage = ({ item, type = 'service' }) => {
   const [currentImage, setCurrentImage] = React.useState(0)
   const [isHovering, setIsHovering] = React.useState(false)
   const [transitionType, setTransitionType] = React.useState('fade')
-  const [prevImage, setPrevImage] = React.useState(null)
 
   const images = React.useMemo(() => {
     const imgs = []
@@ -70,29 +69,22 @@ const CardImage = ({ item, type = 'service' }) => {
       addImage(extractUrl(item.image))
       addImage(item.image_url)
       if (item.gallery && Array.isArray(item.gallery)) {
-        item.gallery.forEach(img => {
-          addImage(extractUrl(img))
-        })
+        item.gallery.forEach(img => addImage(extractUrl(img)))
       }
     } else {
-      // Service
       addImage(item.primary_image_url)
       addImage(extractUrl(item.image))
       addImage(item.image_url)
       if (item.all_images && Array.isArray(item.all_images)) {
         item.all_images.forEach(img => {
           addImage(extractUrl(img))
-          if (img && typeof img === 'object') {
-            addImage(img.image_url)
-          }
+          if (img && typeof img === 'object') addImage(img.image_url)
         })
       }
       if (item.gallery && Array.isArray(item.gallery)) {
         item.gallery.forEach(img => {
           addImage(extractUrl(img))
-          if (img && typeof img === 'object') {
-            addImage(img.image_url)
-          }
+          if (img && typeof img === 'object') addImage(img.image_url)
         })
       }
     }
@@ -101,14 +93,14 @@ const CardImage = ({ item, type = 'service' }) => {
   }, [item, type])
 
   const hasMultipleImages = images.length > 1
-
   const transitions = ['fade', 'slide-left', 'slide-right', 'slide-up', 'slide-down', 'zoom-in', 'zoom-out']
 
+  // ✅ FIXED: Badilisha transition KABLA ya image (kama ServiceImageHero)
   const changeImage = React.useCallback((newIndex, transition = null) => {
-    setPrevImage(currentImage)
-    setTransitionType(transition || transitions[Math.floor(Math.random() * transitions.length)])
+    const randomTransition = transition || transitions[Math.floor(Math.random() * transitions.length)]
+    setTransitionType(randomTransition)
     setCurrentImage(newIndex)
-  }, [currentImage])
+  }, [])
 
   const goNext = React.useCallback(() => {
     changeImage((currentImage + 1) % images.length)
@@ -120,34 +112,28 @@ const CardImage = ({ item, type = 'service' }) => {
 
   React.useEffect(() => {
     if (!isHovering && hasMultipleImages) {
-      const interval = setInterval(goNext, 6000)
+      const interval = setInterval(goNext, 5000)
       return () => clearInterval(interval)
     }
   }, [isHovering, hasMultipleImages, goNext])
 
+  // ✅ FIXED: Sawa na ServiceImageHero - active pekee ina opacity-100
   const getTransitionClasses = (index) => {
     const isActive = index === currentImage
-    const isLeaving = index === prevImage && prevImage !== currentImage
 
-    if (isActive) return 'opacity-100 translate-x-0 translate-y-0 scale-100'
-    if (isLeaving) {
-      switch (transitionType) {
-        case 'slide-left': return 'opacity-0 -translate-x-full'
-        case 'slide-right': return 'opacity-0 translate-x-full'
-        case 'slide-up': return 'opacity-0 -translate-y-full'
-        case 'slide-down': return 'opacity-0 translate-y-full'
-        case 'zoom-in': return 'opacity-0 scale-150'
-        case 'zoom-out': return 'opacity-0 scale-50'
-        default: return 'opacity-0'
-      }
+    if (isActive) {
+      return 'opacity-100 translate-x-0 translate-y-0 scale-100'
     }
+
+    // ALL other images - hidden with start position based on transition type
     switch (transitionType) {
-      case 'slide-left': return 'opacity-100 translate-x-full'
-      case 'slide-right': return 'opacity-100 -translate-x-full'
-      case 'slide-up': return 'opacity-100 translate-y-full'
-      case 'slide-down': return 'opacity-100 -translate-y-full'
-      case 'zoom-in': return 'opacity-0 scale-50'
-      case 'zoom-out': return 'opacity-0 scale-150'
+      case 'slide-left': return 'opacity-0 translate-x-full'
+      case 'slide-right': return 'opacity-0 -translate-x-full'
+      case 'slide-up': return 'opacity-0 translate-y-full'
+      case 'slide-down': return 'opacity-0 -translate-y-full'
+      case 'zoom-in': return 'opacity-0 scale-125'
+      case 'zoom-out': return 'opacity-0 scale-75'
+      case 'fade':
       default: return 'opacity-0'
     }
   }
@@ -163,12 +149,13 @@ const CardImage = ({ item, type = 'service' }) => {
       {images.map((img, index) => (
         <div
           key={index}
-          className={`absolute inset-0 transition-all duration-1000 ease-[cubic-bezier(0.4,0,0.2,1)] ${getTransitionClasses(index)}`}
+          className={`absolute inset-0 transition-all duration-1000 ease-in-out ${getTransitionClasses(index)}`}
         >
           <img
             src={img}
             alt=""
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 ease-[cubic-bezier(0.4,0,0.2,1)]"
+            className="w-full h-full object-cover group-hover:scale-105"
+            style={{ transition: 'transform 1s cubic-bezier(0.4, 0, 0.2, 1)' }}
             loading="lazy"
             onError={(e) => { e.target.style.display = 'none' }}
           />
@@ -320,7 +307,7 @@ const ServicesPage = () => {
                 <Link to={`/services/${service.id}`} className="block group h-full">
                   <div className="glass-card h-full flex flex-col relative overflow-hidden hover:border-emerald-400/30 hover:shadow-lg hover:shadow-emerald-500/5 transition-all duration-500 p-0">
 
-                    {/* ✅ SAME IMAGE CAROUSEL AS HOMEPAGE */}
+                    {/* ✅ FIXED IMAGE CAROUSEL */}
                     <CardImage item={service} type="service" />
 
                     {/* Top accent */}

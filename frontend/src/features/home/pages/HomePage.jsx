@@ -20,12 +20,11 @@ const getIcon = (icon) => {
   return iconMap[icon] || icon
 }
 
-// ============ 🆕 IMAGE CAROUSEL COMPONENT (kwa card zote) ============
+// ============ ✅ FIXED IMAGE CAROUSEL (SAME LOGIC AS ServiceImageHero) ============
 const CardImage = ({ item, type = 'service' }) => {
   const [currentImage, setCurrentImage] = React.useState(0)
   const [isHovering, setIsHovering] = React.useState(false)
   const [transitionType, setTransitionType] = React.useState('fade')
-  const [prevImage, setPrevImage] = React.useState(null)
 
   const images = React.useMemo(() => {
     const imgs = []
@@ -52,9 +51,7 @@ const CardImage = ({ item, type = 'service' }) => {
       addImage(extractUrl(item.image))
       addImage(item.image_url)
       if (item.gallery && Array.isArray(item.gallery)) {
-        item.gallery.forEach(img => {
-          addImage(extractUrl(img))
-        })
+        item.gallery.forEach(img => addImage(extractUrl(img)))
       }
     } else {
       // Service
@@ -64,17 +61,13 @@ const CardImage = ({ item, type = 'service' }) => {
       if (item.all_images && Array.isArray(item.all_images)) {
         item.all_images.forEach(img => {
           addImage(extractUrl(img))
-          if (img && typeof img === 'object') {
-            addImage(img.image_url)
-          }
+          if (img && typeof img === 'object') addImage(img.image_url)
         })
       }
       if (item.gallery && Array.isArray(item.gallery)) {
         item.gallery.forEach(img => {
           addImage(extractUrl(img))
-          if (img && typeof img === 'object') {
-            addImage(img.image_url)
-          }
+          if (img && typeof img === 'object') addImage(img.image_url)
         })
       }
     }
@@ -83,14 +76,14 @@ const CardImage = ({ item, type = 'service' }) => {
   }, [item, type])
 
   const hasMultipleImages = images.length > 1
-
   const transitions = ['fade', 'slide-left', 'slide-right', 'slide-up', 'slide-down', 'zoom-in', 'zoom-out']
 
+  // ✅ FIXED: Badilisha transition KABLA ya image (kama ServiceImageHero)
   const changeImage = React.useCallback((newIndex, transition = null) => {
-    setPrevImage(currentImage)
-    setTransitionType(transition || transitions[Math.floor(Math.random() * transitions.length)])
+    const randomTransition = transition || transitions[Math.floor(Math.random() * transitions.length)]
+    setTransitionType(randomTransition)
     setCurrentImage(newIndex)
-  }, [currentImage])
+  }, [])
 
   const goNext = React.useCallback(() => {
     changeImage((currentImage + 1) % images.length)
@@ -102,41 +95,33 @@ const CardImage = ({ item, type = 'service' }) => {
 
   React.useEffect(() => {
     if (!isHovering && hasMultipleImages) {
-      const interval = setInterval(goNext, 6000)
+      const interval = setInterval(goNext, 5000)
       return () => clearInterval(interval)
     }
   }, [isHovering, hasMultipleImages, goNext])
 
+  // ✅ FIXED: Sawa na ServiceImageHero
   const getTransitionClasses = (index) => {
     const isActive = index === currentImage
-    const isLeaving = index === prevImage && prevImage !== currentImage
 
-    if (isActive) return 'opacity-100 translate-x-0 translate-y-0 scale-100'
-    if (isLeaving) {
-      switch (transitionType) {
-        case 'slide-left': return 'opacity-0 -translate-x-full'
-        case 'slide-right': return 'opacity-0 translate-x-full'
-        case 'slide-up': return 'opacity-0 -translate-y-full'
-        case 'slide-down': return 'opacity-0 translate-y-full'
-        case 'zoom-in': return 'opacity-0 scale-150'
-        case 'zoom-out': return 'opacity-0 scale-50'
-        default: return 'opacity-0'
-      }
+    if (isActive) {
+      return 'opacity-100 translate-x-0 translate-y-0 scale-100'
     }
+
     switch (transitionType) {
-      case 'slide-left': return 'opacity-100 translate-x-full'
-      case 'slide-right': return 'opacity-100 -translate-x-full'
-      case 'slide-up': return 'opacity-100 translate-y-full'
-      case 'slide-down': return 'opacity-100 -translate-y-full'
-      case 'zoom-in': return 'opacity-0 scale-50'
-      case 'zoom-out': return 'opacity-0 scale-150'
+      case 'slide-left': return 'opacity-0 translate-x-full'
+      case 'slide-right': return 'opacity-0 -translate-x-full'
+      case 'slide-up': return 'opacity-0 translate-y-full'
+      case 'slide-down': return 'opacity-0 -translate-y-full'
+      case 'zoom-in': return 'opacity-0 scale-125'
+      case 'zoom-out': return 'opacity-0 scale-75'
+      case 'fade':
       default: return 'opacity-0'
     }
   }
 
   if (images.length === 0) return null
 
-  // Kwa service cards, onyesha image carousel ndogo
   const heightClass = type === 'project' ? 'h-48' : 'h-40'
 
   return (
@@ -148,12 +133,13 @@ const CardImage = ({ item, type = 'service' }) => {
       {images.map((img, index) => (
         <div
           key={index}
-          className={`absolute inset-0 transition-all duration-1000 ease-[cubic-bezier(0.4,0,0.2,1)] ${getTransitionClasses(index)}`}
+          className={`absolute inset-0 transition-all duration-1000 ease-in-out ${getTransitionClasses(index)}`}
         >
           <img
             src={img}
             alt=""
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 ease-[cubic-bezier(0.4,0,0.2,1)]"
+            className="w-full h-full object-cover group-hover:scale-105"
+            style={{ transition: 'transform 1s cubic-bezier(0.4, 0, 0.2, 1)' }}
             loading="lazy"
             onError={(e) => { e.target.style.display = 'none' }}
           />
@@ -336,7 +322,7 @@ const HomePage = () => {
                   <Link to={`/services/${service.id}`} className="block group h-full">
                     <div className="glass-card h-full flex flex-col overflow-hidden hover:border-emerald-400/30 hover:shadow-lg hover:shadow-emerald-500/5 transition-all duration-500 p-0">
                       
-                      {/* 🆕 IMAGE CAROUSEL */}
+                      {/* ✅ FIXED IMAGE CAROUSEL */}
                       <CardImage item={service} type="service" />
 
                       <div className="h-1 bg-gradient-to-r from-emerald-400/0 via-emerald-400/0 to-emerald-400/0 group-hover:from-emerald-400/30 group-hover:via-emerald-400/50 group-hover:to-emerald-400/30 transition-all duration-500" />
@@ -394,7 +380,7 @@ const HomePage = () => {
                   <Link to={`/projects/${project.id}`} className="block group h-full">
                     <div className="glass-card h-full flex flex-col overflow-hidden hover:border-emerald-400/30 transition-all duration-300 p-0">
                       
-                      {/* 🆕 PROJECT IMAGE CAROUSEL */}
+                      {/* ✅ FIXED PROJECT IMAGE CAROUSEL */}
                       <CardImage item={project} type="project" />
 
                       <div className="p-6">
@@ -443,7 +429,6 @@ const HomePage = () => {
                   <Link to={`/team/${member.id}`} className="block group">
                     <div className="glass-card text-center hover:border-emerald-400/30 transition-all duration-300">
                       <div className="p-5">
-                        {/* 🆕 Team avatar - image au initial */}
                         {member.profile_picture || member.photo || member.image ? (
                           <div className="w-20 h-20 mx-auto mb-4 rounded-full overflow-hidden ring-2 ring-white/10 group-hover:ring-emerald-400/40 group-hover:shadow-lg transition-all duration-300">
                             <img
@@ -482,7 +467,7 @@ const HomePage = () => {
         </section>
       )}
 
-      {/* ============ TESTIMONIALS SECTION (unchanged) ============ */}
+      {/* ============ TESTIMONIALS SECTION ============ */}
       {testimonials.length > 0 && (
         <section className="py-20 md:py-28 relative">
           <div className="absolute inset-0 bg-emerald-500/[0.015]" />
@@ -526,7 +511,7 @@ const HomePage = () => {
         </section>
       )}
 
-      {/* ============ FAQ SECTION (unchanged) ============ */}
+      {/* ============ FAQ SECTION ============ */}
       {faqs.length > 0 && (
         <section className="py-20 md:py-28 relative">
           <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-[#0a2a19]/50 to-transparent pointer-events-none" />
@@ -560,7 +545,7 @@ const HomePage = () => {
         </section>
       )}
 
-      {/* ============ PARTNERS SECTION (unchanged) ============ */}
+      {/* ============ PARTNERS SECTION ============ */}
       {partners.length > 0 && (
         <section className="py-16 relative">
           <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-emerald-400/15 to-transparent" />
@@ -583,7 +568,7 @@ const HomePage = () => {
         </section>
       )}
 
-      {/* ============ CTA SECTION (unchanged) ============ */}
+      {/* ============ CTA SECTION ============ */}
       <section className="relative py-24 md:py-32 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-[#0a2a19] via-[#0d3320] to-[#104428]" />
         <motion.div className="absolute top-0 right-0 w-[500px] h-[500px] bg-emerald-500/15 rounded-full blur-[120px]" animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }} transition={{ duration: 8, repeat: Infinity }} />
