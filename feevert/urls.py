@@ -1,9 +1,10 @@
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path  # 🆕 Imeongezwa re_path
 from django.conf import settings
 from django.conf.urls.static import static
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.views.static import serve as static_serve  # 🆕 Imeongezwa
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -228,10 +229,17 @@ urlpatterns = [
 ]
 
 # ============================================================
-# SERVE MEDIA AND STATIC FILES (DEVELOPMENT & PRODUCTION)
+# 🆕 SERVE MEDIA AND STATIC FILES (IMEBOreshwa)
 # ============================================================
 if settings.DEBUG:
+    # Development: tumia static() helper ya kawaida
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 else:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    # Production: static files zinaserviwa na Whitenoise
+    # Media files zinahitaji kuserviwa manually kwa kutumia static_serve
+    urlpatterns += [
+        re_path(r'^media/(?P<path>.*)$', static_serve, {
+            'document_root': settings.MEDIA_ROOT,
+        }),
+    ]

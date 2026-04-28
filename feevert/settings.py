@@ -1,6 +1,6 @@
 """
 Django settings for feevert project.
-Render Ready Configuration - CORS FIXED
+Render Ready Configuration - CLOUDINARY INTEGRATED
 """
 
 import os
@@ -9,6 +9,9 @@ from datetime import timedelta
 from decouple import config
 import sys
 import dj_database_url
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
 
 # ===========================
 # BASE DIRECTORY
@@ -38,9 +41,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
-    'whitenoise.runserver_nostatic',
     
     # Third party apps
+    'cloudinary',                    # 🆕 Cloudinary
+    'cloudinary_storage',            # 🆕 Cloudinary Storage
     'rest_framework',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
@@ -165,15 +169,27 @@ LANGUAGES = [
 LOCALE_PATHS = [BASE_DIR / 'locale']
 
 # ===========================
+# 🆕 CLOUDINARY CONFIGURATION
+# ===========================
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': config('CLOUDINARY_CLOUD_NAME', default=''),
+    'API_KEY': config('CLOUDINARY_API_KEY', default=''),
+    'API_SECRET': config('CLOUDINARY_API_SECRET', default=''),
+}
+
+# Default file storage - Media files zitaenda Cloudinary
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
+# ===========================
 # STATIC & MEDIA FILES
 # ===========================
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# Whitenoise Storage kwa Production
+# Whitenoise Storage - kwa static files (CSS, JS, images za template)
 if not DEBUG:
-    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 else:
     STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
@@ -184,6 +200,7 @@ if os.name == 'posix':
         django.core.files.locks.lock = lambda *args, **kwargs: None
         django.core.files.locks.unlock = lambda *args, **kwargs: None
 
+# Media URL na MEDIA_ROOT bado zinahitajika kwa ajili ya development fallback
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
@@ -226,7 +243,7 @@ CORS_ALLOWED_ORIGINS = [
     'http://localhost:5173',
     'http://127.0.0.1:5173',
     'http://localhost:3000',
-    'https://feevert-frontend.onrender.com',  # <-- FRONTEND YA RENDER
+    'https://feevert-frontend.onrender.com',
     'https://feevert.co.tz',
     'https://www.feevert.co.tz',
     'https://*.ngrok-free.dev',
@@ -262,7 +279,7 @@ if DEBUG:
     ]
 else:
     CSRF_TRUSTED_ORIGINS = [
-        'https://feevert-frontend.onrender.com',  # <-- FRONTEND YA RENDER
+        'https://feevert-frontend.onrender.com',
         'https://feevert.co.tz',
         'https://www.feevert.co.tz',
         'https://*.onrender.com',
