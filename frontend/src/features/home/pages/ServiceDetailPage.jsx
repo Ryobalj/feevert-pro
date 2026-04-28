@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useTheme } from '../../../context/ThemeContext'
 import api from '../../../app/api'
 
@@ -48,11 +48,198 @@ const getDuration = (minutes) => {
   return `${mins}m`
 }
 
+// ============ 🆕 IMAGE HERO CAROUSEL (SLOWER + RANDOM TRANSITIONS) ============
+const ServiceImageHero = ({ service }) => {
+  const [currentImage, setCurrentImage] = useState(0)
+  const [isHovering, setIsHovering] = useState(false)
+  const [transitionType, setTransitionType] = useState('fade')
+
+  const images = React.useMemo(() => {
+    const imgs = []
+
+    if (service.primary_image_url) {
+      imgs.push(service.primary_image_url)
+    }
+
+    if (service.all_images && Array.isArray(service.all_images)) {
+      service.all_images.forEach(img => {
+        if (img.image_url && !imgs.includes(img.image_url)) {
+          imgs.push(img.image_url)
+        }
+      })
+    }
+
+    if (imgs.length === 0 && service.gallery && Array.isArray(service.gallery)) {
+      service.gallery.forEach(img => {
+        const url = typeof img === 'string' ? img : img.image_url || img.image
+        if (url && !imgs.includes(url)) imgs.push(url)
+      })
+    }
+
+    if (imgs.length === 0 && service.image_url) {
+      imgs.push(service.image_url)
+    }
+
+    return imgs
+  }, [service])
+
+  // Transitions mbalimbali
+  const transitions = [
+    'fade',
+    'slide-left',
+    'slide-right',
+    'slide-up',
+    'slide-down',
+    'zoom-in',
+    'zoom-out',
+  ]
+
+  // Badilisha image na transition randomly
+  const changeImage = React.useCallback((newIndex, transition = null) => {
+    const randomTransition = transition || transitions[Math.floor(Math.random() * transitions.length)]
+    setTransitionType(randomTransition)
+    setCurrentImage(newIndex)
+  }, [])
+
+  // Next image
+  const nextImage = React.useCallback(() => {
+    const newIndex = (currentImage + 1) % images.length
+    changeImage(newIndex)
+  }, [currentImage, images.length, changeImage])
+
+  // Previous image
+  const prevImage = React.useCallback(() => {
+    const newIndex = (currentImage - 1 + images.length) % images.length
+    changeImage(newIndex)
+  }, [currentImage, images.length, changeImage])
+
+  // Auto-slide - SLOWER (6000ms = 6 seconds)
+  React.useEffect(() => {
+    if (!isHovering && images.length > 1) {
+      const interval = setInterval(() => {
+        nextImage()
+      }, 6000)
+      return () => clearInterval(interval)
+    }
+  }, [isHovering, images.length, nextImage])
+
+  // Transition classes - SLOWER (duration-1000)
+  const getTransitionClasses = (isActive) => {
+    if (!isActive) {
+      switch (transitionType) {
+        case 'slide-left': return 'opacity-0 translate-x-full'
+        case 'slide-right': return 'opacity-0 -translate-x-full'
+        case 'slide-up': return 'opacity-0 translate-y-full'
+        case 'slide-down': return 'opacity-0 -translate-y-full'
+        case 'zoom-in': return 'opacity-0 scale-125'
+        case 'zoom-out': return 'opacity-0 scale-75'
+        case 'fade':
+        default: return 'opacity-0'
+      }
+    }
+    return 'opacity-100 translate-x-0 translate-y-0 scale-100'
+  }
+
+  if (images.length === 0) return null
+
+  return (
+    <div
+      className="relative aspect-[21/9] md:aspect-[21/7] rounded-2xl overflow-hidden mb-6 group"
+      onMouseEnter={() => setIsHovering(true)}
+      onMouseLeave={() => setIsHovering(false)}
+    >
+      {/* Images with random transitions - SLOWER (duration-1000) */}
+      {images.map((img, index) => (
+        <div
+          key={index}
+          className={`absolute inset-0 transition-all duration-1000 ease-in-out ${
+            getTransitionClasses(index === currentImage)
+          }`}
+        >
+          <img
+            src={img}
+            alt={`${service.name} - ${index + 1}`}
+            className="w-full h-full object-cover"
+            loading="lazy"
+            onError={(e) => { e.target.style.display = 'none' }}
+          />
+        </div>
+      ))}
+
+      {/* Gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-t from-[#0d3320] via-[#0d3320]/20 to-transparent pointer-events-none" />
+
+      {/* Transition indicator (top left) */}
+      {images.length > 1 && (
+        <div className="absolute top-4 left-4 px-2.5 py-1 rounded-full bg-black/40 backdrop-blur-sm text-white/60 text-[10px] font-medium z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          {transitionType.replace('-', ' ')}
+        </div>
+      )}
+
+      {/* Counter (top right) */}
+      {images.length > 1 && (
+        <div className="absolute top-4 right-4 px-2.5 py-1 rounded-full bg-black/50 backdrop-blur-sm text-white text-xs font-medium z-10">
+          {currentImage + 1} / {images.length}
+        </div>
+      )}
+
+      {/* Dots */}
+      {images.length > 1 && (
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+          {images.map((_, index) => (
+            <button
+              key={index}
+              onClick={(e) => { e.stopPropagation(); changeImage(index) }}
+              className={`rounded-full transition-all duration-300 ${
+                index === currentImage
+                  ? 'bg-emerald-400 w-6 h-2 shadow-lg shadow-emerald-500/30'
+                  : 'bg-white/50 w-2 h-2 hover:bg-white/80'
+              }`}
+              aria-label={`Image ${index + 1}`}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Arrows */}
+      {images.length > 1 && (
+        <>
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              prevImage()
+            }}
+            className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/40 backdrop-blur-sm text-white/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 z-10 hover:bg-black/60 hover:text-white"
+            aria-label="Previous image"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              nextImage()
+            }}
+            className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/40 backdrop-blur-sm text-white/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 z-10 hover:bg-black/60 hover:text-white"
+            aria-label="Next image"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </>
+      )}
+    </div>
+  )
+}
+
 const ServiceDetailPage = () => {
   const { id } = useParams()
   const navigate = useNavigate()
   const [service, setService] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [selectedImageIndex, setSelectedImageIndex] = useState(null)
   const { darkMode } = useTheme()
 
   useEffect(() => {
@@ -69,6 +256,55 @@ const ServiceDetailPage = () => {
     }
     loadService()
   }, [id, navigate])
+
+  // Kusanya images zote kwa lightbox
+  const allGalleryImages = React.useMemo(() => {
+    if (!service) return []
+    const imgs = []
+
+    if (service.primary_image_url) imgs.push(service.primary_image_url)
+    
+    if (service.all_images && Array.isArray(service.all_images)) {
+      service.all_images.forEach(img => {
+        if (img.image_url && !imgs.includes(img.image_url)) imgs.push(img.image_url)
+      })
+    }
+    
+    if (service.gallery && Array.isArray(service.gallery)) {
+      service.gallery.forEach(img => {
+        const url = typeof img === 'string' ? img : img.image_url || img.image
+        if (url && !imgs.includes(url)) imgs.push(url)
+      })
+    }
+
+    return imgs
+  }, [service])
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (selectedImageIndex === null) return
+      if (e.key === 'ArrowLeft') {
+        setSelectedImageIndex((prev) => (prev - 1 + allGalleryImages.length) % allGalleryImages.length)
+      } else if (e.key === 'ArrowRight') {
+        setSelectedImageIndex((prev) => (prev + 1) % allGalleryImages.length)
+      } else if (e.key === 'Escape') {
+        setSelectedImageIndex(null)
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [selectedImageIndex, allGalleryImages])
+
+  // Prevent body scroll when lightbox open
+  useEffect(() => {
+    if (selectedImageIndex !== null) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'unset'
+    }
+    return () => { document.body.style.overflow = 'unset' }
+  }, [selectedImageIndex])
 
   if (loading) {
     return (
@@ -109,6 +345,9 @@ const ServiceDetailPage = () => {
           </svg>
           Back to Services
         </motion.button>
+
+        {/* 🆕 IMAGE HERO CAROUSEL */}
+        <ServiceImageHero service={service} />
 
         {/* ============ SERVICE HEADER ============ */}
         <motion.div
@@ -191,6 +430,49 @@ const ServiceDetailPage = () => {
             )}
           </div>
         </motion.div>
+
+        {/* IMAGE GALLERY GRID */}
+        {allGalleryImages.length > 1 && (
+          <motion.div
+            initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
+            className="glass-card p-6 mb-6 group hover:border-emerald-400/20 transition-all duration-300"
+          >
+            <h2 className="text-lg font-bold text-white mb-5 flex items-center gap-2">
+              <span className="w-8 h-8 rounded-lg glass flex items-center justify-center text-sm">🖼️</span>
+              Gallery
+              <span className="text-xs text-white/30 font-normal ml-auto">{allGalleryImages.length} images</span>
+            </h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {allGalleryImages.map((img, index) => (
+                <motion.div
+                  key={index}
+                  whileHover={{ scale: 1.03 }}
+                  className="relative aspect-square cursor-pointer rounded-xl overflow-hidden group/img"
+                  onClick={() => setSelectedImageIndex(index)}
+                >
+                  <img
+                    src={img}
+                    alt={`Gallery ${index + 1}`}
+                    className="w-full h-full object-cover group-hover/img:scale-110 transition-transform duration-500"
+                    loading="lazy"
+                    onError={(e) => {
+                      e.target.style.display = 'none'
+                      e.target.nextSibling.style.display = 'flex'
+                    }}
+                  />
+                  <div className="w-full h-full bg-gradient-to-br from-emerald-500 to-green-700 items-center justify-center hidden">
+                    <span className="text-2xl">🖼️</span>
+                  </div>
+                  <div className="absolute inset-0 bg-black/30 opacity-0 group-hover/img:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                    <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        )}
 
         {/* ============ BENEFITS & DELIVERABLES ============ */}
         {hasDetails && (
@@ -292,6 +574,89 @@ const ServiceDetailPage = () => {
           )}
         </div>
       </div>
+
+      {/* ============ LIGHTBOX MODAL ============ */}
+      <AnimatePresence>
+        {selectedImageIndex !== null && allGalleryImages[selectedImageIndex] && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4"
+            onClick={() => setSelectedImageIndex(null)}
+          >
+            {/* Close */}
+            <button
+              onClick={() => setSelectedImageIndex(null)}
+              className="absolute top-6 right-6 w-10 h-10 rounded-full glass flex items-center justify-center text-white/70 hover:text-white hover:border-red-400/50 transition-all duration-300 z-10"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+
+            {/* Counter */}
+            <div className="absolute top-6 left-6 px-3 py-1.5 rounded-full bg-black/50 backdrop-blur-sm text-white text-sm font-medium z-10">
+              {selectedImageIndex + 1} / {allGalleryImages.length}
+            </div>
+
+            {/* Previous */}
+            {allGalleryImages.length > 1 && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setSelectedImageIndex((prev) => (prev - 1 + allGalleryImages.length) % allGalleryImages.length)
+                }}
+                className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-black/50 backdrop-blur-sm text-white/80 flex items-center justify-center hover:bg-black/70 hover:text-white hover:scale-110 transition-all duration-300 z-10 border border-white/10"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+            )}
+
+            {/* Next */}
+            {allGalleryImages.length > 1 && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setSelectedImageIndex((prev) => (prev + 1) % allGalleryImages.length)
+                }}
+                className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-black/50 backdrop-blur-sm text-white/80 flex items-center justify-center hover:bg-black/70 hover:text-white hover:scale-110 transition-all duration-300 z-10 border border-white/10"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            )}
+
+            {/* Image */}
+            <motion.img
+              initial={{ scale: 0.9 }} animate={{ scale: 1 }} exit={{ scale: 0.9 }}
+              key={allGalleryImages[selectedImageIndex]}
+              src={allGalleryImages[selectedImageIndex]}
+              alt="Service"
+              className="max-w-full max-h-[90vh] object-contain rounded-2xl"
+              onClick={(e) => e.stopPropagation()}
+            />
+
+            {/* Dots */}
+            {allGalleryImages.length > 1 && (
+              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
+                {allGalleryImages.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={(e) => { e.stopPropagation(); setSelectedImageIndex(index) }}
+                    className={`rounded-full transition-all duration-300 ${
+                      index === selectedImageIndex
+                        ? 'bg-emerald-400 w-6 h-2'
+                        : 'bg-white/40 w-2 h-2 hover:bg-white/70'
+                    }`}
+                  />
+                ))}
+              </div>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   )
 }

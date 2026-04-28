@@ -8,7 +8,7 @@ const ProjectDetail = () => {
   const { id } = useParams()
   const navigate = useNavigate()
   const [project, setProject] = useState(null)
-  const [selectedImage, setSelectedImage] = useState(null)
+  const [selectedImageIndex, setSelectedImageIndex] = useState(null)
   const [loading, setLoading] = useState(true)
   const { darkMode } = useTheme()
 
@@ -27,6 +27,63 @@ const ProjectDetail = () => {
     loadProject()
   }, [id, navigate])
 
+  // 🆕 Kusanya images kutoka vyanzo vyote
+  const images = React.useMemo(() => {
+    if (!project) return []
+    
+    const imgs = []
+    
+    // Featured image
+    if (project.featured_image) {
+      const url = typeof project.featured_image === 'string' ? project.featured_image : project.featured_image.url || project.featured_image
+      if (url) imgs.push(url)
+    }
+    
+    // Main image
+    if (project.image) {
+      const url = typeof project.image === 'string' ? project.image : project.image.url || project.image
+      if (url && !imgs.includes(url)) imgs.push(url)
+    }
+    
+    // Gallery images
+    if (project.gallery && Array.isArray(project.gallery)) {
+      project.gallery.forEach(img => {
+        const url = typeof img === 'string' ? img : img.image_url || img.image || img.url
+        if (url && !imgs.includes(url)) imgs.push(url)
+      })
+    }
+    
+    // All images
+    if (project.all_images && Array.isArray(project.all_images)) {
+      project.all_images.forEach(img => {
+        const url = typeof img === 'string' ? img : img.image_url || img.image || img.url
+        if (url && !imgs.includes(url)) imgs.push(url)
+      })
+    }
+    
+    return imgs
+  }, [project])
+
+  // Keyboard navigation kwa lightbox
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (selectedImageIndex === null) return
+      
+      if (e.key === 'ArrowLeft') {
+        const prevIndex = (selectedImageIndex - 1 + images.length) % images.length
+        setSelectedImageIndex(prevIndex)
+      } else if (e.key === 'ArrowRight') {
+        const nextIndex = (selectedImageIndex + 1) % images.length
+        setSelectedImageIndex(nextIndex)
+      } else if (e.key === 'Escape') {
+        setSelectedImageIndex(null)
+      }
+    }
+    
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [selectedImageIndex, images])
+
   // ============ LOADING ============
   if (loading) {
     return (
@@ -44,10 +101,7 @@ const ProjectDetail = () => {
 
   if (!project) return null
 
-  const images = project.gallery || []
-  if (project.featured_image && !images.includes(project.featured_image)) {
-    images.unshift(project.featured_image)
-  }
+  const selectedImage = selectedImageIndex !== null ? images[selectedImageIndex] : null
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="min-h-screen py-10 md:py-16">
@@ -129,6 +183,7 @@ const ProjectDetail = () => {
             <h2 className="text-lg font-bold text-white mb-5 flex items-center gap-2">
               <span className="w-8 h-8 rounded-lg glass flex items-center justify-center text-sm">🖼️</span>
               Project Gallery
+              <span className="text-xs text-white/30 font-normal ml-auto">{images.length} images</span>
             </h2>
             
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -136,7 +191,7 @@ const ProjectDetail = () => {
                 <motion.div key={index}
                   whileHover={{ scale: 1.03 }}
                   className="relative aspect-[4/3] cursor-pointer rounded-2xl overflow-hidden group/img"
-                  onClick={() => setSelectedImage(img)}>
+                  onClick={() => setSelectedImageIndex(index)}>
                   <img 
                     src={img} 
                     alt={`Project ${index + 1}`}
@@ -146,6 +201,7 @@ const ProjectDetail = () => {
                       e.target.nextSibling.style.display = 'flex'
                     }}
                   />
+                  {/* Fallback */}
                   <div className="w-full h-full bg-gradient-to-br from-emerald-500 to-green-700 items-center justify-center hidden">
                     <span className="text-3xl">🖼️</span>
                   </div>
@@ -238,25 +294,93 @@ const ProjectDetail = () => {
         )}
       </div>
 
-      {/* ============ LIGHTBOX MODAL ============ */}
+      {/* ============ 🆕 LIGHTBOX MODAL (WITH NAVIGATION) ============ */}
       <AnimatePresence>
-        {selectedImage && (
+        {selectedImageIndex !== null && selectedImage && (
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4"
-            onClick={() => setSelectedImage(null)}>
+            onClick={() => setSelectedImageIndex(null)}
+          >
+            {/* Close button */}
             <button
-              onClick={() => setSelectedImage(null)}
-              className="absolute top-6 right-6 w-10 h-10 rounded-full glass flex items-center justify-center text-white/70 hover:text-white hover:border-red-400/50 transition-all duration-300">
+              onClick={() => setSelectedImageIndex(null)}
+              className="absolute top-6 right-6 w-10 h-10 rounded-full glass flex items-center justify-center text-white/70 hover:text-white hover:border-red-400/50 transition-all duration-300 z-10"
+            >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
+
+            {/* Counter */}
+            <div className="absolute top-6 left-6 px-3 py-1.5 rounded-full bg-black/50 backdrop-blur-sm text-white text-sm font-medium z-10">
+              {selectedImageIndex + 1} / {images.length}
+            </div>
+
+            {/* Previous arrow */}
+            {images.length > 1 && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  const prevIndex = (selectedImageIndex - 1 + images.length) % images.length
+                  setSelectedImageIndex(prevIndex)
+                }}
+                className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-black/50 backdrop-blur-sm text-white/80 flex items-center justify-center hover:bg-black/70 hover:text-white hover:scale-110 transition-all duration-300 z-10 border border-white/10"
+                aria-label="Previous image"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+            )}
+
+            {/* Next arrow */}
+            {images.length > 1 && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  const nextIndex = (selectedImageIndex + 1) % images.length
+                  setSelectedImageIndex(nextIndex)
+                }}
+                className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-black/50 backdrop-blur-sm text-white/80 flex items-center justify-center hover:bg-black/70 hover:text-white hover:scale-110 transition-all duration-300 z-10 border border-white/10"
+                aria-label="Next image"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            )}
+
+            {/* Image */}
             <motion.img
               initial={{ scale: 0.9 }} animate={{ scale: 1 }} exit={{ scale: 0.9 }}
-              src={selectedImage} alt="Project"
+              key={selectedImage}
+              src={selectedImage}
+              alt="Project"
               className="max-w-full max-h-[90vh] object-contain rounded-2xl"
-              onClick={(e) => e.stopPropagation()} />
+              onClick={(e) => e.stopPropagation()}
+            />
+
+            {/* Dots indicator chini */}
+            {images.length > 1 && (
+              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
+                {images.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setSelectedImageIndex(index)
+                    }}
+                    className={`rounded-full transition-all duration-300 ${
+                      index === selectedImageIndex
+                        ? 'bg-emerald-400 w-6 h-2 shadow-lg shadow-emerald-500/30'
+                        : 'bg-white/40 w-2 h-2 hover:bg-white/70'
+                    }`}
+                    aria-label={`Image ${index + 1}`}
+                  />
+                ))}
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>

@@ -2,6 +2,210 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 
+// ============ 🆕 SERVICE CARD IMAGE CAROUSEL (RANDOM TRANSITIONS) ============
+const ServiceCardImage = ({ service }) => {
+  const [currentImage, setCurrentImage] = React.useState(0)
+  const [isHovering, setIsHovering] = React.useState(false)
+  const [transitionType, setTransitionType] = React.useState('fade')
+
+  // Kusanya images zote
+  const images = React.useMemo(() => {
+    const imgs = []
+
+    if (service.primary_image_url) {
+      imgs.push(service.primary_image_url)
+    }
+
+    if (service.all_images && Array.isArray(service.all_images)) {
+      service.all_images.forEach(img => {
+        if (img.image_url && !imgs.includes(img.image_url)) {
+          imgs.push(img.image_url)
+        }
+      })
+    }
+
+    if (imgs.length === 0 && service.gallery && Array.isArray(service.gallery)) {
+      service.gallery.forEach(img => {
+        const url = typeof img === 'string' ? img : img.image_url || img.image
+        if (url && !imgs.includes(url)) {
+          imgs.push(url)
+        }
+      })
+    }
+
+    return imgs
+  }, [service])
+
+  // Transitions mbalimbali
+  const transitions = [
+    'fade',
+    'slide-left',
+    'slide-right',
+    'slide-up',
+    'slide-down',
+    'zoom-in',
+    'zoom-out',
+  ]
+
+  // Badilisha image na transition randomly
+  const changeImage = React.useCallback((newIndex, transition = null) => {
+    const randomTransition = transition || transitions[Math.floor(Math.random() * transitions.length)]
+    setTransitionType(randomTransition)
+    setCurrentImage(newIndex)
+  }, [])
+
+  // Next image
+  const nextImage = React.useCallback(() => {
+    const newIndex = (currentImage + 1) % images.length
+    changeImage(newIndex)
+  }, [currentImage, images.length, changeImage])
+
+  // Previous image
+  const prevImage = React.useCallback(() => {
+    const newIndex = (currentImage - 1 + images.length) % images.length
+    changeImage(newIndex)
+  }, [currentImage, images.length, changeImage])
+
+  // Auto-slide effect
+  React.useEffect(() => {
+    if (!isHovering && images.length > 1) {
+      const interval = setInterval(() => {
+        nextImage()
+      }, 3500)
+      return () => clearInterval(interval)
+    }
+  }, [isHovering, images.length, nextImage])
+
+  // Transition classes
+  const getTransitionClasses = (isActive) => {
+    if (!isActive) {
+      // Exit animations
+      switch (transitionType) {
+        case 'slide-left': return 'opacity-0 translate-x-full'
+        case 'slide-right': return 'opacity-0 -translate-x-full'
+        case 'slide-up': return 'opacity-0 translate-y-full'
+        case 'slide-down': return 'opacity-0 -translate-y-full'
+        case 'zoom-in': return 'opacity-0 scale-125'
+        case 'zoom-out': return 'opacity-0 scale-75'
+        case 'fade':
+        default: return 'opacity-0'
+      }
+    }
+
+    return 'opacity-100 translate-x-0 translate-y-0 scale-100'
+  }
+
+  // Kama hakuna images, onyesha gradient placeholder
+  if (images.length === 0) {
+    return (
+      <div className="relative h-44 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/20 via-green-500/10 to-teal-500/20 flex items-center justify-center">
+          <div className="absolute top-4 right-4 w-20 h-20 rounded-full bg-white/5 group-hover:scale-150 transition-transform duration-700" />
+          <div className="absolute bottom-4 left-4 w-14 h-14 rounded-full bg-emerald-400/5 group-hover:scale-125 transition-transform duration-500" />
+          <div className="absolute top-1/2 right-1/3 w-8 h-8 rounded-full bg-white/8 group-hover:scale-150 transition-transform duration-600 delay-100" />
+          <span className="text-5xl relative z-10 opacity-60 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300">
+            {service.icon || '🛠️'}
+          </span>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div
+      className="relative h-44 overflow-hidden"
+      onMouseEnter={() => setIsHovering(true)}
+      onMouseLeave={() => setIsHovering(false)}
+    >
+      {/* Images zote */}
+      {images.map((img, index) => (
+        <div
+          key={index}
+          className={`absolute inset-0 transition-all duration-700 ease-in-out ${
+            getTransitionClasses(index === currentImage)
+          }`}
+        >
+          <img
+            src={img}
+            alt={`${service.name} - ${index + 1}`}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+            loading="lazy"
+            onError={(e) => {
+              e.target.style.display = 'none'
+            }}
+          />
+        </div>
+      ))}
+
+      {/* Gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-t from-[#0d3320] via-[#0d3320]/30 to-transparent pointer-events-none" />
+
+      {/* Transition type indicator (juu kulia) */}
+      {images.length > 1 && (
+        <div className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-black/50 backdrop-blur-sm text-white text-[10px] font-medium z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center gap-1.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          {currentImage + 1}/{images.length}
+        </div>
+      )}
+
+      {/* Dots indicator */}
+      {images.length > 1 && (
+        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
+          {images.map((_, index) => (
+            <button
+              key={index}
+              onClick={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+                changeImage(index)
+              }}
+              className={`rounded-full transition-all duration-300 ${
+                index === currentImage
+                  ? 'bg-emerald-400 w-5 h-2 shadow-glow'
+                  : 'bg-white/50 w-2 h-2 hover:bg-white/80'
+              }`}
+              aria-label={`Image ${index + 1}`}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Navigation arrows */}
+      {images.length > 1 && (
+        <>
+          <button
+            onClick={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
+              prevImage()
+            }}
+            className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/50 backdrop-blur-sm text-white/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 z-10 hover:bg-black/70 hover:text-white hover:scale-110 border border-white/10"
+            aria-label="Previous image"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <button
+            onClick={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
+              nextImage()
+            }}
+            className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/50 backdrop-blur-sm text-white/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 z-10 hover:bg-black/70 hover:text-white hover:scale-110 border border-white/10"
+            aria-label="Next image"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </>
+      )}
+    </div>
+  )
+}
+
+// ============ MAIN SERVICES SECTION ============
 const ServicesSection = ({ data }) => {
   if (!data || data.length === 0) return null
 
@@ -58,10 +262,13 @@ const ServicesSection = ({ data }) => {
               whileHover={{ y: -6 }}
             >
               <Link to={`/services/${service.id}`} className="block group h-full">
-                <div className="glass-card h-full flex flex-col relative overflow-hidden hover:border-emerald-400/30 hover:shadow-lg hover:shadow-emerald-500/5 transition-all duration-500">
+                <div className="glass-card h-full flex flex-col relative overflow-hidden hover:border-emerald-400/30 hover:shadow-lg hover:shadow-emerald-500/5 transition-all duration-500 p-0">
                   
+                  {/* 🆕 IMAGE CAROUSEL WITH RANDOM TRANSITIONS */}
+                  <ServiceCardImage service={service} />
+
                   {/* Top accent line */}
-                  <div className="h-1 bg-gradient-to-r from-emerald-400/0 via-emerald-400/0 to-emerald-400/0 group-hover:from-emerald-400/30 group-hover:via-emerald-400/50 group-hover:to-emerald-400/30 transition-all duration-500 rounded-t-3xl" />
+                  <div className="h-1 bg-gradient-to-r from-emerald-400/0 via-emerald-400/0 to-emerald-400/0 group-hover:from-emerald-400/30 group-hover:via-emerald-400/50 group-hover:to-emerald-400/30 transition-all duration-500" />
 
                   <div className="p-6 flex flex-col h-full">
                     {/* Icon with glow */}

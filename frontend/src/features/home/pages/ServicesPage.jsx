@@ -38,6 +38,236 @@ const getDisplayPrice = (service) => {
   return 'Contact for pricing'
 }
 
+// ============ 🆕 SERVICE CARD IMAGE - VERY SMOOTH RANDOM TRANSITIONS ============
+const ServiceCardImage = ({ service }) => {
+  const [currentImage, setCurrentImage] = React.useState(0)
+  const [isHovering, setIsHovering] = React.useState(false)
+  const [transitionType, setTransitionType] = React.useState('fade')
+  const [prevImage, setPrevImage] = React.useState(null)
+
+  // Kusanya images zote
+  const images = React.useMemo(() => {
+    const imgs = []
+
+    if (service.primary_image_url) {
+      imgs.push(service.primary_image_url)
+    }
+
+    if (service.all_images && Array.isArray(service.all_images)) {
+      service.all_images.forEach(img => {
+        if (img.image_url && !imgs.includes(img.image_url)) {
+          imgs.push(img.image_url)
+        }
+      })
+    }
+
+    if (imgs.length === 0 && service.gallery && Array.isArray(service.gallery)) {
+      service.gallery.forEach(img => {
+        const url = typeof img === 'string' ? img : img.image_url || img.image
+        if (url && !imgs.includes(url)) imgs.push(url)
+      })
+    }
+
+    if (imgs.length === 0 && service.image_url) {
+      imgs.push(service.image_url)
+    }
+
+    if (imgs.length === 0 && service.image) {
+      const url = typeof service.image === 'string' ? service.image : service.image.url || service.image
+      if (url) imgs.push(url)
+    }
+
+    return imgs
+  }, [service])
+
+  const hasMultipleImages = images.length > 1
+
+  // Random transition styles
+  const transitions = [
+    'fade',
+    'slide-left',
+    'slide-right',
+    'slide-up',
+    'slide-down',
+    'zoom-in',
+    'zoom-out',
+  ]
+
+  // Change image with random transition
+  const changeImage = React.useCallback((newIndex, transition = null) => {
+    setPrevImage(currentImage)
+    const randomTransition = transition || transitions[Math.floor(Math.random() * transitions.length)]
+    setTransitionType(randomTransition)
+    setCurrentImage(newIndex)
+  }, [currentImage])
+
+  // Next image
+  const goNext = React.useCallback(() => {
+    const newIndex = (currentImage + 1) % images.length
+    changeImage(newIndex)
+  }, [currentImage, images.length, changeImage])
+
+  // Previous image
+  const goPrev = React.useCallback(() => {
+    const newIndex = (currentImage - 1 + images.length) % images.length
+    changeImage(newIndex)
+  }, [currentImage, images.length, changeImage])
+
+  // Auto-slide - VERY SLOW (6000ms)
+  React.useEffect(() => {
+    if (!isHovering && hasMultipleImages) {
+      const interval = setInterval(() => {
+        goNext()
+      }, 6000)
+      return () => clearInterval(interval)
+    }
+  }, [isHovering, hasMultipleImages, goNext])
+
+  // Get smooth transition classes
+  const getTransitionClasses = (index) => {
+    const isActive = index === currentImage
+    const isLeaving = index === prevImage && prevImage !== currentImage
+
+    // Active image - always fully visible
+    if (isActive) {
+      return 'opacity-100 translate-x-0 translate-y-0 scale-100'
+    }
+
+    // Leaving image - animate out based on transition type
+    if (isLeaving) {
+      switch (transitionType) {
+        case 'slide-left': return 'opacity-0 -translate-x-full'
+        case 'slide-right': return 'opacity-0 translate-x-full'
+        case 'slide-up': return 'opacity-0 -translate-y-full'
+        case 'slide-down': return 'opacity-0 translate-y-full'
+        case 'zoom-in': return 'opacity-0 scale-150'
+        case 'zoom-out': return 'opacity-0 scale-50'
+        case 'fade':
+        default: return 'opacity-0'
+      }
+    }
+
+    // Incoming image - start position based on transition type
+    switch (transitionType) {
+      case 'slide-left': return 'opacity-100 translate-x-full'
+      case 'slide-right': return 'opacity-100 -translate-x-full'
+      case 'slide-up': return 'opacity-100 translate-y-full'
+      case 'slide-down': return 'opacity-100 -translate-y-full'
+      case 'zoom-in': return 'opacity-0 scale-50'
+      case 'zoom-out': return 'opacity-0 scale-150'
+      case 'fade':
+      default: return 'opacity-0'
+    }
+  }
+
+  // Kama hakuna images, onyesha gradient placeholder
+  if (images.length === 0) {
+    return (
+      <div className="relative h-44 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/20 via-green-500/10 to-teal-500/20 flex items-center justify-center">
+          <div className="absolute top-4 right-4 w-20 h-20 rounded-full bg-white/5 group-hover:scale-150 transition-transform duration-1000" />
+          <div className="absolute bottom-4 left-4 w-14 h-14 rounded-full bg-emerald-400/5 group-hover:scale-125 transition-transform duration-700" />
+          <div className="absolute top-1/2 right-1/3 w-8 h-8 rounded-full bg-white/8 group-hover:scale-150 transition-transform duration-700 delay-100" />
+          <span className="text-5xl relative z-10 opacity-60 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500">
+            {service.icon ? getIcon(service.icon) : '🛠️'}
+          </span>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div
+      className="relative h-44 overflow-hidden"
+      onMouseEnter={() => setIsHovering(true)}
+      onMouseLeave={() => setIsHovering(false)}
+    >
+      {/* Images with VERY SMOOTH transitions */}
+      {images.map((img, index) => (
+        <div
+          key={index}
+          className={`absolute inset-0 transition-all duration-1000 ease-[cubic-bezier(0.4,0,0.2,1)] ${
+            getTransitionClasses(index)
+          }`}
+        >
+          <img
+            src={img}
+            alt={`${service.name} - ${index + 1}`}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 ease-[cubic-bezier(0.4,0,0.2,1)]"
+            loading="lazy"
+            onError={(e) => {
+              e.target.style.display = 'none'
+            }}
+          />
+        </div>
+      ))}
+
+      {/* Gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-t from-[#0d3320] via-[#0d3320]/30 to-transparent pointer-events-none" />
+
+      {/* ============ CONTROLS (FOR MULTIPLE IMAGES ONLY) ============ */}
+      {hasMultipleImages && (
+        <>
+          {/* Counter (top right) */}
+          <div className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-black/50 backdrop-blur-sm text-white text-[10px] font-medium z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            {currentImage + 1}/{images.length}
+          </div>
+
+          {/* Dots indicator */}
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
+            {images.map((_, index) => (
+              <button
+                key={index}
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  changeImage(index)
+                }}
+                className={`rounded-full transition-all duration-500 ${
+                  index === currentImage
+                    ? 'bg-emerald-400 w-5 h-2 shadow-lg shadow-emerald-500/30'
+                    : 'bg-white/50 w-2 h-2 hover:bg-white/80'
+                }`}
+                aria-label={`Image ${index + 1}`}
+              />
+            ))}
+          </div>
+
+          {/* Navigation arrows (visible on hover) */}
+          <button
+            onClick={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
+              goPrev()
+            }}
+            className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/50 backdrop-blur-sm text-white/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500 z-10 hover:bg-black/70 hover:text-white hover:scale-110 border border-white/10"
+            aria-label="Previous image"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <button
+            onClick={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
+              goNext()
+            }}
+            className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/50 backdrop-blur-sm text-white/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500 z-10 hover:bg-black/70 hover:text-white hover:scale-110 border border-white/10"
+            aria-label="Next image"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </>
+      )}
+    </div>
+  )
+}
+
+// ============ MAIN SERVICES PAGE ============
 const ServicesPage = () => {
   const [services, setServices] = useState([])
   const [categories, setCategories] = useState([])
@@ -81,8 +311,8 @@ const ServicesPage = () => {
     }
   }
 
-  const filteredServices = selectedCategory === 'all' 
-    ? services 
+  const filteredServices = selectedCategory === 'all'
+    ? services
     : services.filter(s => s.category === parseInt(selectedCategory) || s.category === selectedCategory)
 
   if (loading) {
@@ -96,12 +326,11 @@ const ServicesPage = () => {
     )
   }
 
-  const currentCategoryName = selectedCategory === 'all' 
-    ? 'All Services' 
+  const currentCategoryName = selectedCategory === 'all'
+    ? 'All Services'
     : categories.find(c => c.id === selectedCategory)?.name || 'Services'
 
-  // Get current category icon
-  const currentCategoryIcon = selectedCategory !== 'all' 
+  const currentCategoryIcon = selectedCategory !== 'all'
     ? getIcon(categories.find(c => c.id === selectedCategory)?.icon)
     : '🛠️'
 
@@ -155,10 +384,14 @@ const ServicesPage = () => {
                 transition={{ delay: index * 0.06, duration: 0.5 }}
                 whileHover={{ y: -6 }}>
                 <Link to={`/services/${service.id}`} className="block group h-full">
-                  <div className="glass-card h-full flex flex-col relative overflow-hidden hover:border-emerald-400/30 hover:shadow-lg hover:shadow-emerald-500/5 transition-all duration-500">
+                  <div className="glass-card h-full flex flex-col relative overflow-hidden hover:border-emerald-400/30 hover:shadow-lg hover:shadow-emerald-500/5 transition-all duration-500 p-0">
+
+                    {/* 🆕 VERY SMOOTH IMAGE CAROUSEL */}
+                    <ServiceCardImage service={service} />
+
                     {/* Top accent */}
                     <div className="h-1 bg-gradient-to-r from-emerald-400/0 via-emerald-400/0 to-emerald-400/0 group-hover:from-emerald-400/20 group-hover:via-emerald-400/40 group-hover:to-emerald-400/20 transition-all duration-500" />
-                    
+
                     <div className="p-6 flex flex-col h-full">
                       {/* Icon + Title */}
                       <div className="flex items-start gap-3 mb-4">
