@@ -20,7 +20,6 @@ class ServiceImageSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['id', 'created_at', 'updated_at']
     
-    # 🆕 IMEBADILISHWA: Sasa ina-handle dict objects
     def get_image_url(self, obj):
         if isinstance(obj, dict):
             image = obj.get('image')
@@ -56,7 +55,6 @@ class ConsultationCategorySerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'slug', 'level', 'created_at', 'updated_at']
     
     def get_children(self, obj):
-        """Get immediate children of this category"""
         children = obj.children.filter(is_active=True).order_by('order', 'name')
         if children.exists():
             return ConsultationCategoryListSerializer(
@@ -116,7 +114,44 @@ class ConsultationCategoryTreeSerializer(serializers.ModelSerializer):
         return []
 
 
-# ============ SERVICE SERIALIZER ============
+# ============ SERVICE SERIALIZERS ============
+
+# Helper function to extract all images (used by both serializers)
+def build_all_images(obj):
+    """Build all_images list from model @property - works with Cloudinary"""
+    images_data = []
+    all_images = obj.all_images  # List ya dicts kutoka models.py
+    
+    for item in all_images:
+        image_field = item.get('image')
+        image_url = None
+        
+        if image_field:
+            try:
+                image_url = image_field.url
+                if image_url and not image_url.startswith('http'):
+                    request = None  # Will be set by serializer context
+            except Exception:
+                try:
+                    image_url = str(image_field)
+                except Exception:
+                    pass
+        
+        if not image_url:
+            continue
+        
+        images_data.append({
+            'id': item.get('id'),
+            'image_url': image_url,
+            'caption': item.get('caption', ''),
+            'is_primary': item.get('is_primary', False),
+            'order': item.get('order', 0),
+            'is_active': item.get('is_active', True),
+        })
+    
+    return images_data
+
+
 class ConsultationServiceSerializer(serializers.ModelSerializer):
     """Full serializer for Consultation Service"""
     category_name = serializers.CharField(source='category.name', read_only=True)
@@ -144,7 +179,6 @@ class ConsultationServiceSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['id', 'slug', 'created_at', 'updated_at']
     
-    # ✅ FIXED: get_image_url - ina-handle dict na model objects
     def get_image_url(self, obj):
         if isinstance(obj, dict):
             image = obj.get('image')
@@ -163,45 +197,14 @@ class ConsultationServiceSerializer(serializers.ModelSerializer):
                 return None
         return None
     
-    # ✅ FIXED: get_all_images - inatoa URL za Cloudinary vizuri
     def get_all_images(self, obj):
-        images_data = []
-        all_images = obj.all_images  # Hii inarudi list ya dicts kutoka models.py
-        
-        for item in all_images:
-            image_field = item.get('image')
-            image_url = None
-            
-            if image_field:
-                try:
-                    # Jaribu kupata URL moja kwa moja (inafanya kazi na Cloudinary)
-                    image_url = image_field.url
-                    
-                    # Kama ni relative URL, ongeza domain
-                    if image_url and not image_url.startswith('http'):
-                        request = self.context.get('request')
-                        if request:
-                            image_url = request.build_absolute_uri(image_url)
-                except Exception:
-                    # Fallback: jaribu kutumia str()
-                    try:
-                        image_url = str(image_field)
-                    except Exception:
-                        pass
-            
-            # Kama hakuna URL, ruka hii image
-            if not image_url:
-                continue
-            
-            images_data.append({
-                'id': item.get('id'),
-                'image_url': image_url,
-                'caption': item.get('caption', ''),
-                'is_primary': item.get('is_primary', False),
-                'order': item.get('order', 0),
-                'is_active': item.get('is_active', True),
-            })
-        
+        images_data = build_all_images(obj)
+        # Fix relative URLs with request context
+        request = self.context.get('request')
+        if request:
+            for img in images_data:
+                if img['image_url'] and not img['image_url'].startswith('http'):
+                    img['image_url'] = request.build_absolute_uri(img['image_url'])
         return images_data
 
 
@@ -212,6 +215,7 @@ class ConsultationServiceListSerializer(serializers.ModelSerializer):
     display_price = serializers.CharField(read_only=True)
     image_url = serializers.SerializerMethodField()
     primary_image_url = serializers.CharField(read_only=True)
+    all_images = serializers.SerializerMethodField()  # ✅ ADDED
     
     class Meta:
         model = ConsultationService
@@ -219,7 +223,8 @@ class ConsultationServiceListSerializer(serializers.ModelSerializer):
             'id', 'name', 'slug', 'category', 'category_name', 'category_path',
             'description', 'icon', 'image_url', 'primary_image_url',
             'price_type', 'display_price', 'duration_minutes',
-            'is_featured', 'is_active', 'popularity_score', 'order'
+            'is_featured', 'is_active', 'popularity_score', 'order',
+            'all_images',  # ✅ ADDED
         ]
     
     def get_image_url(self, obj):
@@ -229,6 +234,16 @@ class ConsultationServiceListSerializer(serializers.ModelSerializer):
                 return request.build_absolute_uri(obj.image.url)
             return obj.image.url
         return None
+    
+    # ✅ ADDED - Same logic as ConsultationServiceSerializer
+    def get_all_images(self, obj):
+        images_data = build_all_images(obj)
+        request = self.context.get('request')
+        if request:
+            for img in images_data:
+                if img['image_url'] and not img['image_url'].startswith('http'):
+                    img['image_url'] = request.build_absolute_uri(img['image_url'])
+        return images_data
 
 
 # ============ REQUEST SERIALIZER ============
@@ -268,7 +283,7 @@ class ConsultationRequestSerializer(serializers.ModelSerializer):
             'id', 'created_at', 'updated_at', 'response_sent_at', 'completed_at'
         ]
         extra_kwargs = {
-            'internal_notes': {'write_only': True},  # Staff only, not exposed to clients
+            'internal_notes': {'write_only': True},
         }
     
     def get_documents(self, obj):
@@ -280,7 +295,6 @@ class ConsultationRequestSerializer(serializers.ModelSerializer):
         return []
     
     def to_representation(self, instance):
-        """Hide internal_notes from non-staff users"""
         data = super().to_representation(instance)
         request = self.context.get('request')
         if request and not request.user.is_staff:
