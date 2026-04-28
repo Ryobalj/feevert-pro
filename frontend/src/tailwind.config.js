@@ -4,6 +4,37 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
+  // ✅ SAFELIST - Hizi classes zisifutwe kwenye production
+  safelist: [
+    // Image carousel opacity
+    'opacity-0',
+    'opacity-100',
+    // Carousel transforms
+    'translate-x-0',
+    'translate-y-0',
+    'scale-100',
+    'translate-x-full',
+    '-translate-x-full',
+    'translate-y-full',
+    '-translate-y-full',
+    'scale-125',
+    'scale-75',
+    'scale-150',
+    'scale-50',
+    // Hover states
+    'group-hover:opacity-100',
+    'group-hover:scale-105',
+    'group-hover:scale-110',
+    // z-index
+    'z-0',
+    'z-10',
+    'z-20',
+    'z-30',
+    // pointer-events
+    'pointer-events-none',
+    // border-radius
+    'rounded-t-3xl',
+  ],
   theme: {
     extend: {
       colors: {
