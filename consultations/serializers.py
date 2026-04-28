@@ -144,21 +144,26 @@ class ConsultationServiceSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['id', 'slug', 'created_at', 'updated_at']
     
-    # 🆕 IMEBADILISHWA: Sasa ina-handle dict objects
+    # ✅ FIXED: get_image_url - ina-handle dict na model objects
     def get_image_url(self, obj):
         if isinstance(obj, dict):
             image = obj.get('image')
         else:
             image = getattr(obj, 'image', None)
         
-        if image and hasattr(image, 'url'):
-            request = self.context.get('request')
-            if request:
-                return request.build_absolute_uri(image.url)
-            return image.url
+        if image:
+            try:
+                url = image.url
+                if url and not url.startswith('http'):
+                    request = self.context.get('request')
+                    if request:
+                        return request.build_absolute_uri(url)
+                return url
+            except:
+                return None
         return None
     
-    # 🆕 IMEBADILISHWA: Inajenga list manually badala ya kutumia ServiceImageSerializer
+    # ✅ FIXED: get_all_images - inatoa URL za Cloudinary vizuri
     def get_all_images(self, obj):
         images_data = []
         all_images = obj.all_images  # Hii inarudi list ya dicts kutoka models.py
@@ -167,12 +172,26 @@ class ConsultationServiceSerializer(serializers.ModelSerializer):
             image_field = item.get('image')
             image_url = None
             
-            if image_field and hasattr(image_field, 'url'):
-                request = self.context.get('request')
-                if request:
-                    image_url = request.build_absolute_uri(image_field.url)
-                else:
+            if image_field:
+                try:
+                    # Jaribu kupata URL moja kwa moja (inafanya kazi na Cloudinary)
                     image_url = image_field.url
+                    
+                    # Kama ni relative URL, ongeza domain
+                    if image_url and not image_url.startswith('http'):
+                        request = self.context.get('request')
+                        if request:
+                            image_url = request.build_absolute_uri(image_url)
+                except Exception:
+                    # Fallback: jaribu kutumia str()
+                    try:
+                        image_url = str(image_field)
+                    except Exception:
+                        pass
+            
+            # Kama hakuna URL, ruka hii image
+            if not image_url:
+                continue
             
             images_data.append({
                 'id': item.get('id'),
