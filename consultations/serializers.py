@@ -20,12 +20,18 @@ class ServiceImageSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['id', 'created_at', 'updated_at']
     
+    # 🆕 IMEBADILISHWA: Sasa ina-handle dict objects
     def get_image_url(self, obj):
-        if obj.image:
+        if isinstance(obj, dict):
+            image = obj.get('image')
+        else:
+            image = getattr(obj, 'image', None)
+        
+        if image and hasattr(image, 'url'):
             request = self.context.get('request')
             if request:
-                return request.build_absolute_uri(obj.image.url)
-            return obj.image.url
+                return request.build_absolute_uri(image.url)
+            return image.url
         return None
 
 
@@ -138,18 +144,46 @@ class ConsultationServiceSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['id', 'slug', 'created_at', 'updated_at']
     
+    # 🆕 IMEBADILISHWA: Sasa ina-handle dict objects
     def get_image_url(self, obj):
-        if obj.image:
+        if isinstance(obj, dict):
+            image = obj.get('image')
+        else:
+            image = getattr(obj, 'image', None)
+        
+        if image and hasattr(image, 'url'):
             request = self.context.get('request')
             if request:
-                return request.build_absolute_uri(obj.image.url)
-            return obj.image.url
+                return request.build_absolute_uri(image.url)
+            return image.url
         return None
     
+    # 🆕 IMEBADILISHWA: Inajenga list manually badala ya kutumia ServiceImageSerializer
     def get_all_images(self, obj):
-        return ServiceImageSerializer(
-            obj.all_images, many=True, context=self.context
-        ).data
+        images_data = []
+        all_images = obj.all_images  # Hii inarudi list ya dicts kutoka models.py
+        
+        for item in all_images:
+            image_field = item.get('image')
+            image_url = None
+            
+            if image_field and hasattr(image_field, 'url'):
+                request = self.context.get('request')
+                if request:
+                    image_url = request.build_absolute_uri(image_field.url)
+                else:
+                    image_url = image_field.url
+            
+            images_data.append({
+                'id': item.get('id'),
+                'image_url': image_url,
+                'caption': item.get('caption', ''),
+                'is_primary': item.get('is_primary', False),
+                'order': item.get('order', 0),
+                'is_active': item.get('is_active', True),
+            })
+        
+        return images_data
 
 
 class ConsultationServiceListSerializer(serializers.ModelSerializer):
