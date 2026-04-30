@@ -90,25 +90,25 @@ class AboutSection(BaseModel):
     image = models.ImageField(upload_to='about/', blank=True, null=True)
     video_url = models.URLField(blank=True, help_text="YouTube/Vimeo about video")
     
-    # 🆕 Core Values
+    # Core Values
     core_values = models.JSONField(
         default=list, 
         blank=True, 
-        help_text="List of {icon, title, description}. Example: [{'icon': '💎', 'title': 'Integrity', 'description': '...'}]"
+        help_text="List of {icon, title, description, image}. Example: [{'icon': '💎', 'title': 'Integrity', 'description': '...', 'image': 'cloudinary_url'}]"
     )
     
     # Key statistics
     stats = models.JSONField(
         default=list, 
         blank=True, 
-        help_text="List of {number, label}. Example: [{'number': '50', 'label': 'Projects Completed'}]"
+        help_text="List of {number, label, icon}. Example: [{'number': '50', 'label': 'Projects Completed'}]"
     )
     
     # Why choose us
     why_choose_us = models.JSONField(
         default=list, 
         blank=True, 
-        help_text="List of {icon, title, description}. Example: [{'icon': '🎓', 'title': 'Expert Team', 'description': '...'}]"
+        help_text="List of {icon, title, description, image}. Example: [{'icon': '🎓', 'title': 'Expert Team', 'description': '...', 'image': 'cloudinary_url'}]"
     )
     
     is_active = models.BooleanField(default=True)
@@ -119,6 +119,41 @@ class AboutSection(BaseModel):
     
     def __str__(self):
         return self.title
+
+
+# 🆕 INLINE IMAGES FOR ABOUT SECTION
+class AboutImage(BaseModel):
+    """
+    Additional images for About section (Core Values, Why Choose Us, etc.)
+    """
+    about = models.ForeignKey(AboutSection, on_delete=models.CASCADE, related_name='gallery')
+    image = models.ImageField(upload_to='about/gallery/')
+    caption = models.CharField(max_length=500, blank=True)
+    section = models.CharField(max_length=50, default='general', choices=(
+        ('core_values', 'Core Values'),
+        ('why_choose_us', 'Why Choose Us'),
+        ('general', 'General'),
+        ('stats', 'Statistics'),
+    ))
+    order = models.IntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+    
+    class Meta:
+        ordering = ['section', 'order', '-created_at']
+        verbose_name = "About Image"
+        verbose_name_plural = "About Images (Gallery)"
+        indexes = [
+            models.Index(fields=['about', 'section', 'is_active']),
+        ]
+    
+    def __str__(self):
+        return f"Image for {self.about.title} - {self.section} ({self.caption or 'No caption'})"
+    
+    @property
+    def image_url(self):
+        if self.image:
+            return self.image.url
+        return None
 
 
 class ServiceHighlight(BaseModel):

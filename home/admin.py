@@ -2,9 +2,17 @@
 
 from django.contrib import admin
 from .models import (
-    SiteSetting, HeroSection, AboutSection, ServiceHighlight, SeoData,
-    Faq, Partner, Testimonial, ContactMessage
+    SiteSetting, HeroSection, AboutSection, AboutImage, ServiceHighlight, 
+    SeoData, Faq, Partner, Testimonial, ContactMessage
 )
+
+
+# ✅ INLINE IMAGES FOR ABOUT SECTION
+class AboutImageInline(admin.TabularInline):
+    model = AboutImage
+    extra = 1
+    fields = ('image', 'caption', 'section', 'order', 'is_active')
+    readonly_fields = ('created_at', 'updated_at')
 
 
 @admin.register(SiteSetting)
@@ -55,9 +63,10 @@ class HeroSectionAdmin(admin.ModelAdmin):
 
 @admin.register(AboutSection)
 class AboutSectionAdmin(admin.ModelAdmin):
-    list_display = ('title', 'is_active', 'created_at')
+    list_display = ('title', 'is_active', 'image_count', 'created_at')
     list_filter = ('is_active',)
     search_fields = ('title', 'description', 'mission', 'vision')
+    inlines = [AboutImageInline]  # ✅ ADDED
     fieldsets = (
         ('Basic Information', {
             'fields': ('title', 'is_active')
@@ -71,20 +80,24 @@ class AboutSectionAdmin(admin.ModelAdmin):
         }),
         ('Core Values', {
             'fields': ('core_values',),
-            'description': 'Add core values as JSON list. Example: [{"icon": "💎", "title": "Integrity", "description": "We uphold the highest standards of honesty and transparency."}]'
+            'description': 'Add core values as JSON list. Each item can have: icon, title, description, image (URL). Example: [{"icon": "💎", "title": "Integrity", "description": "We uphold the highest standards...", "image": "https://res.cloudinary.com/..."}]'
         }),
         ('Statistics', {
             'fields': ('stats',),
-            'description': 'Add stats as JSON list. Example: [{"number": "50", "label": "Projects Completed"}]'
+            'description': 'Add stats as JSON list. Example: [{"number": "50", "label": "Projects Completed", "icon": "📁"}]'
         }),
         ('Why Choose Us', {
             'fields': ('why_choose_us',),
-            'description': 'Add reasons as JSON list. Example: [{"icon": "🎓", "title": "Expert Team", "description": "Our consultants are industry experts."}]'
+            'description': 'Add reasons as JSON list. Each item can have: icon, title, description, image (URL). Example: [{"icon": "🎓", "title": "Expert Team", "description": "Our consultants are industry experts.", "image": "https://res.cloudinary.com/..."}]'
         }),
     )
     
+    def image_count(self, obj):
+        return obj.gallery.filter(is_active=True).count()
+    image_count.short_description = "Images"
+    
     class Media:
-        js = ('admin/js/about_section_preview.js',)  # Optional: Custom JS for preview
+        js = ('admin/js/about_section_preview.js',)
 
 
 @admin.register(ServiceHighlight)
