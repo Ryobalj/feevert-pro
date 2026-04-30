@@ -5,6 +5,7 @@ from core.models import BaseModel
 from projects.models import Project
 from consultations.models import ConsultationService
 
+
 class SiteSetting(BaseModel):
     """
     Global website settings
@@ -86,18 +87,34 @@ class AboutSection(BaseModel):
     description = models.TextField()
     mission = models.TextField(blank=True)
     vision = models.TextField(blank=True)
-    image = models.ImageField(upload_to='about/')
+    image = models.ImageField(upload_to='about/', blank=True, null=True)
     video_url = models.URLField(blank=True, help_text="YouTube/Vimeo about video")
     
+    # 🆕 Core Values
+    core_values = models.JSONField(
+        default=list, 
+        blank=True, 
+        help_text="List of {icon, title, description}. Example: [{'icon': '💎', 'title': 'Integrity', 'description': '...'}]"
+    )
+    
     # Key statistics
-    stats = models.JSONField(default=list, blank=True, help_text="List of {number, label, icon}")
+    stats = models.JSONField(
+        default=list, 
+        blank=True, 
+        help_text="List of {number, label}. Example: [{'number': '50', 'label': 'Projects Completed'}]"
+    )
     
     # Why choose us
-    why_choose_us = models.JSONField(default=list, blank=True, help_text="List of {title, description, icon}")
+    why_choose_us = models.JSONField(
+        default=list, 
+        blank=True, 
+        help_text="List of {icon, title, description}. Example: [{'icon': '🎓', 'title': 'Expert Team', 'description': '...'}]"
+    )
     
     is_active = models.BooleanField(default=True)
     
     class Meta:
+        verbose_name = "About Section"
         verbose_name_plural = "About Sections"
     
     def __str__(self):

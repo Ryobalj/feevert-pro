@@ -91,7 +91,9 @@ class AboutSectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = AboutSection
         fields = [
-            'id', 'title', 'description', 'mission', 'vision', 'image', 'image_url',
+            'id', 'title', 'description', 'mission', 'vision',
+            'core_values',  # ✅ ADDED
+            'image', 'image_url',
             'video_url', 'stats', 'why_choose_us', 'is_active'
         ]
     
@@ -117,6 +119,16 @@ class AboutSectionSerializer(serializers.ModelSerializer):
             translated_value = getattr(instance, f'{field}_{lang}', None)
             if translated_value:
                 data[field] = translated_value
+        
+        # ✅ Translate core_values descriptions
+        if data.get('core_values') and isinstance(data['core_values'], list):
+            for item in data['core_values']:
+                if isinstance(item, dict):
+                    for field in ['title', 'description']:
+                        if field in item:
+                            translated = getattr(instance, f'core_values_{field}_{lang}', None)
+                            if translated:
+                                item[field] = translated
         
         return data
 

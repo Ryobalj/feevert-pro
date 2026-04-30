@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTheme } from '../../../context/ThemeContext'
 import api from '../../../app/api'
+import Loader from '../../../components/ui/Loader' // ✅ ADDED
 
 const LandingPage = () => {
   const [heroes, setHeroes] = useState([])
@@ -60,13 +61,11 @@ const LandingPage = () => {
   const handleMouseLeave = () => hasSlideshow && setIsPaused(false)
   const goToSlide = (index) => setCurrentIndex(index)
 
+  // ✅ ONLY CHANGE: Modern loader
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#0d3320]">
-        <div className="flex flex-col items-center gap-4">
-          <div className="spinner spinner-lg" />
-          <p className="text-white/50 animate-pulse">Loading...</p>
-        </div>
+        <Loader variant="morph" size="lg" text="Loading" />
       </div>
     )
   }

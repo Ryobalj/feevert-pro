@@ -21,7 +21,7 @@ from .serializers import (
 
 class SiteSettingViewSet(viewsets.ReadOnlyModelViewSet):
     """ViewSet for Site Settings (public)"""
-    queryset = SiteSetting.objects.filter(is_active=True)
+    queryset = SiteSetting.objects.all()
     serializer_class = SiteSettingSerializer
     permission_classes = [AllowAny]
     
@@ -38,9 +38,11 @@ class HeroSectionViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class AboutSectionViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = AboutSection.objects.filter(is_active=True).order_by('id')  # Ongeza .order_by('id')
+    """ViewSet for About Sections (public)"""
+    queryset = AboutSection.objects.filter(is_active=True).order_by('id')
     serializer_class = AboutSectionSerializer
     permission_classes = [AllowAny]
+
 
 class ServiceHighlightViewSet(viewsets.ReadOnlyModelViewSet):
     """ViewSet for Service Highlights (public)"""
@@ -116,6 +118,7 @@ class ContactMessageViewSet(viewsets.ModelViewSet):
         except Exception:
             pass
 
+
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def get_homepage_data(request):
@@ -172,22 +175,6 @@ def get_homepage_data(request):
         'featured_news': news_data
     })
 
-@api_view(['POST'])
-@permission_classes([AllowAny])
-def set_language(request):
-    """Set user's preferred language"""
-    language_code = request.data.get('language', 'en')
-    
-    if language_code not in ['en', 'sw']:
-        return Response({'error': 'Invalid language'}, status=400)
-    
-    response = Response({'success': True, 'language': language_code})
-    response.set_cookie('django_language', language_code, max_age=31536000)  # 1 year
-    
-    # Also set session language
-    request.session['django_language'] = language_code
-    
-    return response
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -199,7 +186,7 @@ def set_language(request):
         return Response({'error': 'Invalid language'}, status=400)
     
     response = Response({'success': True, 'language': language})
-    response.set_cookie('django_language', language, max_age=31536000)
+    response.set_cookie('django_language', language, max_age=31536000)  # 1 year
     request.session['django_language'] = language
     
     return response
@@ -211,6 +198,7 @@ def get_language(request):
     """Get current language"""
     language = request.COOKIES.get('django_language', 'en')
     return Response({'language': language})
+
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
@@ -230,7 +218,6 @@ def get_hero_slides(request):
     return Response({
         'heroes': heroes_data,
         'site_settings': settings_data,
-        'slide_duration': 5000,  # milliseconds
-        'transition_duration': 1200,  # milliseconds
+        'slide_duration': 5000,
+        'transition_duration': 1200,
     })
-

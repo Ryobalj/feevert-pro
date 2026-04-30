@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import api from '../../../app/api'
+import Loader from '../../../components/ui/Loader' // ✅ ADDED
 
 // ============ ICON CONVERTER (same as ServicesPage) ============
 const iconMap = {
@@ -236,13 +237,11 @@ const HomePage = () => {
     loadAllData()
   }, [])
 
+  // ✅ ONLY CHANGE: Modern loader
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <div className="spinner spinner-lg" />
-          <p className="text-white/50 animate-pulse">Loading homepage...</p>
-        </div>
+        <Loader variant="morph" size="lg" text="Loading homepage" />
       </div>
     )
   }
