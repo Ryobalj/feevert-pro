@@ -1,0 +1,4 @@
+name,slug,description,icon,image,level,parent_slug,order,is_active
+Commercial Beekeeping,beekeeping,"Comprehensive commercial beekeeping consultancy services including apiary management, equipment supply, honey processing, training, pollination, and value chain development.",:bee:,,0,,1,TRUE
+Environmental Services,environment,"Environmental consultancy services including EIA, audits, pollution control, climate change, GIS, and sustainability solutions.",:leaf:,,0,,2,TRUE
+Occupational Health & Safety,ohs,"OHS consultancy services including compliance, risk assessment, audits, training, incident investigation, and safety management systems.",:shield:,,0,,3,TRUE

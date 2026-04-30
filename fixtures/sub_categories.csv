@@ -1,0 +1,23 @@
+name,slug,description,icon,level,parent_slug,order,is_active
+Apiary Establishment & Management,apiary-establishment,"Site selection, beehive installation, colony management, pest control, and seasonal management services.",:home:,1,beekeeping,1,TRUE
+Beekeeping Equipment & Inputs,beekeeping-equipment,"Supply of beehives, protective gear, hive tools, bee colonies, queen bees, and harvesting equipment.",:tools:,1,beekeeping,2,TRUE
+Honey & Bee Products Processing,honey-processing,"Honey harvesting, extraction, processing, filtration, packaging, and value-added bee products development.",:honey:,1,beekeeping,3,TRUE
+Beekeeping Training & Capacity Building,beekeeping-training,"Practical training for beekeepers, farmer field schools, modern techniques, post-harvest handling, and training manuals development.",:books:,1,beekeeping,4,TRUE
+Pollination Services,pollination-services,"Managed bee colonies for crop pollination, pollination contracts, monitoring, and advisory on crop-pollinator interactions.",:sunflower:,1,beekeeping,5,TRUE
+Beekeeping Consultancy & Advisory,beekeeping-consultancy,"Feasibility studies, business planning, certification support, market linkage, and value chain development.",:chart:,1,beekeeping,6,TRUE
+Apiary Maintenance Contracts,apiary-maintenance,"Full-service management of client-owned apiaries, performance monitoring, revenue-sharing, and lease-based management models.",:clipboard:,1,beekeeping,7,TRUE
+Environmental Impact Assessment (EIA/ESIA),eia-esia,"Screening, scoping, full ESIA, Environmental Impact Statements, stakeholder consultations, and ESMP development.",:clipboard:,1,environment,1,TRUE
+Environmental Audits & Compliance Monitoring,environmental-audits,"Compliance audits, performance monitoring, legal registers, post-EIA follow-up, and due diligence audits.",:search:,1,environment,2,TRUE
+Environmental Management Systems (EMS),ems,"ISO 14001 certification support, environmental policy development, and integration with OHS and quality management systems.",📋,1,environment,3,TRUE
+Pollution Control & Waste Management,pollution-control,"Solid waste, hazardous waste, wastewater treatment, air pollution control, and circular economy solutions.",:recycle:,1,environment,4,TRUE
+Environmental Monitoring & Laboratory Services,environmental-monitoring,"Water quality, air quality, soil contamination, noise, vibration monitoring, and environmental baseline studies.",🔬,1,environment,5,TRUE
+Climate Change & Sustainability Services,climate-change,"GHG inventories, carbon footprinting, climate risk assessment, carbon credits, adaptation strategies, and ESG advisory.",:globe:,1,environment,6,TRUE
+Natural Resources Management,natural-resources,"Forest management, watershed management, biodiversity assessments, ecosystem restoration, and sustainable land use planning.",🌳,1,environment,7,TRUE
+GIS & Environmental Data Management,gis-data,"GIS mapping, remote sensing, environmental database development, and monitoring dashboards.",:map:,1,environment,8,TRUE
+OHS Compliance & Legal Advisory,ohs-compliance,"OSHA compliance, workplace registration, legal registers, and inspection representation.",:scroll:,1,ohs,1,TRUE
+Workplace Risk Assessment & Hazard Identification,risk-assessment,"HIRA, Job Safety Analysis, hazard identification, and risk control planning using hierarchy of controls.",:warning:,1,ohs,2,TRUE
+OHS Audits & Management Systems,ohs-audits,"OHS audits, ISO 45001 certification support, gap analysis, and OHS management systems development.",:chart:,1,ohs,3,TRUE
+OHS Training & Capacity Building,ohs-training,"Safety training programs, toolbox talks, on-site coaching, and safety leadership training.",:graduate:,1,ohs,4,TRUE
+Incident Investigation & Emergency Response,incident-response,"Incident investigation, root cause analysis, emergency response plans, and fire safety.",:detective:,1,ohs,5,TRUE
+Workplace Monitoring & Occupational Hygiene,workplace-hygiene,"Air quality, noise, vibration, thermal stress, lighting, and chemical exposure monitoring.",🔬,1,ohs,6,TRUE
+Construction & Industrial Safety,construction-safety,"HSE plans, site safety supervision, contractor safety management, and permit-to-work systems.",🏗️,1,ohs,7,TRUE
