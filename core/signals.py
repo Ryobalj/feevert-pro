@@ -11,5 +11,6 @@ def seed_initial_data(sender, **kwargs):
     if sender.name == 'core':
         try:
             call_command('seed_data')
+            print("✅ seed_data completed")
         except Exception as e:
-            print(f"Error seeding data: {e}")
+            print(f"⚠️ Error seeding data: {e}")

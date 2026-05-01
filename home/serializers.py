@@ -3,11 +3,29 @@
 from rest_framework import serializers
 from modeltranslation.translator import translator
 from .models import (
-    SiteSetting, HeroSection, AboutSection, ServiceHighlight, SeoData,
-    Faq, Partner, Testimonial, ContactMessage
+    SiteSetting, HeroSection, AboutSection, AboutImage, ServiceHighlight, 
+    SeoData, Faq, Partner, Testimonial, ContactMessage
 )
 from projects.serializers import ProjectListSerializer
 from consultations.serializers import ConsultationServiceSerializer
+
+
+# 🆕 ABOUT IMAGE SERIALIZER
+class AboutImageSerializer(serializers.ModelSerializer):
+    """Serializer for About Section Gallery Images"""
+    image_url = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = AboutImage
+        fields = [
+            'id', 'image', 'image_url', 'caption', 'section', 'order', 'is_active'
+        ]
+        read_only_fields = ['id', 'created_at', 'updated_at']
+    
+    def get_image_url(self, obj):
+        if obj.image:
+            return obj.image.url
+        return None
 
 
 class SiteSettingSerializer(serializers.ModelSerializer):
@@ -29,14 +47,12 @@ class SiteSettingSerializer(serializers.ModelSerializer):
         """Translate fields based on current language"""
         data = super().to_representation(instance)
         
-        # Get language from context
         lang = self.context.get('request', None)
         if lang:
             lang = lang.COOKIES.get('django_language', 'en')
         else:
             lang = 'en'
         
-        # Translate fields
         translate_fields = ['site_name', 'site_tagline', 'footer_copyright_text', 'footer_about_text']
         for field in translate_fields:
             translated_value = getattr(instance, f'{field}_{lang}', None)
@@ -67,14 +83,12 @@ class HeroSectionSerializer(serializers.ModelSerializer):
         """Translate fields based on current language"""
         data = super().to_representation(instance)
         
-        # Get language from context
         lang = self.context.get('request', None)
         if lang:
             lang = lang.COOKIES.get('django_language', 'en')
         else:
             lang = 'en'
         
-        # Translate fields
         translate_fields = ['title', 'subtitle', 'cta_text', 'cta_second_text']
         for field in translate_fields:
             translated_value = getattr(instance, f'{field}_{lang}', None)
@@ -87,14 +101,16 @@ class HeroSectionSerializer(serializers.ModelSerializer):
 class AboutSectionSerializer(serializers.ModelSerializer):
     """Serializer for About Section with Multi-language support"""
     image_url = serializers.SerializerMethodField()
+    gallery = AboutImageSerializer(many=True, read_only=True)  # ✅ ADDED
     
     class Meta:
         model = AboutSection
         fields = [
             'id', 'title', 'description', 'mission', 'vision',
-            'core_values',  # ✅ ADDED
+            'core_values',
             'image', 'image_url',
-            'video_url', 'stats', 'why_choose_us', 'is_active'
+            'video_url', 'stats', 'why_choose_us', 'is_active',
+            'gallery',  # ✅ ADDED
         ]
     
     def get_image_url(self, obj):
@@ -106,29 +122,27 @@ class AboutSectionSerializer(serializers.ModelSerializer):
         """Translate fields based on current language"""
         data = super().to_representation(instance)
         
-        # Get language from context
         lang = self.context.get('request', None)
         if lang:
             lang = lang.COOKIES.get('django_language', 'en')
         else:
             lang = 'en'
         
-        # Translate fields
         translate_fields = ['title', 'description', 'mission', 'vision']
         for field in translate_fields:
             translated_value = getattr(instance, f'{field}_{lang}', None)
             if translated_value:
                 data[field] = translated_value
         
-        # ✅ Translate core_values descriptions
+        # Translate core_values descriptions
         if data.get('core_values') and isinstance(data['core_values'], list):
             for item in data['core_values']:
                 if isinstance(item, dict):
-                    for field in ['title', 'description']:
-                        if field in item:
-                            translated = getattr(instance, f'core_values_{field}_{lang}', None)
+                    for key in ['title', 'description']:
+                        if key in item:
+                            translated = getattr(instance, f'core_values_{key}_{lang}', None)
                             if translated:
-                                item[field] = translated
+                                item[key] = translated
         
         return data
 
@@ -154,14 +168,12 @@ class ServiceHighlightSerializer(serializers.ModelSerializer):
         """Translate fields based on current language"""
         data = super().to_representation(instance)
         
-        # Get language from context
         lang = self.context.get('request', None)
         if lang:
             lang = lang.COOKIES.get('django_language', 'en')
         else:
             lang = 'en'
         
-        # Translate fields
         translate_fields = ['title', 'description', 'badge_text']
         for field in translate_fields:
             translated_value = getattr(instance, f'{field}_{lang}', None)
@@ -193,14 +205,12 @@ class SeoDataSerializer(serializers.ModelSerializer):
         """Translate fields based on current language"""
         data = super().to_representation(instance)
         
-        # Get language from context
         lang = self.context.get('request', None)
         if lang:
             lang = lang.COOKIES.get('django_language', 'en')
         else:
             lang = 'en'
         
-        # Translate fields
         translate_fields = ['meta_title', 'meta_description', 'keywords']
         for field in translate_fields:
             translated_value = getattr(instance, f'{field}_{lang}', None)
@@ -222,14 +232,12 @@ class FaqSerializer(serializers.ModelSerializer):
         """Translate fields based on current language"""
         data = super().to_representation(instance)
         
-        # Get language from context
         lang = self.context.get('request', None)
         if lang:
             lang = lang.COOKIES.get('django_language', 'en')
         else:
             lang = 'en'
         
-        # Translate fields
         translate_fields = ['question', 'answer']
         for field in translate_fields:
             translated_value = getattr(instance, f'{field}_{lang}', None)
@@ -256,14 +264,12 @@ class PartnerSerializer(serializers.ModelSerializer):
         """Translate fields based on current language"""
         data = super().to_representation(instance)
         
-        # Get language from context
         lang = self.context.get('request', None)
         if lang:
             lang = lang.COOKIES.get('django_language', 'en')
         else:
             lang = 'en'
         
-        # Translate fields
         translate_fields = ['name', 'description']
         for field in translate_fields:
             translated_value = getattr(instance, f'{field}_{lang}', None)
@@ -295,14 +301,12 @@ class TestimonialSerializer(serializers.ModelSerializer):
         """Translate fields based on current language"""
         data = super().to_representation(instance)
         
-        # Get language from context
         lang = self.context.get('request', None)
         if lang:
             lang = lang.COOKIES.get('django_language', 'en')
         else:
             lang = 'en'
         
-        # Translate fields
         translate_fields = ['client_name', 'client_role', 'client_company', 'content']
         for field in translate_fields:
             translated_value = getattr(instance, f'{field}_{lang}', None)

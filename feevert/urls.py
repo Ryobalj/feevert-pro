@@ -226,6 +226,8 @@ urlpatterns = [
     path('api/notifications/unread-count/', get_unread_count, name='notifications-unread-count'),
     path('api/notifications/mark-all-read/', mark_all_as_read, name='notifications-mark-all-read'),
     path('api/notifications/mark-as-read/<int:notification_id>/', mark_as_read, name='notifications-mark-as-read'),
+    path('api/v1/shop/', include('shop.urls')),
+
 ]
 
 # ============================================================

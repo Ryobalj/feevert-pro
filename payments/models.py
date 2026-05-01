@@ -5,6 +5,7 @@ from django.conf import settings
 from django.utils import timezone
 from core.models import BaseModel
 
+
 class PaymentTransaction(BaseModel):
     """
     Payment transaction for FeeVert supporting multiple gateways
@@ -30,6 +31,7 @@ class PaymentTransaction(BaseModel):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='payments')
     consultation = models.ForeignKey('consultations.ConsultationRequest', on_delete=models.SET_NULL, null=True, blank=True, related_name='payments')
     booking = models.ForeignKey('bookings.Booking', on_delete=models.SET_NULL, null=True, blank=True, related_name='payments')
+    order = models.ForeignKey('shop.Order', on_delete=models.SET_NULL, null=True, blank=True, related_name='payments')
     
     # Payment details
     amount = models.DecimalField(max_digits=10, decimal_places=2)
