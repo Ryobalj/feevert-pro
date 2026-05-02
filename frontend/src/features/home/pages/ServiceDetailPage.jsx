@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTheme } from '../../../context/ThemeContext'
 import api from '../../../app/api'
+import Loader from '../../../components/ui/Loader'
 
 // ============ ICON CONVERTER ============
 const iconMap = {
@@ -48,7 +49,7 @@ const getDuration = (minutes) => {
   return `${mins}m`
 }
 
-// ============ 🆕 IMAGE HERO CAROUSEL (SLOWER + RANDOM TRANSITIONS) ============
+// ============ IMAGE HERO CAROUSEL ============
 const ServiceImageHero = ({ service }) => {
   const [currentImage, setCurrentImage] = useState(0)
   const [isHovering, setIsHovering] = useState(false)
@@ -83,47 +84,33 @@ const ServiceImageHero = ({ service }) => {
     return imgs
   }, [service])
 
-  // Transitions mbalimbali
   const transitions = [
-    'fade',
-    'slide-left',
-    'slide-right',
-    'slide-up',
-    'slide-down',
-    'zoom-in',
-    'zoom-out',
+    'fade', 'slide-left', 'slide-right', 'slide-up', 'slide-down', 'zoom-in', 'zoom-out',
   ]
 
-  // Badilisha image na transition randomly
   const changeImage = React.useCallback((newIndex, transition = null) => {
     const randomTransition = transition || transitions[Math.floor(Math.random() * transitions.length)]
     setTransitionType(randomTransition)
     setCurrentImage(newIndex)
   }, [])
 
-  // Next image
   const nextImage = React.useCallback(() => {
     const newIndex = (currentImage + 1) % images.length
     changeImage(newIndex)
   }, [currentImage, images.length, changeImage])
 
-  // Previous image
   const prevImage = React.useCallback(() => {
     const newIndex = (currentImage - 1 + images.length) % images.length
     changeImage(newIndex)
   }, [currentImage, images.length, changeImage])
 
-  // Auto-slide - SLOWER (6000ms = 6 seconds)
   React.useEffect(() => {
     if (!isHovering && images.length > 1) {
-      const interval = setInterval(() => {
-        nextImage()
-      }, 6000)
+      const interval = setInterval(() => { nextImage() }, 6000)
       return () => clearInterval(interval)
     }
   }, [isHovering, images.length, nextImage])
 
-  // Transition classes - SLOWER (duration-1000)
   const getTransitionClasses = (isActive) => {
     if (!isActive) {
       switch (transitionType) {
@@ -148,13 +135,10 @@ const ServiceImageHero = ({ service }) => {
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
     >
-      {/* Images with random transitions - SLOWER (duration-1000) */}
       {images.map((img, index) => (
         <div
           key={index}
-          className={`absolute inset-0 transition-all duration-1000 ease-in-out ${
-            getTransitionClasses(index === currentImage)
-          }`}
+          className={`absolute inset-0 transition-all duration-1000 ease-in-out ${getTransitionClasses(index === currentImage)}`}
         >
           <img
             src={img}
@@ -166,49 +150,35 @@ const ServiceImageHero = ({ service }) => {
         </div>
       ))}
 
-      {/* Gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-t from-[#0d3320] via-[#0d3320]/20 to-transparent pointer-events-none" />
 
-      {/* Transition indicator (top left) */}
-      {images.length > 1 && (
-        <div className="absolute top-4 left-4 px-2.5 py-1 rounded-full bg-black/40 backdrop-blur-sm text-white/60 text-[10px] font-medium z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          {transitionType.replace('-', ' ')}
-        </div>
-      )}
-
-      {/* Counter (top right) */}
-      {images.length > 1 && (
-        <div className="absolute top-4 right-4 px-2.5 py-1 rounded-full bg-black/50 backdrop-blur-sm text-white text-xs font-medium z-10">
-          {currentImage + 1} / {images.length}
-        </div>
-      )}
-
-      {/* Dots */}
-      {images.length > 1 && (
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
-          {images.map((_, index) => (
-            <button
-              key={index}
-              onClick={(e) => { e.stopPropagation(); changeImage(index) }}
-              className={`rounded-full transition-all duration-300 ${
-                index === currentImage
-                  ? 'bg-emerald-400 w-6 h-2 shadow-lg shadow-emerald-500/30'
-                  : 'bg-white/50 w-2 h-2 hover:bg-white/80'
-              }`}
-              aria-label={`Image ${index + 1}`}
-            />
-          ))}
-        </div>
-      )}
-
-      {/* Arrows */}
       {images.length > 1 && (
         <>
+          <div className="absolute top-4 left-4 px-2.5 py-1 rounded-full bg-black/40 backdrop-blur-sm text-white/60 text-[10px] font-medium z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            {transitionType.replace('-', ' ')}
+          </div>
+
+          <div className="absolute top-4 right-4 px-2.5 py-1 rounded-full bg-black/50 backdrop-blur-sm text-white text-xs font-medium z-10">
+            {currentImage + 1} / {images.length}
+          </div>
+
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+            {images.map((_, index) => (
+              <button
+                key={index}
+                onClick={(e) => { e.stopPropagation(); changeImage(index) }}
+                className={`rounded-full transition-all duration-300 ${
+                  index === currentImage
+                    ? 'bg-emerald-400 w-6 h-2 shadow-lg shadow-emerald-500/30'
+                    : 'bg-white/50 w-2 h-2 hover:bg-white/80'
+                }`}
+                aria-label={`Image ${index + 1}`}
+              />
+            ))}
+          </div>
+
           <button
-            onClick={(e) => {
-              e.stopPropagation()
-              prevImage()
-            }}
+            onClick={(e) => { e.stopPropagation(); prevImage() }}
             className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/40 backdrop-blur-sm text-white/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 z-10 hover:bg-black/60 hover:text-white"
             aria-label="Previous image"
           >
@@ -217,10 +187,7 @@ const ServiceImageHero = ({ service }) => {
             </svg>
           </button>
           <button
-            onClick={(e) => {
-              e.stopPropagation()
-              nextImage()
-            }}
+            onClick={(e) => { e.stopPropagation(); nextImage() }}
             className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/40 backdrop-blur-sm text-white/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 z-10 hover:bg-black/60 hover:text-white"
             aria-label="Next image"
           >
@@ -234,6 +201,7 @@ const ServiceImageHero = ({ service }) => {
   )
 }
 
+// ============ MAIN COMPONENT ============
 const ServiceDetailPage = () => {
   const { id } = useParams()
   const navigate = useNavigate()
@@ -257,19 +225,19 @@ const ServiceDetailPage = () => {
     loadService()
   }, [id, navigate])
 
-  // Kusanya images zote kwa lightbox
+  // Collect all images for lightbox
   const allGalleryImages = React.useMemo(() => {
     if (!service) return []
     const imgs = []
 
     if (service.primary_image_url) imgs.push(service.primary_image_url)
-    
+
     if (service.all_images && Array.isArray(service.all_images)) {
       service.all_images.forEach(img => {
         if (img.image_url && !imgs.includes(img.image_url)) imgs.push(img.image_url)
       })
     }
-    
+
     if (service.gallery && Array.isArray(service.gallery)) {
       service.gallery.forEach(img => {
         const url = typeof img === 'string' ? img : img.image_url || img.image
@@ -280,7 +248,7 @@ const ServiceDetailPage = () => {
     return imgs
   }, [service])
 
-  // Keyboard navigation
+  // Keyboard navigation for lightbox
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (selectedImageIndex === null) return
@@ -306,16 +274,11 @@ const ServiceDetailPage = () => {
     return () => { document.body.style.overflow = 'unset' }
   }, [selectedImageIndex])
 
+  // ============ LOADING STATE ============
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <div className="relative">
-            <div className="absolute inset-0 bg-emerald-400/10 rounded-full blur-xl animate-pulse" />
-            <div className="spinner spinner-lg relative" />
-          </div>
-          <p className="text-white/50 animate-pulse">Loading service details...</p>
-        </div>
+        <Loader size="lg" text="Loading service details..." />
       </div>
     )
   }
@@ -327,7 +290,7 @@ const ServiceDetailPage = () => {
                      (service.deliverables && service.deliverables.length > 0)
 
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       className="min-h-screen py-12 md:py-20"
@@ -346,7 +309,7 @@ const ServiceDetailPage = () => {
           Back to Services
         </motion.button>
 
-        {/* 🆕 IMAGE HERO CAROUSEL */}
+        {/* IMAGE HERO CAROUSEL */}
         <ServiceImageHero service={service} />
 
         {/* ============ SERVICE HEADER ============ */}
@@ -356,7 +319,7 @@ const ServiceDetailPage = () => {
           className="glass-card p-8 md:p-10 mb-8 relative overflow-hidden group"
         >
           <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-400 via-green-500 to-transparent" />
-          
+
           <div className="flex items-start gap-5 mb-6">
             {service.icon && (
               <div className="relative">
@@ -374,12 +337,12 @@ const ServiceDetailPage = () => {
                   </h1>
                   {service.category_name && (
                     <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/20">
-                      {getIcon(service.category_icon)} {service.category_name}
+                      {service.category_name}
                     </span>
                   )}
                 </div>
-                
-                <Link 
+
+                <Link
                   to="/request-consultation"
                   className="flex-shrink-0 inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-emerald-500 hover:bg-emerald-400 text-white text-sm font-semibold shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/40 transition-all duration-300 group/req"
                 >
@@ -391,7 +354,7 @@ const ServiceDetailPage = () => {
               </div>
             </div>
           </div>
-          
+
           <p className="text-lg leading-relaxed text-white/60 mb-6">
             {service.description}
           </p>
@@ -583,7 +546,7 @@ const ServiceDetailPage = () => {
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4"
             onClick={() => setSelectedImageIndex(null)}
           >
-            {/* Close */}
+            {/* Close Button */}
             <button
               onClick={() => setSelectedImageIndex(null)}
               className="absolute top-6 right-6 w-10 h-10 rounded-full glass flex items-center justify-center text-white/70 hover:text-white hover:border-red-400/50 transition-all duration-300 z-10"

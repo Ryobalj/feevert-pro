@@ -53,7 +53,9 @@ const ServicesMegaMenu = ({ tree, categories, onClose, onMouseEnter, onMouseLeav
       transition={{ duration: 0.15 }}
       className="fixed card-glass !p-0 shadow-2xl overflow-hidden dropdown-menu-container z-[9999] rounded-2xl border border-[var(--g-border-glass)]"
       style={{
-        top: '68px', left: '50%', transform: 'translateX(-50%)',
+        top: '68px',
+        left: isMobile ? '50%' : '30%',
+        transform: isMobile ? 'translateX(-50%)' : 'none',
         width: isMobile ? '92vw' : 'min(96vw, 880px)',
         maxHeight: isMobile ? '80vh' : 'min(85vh, 520px)',
       }}
@@ -92,7 +94,7 @@ const ServicesMegaMenu = ({ tree, categories, onClose, onMouseEnter, onMouseLeav
             ))}
           </div>
 
-          {/* ✅ Mobile: Scrollable Content */}
+          {/* Mobile: Scrollable Content */}
           <div className="overflow-y-auto" style={{ maxHeight: '55vh' }}>
             {mobileTab === 'categories' && (
               <div className="p-2 space-y-0.5">
@@ -147,96 +149,94 @@ const ServicesMegaMenu = ({ tree, categories, onClose, onMouseEnter, onMouseLeav
           </div>
         </>
       ) : (
-        /* ✅ Desktop: 3 Columns - ALL SCROLLABLE */
-        <div className="overflow-x-auto overflow-y-hidden" style={{ height: 'min(65vh, 400px)' }}>
-          <div className="flex divide-x divide-[var(--g-border-glass)] min-w-max">
-            {/* Column 1: Categories */}
-            <div className="w-[220px] flex-shrink-0 overflow-y-auto scrollbar-thin p-2">
-              <h4 className="px-3 py-1.5 text-[10px] font-semibold text-[var(--g-text-tertiary)] uppercase tracking-wider sticky top-0 bg-[var(--g-surface-glass)]/80 backdrop-blur-sm z-10">
-                Categories
-              </h4>
-              <div className="space-y-0.5">
-                {mainCategories.map(cat => (
-                  <button
-                    key={cat.id}
-                    onMouseEnter={() => { setActiveMainId(cat.id); setActiveSubId(null) }}
-                    onClick={() => handleMainSelect(cat.id)}
-                    className={`w-full text-left px-3 py-2 text-sm rounded-lg transition-all duration-200 flex items-center gap-2 ${
-                      activeMainId === cat.id
-                        ? 'text-[var(--g-color-primary)] bg-[var(--g-liquid-primary)] font-semibold'
-                        : 'text-[var(--g-text-secondary)] hover:text-[var(--g-color-primary)] hover:bg-[var(--g-liquid-secondary)]'
-                    }`}
-                  >
-                    <span className="text-base flex-shrink-0">{getIcon(cat.icon)}</span>
-                    <span className="truncate">{cat.name}</span>
-                  </button>
-                ))}
-              </div>
+        /* Desktop: 3 Columns - EACH SCROLLS INDEPENDENTLY */
+        <div className="flex divide-x divide-[var(--g-border-glass)]" style={{ height: 'min(58vh, 420px)' }}>
+          {/* Column 1: Main Categories */}
+          <div className="w-[220px] flex-shrink-0 overflow-y-auto scrollbar-thin p-2">
+            <h4 className="px-3 py-1.5 text-[10px] font-semibold text-[var(--g-text-tertiary)] uppercase tracking-wider sticky top-0 bg-[var(--g-surface-glass)]/80 backdrop-blur-sm z-10 rounded-md mb-1">
+              Categories
+            </h4>
+            <div className="space-y-0.5">
+              {mainCategories.map(cat => (
+                <button
+                  key={cat.id}
+                  onMouseEnter={() => { setActiveMainId(cat.id); setActiveSubId(null) }}
+                  onClick={() => handleMainSelect(cat.id)}
+                  className={`w-full text-left px-3 py-2 text-sm rounded-lg transition-all duration-200 flex items-center gap-2 ${
+                    activeMainId === cat.id
+                      ? 'text-[var(--g-color-primary)] bg-[var(--g-liquid-primary)] font-semibold'
+                      : 'text-[var(--g-text-secondary)] hover:text-[var(--g-color-primary)] hover:bg-[var(--g-liquid-secondary)]'
+                  }`}
+                >
+                  <span className="text-base flex-shrink-0">{getIcon(cat.icon)}</span>
+                  <span className="truncate">{cat.name}</span>
+                </button>
+              ))}
             </div>
+          </div>
 
-            {/* Column 2: Sub-Categories */}
-            <div className="w-[240px] flex-shrink-0 overflow-y-auto scrollbar-thin p-2">
-              <h4 className="px-3 py-1.5 text-[10px] font-semibold text-[var(--g-text-tertiary)] uppercase tracking-wider sticky top-0 bg-[var(--g-surface-glass)]/80 backdrop-blur-sm z-10">
-                {activeMain?.name || 'Sub-Categories'}
-              </h4>
-              {activeMainId ? (
-                subCategories.length > 0 ? (
-                  <div className="space-y-0.5">
-                    {subCategories.map(sub => (
-                      <button
-                        key={sub.id}
-                        onMouseEnter={() => setActiveSubId(sub.id)}
-                        onClick={() => handleSubSelect(sub.id)}
-                        className={`w-full text-left px-3 py-2 text-sm rounded-lg transition-all duration-200 ${
-                          activeSubId === sub.id
-                            ? 'text-[var(--g-color-primary)] bg-[var(--g-liquid-primary)] font-semibold'
-                            : 'text-[var(--g-text-secondary)] hover:text-[var(--g-color-primary)] hover:bg-[var(--g-liquid-secondary)]'
-                        }`}
-                      >
-                        {sub.name}
-                      </button>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="px-3 py-8 text-center text-xs text-[var(--g-text-tertiary)]">No sub-categories</div>
-                )
+          {/* Column 2: Sub-Categories */}
+          <div className="w-[240px] flex-shrink-0 overflow-y-auto scrollbar-thin p-2">
+            <h4 className="px-3 py-1.5 text-[10px] font-semibold text-[var(--g-text-tertiary)] uppercase tracking-wider sticky top-0 bg-[var(--g-surface-glass)]/80 backdrop-blur-sm z-10 rounded-md mb-1">
+              {activeMain?.name || 'Sub-Categories'}
+            </h4>
+            {activeMainId ? (
+              subCategories.length > 0 ? (
+                <div className="space-y-0.5">
+                  {subCategories.map(sub => (
+                    <button
+                      key={sub.id}
+                      onMouseEnter={() => setActiveSubId(sub.id)}
+                      onClick={() => handleSubSelect(sub.id)}
+                      className={`w-full text-left px-3 py-2 text-sm rounded-lg transition-all duration-200 ${
+                        activeSubId === sub.id
+                          ? 'text-[var(--g-color-primary)] bg-[var(--g-liquid-primary)] font-semibold'
+                          : 'text-[var(--g-text-secondary)] hover:text-[var(--g-color-primary)] hover:bg-[var(--g-liquid-secondary)]'
+                      }`}
+                    >
+                      {sub.name}
+                    </button>
+                  ))}
+                </div>
               ) : (
-                <div className="px-3 py-8 text-center text-xs text-[var(--g-text-tertiary)]">👈 Select a category</div>
-              )}
-            </div>
+                <div className="px-3 py-8 text-center text-xs text-[var(--g-text-tertiary)]">No sub-categories</div>
+              )
+            ) : (
+              <div className="px-3 py-8 text-center text-xs text-[var(--g-text-tertiary)]">👈 Select a category</div>
+            )}
+          </div>
 
-            {/* Column 3: Services */}
-            <div className="w-[280px] flex-shrink-0 overflow-y-auto scrollbar-thin p-2">
-              <h4 className="px-3 py-1.5 text-[10px] font-semibold text-[var(--g-text-tertiary)] uppercase tracking-wider sticky top-0 bg-[var(--g-surface-glass)]/80 backdrop-blur-sm z-10">
-                {activeSub?.name || 'Services'}
-              </h4>
-              {activeSubId || (activeMainId && subCategories.length === 0) ? (
-                services.length > 0 ? (
-                  <div className="space-y-0.5">
-                    {services.map(service => (
-                      <Link
-                        key={service.id}
-                        to={`/services/${service.id}`}
-                        onClick={onClose}
-                        className="block px-3 py-2 text-sm rounded-lg transition-all duration-200 text-[var(--g-text-secondary)] hover:text-[var(--g-color-primary)] hover:bg-[var(--g-liquid-secondary)]"
-                      >
-                        <div className="font-medium flex items-center gap-2">
-                          <span className="text-base">{getIcon(service.icon)}</span>
-                          <span>{service.name}</span>
-                        </div>
-                        {service.display_price && service.display_price !== 'Get Quote' && (
-                          <div className="text-[10px] text-[var(--g-text-tertiary)] mt-0.5 ml-7">{service.display_price}</div>
-                        )}
-                      </Link>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="px-3 py-8 text-center text-xs text-[var(--g-text-tertiary)]">No services</div>
-                )
+          {/* Column 3: Services */}
+          <div className="w-[280px] flex-shrink-0 overflow-y-auto scrollbar-thin p-2">
+            <h4 className="px-3 py-1.5 text-[10px] font-semibold text-[var(--g-text-tertiary)] uppercase tracking-wider sticky top-0 bg-[var(--g-surface-glass)]/80 backdrop-blur-sm z-10 rounded-md mb-1">
+              {activeSub?.name || 'Services'}
+            </h4>
+            {activeSubId || (activeMainId && subCategories.length === 0) ? (
+              services.length > 0 ? (
+                <div className="space-y-0.5">
+                  {services.map(service => (
+                    <Link
+                      key={service.id}
+                      to={`/services/${service.id}`}
+                      onClick={onClose}
+                      className="block px-3 py-2 text-sm rounded-lg transition-all duration-200 text-[var(--g-text-secondary)] hover:text-[var(--g-color-primary)] hover:bg-[var(--g-liquid-secondary)]"
+                    >
+                      <div className="font-medium flex items-center gap-2">
+                        <span className="text-base">{getIcon(service.icon)}</span>
+                        <span>{service.name}</span>
+                      </div>
+                      {service.display_price && service.display_price !== 'Get Quote' && (
+                        <div className="text-[10px] text-[var(--g-text-tertiary)] mt-0.5 ml-7">{service.display_price}</div>
+                      )}
+                    </Link>
+                  ))}
+                </div>
               ) : (
-                <div className="px-3 py-8 text-center text-xs text-[var(--g-text-tertiary)]">👈 Select a sub-category</div>
-              )}
-            </div>
+                <div className="px-3 py-8 text-center text-xs text-[var(--g-text-tertiary)]">No services</div>
+              )
+            ) : (
+              <div className="px-3 py-8 text-center text-xs text-[var(--g-text-tertiary)]">👈 Select a sub-category</div>
+            )}
           </div>
         </div>
       )}

@@ -53,7 +53,6 @@ INSTALLED_APPS = [
     'widget_tweaks',
     'modeltranslation',
     'channels',
-    # 'django_ngrok',
     
     # Local apps
     'core',
@@ -76,7 +75,7 @@ INSTALLED_APPS = [
 # MIDDLEWARE
 # ===========================
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',  # MUST BE FIRST
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -168,10 +167,9 @@ LANGUAGES = [
 LOCALE_PATHS = [BASE_DIR / 'locale']
 
 # ===========================
-# 🆕 CLOUDINARY CONFIGURATION (PRODUCTION ONLY)
+# CLOUDINARY CONFIGURATION (PRODUCTION ONLY)
 # ===========================
 if not DEBUG:
-    # Production: Tumia Cloudinary
     CLOUDINARY_STORAGE = {
         'CLOUD_NAME': config('CLOUDINARY_CLOUD_NAME', default=''),
         'API_KEY': config('CLOUDINARY_API_KEY', default=''),
@@ -186,13 +184,11 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# Whitenoise Storage - kwa static files (CSS, JS, images za template)
 if not DEBUG:
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 else:
     STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
-# Disable static file locking for Termux
 if os.name == 'posix':
     if 'termux' in sys.executable or 'com.termux' in sys.executable:
         import django.core.files.locks
@@ -232,11 +228,10 @@ RECAPTCHA_PRIVATE_KEY = config('RECAPTCHA_PRIVATE_KEY_V2', default='')
 SILENCED_SYSTEM_CHECKS = ['django_recaptcha.recaptcha_test_key_error']
 
 # ===========================
-# CORS SETTINGS - FIXED FOR RENDER FRONTEND
+# CORS SETTINGS
 # ===========================
 CORS_ALLOW_CREDENTIALS = True
 
-# Ruhusu specific origins
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:5173',
     'http://127.0.0.1:5173',
@@ -248,7 +243,6 @@ CORS_ALLOWED_ORIGINS = [
     'http://*.ngrok-free.dev',
 ]
 
-# Kwa debugging, ruhusu zote kama DEBUG = True
 if DEBUG:
     CORS_ALLOW_ALL_ORIGINS = True
 else:
@@ -266,7 +260,6 @@ CORS_ALLOW_HEADERS = [
     'x-request-id',
 ]
 
-# CSRF TRUSTED ORIGINS
 if DEBUG:
     CSRF_TRUSTED_ORIGINS = [
         'http://localhost:5173',
@@ -284,7 +277,7 @@ else:
     ]
 
 # ===========================
-# CHANNELS (WebSocket) - In-Memory kwa Render
+# CHANNELS (WebSocket)
 # ===========================
 CHANNEL_LAYERS = {
     'default': {
@@ -316,7 +309,9 @@ REST_FRAMEWORK = {
         'rest_framework.filters.OrderingFilter',
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 20,
+    'PAGE_SIZE': 9,
+    'PAGE_SIZE_QUERY_PARAM': 'page_size',
+    'MAX_PAGE_SIZE': 50,
     'DEFAULT_THROTTLE_CLASSES': [
         'rest_framework.throttling.AnonRateThrottle',
         'rest_framework.throttling.UserRateThrottle',
@@ -423,7 +418,7 @@ else:
     BACKEND_URL = 'http://127.0.0.1:8000'
 
 # ===========================
-# CACHE SETTINGS (Memory Cache)
+# CACHE SETTINGS
 # ===========================
 CACHES = {
     'default': {
@@ -495,13 +490,9 @@ PAWAPAY_CALLBACK_URL = config('PAWAPAY_CALLBACK_URL', default='https://feevert.c
 PAWAPAY_WEBHOOK_SECRET = config('PAWAPAY_WEBHOOK_SECRET', default='')
 
 # ===========================
-# AUTO-CREATE SUPERUSER (RUNS AFTER APPS ARE READY)
+# AUTO-CREATE SUPERUSER
 # ===========================
 def create_superuser_on_startup():
-    """
-    Inaunda superuser kiotomatiki kama ADMIN_PASSWORD ipo.
-    Inaitwa baada ya Django apps kupakia.
-    """
     admin_password = os.environ.get('ADMIN_PASSWORD')
     if not admin_password:
         return

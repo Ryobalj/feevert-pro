@@ -10,6 +10,13 @@ const ProjectList = () => {
   const [selectedCategory, setSelectedCategory] = useState('all')
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
+  
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const [totalCount, setTotalCount] = useState(0)
+  const pageSize = 9
+  
   const { darkMode } = useTheme()
   const location = useLocation()
   const navigate = useNavigate()
@@ -17,17 +24,39 @@ const ProjectList = () => {
   useEffect(() => {
     const loadData = async () => {
       try {
+        setLoading(true)
         const [projectsRes, categoriesRes] = await Promise.all([
-          api.get('/projects/'),
+          api.get('/projects/', {
+            params: {
+              page: currentPage,
+              page_size: pageSize,
+              category: selectedCategory !== 'all' ? selectedCategory : undefined,
+              search: searchQuery || undefined,
+            }
+          }),
           api.get('/project-categories/')
         ])
-        setProjects(Array.isArray(projectsRes.data?.results) ? projectsRes.data.results : projectsRes.data || [])
+        
+        const data = projectsRes.data
+        if (data.results) {
+          setProjects(data.results)
+          setTotalCount(data.count || 0)
+          setTotalPages(Math.ceil((data.count || 0) / pageSize))
+        } else {
+          setProjects(Array.isArray(data) ? data : [])
+          setTotalCount(Array.isArray(data) ? data.length : 0)
+          setTotalPages(1)
+        }
+        
         setCategories(Array.isArray(categoriesRes.data?.results) ? categoriesRes.data.results : categoriesRes.data || [])
-      } catch (error) { console.error('Error loading projects:', error) }
-      finally { setLoading(false) }
+      } catch (error) {
+        console.error('Error loading projects:', error)
+      } finally {
+        setLoading(false)
+      }
     }
     loadData()
-  }, [])
+  }, [currentPage, selectedCategory, searchQuery])
 
   useEffect(() => {
     if (categories.length === 0) return
@@ -41,26 +70,24 @@ const ProjectList = () => {
 
   const handleCategoryChange = (categoryId) => {
     setSelectedCategory(categoryId)
+    setCurrentPage(1)
     if (categoryId === 'all') navigate('/projects', { replace: true })
     else {
-      const category = categories.find(c => c.id === categoryId)
+      const category = categories.find(c => c.id === categoryId || c.id === parseInt(categoryId))
       if (category) navigate(`/projects?category=${category.slug || category.id}`, { replace: true })
     }
   }
 
-  // Filter + Search
-  const filteredProjects = projects.filter(p => {
-    const matchesCategory = selectedCategory === 'all' || p.category === parseInt(selectedCategory) || p.category === selectedCategory
-    const matchesSearch = !searchQuery || 
-      p.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.client_name?.toLowerCase().includes(searchQuery.toLowerCase())
-    return matchesCategory && matchesSearch
-  })
+  const handlePageChange = (page) => {
+    setCurrentPage(page)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
 
-  const currentCategoryName = selectedCategory === 'all' ? 'All Projects' : categories.find(c => c.id === selectedCategory)?.name || 'Projects'
+  const filteredProjects = projects
 
-  if (loading) {
+  const currentCategoryName = selectedCategory === 'all' ? 'All Projects' : categories.find(c => c.id === selectedCategory || c.id === parseInt(selectedCategory))?.name || 'Projects'
+
+  if (loading && projects.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
@@ -93,17 +120,11 @@ const ProjectList = () => {
             {selectedCategory === 'all' ? 'Success stories that demonstrate our expertise and commitment' : `Explore our ${currentCategoryName.toLowerCase()} projects`}
           </p>
           
-          {/* Stats */}
-          {projects.length > 0 && (
+          {filteredProjects.length > 0 && (
             <div className="flex flex-wrap justify-center gap-3 mt-6">
               <div className="glass px-4 py-2 rounded-full text-sm text-white/50">
-                <span className="text-white font-semibold">{filteredProjects.length}</span> project{filteredProjects.length !== 1 ? 's' : ''}
+                <span className="text-white font-semibold">{totalCount}</span> project{totalCount !== 1 ? 's' : ''}
               </div>
-              {selectedCategory !== 'all' && (
-                <div className="glass px-4 py-2 rounded-full text-sm text-emerald-400/70">
-                  in {currentCategoryName}
-                </div>
-              )}
             </div>
           )}
         </motion.div>
@@ -118,15 +139,15 @@ const ProjectList = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </div>
-            <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
+            <input type="text" value={searchQuery} onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1) }}
               placeholder="Search projects by title, client, or description..."
               className="w-full pl-12 pr-4 py-3.5 glass text-white placeholder:text-white/30 rounded-2xl border-0 outline-none focus:ring-2 focus:ring-emerald-400/50 transition-all text-sm" />
           </div>
 
-          {/* Category Filters */}
+          {/* Category Filters - Dropdown + Buttons */}
           {categories.length > 0 && (
-            <div className="flex flex-wrap justify-center gap-2">
-              {[{ id: 'all', name: 'All Projects' }, ...categories].map(cat => (
+            <div className="flex flex-wrap justify-center gap-2 items-center">
+              {[{ id: 'all', name: 'All Projects' }, ...categories].slice(0, 6).map(cat => (
                 <motion.button key={cat.id} onClick={() => handleCategoryChange(cat.id)}
                   className={`px-4 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 ${
                     selectedCategory === cat.id ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20 scale-105' : 'glass text-white/60 hover:text-white hover:border-white/30'
@@ -135,7 +156,7 @@ const ProjectList = () => {
                 </motion.button>
               ))}
               {(selectedCategory !== 'all' || searchQuery) && (
-                <button onClick={() => { setSelectedCategory('all'); setSearchQuery('') }}
+                <button onClick={() => { setSelectedCategory('all'); setSearchQuery(''); setCurrentPage(1) }}
                   className="text-xs text-white/40 hover:text-white/70 transition-colors flex items-center gap-1 px-2">
                   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                   Clear
@@ -148,12 +169,53 @@ const ProjectList = () => {
         {/* ============ PROJECTS GRID ============ */}
         <AnimatePresence mode="wait">
           {filteredProjects.length > 0 ? (
-            <motion.div key={selectedCategory + searchQuery} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredProjects.map((project, index) => (
-                <ProjectGridCard key={project.id} project={project} index={index} />
-              ))}
-            </motion.div>
+            <>
+              <motion.div key={selectedCategory + currentPage + searchQuery} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredProjects.map((project, index) => (
+                  <ProjectGridCard key={project.id} project={project} index={index} />
+                ))}
+              </motion.div>
+
+              {/* ============ PAGINATION ============ */}
+              {totalPages > 1 && (
+                <div className="flex justify-center items-center gap-2 mt-10">
+                  <button
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className={`px-4 py-2 rounded-full text-sm font-semibold transition-all ${
+                      currentPage === 1 ? 'glass text-white/20 cursor-not-allowed' : 'glass text-white/70 hover:text-white hover:border-emerald-400/30'
+                    }`}
+                  >
+                    ← Previous
+                  </button>
+                  
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                    <button
+                      key={page}
+                      onClick={() => handlePageChange(page)}
+                      className={`w-10 h-10 rounded-full text-sm font-bold transition-all ${
+                        currentPage === page
+                          ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20'
+                          : 'glass text-white/60 hover:text-white hover:border-white/30'
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  ))}
+                  
+                  <button
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    className={`px-4 py-2 rounded-full text-sm font-semibold transition-all ${
+                      currentPage === totalPages ? 'glass text-white/20 cursor-not-allowed' : 'glass text-white/70 hover:text-white hover:border-emerald-400/30'
+                    }`}
+                  >
+                    Next →
+                  </button>
+                </div>
+              )}
+            </>
           ) : (
             <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
               className="glass-card p-12 text-center max-w-lg mx-auto">
@@ -163,7 +225,7 @@ const ProjectList = () => {
                 {searchQuery ? `No projects matching "${searchQuery}".` : `No projects available in ${currentCategoryName}.`}
               </p>
               {(selectedCategory !== 'all' || searchQuery) && (
-                <button onClick={() => { setSelectedCategory('all'); setSearchQuery('') }}
+                <button onClick={() => { setSelectedCategory('all'); setSearchQuery(''); setCurrentPage(1) }}
                   className="mt-6 px-6 py-3 rounded-full border-2 border-white/20 text-white font-semibold hover:border-emerald-400/50 transition-all duration-300">
                   Clear all filters
                 </button>
@@ -179,10 +241,9 @@ const ProjectList = () => {
 // ============ PROJECT GRID CARD ============
 const ProjectGridCard = ({ project, index }) => (
   <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-    transition={{ delay: index * 0.04, duration: 0.4 }} whileHover={{ y: -4 }}>
+    transition={{ delay: (index % 9) * 0.04, duration: 0.4 }} whileHover={{ y: -4 }}>
     <Link to={`/projects/${project.id}`} className="block group h-full">
       <div className="glass-card p-0 overflow-hidden h-full flex flex-col hover:border-emerald-400/30 hover:shadow-lg hover:shadow-emerald-500/5 transition-all duration-500">
-        {/* Image / Gradient Header */}
         {project.featured_image || project.gallery?.[0] ? (
           <div className="aspect-[16/10] overflow-hidden relative">
             <img src={project.featured_image || project.gallery[0]} alt={project.title}
@@ -210,9 +271,7 @@ const ProjectGridCard = ({ project, index }) => (
           </div>
         )}
 
-        {/* Content */}
         <div className="p-5 flex-1 flex flex-col">
-          {/* Category Badge */}
           {project.category_name && (
             <div className="mb-3">
               <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/20">
@@ -221,17 +280,14 @@ const ProjectGridCard = ({ project, index }) => (
             </div>
           )}
 
-          {/* Title */}
           <h3 className="text-lg font-bold text-white mb-2 group-hover:text-emerald-400 transition-colors line-clamp-1">
             {project.title}
           </h3>
 
-          {/* Description */}
           <p className="text-sm text-white/40 mb-4 line-clamp-2 flex-1 leading-relaxed">
             {project.description}
           </p>
 
-          {/* Footer */}
           <div className="flex items-center justify-between pt-4 border-t border-white/5">
             <div className="flex items-center gap-2">
               {project.client_name ? (
