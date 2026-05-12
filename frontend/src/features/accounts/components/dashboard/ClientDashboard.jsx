@@ -17,15 +17,15 @@ const ClientDashboard = ({ user, darkMode }) => {
     const loadData = async () => {
       try {
         const [bookingsRes, consultationsRes, paymentsRes, projectsRes] = await Promise.all([
-          api.get('/my-bookings/').catch(() => ({ data: { results: [] } })),
-          api.get('/consultations/').catch(() => ({ data: { results: [] } })),
-          api.get('/payment-history/').catch(() => ({ data: { results: [] } })),
+          api.get('/bookings/').catch(() => ({ data: { results: [] } })),                  // ✅ Fixed
+          api.get('/consultation-requests/').catch(() => ({ data: { results: [] } })),      // ✅ Fixed
+          api.get('/payments/transactions/').catch(() => ({ data: { results: [] } })),      // ✅ Fixed
           api.get('/projects/').catch(() => ({ data: { results: [] } }))
         ])
         
         setBookings(bookingsRes.data?.results || bookingsRes.data || [])
         setConsultations(consultationsRes.data?.results || consultationsRes.data || [])
-        setPayments(paymentsRes.data?.results || paymentsRes.data || [])
+        setPayments(paymentsRes.data?.results || paymentsRes.data?.transactions || paymentsRes.data || [])
         setProjects(projectsRes.data?.results || projectsRes.data || [])
       } catch (error) {
         console.error('Error loading client dashboard:', error)

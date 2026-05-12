@@ -1,6 +1,7 @@
 # home/models.py
 
 from django.db import models
+from django.conf import settings
 from core.models import BaseModel
 from projects.models import Project
 from consultations.models import ConsultationService
@@ -41,7 +42,7 @@ class SiteSetting(BaseModel):
     accent_color = models.CharField(max_length=20, default="#d8f3dc", help_text="Accent color")
     
     # Footer
-    footer_copyright_text = models.CharField(max_length=200, default="© 2025 Fee-Vert Solution Limited. All rights reserved.")
+    footer_copyright_text = models.CharField(max_length=200, default="(c) 2025 Fee-Vert Solution Limited. All rights reserved.")
     footer_about_text = models.TextField(blank=True, help_text="About text in footer")
     
     # Misc
@@ -90,25 +91,22 @@ class AboutSection(BaseModel):
     image = models.ImageField(upload_to='about/', blank=True, null=True)
     video_url = models.URLField(blank=True, help_text="YouTube/Vimeo about video")
     
-    # Core Values
     core_values = models.JSONField(
         default=list, 
         blank=True, 
-        help_text="List of {icon, title, description, image}. Example: [{'icon': '💎', 'title': 'Integrity', 'description': '...', 'image': 'cloudinary_url'}]"
+        help_text="List of {icon, title, description, image}"
     )
     
-    # Key statistics
     stats = models.JSONField(
         default=list, 
         blank=True, 
-        help_text="List of {number, label, icon}. Example: [{'number': '50', 'label': 'Projects Completed'}]"
+        help_text="List of {number, label, icon}"
     )
     
-    # Why choose us
     why_choose_us = models.JSONField(
         default=list, 
         blank=True, 
-        help_text="List of {icon, title, description, image}. Example: [{'icon': '🎓', 'title': 'Expert Team', 'description': '...', 'image': 'cloudinary_url'}]"
+        help_text="List of {icon, title, description, image}"
     )
     
     is_active = models.BooleanField(default=True)
@@ -121,10 +119,9 @@ class AboutSection(BaseModel):
         return self.title
 
 
-# 🆕 INLINE IMAGES FOR ABOUT SECTION
 class AboutImage(BaseModel):
     """
-    Additional images for About section (Core Values, Why Choose Us, etc.)
+    Additional images for About section
     """
     about = models.ForeignKey(AboutSection, on_delete=models.CASCADE, related_name='gallery')
     image = models.ImageField(upload_to='about/gallery/')
@@ -283,25 +280,228 @@ class Testimonial(BaseModel):
         return f"{self.client_name} - {self.rating} stars"
 
 
+class Contact(BaseModel):
+    """
+    Central contact/lead database.
+    Auto-populated from ContactMessage, consultations, bookings, and emails.
+    """
+    CONTACT_TYPES = [
+        ('lead', 'Lead'),
+        ('client', 'Client'),
+        ('vendor', 'Vendor'),
+        ('partner', 'Partner'),
+        ('supplier', 'Supplier'),
+        ('other', 'Other'),
+    ]
+    
+    # Basic info
+    first_name = models.CharField(max_length=200, blank=True)
+    last_name = models.CharField(max_length=200, blank=True)
+    company_name = models.CharField(max_length=300, blank=True)
+    job_title = models.CharField(max_length=200, blank=True)
+    contact_type = models.CharField(max_length=50, choices=CONTACT_TYPES, default='lead')
+    
+    # Contact details
+    primary_email = models.EmailField(blank=True, db_index=True)
+    secondary_emails = models.JSONField(default=list, blank=True)
+    phone = models.CharField(max_length=50, blank=True)
+    alternate_phone = models.CharField(max_length=50, blank=True)
+    
+    # Address
+    address = models.TextField(blank=True)
+    city = models.CharField(max_length=200, blank=True)
+    region = models.CharField(max_length=200, blank=True)
+    country = models.CharField(max_length=200, default='Tanzania')
+    
+    # Source tracking
+    source = models.CharField(max_length=200, blank=True, help_text="How did they find us?")
+    source_channel = models.CharField(max_length=50, blank=True, choices=[
+        ('contact_form', 'Contact Form'),
+        ('email', 'Email'),
+        ('consultation', 'Consultation'),
+        ('booking', 'Booking'),
+        ('referral', 'Referral'),
+        ('social', 'Social Media'),
+        ('other', 'Other'),
+    ])
+    
+    # Linked user account
+    linked_user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        related_name='contact_profile'
+    )
+    
+    # Status
+    is_active = models.BooleanField(default=True)
+    
+    # Notes & Tags
+    notes = models.TextField(blank=True)
+    tags = models.JSONField(default=list, blank=True)
+    
+    # Stats (auto-updated)
+    total_messages = models.IntegerField(default=0)
+    last_contacted_at = models.DateTimeField(null=True, blank=True)
+    first_contacted_at = models.DateTimeField(null=True, blank=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['primary_email']),
+            models.Index(fields=['contact_type']),
+            models.Index(fields=['phone']),
+        ]
+        verbose_name = "Contact"
+        verbose_name_plural = "Contacts"
+    
+    def __str__(self):
+        name = f"{self.first_name} {self.last_name}".strip()
+        return name or self.primary_email or self.company_name or f"Contact #{self.id}"
+    
+    @property
+    def full_name(self):
+        name = f"{self.first_name} {self.last_name}".strip()
+        return name if name else None
+    
+    @property
+    def display_name(self):
+        return self.full_name or self.company_name or self.primary_email or f"Contact #{self.id}"
+
+
 class ContactMessage(BaseModel):
     """
-    Messages sent through contact form
+    Unified Inbox - Messages from all communication channels
+    including contact form, email, SMS, chat, consultations, and bookings.
     """
+    CHANNEL_CHOICES = [
+        ('contact_form', 'Contact Form'),
+        ('email', 'Email'),
+        ('sms', 'SMS'),
+        ('consultation', 'Consultation'),
+        ('booking', 'Booking'),
+        ('chat', 'Live Chat'),
+        ('internal', 'Internal Note'),
+    ]
+    
+    STATUS_CHOICES = [
+        ('unread', 'Unread'),
+        ('read', 'Read'),
+        ('in_progress', 'In Progress'),
+        ('responded', 'Responded'),
+        ('resolved', 'Resolved'),
+        ('spam', 'Spam'),
+        ('archived', 'Archived'),
+    ]
+    
+    PRIORITY_CHOICES = [
+        ('low', 'Low'),
+        ('medium', 'Medium'),
+        ('high', 'High'),
+        ('urgent', 'Urgent'),
+    ]
+    
+    # ========== SENDER INFORMATION ==========
     name = models.CharField(max_length=100)
     email = models.EmailField()
     phone = models.CharField(max_length=20, blank=True)
+    
+    # ========== CONTENT ==========
     subject = models.CharField(max_length=200)
     message = models.TextField()
+    
+    # ========== CHANNEL & STATUS ==========
+    channel = models.CharField(
+        max_length=50,
+        choices=CHANNEL_CHOICES,
+        default='contact_form',
+        db_index=True
+    )
+    status = models.CharField(
+        max_length=50,
+        choices=STATUS_CHOICES,
+        default='unread',
+        db_index=True
+    )
+    priority = models.CharField(
+        max_length=50,
+        choices=PRIORITY_CHOICES,
+        default='medium'
+    )
+    is_incoming = models.BooleanField(default=True)
+    
+    # ========== READ/REPLY TRACKING ==========
     is_read = models.BooleanField(default=False)
     is_replied = models.BooleanField(default=False)
     replied_at = models.DateTimeField(blank=True, null=True)
+    responded_at = models.DateTimeField(blank=True, null=True)
+    resolved_at = models.DateTimeField(blank=True, null=True)
+    
+    # ========== ASSIGNMENT ==========
+    assigned_to = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        related_name='assigned_messages'
+    )
+    
+    # ========== CONTACT LINKING ==========
+    contact = models.ForeignKey(
+        'home.Contact',
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        related_name='messages'
+    )
+    
+    # ========== EMAIL-SPECIFIC (for Outlook/365 integration) ==========
+    message_id = models.CharField(max_length=500, blank=True, db_index=True)
+    thread_id = models.CharField(max_length=500, blank=True)
+    in_reply_to = models.CharField(max_length=500, blank=True)
+    cc_emails = models.JSONField(default=list, blank=True)
+    attachments = models.JSONField(default=list, blank=True)
+    headers = models.JSONField(default=dict, blank=True)
+    
+    # ========== SLA TRACKING ==========
+    sla_deadline = models.DateTimeField(blank=True, null=True)
+    sla_breached = models.BooleanField(default=False)
+    
+    # ========== METADATA ==========
+    metadata = models.JSONField(default=dict, blank=True)
     
     class Meta:
         ordering = ['-created_at']
         indexes = [
             models.Index(fields=['is_read', '-created_at']),
             models.Index(fields=['email']),
+            models.Index(fields=['channel', 'status']),
+            models.Index(fields=['assigned_to', 'status']),
+            models.Index(fields=['priority', '-created_at']),
+            models.Index(fields=['message_id']),
+            models.Index(fields=['thread_id']),
+            models.Index(fields=['contact', '-created_at']),
         ]
+        verbose_name = "Unified Inbox"
+        verbose_name_plural = "Unified Inbox (All Messages)"
     
     def __str__(self):
-        return f"{self.name} - {self.subject[:50]}"
+        channel_label = dict(self.CHANNEL_CHOICES).get(self.channel, self.channel)
+        return f"[{channel_label}] {self.name} - {self.subject[:50]}"
+    
+    @property
+    def is_overdue(self):
+        if self.sla_deadline:
+            from django.utils import timezone
+            return timezone.now() > self.sla_deadline and self.status not in ['resolved', 'archived']
+        return False
+    
+    @property
+    def channel_label(self):
+        return dict(self.CHANNEL_CHOICES).get(self.channel, self.channel)
+    
+    @property
+    def status_label(self):
+        return dict(self.STATUS_CHOICES).get(self.status, self.status)
+    
+    @property
+    def priority_label(self):
+        return dict(self.PRIORITY_CHOICES).get(self.priority, self.priority)

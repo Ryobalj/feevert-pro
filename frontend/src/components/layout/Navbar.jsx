@@ -7,6 +7,7 @@ import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import { useTheme } from '../../context/ThemeContext'
 import { useAuth } from '../../features/accounts/hooks/useAuth'
+import { useWebSocket } from '../../features/realtime/hooks/useWebSocket'
 import UserDropdownMenu from './UserDropdownMenu'
 import ChatBox from '../../features/realtime/components/ChatBox'
 import UserChatList from '../../features/realtime/components/UserChatList'
@@ -47,6 +48,9 @@ const Navbar = () => {
   const { cartCount } = useCart()
   const [isCartDrawerOpen, setIsCartDrawerOpen] = useState(false)
 
+  // 🔌 WebSocket connection
+  const { isConnected, lastMessage } = useWebSocket()
+
   // Fetch data
   useEffect(() => {
     const fetchData = async () => {
@@ -68,23 +72,54 @@ const Navbar = () => {
       .catch(() => {})
   }, [])
 
-  // Unread counts
+  // 🆕 Unread counts - Initial fetch + WebSocket updates + Slow polling fallback
   useEffect(() => {
-    if (!isAuthenticated) return
-    const fetch = async () => {
+    if (!isAuthenticated) {
+      setTotalUnreadNotifications(0)
+      setTotalUnreadMessages(0)
+      return
+    }
+
+    const fetchCounts = async () => {
       try {
         const [n, m] = await Promise.all([
-          api.get('/notifications/unread-count/').catch(() => ({ data: { unread_count: 0 } })),
-          api.get('/unread-count/').catch(() => ({ data: { unread_count: 0 } }))
+          api.get('/notification-counts/unread/').catch(() => ({ data: { unread_count: 0 } })),
+          api.get('/realtime/unread-count/').catch(() => ({ data: { unread_count: 0 } }))
         ])
         setTotalUnreadNotifications(n.data?.unread_count || 0)
         setTotalUnreadMessages(m.data?.unread_count || 0)
-      } catch (e) {}
+      } catch (e) {
+        console.error('Error fetching unread counts:', e)
+      }
     }
-    fetch()
-    const i = setInterval(fetch, 30000)
-    return () => clearInterval(i)
+
+    // Initial fetch
+    fetchCounts()
+
+    // Slow polling as fallback (every 5 minutes)
+    const interval = setInterval(fetchCounts, 300000)
+
+    return () => clearInterval(interval)
   }, [isAuthenticated])
+
+  // 🔌 WebSocket: Update counts instantly when new notification arrives
+  useEffect(() => {
+    if (lastMessage && isAuthenticated) {
+      const refreshCounts = async () => {
+        try {
+          const [n, m] = await Promise.all([
+            api.get('/notification-counts/unread/').catch(() => ({ data: { unread_count: 0 } })),
+            api.get('/realtime/unread-count/').catch(() => ({ data: { unread_count: 0 } }))
+          ])
+          setTotalUnreadNotifications(n.data?.unread_count || 0)
+          setTotalUnreadMessages(m.data?.unread_count || 0)
+        } catch (e) {
+          // silent
+        }
+      }
+      refreshCounts()
+    }
+  }, [lastMessage, isAuthenticated])
 
   // Scroll
   useEffect(() => {

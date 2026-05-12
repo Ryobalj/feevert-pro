@@ -1,10 +1,10 @@
 from django.contrib import admin
-from django.urls import path, include, re_path  # 🆕 Imeongezwa re_path
+from django.urls import path, include, re_path
 from django.conf import settings
 from django.conf.urls.static import static
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from django.views.static import serve as static_serve  # 🆕 Imeongezwa
+from django.views.static import serve as static_serve
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -26,7 +26,9 @@ from bookings.views import (
 from reviews.views import ReviewViewSet, ReviewImageViewSet, ReviewHelpfulVoteViewSet
 from notifications.views import (
     NotificationViewSet, NotificationTemplateViewSet,
-    UserNotificationSettingViewSet, get_unread_count, mark_all_as_read, mark_as_read
+    UserNotificationSettingViewSet, NotificationLogViewSet,
+    TestEndpointViewSet, get_unread_count, mark_all_as_read, 
+    mark_as_read, get_notification_stats
 )
 from projects.views import (
     ProjectCategoryViewSet, ProjectTagViewSet, ProjectViewSet,
@@ -60,73 +62,74 @@ from payments.views import (
 router = DefaultRouter()
 
 # Accounts
-router.register(r'users', UserViewSet)
-router.register(r'profiles', ProfileViewSet)
-router.register(r'roles', RoleViewSet)
-router.register(r'activity-logs', UserActivityLogViewSet)
+router.register(r'users', UserViewSet, basename='user')
+router.register(r'profiles', ProfileViewSet, basename='profile')
+router.register(r'roles', RoleViewSet, basename='role')
+router.register(r'activity-logs', UserActivityLogViewSet, basename='activity-log')
 
 # Consultations
-router.register(r'consultation-categories', ConsultationCategoryViewSet)
-router.register(r'consultation-services', ConsultationServiceViewSet)
-router.register(r'consultation-requests', ConsultationRequestViewSet)
-router.register(r'consultation-documents', ConsultationDocumentViewSet)
-router.register(r'consultation-followups', ConsultationFollowupViewSet)
+router.register(r'consultation-categories', ConsultationCategoryViewSet, basename='consultation-category')
+router.register(r'consultation-services', ConsultationServiceViewSet, basename='consultation-service')
+router.register(r'consultation-requests', ConsultationRequestViewSet, basename='consultation-request')
+router.register(r'consultation-documents', ConsultationDocumentViewSet, basename='consultation-document')
+router.register(r'consultation-followups', ConsultationFollowupViewSet, basename='consultation-followup')
 
 # Bookings
-router.register(r'time-slots', TimeSlotViewSet)
-router.register(r'bookings', BookingViewSet)
-router.register(r'availabilities', AvailabilityViewSet)
-router.register(r'holidays', HolidayViewSet)
-router.register(r'booking-reminders', BookingReminderViewSet)
+router.register(r'time-slots', TimeSlotViewSet, basename='time-slot')
+router.register(r'bookings', BookingViewSet, basename='booking')
+router.register(r'availabilities', AvailabilityViewSet, basename='availability')
+router.register(r'holidays', HolidayViewSet, basename='holiday')
+router.register(r'booking-reminders', BookingReminderViewSet, basename='booking-reminder')
 
 # Reviews
-router.register(r'reviews', ReviewViewSet)
-router.register(r'review-images', ReviewImageViewSet)
-router.register(r'review-votes', ReviewHelpfulVoteViewSet)
+router.register(r'reviews', ReviewViewSet, basename='review')
+router.register(r'review-images', ReviewImageViewSet, basename='review-image')
+router.register(r'review-votes', ReviewHelpfulVoteViewSet, basename='review-vote')
 
 # Notifications
-router.register(r'notifications', NotificationViewSet)
-router.register(r'notification-templates', NotificationTemplateViewSet)
-router.register(r'notification-settings', UserNotificationSettingViewSet)
+router.register(r'notifications', NotificationViewSet, basename='notification')
+router.register(r'notification-templates', NotificationTemplateViewSet, basename='notification-template')
+router.register(r'notification-settings', UserNotificationSettingViewSet, basename='notification-setting')
+router.register(r'notification-logs', NotificationLogViewSet, basename='notification-log')
 
 # Projects
-router.register(r'project-categories', ProjectCategoryViewSet)
-router.register(r'project-tags', ProjectTagViewSet)
-router.register(r'projects', ProjectViewSet)
-router.register(r'project-images', ProjectImageViewSet)
-router.register(r'project-awards', ProjectAwardViewSet)
+router.register(r'project-categories', ProjectCategoryViewSet, basename='project-category')
+router.register(r'project-tags', ProjectTagViewSet, basename='project-tag')
+router.register(r'projects', ProjectViewSet, basename='project')
+router.register(r'project-images', ProjectImageViewSet, basename='project-image')
+router.register(r'project-awards', ProjectAwardViewSet, basename='project-award')
 
 # Careers
-router.register(r'job-categories', JobCategoryViewSet)
-router.register(r'jobs', JobPostViewSet)
-router.register(r'job-applications', JobApplicationViewSet)
-router.register(r'saved-jobs', SavedJobViewSet)
-router.register(r'job-alerts', JobAlertViewSet)
+router.register(r'job-categories', JobCategoryViewSet, basename='job-category')
+router.register(r'jobs', JobPostViewSet, basename='job')
+router.register(r'job-applications', JobApplicationViewSet, basename='job-application')
+router.register(r'saved-jobs', SavedJobViewSet, basename='saved-job')
+router.register(r'job-alerts', JobAlertViewSet, basename='job-alert')
 
 # News
-router.register(r'news-categories', NewsCategoryViewSet)
-router.register(r'news', NewsPostViewSet)
-router.register(r'comments', CommentViewSet)
-router.register(r'newsletter-subscriptions', NewsletterSubscriptionViewSet)
-router.register(r'newsletter-campaigns', NewsletterCampaignViewSet)
+router.register(r'news-categories', NewsCategoryViewSet, basename='news-category')
+router.register(r'news', NewsPostViewSet, basename='news')
+router.register(r'comments', CommentViewSet, basename='comment')
+router.register(r'newsletter-subscriptions', NewsletterSubscriptionViewSet, basename='newsletter-subscription')
+router.register(r'newsletter-campaigns', NewsletterCampaignViewSet, basename='newsletter-campaign')
 
 # Team
-router.register(r'departments', DepartmentViewSet)
-router.register(r'team-members', TeamMemberViewSet)
-router.register(r'team-socials', TeamMemberSocialViewSet)
-router.register(r'team-testimonials', TeamTestimonialViewSet)
-router.register(r'team-achievements', TeamAchievementViewSet)
+router.register(r'departments', DepartmentViewSet, basename='department')
+router.register(r'team-members', TeamMemberViewSet, basename='team-member')
+router.register(r'team-socials', TeamMemberSocialViewSet, basename='team-social')
+router.register(r'team-testimonials', TeamTestimonialViewSet, basename='team-testimonial')
+router.register(r'team-achievements', TeamAchievementViewSet, basename='team-achievement')
 
 # Home
-router.register(r'site-settings', SiteSettingViewSet)
-router.register(r'hero-sections', HeroSectionViewSet)
-router.register(r'about-sections', AboutSectionViewSet)
-router.register(r'service-highlights', ServiceHighlightViewSet)
-router.register(r'seo-data', SeoDataViewSet)
-router.register(r'faqs', FaqViewSet)
-router.register(r'partners', PartnerViewSet)
-router.register(r'testimonials', TestimonialViewSet)
-router.register(r'contact-messages', ContactMessageViewSet)
+router.register(r'site-settings', SiteSettingViewSet, basename='site-setting')
+router.register(r'hero-sections', HeroSectionViewSet, basename='hero-section')
+router.register(r'about-sections', AboutSectionViewSet, basename='about-section')
+router.register(r'service-highlights', ServiceHighlightViewSet, basename='service-highlight')
+router.register(r'seo-data', SeoDataViewSet, basename='seo-data')
+router.register(r'faqs', FaqViewSet, basename='faq')
+router.register(r'partners', PartnerViewSet, basename='partner')
+router.register(r'testimonials', TestimonialViewSet, basename='testimonial')
+router.register(r'contact-messages', ContactMessageViewSet, basename='contact-message')
 
 
 def api_root(request):
@@ -164,9 +167,17 @@ def api_root(request):
                 'pawapay': '/webhooks/pawapay/',
             },
             'notifications': {
-                'unread_count': '/api/notifications/unread-count/',
-                'mark_all_read': '/api/notifications/mark-all-read/',
-                'mark_read': '/api/notifications/mark-as-read/<id>/',
+                'unread': '/api/v1/notification-counts/unread/',
+                'mark_all_read': '/api/v1/notification-counts/mark-all-read/',
+                'mark_read': '/api/v1/notification-counts/mark-read/<id>/',
+                'test_email': '/api/v1/email/test/',
+                'test_sms': '/api/v1/sms/test/',
+                'stats': '/api/v1/notification-stats/',
+            },
+            'messaging': {
+                'unread_count': '/api/realtime/unread-count/',
+                'conversations': '/api/realtime/conversations/',
+                'send': '/api/realtime/send/',
             },
             'language': {
                 'current': '/api/language/',
@@ -177,35 +188,33 @@ def api_root(request):
     })
 
 
+# ============================================================
+# URL PATTERNS - Standalone endpoints BEFORE router
+# ============================================================
 urlpatterns = [
-    # API Root - Main landing page (returns JSON)
+    # API Root
     path('', api_root, name='api-root'),
     path('api/language/', include('home.urls')),
     
-    # Admin panel (custom URL for security)
+    # Admin
     path('feevert-admin/', admin.site.urls),
-    
-    # API v1 - includes all registered routers
-    path('api/v1/', include(router.urls)),
     
     # JWT Authentication
     path('api/token/', csrf_exempt(TokenObtainPairView.as_view()), name='token_obtain_pair'),
     path('api/token/refresh/', csrf_exempt(TokenRefreshView.as_view()), name='token_refresh'),
     path('api/token/verify/', csrf_exempt(TokenVerifyView.as_view()), name='token_verify'),
     
-    # Realtime (WebSocket + Messaging)
-    path('realtime/', include('realtime.urls')),
+    # Realtime (Messaging + WebSocket)
+    path('api/v1/realtime/', include('realtime.urls')),
     
-    # Custom Auth Endpoints
+    # Auth
     path('api/auth/', include('accounts.urls')),
     
-    # ============================================
-    # PUBLIC CONSULTATION ENDPOINTS (No Auth)
-    # ============================================
+    # Public
     path('api/public/services/', public_services_list, name='public-services-list'),
     path('api/public/categories-tree/', public_categories_tree, name='public-categories-tree'),
     
-    # Payments Endpoints
+    # Payments
     path('api/payments/initiate/', initiate_payment, name='initiate-payment'),
     path('api/payments/verify/<str:transaction_id>/', verify_payment, name='verify-payment'),
     path('api/payments/refund/<str:transaction_id>/', refund_payment, name='refund-payment'),
@@ -214,32 +223,60 @@ urlpatterns = [
     path('api/payments/invoices/', invoices, name='invoices'),
     path('api/payments/invoices/<str:invoice_number>/', get_invoice, name='get-invoice'),
     
-    # Webhooks (no auth) - PawaPay
+    # Webhooks
     path('webhooks/pawapay/', pawapay_webhook, name='pawapay-webhook'),
     
-    # Homepage aggregated data API
+    # Homepage
     path('api/homepage/', get_homepage_data, name='homepage-data'),
     
     # ============================================
-    # NOTIFICATIONS STANDALONE ENDPOINTS
+    # NOTIFICATION COUNTS (Different URL to avoid ViewSet conflict)
     # ============================================
-    path('api/notifications/unread-count/', get_unread_count, name='notifications-unread-count'),
-    path('api/notifications/mark-all-read/', mark_all_as_read, name='notifications-mark-all-read'),
-    path('api/notifications/mark-as-read/<int:notification_id>/', mark_as_read, name='notifications-mark-as-read'),
+    path('api/v1/notification-counts/unread/', get_unread_count, name='notification-counts-unread'),
+    path('api/v1/notification-counts/mark-all-read/', mark_all_as_read, name='notification-counts-mark-all-read'),
+    path('api/v1/notification-counts/mark-read/<int:notification_id>/', mark_as_read, name='notification-counts-mark-read'),
+    
+    # ============================================
+    # NOTIFICATION TEST & MANAGEMENT ENDPOINTS
+    # ============================================
+    path('api/v1/email/test/', 
+         TestEndpointViewSet.as_view({'post': 'email'}), 
+         name='email-test'),
+    path('api/v1/sms/test/', 
+         TestEndpointViewSet.as_view({'post': 'sms'}), 
+         name='sms-test'),
+    path('api/v1/notifications/test/bulk/', 
+         TestEndpointViewSet.as_view({'post': 'bulk'}), 
+         name='notification-test-bulk'),
+    path('api/v1/notifications/test/communication/', 
+         TestEndpointViewSet.as_view({'post': 'communication'}), 
+         name='notification-test-communication'),
+    path('api/v1/notifications/templates/<int:pk>/preview/', 
+         NotificationTemplateViewSet.as_view({'post': 'preview'}), 
+         name='notification-template-preview'),
+    path('api/v1/notifications/templates/<int:pk>/send/', 
+         NotificationTemplateViewSet.as_view({'post': 'send'}), 
+         name='notification-template-send'),
+    path('api/v1/notification-stats/', 
+         get_notification_stats, 
+         name='notification-stats'),
+    
+    # Shop
     path('api/v1/shop/', include('shop.urls')),
-
+    
+    # ============================================
+    # API v1 ROUTER (LAST - so standalone paths match first)
+    # ============================================
+    path('api/v1/', include(router.urls)),
 ]
 
 # ============================================================
-# 🆕 SERVE MEDIA AND STATIC FILES (IMEBOreshwa)
+# SERVE MEDIA AND STATIC FILES
 # ============================================================
 if settings.DEBUG:
-    # Development: tumia static() helper ya kawaida
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 else:
-    # Production: static files zinaserviwa na Whitenoise
-    # Media files zinahitaji kuserviwa manually kwa kutumia static_serve
     urlpatterns += [
         re_path(r'^media/(?P<path>.*)$', static_serve, {
             'document_root': settings.MEDIA_ROOT,

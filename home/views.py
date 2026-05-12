@@ -87,14 +87,26 @@ class TestimonialViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class ContactMessageViewSet(viewsets.ModelViewSet):
-    """ViewSet for Contact Messages"""
+    """ViewSet for Contact Messages - Anyone can submit, only authenticated can view"""
     queryset = ContactMessage.objects.all()
     serializer_class = ContactMessageSerializer
-    permission_classes = [IsAuthenticated]
+    
+    def get_permissions(self):
+        """
+        - Anyone can CREATE (submit contact form)
+        - Only authenticated users can READ/LIST
+        """
+        if self.action == 'create':
+            permission_classes = [AllowAny]
+        else:
+            permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
     
     def get_queryset(self):
         user = self.request.user
-        if user.role == 'admin':
+        if not user.is_authenticated:
+            return ContactMessage.objects.none()
+        if user.role == 'admin' or user.is_staff:
             return ContactMessage.objects.all()
         return ContactMessage.objects.filter(email=user.email)
     
@@ -106,17 +118,22 @@ class ContactMessageViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         message = serializer.save()
         
-        # Send email notification to admin
         try:
-            send_mail(
-                subject=f"New Contact Message: {message.subject}",
-                message=f"From: {message.name} ({message.email})\nPhone: {message.phone}\n\nMessage:\n{message.message}",
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[settings.CONTACT_FORM_EMAIL],
-                fail_silently=True
-            )
+            from notifications.services.communication_service import CommunicationService
+            CommunicationService.notify_new_contact_message(message)
         except Exception:
-            pass
+            try:
+                from django.core.mail import send_mail
+                from django.conf import settings
+                send_mail(
+                    subject=f"New Contact Message: {message.subject}",
+                    message=f"From: {message.name} ({message.email})\nPhone: {message.phone}\n\nMessage:\n{message.message}",
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[settings.CONTACT_FORM_EMAIL],
+                    fail_silently=True,
+                )
+            except Exception:
+                pass
 
 
 @api_view(['GET'])
@@ -124,40 +141,31 @@ class ContactMessageViewSet(viewsets.ModelViewSet):
 def get_homepage_data(request):
     """Get all homepage data in one request with language support"""
     
-    # Get language from cookie or header
     language = request.COOKIES.get('django_language', 'en')
     
-    # Site settings
     site_settings = SiteSetting.objects.first()
     site_settings_data = SiteSettingSerializer(site_settings, context={'request': request}).data if site_settings else None
     
-    # Hero sections
     heroes = HeroSection.objects.filter(is_active=True).order_by('order')
     heroes_data = HeroSectionSerializer(heroes, many=True, context={'request': request}).data
     
-    # About section
     about = AboutSection.objects.filter(is_active=True).first()
     about_data = AboutSectionSerializer(about, context={'request': request}).data if about else None
     
-    # Service highlights
     services = ServiceHighlight.objects.filter(is_active=True).order_by('order')
     services_data = ServiceHighlightSerializer(services, many=True, context={'request': request}).data
     
-    # Testimonials
     testimonials = Testimonial.objects.filter(is_active=True, is_approved=True).order_by('order')
     testimonials_data = TestimonialSerializer(testimonials, many=True, context={'request': request}).data
     
-    # Partners
     partners = Partner.objects.filter(is_active=True).order_by('order')
     partners_data = PartnerSerializer(partners, many=True, context={'request': request}).data
     
-    # Featured projects
     from projects.models import Project
     from projects.serializers import ProjectListSerializer
     featured_projects = Project.objects.filter(status='published', is_featured=True)[:6]
     projects_data = ProjectListSerializer(featured_projects, many=True, context={'request': request}).data
     
-    # Featured news
     from news.models import NewsPost
     from news.serializers import NewsPostListSerializer
     featured_news = NewsPost.objects.filter(is_published=True, is_featured=True)[:3]
@@ -174,30 +182,6 @@ def get_homepage_data(request):
         'featured_projects': projects_data,
         'featured_news': news_data
     })
-
-
-@api_view(['POST'])
-@permission_classes([AllowAny])
-def set_language(request):
-    """Set user's preferred language"""
-    language = request.data.get('language', 'en')
-    
-    if language not in ['en', 'sw']:
-        return Response({'error': 'Invalid language'}, status=400)
-    
-    response = Response({'success': True, 'language': language})
-    response.set_cookie('django_language', language, max_age=31536000)  # 1 year
-    request.session['django_language'] = language
-    
-    return response
-
-
-@api_view(['GET'])
-@permission_classes([AllowAny])
-def get_language(request):
-    """Get current language"""
-    language = request.COOKIES.get('django_language', 'en')
-    return Response({'language': language})
 
 
 @api_view(['GET'])
@@ -221,3 +205,27 @@ def get_hero_slides(request):
         'slide_duration': 5000,
         'transition_duration': 1200,
     })
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def set_language(request):
+    """Set user's preferred language"""
+    language = request.data.get('language', 'en')
+    
+    if language not in ['en', 'sw']:
+        return Response({'error': 'Invalid language'}, status=400)
+    
+    response = Response({'success': True, 'language': language})
+    response.set_cookie('django_language', language, max_age=31536000)
+    request.session['django_language'] = language
+    
+    return response
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def get_language(request):
+    """Get current language"""
+    language = request.COOKIES.get('django_language', 'en')
+    return Response({'language': language})

@@ -24,13 +24,40 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     // Smart URL building - USIONGEZE /api/v1 IKIWA TAYARI IPO
+    
+    // Auth & Token endpoints → /api/...
     if (config.url.includes('/token/')) {
       config.url = `/api${config.url}`
     } else if (config.url.includes('/auth/')) {
       config.url = `/api${config.url}`
-    } else if (config.url.includes('/payments/')) {
+    } 
+    // Payments → /api/...
+    else if (config.url.includes('/payments/')) {
       config.url = `/api${config.url}`
-    } else if (!config.url.startsWith('/api/') && !config.url.startsWith('/webhooks/')) {
+    } 
+    // Public endpoints → /api/...
+    else if (config.url.includes('/public/')) {
+      config.url = `/api${config.url}`
+    } 
+    // Homepage → /api/...
+    else if (config.url.includes('/homepage/')) {
+      config.url = `/api${config.url}`
+    } 
+    // Shop → /api/v1/... (tayari iko kwenye /api/v1/shop/)
+    else if (config.url.includes('/shop/')) {
+      config.url = `/api/v1${config.url}`
+    } 
+    // Notification counts → /api/v1/... (tayari iko kwenye /api/v1/notification-counts/)
+    else if (config.url.includes('/notification-counts/')) {
+      config.url = `/api/v1${config.url}`
+    } 
+    // Realtime messaging → /api/v1/... (itakuwa /api/v1/realtime/...)
+    else if (config.url.includes('/realtime/')) {
+      config.url = `/api/v1${config.url}`
+    } 
+    // Notifications (ViewSet) → tayari inaingia /api/v1/...
+    // All other endpoints → /api/v1/...
+    else if (!config.url.startsWith('/api/') && !config.url.startsWith('/webhooks/')) {
       config.url = `/api/v1${config.url}`
     }
     

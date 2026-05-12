@@ -10,7 +10,11 @@ from django.contrib.auth import get_user_model
 from accounts.serializers import UserSerializer
 from .models import Message
 from .serializers import MessageSerializer, ConversationSerializer, SendMessageSerializer
-from .services.notification_service import NotificationService
+
+# 🔥 Tumia CommunicationService yetu mpya badala ya NotificationService ya zamani
+from notifications.services.communication_service import CommunicationService
+from notifications.services.sms_service import SMSService
+
 from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import render, redirect
 from django.contrib import messages
@@ -19,6 +23,32 @@ from django.contrib import messages
 
 User = get_user_model()
 
+
+# ============================================================
+# WRAPPER - Backward compatible kwa code iliyopo
+# ============================================================
+class NotificationService:
+    """
+    Backward-compatible wrapper kwa CommunicationService.
+    Inaruhusu code iliyopo iendelee kufanya kazi bila kubadilika.
+    """
+    @staticmethod
+    def send_realtime_notification(user_id, notification_type, title, message, data=None):
+        from accounts.models import User
+        try:
+            user = User.objects.get(id=user_id)
+            CommunicationService.notify_staff(
+                recipient=user,
+                title=title,
+                message=message,
+            )
+        except Exception as e:
+            print(f"Notification error: {e}")
+
+
+# ============================================================
+# ADMIN VIEWS
+# ============================================================
 
 @staff_member_required
 def send_test_notification(request):
@@ -67,7 +97,6 @@ def broadcast_notification(request):
             for user in users:
                 try:
                     if notification_type == 'sms' and user.phone:
-                        from .services.sms_service import SMSService
                         SMSService.send_sms(str(user.phone), message)
                         success_count += 1
                     else:
@@ -89,6 +118,10 @@ def broadcast_notification(request):
     
     return render(request, 'admin/realtime/broadcast.html')
 
+
+# ============================================================
+# API VIEWS
+# ============================================================
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -312,7 +345,6 @@ def get_online_users(request):
     """
     Get list of online users (can be implemented with WebSocket later)
     """
-    # For now, return recently active users (last 5 minutes)
     from django.utils import timezone
     from datetime import timedelta
     

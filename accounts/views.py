@@ -12,7 +12,16 @@ from django.conf import settings
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from .services.auth_service import AuthService
-from .services.email_service import EmailService
+
+# 🔥 Email service imehamishwa kwenda notifications
+from notifications.services.communication_service import CommunicationService
+
+# Wrapper kwa backward compatibility
+class EmailService:
+    """Backward-compatible wrapper - inaelekeza kwenye CommunicationService"""
+    @staticmethod
+    def send_verification_email(user, token):
+        CommunicationService.send_verification_email(user, token)
 
 from .models import (
     User,

@@ -21,11 +21,20 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-dev-key-for-local')
 DEBUG = config('DEBUG', default=False, cast=bool)
 
+# ===========================
 # ALLOWED_HOSTS
+# ===========================
 if DEBUG:
     ALLOWED_HOSTS = ['*']
 else:
-    ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='.onrender.com,feevert.co.tz,www.feevert.co.tz,localhost,127.0.0.1').split(',')
+    ALLOWED_HOSTS = config(
+        'ALLOWED_HOSTS',
+        default='.onrender.com,feevert.co.tz,www.feevert.co.tz,api.feevert.co.tz,localhost,127.0.0.1'
+    ).split(',')
+
+    # Render / Proxy HTTPS support
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    USE_X_FORWARDED_HOST = True
 
 # ===========================
 # INSTALLED APPS
@@ -239,8 +248,7 @@ CORS_ALLOWED_ORIGINS = [
     'https://feevert-frontend.onrender.com',
     'https://feevert.co.tz',
     'https://www.feevert.co.tz',
-    'https://*.ngrok-free.dev',
-    'http://*.ngrok-free.dev',
+    'https://api.feevert.co.tz',
 ]
 
 if DEBUG:
@@ -260,6 +268,9 @@ CORS_ALLOW_HEADERS = [
     'x-request-id',
 ]
 
+# ===========================
+# CSRF SETTINGS
+# ===========================
 if DEBUG:
     CSRF_TRUSTED_ORIGINS = [
         'http://localhost:5173',
@@ -273,6 +284,7 @@ else:
         'https://feevert-frontend.onrender.com',
         'https://feevert.co.tz',
         'https://www.feevert.co.tz',
+        'https://api.feevert.co.tz',
         'https://*.onrender.com',
     ]
 
@@ -411,8 +423,15 @@ NOTIFICATION_SETTINGS = {
 IS_PRODUCTION = not DEBUG
 
 if IS_PRODUCTION:
-    FRONTEND_URL = os.environ.get('FRONTEND_URL', 'https://feevert.co.tz')
-    BACKEND_URL = os.environ.get('BACKEND_URL', 'https://feevert.co.tz')
+    FRONTEND_URL = os.environ.get(
+        'FRONTEND_URL',
+        'https://feevert.co.tz'
+    )
+
+    BACKEND_URL = os.environ.get(
+        'BACKEND_URL',
+        'https://api.feevert.co.tz'
+    )
 else:
     FRONTEND_URL = 'http://localhost:5173'
     BACKEND_URL = 'http://127.0.0.1:8000'
@@ -459,7 +478,7 @@ LOGGING = {
 # SECURITY HEADERS (Production)
 # ===========================
 if not DEBUG:
-    SECURE_SSL_REDIRECT = True
+    SECURE_SSL_REDIRECT = False
     SECURE_HSTS_SECONDS = 31536000
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
@@ -525,3 +544,14 @@ if 'test' in sys.argv:
     }
     DEBUG = False
     PAWAPAY_USE_SANDBOX = False
+
+
+# ===========================
+# OUTLOOK / MICROSOFT 365 INTEGRATION
+# ===========================
+MICROSOFT_CLIENT_ID = config('MICROSOFT_CLIENT_ID', default='')
+MICROSOFT_CLIENT_SECRET = config('MICROSOFT_CLIENT_SECRET', default='')
+MICROSOFT_TENANT_ID = config('MICROSOFT_TENANT_ID', default='')
+MICROSOFT_REDIRECT_URI = config('MICROSOFT_REDIRECT_URI', default='https://feevert.co.tz/api/communications/outlook/callback/')
+EMAIL_INGESTION_ENABLED = config('EMAIL_INGESTION_ENABLED', default=False, cast=bool)
+EMAIL_INGESTION_POLLING_MINUTES = config('EMAIL_INGESTION_POLLING_MINUTES', default=5, cast=int)
