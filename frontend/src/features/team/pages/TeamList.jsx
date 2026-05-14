@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTheme } from '../../../context/ThemeContext'
 import api from '../../../app/api'
+import Loader from '../../../components/ui/Loader'
 
 const TeamList = () => {
   const [team, setTeam] = useState([])
@@ -42,13 +43,7 @@ const TeamList = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <div className="relative">
-            <div className="absolute inset-0 bg-emerald-400/10 rounded-full blur-xl animate-pulse" />
-            <div className="spinner spinner-lg relative" />
-          </div>
-          <p className="text-white/50 animate-pulse">Loading team...</p>
-        </div>
+        <Loader size="lg" text="Loading team..." />
       </div>
     )
   }
@@ -164,14 +159,17 @@ const TeamGridCard = ({ member, index }) => {
             <div className="relative mb-4">
               <div className="absolute -inset-1 bg-emerald-400/0 group-hover:bg-emerald-400/10 rounded-full blur-md transition-all duration-500" />
               
-              {member.profile_picture || member.photo ? (
+              {member.profile_image_url ? (
                 <div className="relative w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden ring-2 ring-white/10 group-hover:ring-emerald-400/40 transition-all duration-500">
-                  <img src={member.profile_picture || member.photo} alt={member.full_name}
+                  <img src={member.profile_image_url} alt={member.full_name || member.name}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                    onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex' }} />
+                    onError={(e) => { 
+                      e.target.style.display = 'none'
+                      e.target.parentElement.nextElementSibling.style.display = 'flex'
+                    }} />
                 </div>
               ) : null}
-              <div className={`w-20 h-20 md:w-24 md:h-24 rounded-full bg-gradient-to-br ${gradient} flex items-center justify-center ring-2 ring-white/10 group-hover:ring-emerald-400/40 transition-all duration-500 shadow-lg ${member.profile_picture || member.photo ? 'hidden' : 'flex'}`}>
+              <div className={`w-20 h-20 md:w-24 md:h-24 rounded-full bg-gradient-to-br ${gradient} flex items-center justify-center ring-2 ring-white/10 group-hover:ring-emerald-400/40 transition-all duration-500 shadow-lg ${member.profile_image_url ? 'hidden' : 'flex'}`}>
                 <span className="text-2xl md:text-3xl font-bold text-white">
                   {(member.full_name || member.name || '?').charAt(0)}
                 </span>

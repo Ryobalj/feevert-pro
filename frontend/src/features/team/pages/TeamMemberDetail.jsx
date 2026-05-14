@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useTheme } from '../../../context/ThemeContext'
 import api from '../../../app/api'
+import Loader from '../../../components/ui/Loader'
 
 const TeamMemberDetail = () => {
   const { id } = useParams()
@@ -30,13 +31,7 @@ const TeamMemberDetail = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <div className="relative">
-            <div className="absolute inset-0 bg-emerald-400/10 rounded-full blur-xl animate-pulse" />
-            <div className="spinner spinner-lg relative" />
-          </div>
-          <p className="text-white/50 animate-pulse">Loading profile...</p>
-        </div>
+        <Loader size="lg" text="Loading profile..." />
       </div>
     )
   }
@@ -46,8 +41,8 @@ const TeamMemberDetail = () => {
   const socialLinks = []
   if (member.email) socialLinks.push({ icon: '✉️', label: 'Email', href: `mailto:${member.email}`, color: 'emerald' })
   if (member.phone) socialLinks.push({ icon: '📞', label: 'Call', href: `tel:${member.phone}`, color: 'green' })
-  if (member.linkedin_url) socialLinks.push({ icon: '💼', label: 'LinkedIn', href: member.linkedin_url, color: 'blue' })
-  if (member.twitter_url) socialLinks.push({ icon: '🐦', label: 'Twitter', href: member.twitter_url, color: 'cyan' })
+  if (member.linkedin) socialLinks.push({ icon: '💼', label: 'LinkedIn', href: member.linkedin, color: 'blue' })
+  if (member.twitter) socialLinks.push({ icon: '🐦', label: 'Twitter', href: member.twitter, color: 'cyan' })
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="min-h-screen py-10 md:py-16">
@@ -79,14 +74,17 @@ const TeamMemberDetail = () => {
                   animate={{ scale: [1, 1.15, 1], opacity: [0.3, 0.6, 0.3] }}
                   transition={{ duration: 3, repeat: Infinity }}
                 />
-                {member.profile_picture || member.photo ? (
+                {member.profile_image_url ? (
                   <div className="relative w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden ring-4 ring-white/10 group-hover:ring-emerald-400/40 transition-all duration-500">
-                    <img src={member.profile_picture || member.photo} alt={member.full_name}
+                    <img src={member.profile_image_url} alt={member.full_name}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                      onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex' }} />
+                      onError={(e) => { 
+                        e.target.style.display = 'none'
+                        e.target.parentElement.nextElementSibling.style.display = 'flex'
+                      }} />
                   </div>
                 ) : null}
-                <div className={`w-32 h-32 md:w-40 md:h-40 rounded-full bg-gradient-to-br from-emerald-400 via-green-500 to-teal-600 flex items-center justify-center ring-4 ring-white/10 group-hover:ring-emerald-400/40 transition-all duration-500 shadow-2xl shadow-emerald-500/20 ${member.profile_picture || member.photo ? 'hidden' : 'flex'}`}>
+                <div className={`w-32 h-32 md:w-40 md:h-40 rounded-full bg-gradient-to-br from-emerald-400 via-green-500 to-teal-600 flex items-center justify-center ring-4 ring-white/10 group-hover:ring-emerald-400/40 transition-all duration-500 shadow-2xl shadow-emerald-500/20 ${member.profile_image_url ? 'hidden' : 'flex'}`}>
                   <span className="text-5xl font-extrabold text-white">
                     {(member.full_name || '?').charAt(0)}
                   </span>
@@ -148,7 +146,7 @@ const TeamMemberDetail = () => {
         )}
 
         {/* ============ EXPERTISE / SKILLS ============ */}
-        {member.expertise && Array.isArray(member.expertise) && member.expertise.length > 0 && (
+        {member.expertise_areas && Array.isArray(member.expertise_areas) && member.expertise_areas.length > 0 && (
           <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
             className="glass-card p-6 mb-6 group hover:border-emerald-400/20 transition-all duration-300">
             <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
@@ -156,7 +154,7 @@ const TeamMemberDetail = () => {
               Expertise
             </h2>
             <div className="flex flex-wrap gap-2 pl-10">
-              {member.expertise.map((skill, i) => (
+              {member.expertise_areas.map((skill, i) => (
                 <span key={i} className="glass px-3 py-1.5 rounded-full text-xs text-white/60 hover:text-emerald-400 hover:border-emerald-400/30 transition-all duration-300">
                   {skill}
                 </span>
