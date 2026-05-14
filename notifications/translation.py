@@ -5,4 +5,4 @@ from .models import NotificationTemplate
 
 @register(NotificationTemplate)
 class NotificationTemplateTranslationOptions(TranslationOptions):
-    fields = ('subject', 'body_html', 'body_text')
+    fields = ('subject_template', 'body_template')
