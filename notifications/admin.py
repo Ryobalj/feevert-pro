@@ -1,190 +1,243 @@
 # notifications/admin.py
 
 from django.contrib import admin
-from django.utils.html import format_html
-from .models import Notification, NotificationTemplate, UserNotificationSetting, NotificationLog
+from django.utils import timezone
+from .models import (
+    Notification, NotificationLog, NotificationTemplate,
+    UserNotificationSetting, IncomingEmail
+)
 
 
+# ============================================
+# NOTIFICATION ADMIN
+# ============================================
 @admin.register(Notification)
 class NotificationAdmin(admin.ModelAdmin):
     list_display = [
-        'id', 'recipient', 'title_preview', 'notification_type',
-        'priority', 'is_read_status', 'sent_status', 'created_at'
+        'title_preview', 'recipient', 'notification_type', 'is_read', 'created_at'
     ]
-    list_filter = ['notification_type', 'priority', 'is_read', 'created_at']
+    list_filter = ['notification_type', 'is_read', 'created_at']
     search_fields = ['title', 'message', 'recipient__username', 'recipient__email']
-    readonly_fields = ['created_at', 'updated_at', 'sent_at']
+    readonly_fields = ['created_at', 'updated_at', 'read_at']
     date_hierarchy = 'created_at'
-
+    list_per_page = 50
+    
     fieldsets = (
-        ('Notification Details', {
-            'fields': ('recipient', 'notification_type', 'title', 'message')
+        ('Recipient', {
+            'fields': ('recipient',)
         }),
-        ('Priority & Scheduling', {
-            'fields': ('priority', 'scheduled_for')
-        }),
-        ('Related Object', {
-            'fields': ('related_link', 'related_object_id', 'related_object_type'),
-            'classes': ('collapse',)
+        ('Content', {
+            'fields': ('notification_type', 'title', 'message')
         }),
         ('Status', {
-            'fields': ('is_read', 'sent_at', 'retry_count', 'error_message')
+            'fields': ('is_read', 'read_at', 'related_link')
         }),
-        ('Timestamps', {
+        ('Additional Data', {
+            'fields': ('data',),
+            'classes': ('collapse',)
+        }),
+        ('Metadata', {
             'fields': ('created_at', 'updated_at'),
             'classes': ('collapse',)
         }),
     )
-
-    actions = ['mark_as_read', 'mark_as_unread', 'resend_notification']
-
-    # ============================================================
-    # DISPLAY METHODS
-    # ============================================================
-
+    
     def title_preview(self, obj):
-        return obj.title[:50] + '...' if len(obj.title) > 50 else obj.title
-    title_preview.short_description = 'Title'
-
-    def is_read_status(self, obj):
-        if obj.is_read:
-            return '✅ Read'
-        return '⏳ Unread'
-    is_read_status.short_description = 'Read'
-
-    def sent_status(self, obj):
-        if obj.sent_at:
-            return f'📤 {obj.sent_at.strftime("%d/%m/%Y %H:%M")}'
-        return '❌ Not sent'
-    sent_status.short_description = 'Sent'
-
-    # ============================================================
-    # ACTIONS
-    # ============================================================
-
-    @admin.action(description="Mark selected as read")
+        return obj.title[:60]
+    title_preview.short_description = "Title"
+    title_preview.admin_order_field = 'title'
+    
+    actions = ['mark_as_read', 'mark_as_unread']
+    
     def mark_as_read(self, request, queryset):
-        updated = queryset.update(is_read=True)
-        self.message_user(request, f'{updated} notification(s) marked as read.')
-
-    @admin.action(description="Mark selected as unread")
+        updated = queryset.filter(is_read=False).update(is_read=True, read_at=timezone.now())
+        self.message_user(request, f"{updated} notifications marked as read.")
+    mark_as_read.short_description = "Mark selected as read"
+    
     def mark_as_unread(self, request, queryset):
-        updated = queryset.update(is_read=False)
-        self.message_user(request, f'{updated} notification(s) marked as unread.')
-
-    @admin.action(description="Resend selected notifications")
-    def resend_notification(self, request, queryset):
-        """
-        Tuma upya notifications kupitia NotificationDispatcher.
-        Tumia huduma yetu mpya badala ya realtime.
-        """
-        from notifications.services.notification_dispatcher import NotificationDispatcher
-
-        success = 0
-        failed = 0
-        for notif in queryset:
-            try:
-                NotificationDispatcher.send(
-                    recipient=notif.recipient,
-                    notification_type=notif.notification_type,
-                    title=notif.title,
-                    message=notif.message,
-                    priority=notif.priority,
-                    related_link=notif.related_link,
-                    object_id=notif.related_object_id,
-                    object_type=notif.related_object_type,
-                )
-                success += 1
-            except Exception as e:
-                failed += 1
-
-        self.message_user(request, f'{success} notification(s) resent. {failed} failed.')
+        updated = queryset.update(is_read=False, read_at=None)
+        self.message_user(request, f"{updated} notifications marked as unread.")
+    mark_as_unread.short_description = "Mark selected as unread"
 
 
-@admin.register(NotificationTemplate)
-class NotificationTemplateAdmin(admin.ModelAdmin):
-    list_display = ['name', 'category', 'subject', 'is_active', 'created_at']
-    list_filter = ['category', 'is_active']
-    search_fields = ['name', 'subject', 'body_text']
-
+# ============================================
+# NOTIFICATION LOG ADMIN
+# ============================================
+@admin.register(NotificationLog)
+class NotificationLogAdmin(admin.ModelAdmin):
+    list_display = ['notification_preview', 'channel', 'status', 'created_at']
+    list_filter = ['channel', 'status', 'created_at']
+    search_fields = ['notification__title', 'error_message']
+    readonly_fields = ['created_at', 'updated_at']
+    date_hierarchy = 'created_at'
+    
     fieldsets = (
-        ('Template Details', {
-            'fields': ('name', 'category', 'subject', 'is_active')
+        ('Details', {
+            'fields': ('notification', 'channel', 'status')
         }),
-        ('Content', {
-            'fields': ('body_html', 'body_text')
+        ('Error Info', {
+            'fields': ('error_message', 'metadata')
         }),
-        ('Variables', {
-            'fields': ('variables',),
-            'description': 'List of variables like ["client_name", "booking_date"]'
+        ('Metadata', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
         }),
     )
+    
+    def notification_preview(self, obj):
+        if obj.notification:
+            return obj.notification.title[:60]
+        return '-'
+    notification_preview.short_description = "Notification"
 
 
+# ============================================
+# NOTIFICATION TEMPLATE ADMIN
+# ============================================
+@admin.register(NotificationTemplate)
+class NotificationTemplateAdmin(admin.ModelAdmin):
+    list_display = ['name', 'notification_type', 'subject_preview', 'is_active']
+    list_filter = ['notification_type', 'is_active']
+    search_fields = ['name', 'subject_template', 'body_template']
+    readonly_fields = ['created_at', 'updated_at']
+    
+    fieldsets = (
+        ('Template Info', {
+            'fields': ('name', 'notification_type', 'is_active')
+        }),
+        ('Content', {
+            'fields': ('subject_template', 'body_template')
+        }),
+        ('Metadata', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+    
+    def subject_preview(self, obj):
+        return obj.subject_template[:60]
+    subject_preview.short_description = "Subject"
+    subject_preview.admin_order_field = 'subject_template'
+    
+    actions = ['activate', 'deactivate']
+    
+    def activate(self, request, queryset):
+        updated = queryset.update(is_active=True)
+        self.message_user(request, f"{updated} templates activated.")
+    activate.short_description = "Activate selected"
+    
+    def deactivate(self, request, queryset):
+        updated = queryset.update(is_active=False)
+        self.message_user(request, f"{updated} templates deactivated.")
+    deactivate.short_description = "Deactivate selected"
+
+
+# ============================================
+# USER NOTIFICATION SETTINGS ADMIN
+# ============================================
 @admin.register(UserNotificationSetting)
 class UserNotificationSettingAdmin(admin.ModelAdmin):
     list_display = ['user', 'email_enabled', 'sms_enabled', 'in_app_enabled']
     list_filter = ['email_enabled', 'sms_enabled', 'in_app_enabled']
     search_fields = ['user__username', 'user__email']
-
+    readonly_fields = ['created_at', 'updated_at']
+    
     fieldsets = (
         ('User', {
             'fields': ('user',)
         }),
-        ('General Settings', {
-            'fields': ('email_enabled', 'sms_enabled', 'in_app_enabled')
+        ('Channels', {
+            'fields': ('email_enabled', 'sms_enabled', 'push_enabled', 'in_app_enabled')
         }),
-        ('Email Notifications', {
-            'fields': (
-                'email_booking_confirmation', 'email_booking_reminder',
-                'email_consultation_update', 'email_payment_receipt',
-                'email_promotional'
-            ),
+        ('Metadata', {
+            'fields': ('created_at', 'updated_at'),
             'classes': ('collapse',)
-        }),
-        ('SMS Notifications', {
-            'fields': (
-                'sms_booking_confirmation', 'sms_booking_reminder',
-                'sms_consultation_update'
-            ),
-            'classes': ('collapse',)
-        }),
-        ('In-App Notifications', {
-            'fields': ('in_app_all',)
-        }),
-        ('Quiet Hours', {
-            'fields': ('quiet_hours_start', 'quiet_hours_end'),
-            'description': 'Do not send notifications during these hours'
         }),
     )
 
 
-@admin.register(NotificationLog)
-class NotificationLogAdmin(admin.ModelAdmin):
-    list_display = ['id', 'notification_preview', 'status_badge', 'sent_at', 'created_at']
-    list_filter = ['status', 'created_at']
-    search_fields = ['notification__title', 'notification__recipient__email']
-    readonly_fields = ['created_at', 'provider_response']
-
-    def notification_preview(self, obj):
-        return format_html(
-            '<a href="/admin/notifications/notification/{}/change/">{} ({})</a>',
-            obj.notification.id,
-            obj.notification.title[:40] + '...' if len(obj.notification.title) > 40 else obj.notification.title,
-            obj.notification.notification_type
-        )
-    notification_preview.short_description = 'Notification'
-
-    def status_badge(self, obj):
-        colors = {
-            'pending': '🟡',
-            'sent': '🟢',
-            'failed': '🔴',
-            'retrying': '🔄',
-        }
-        icon = colors.get(obj.status, '⚪')
-        return f'{icon} {obj.status.title()}'
-    status_badge.short_description = 'Status'
-
-    def has_add_permission(self, request):
-        return False
+# ============================================
+# INCOMING EMAIL ADMIN
+# ============================================
+@admin.register(IncomingEmail)
+class IncomingEmailAdmin(admin.ModelAdmin):
+    list_display = ['sender', 'subject_preview', 'source', 'is_read', 'is_processed', 'received_at']
+    list_filter = ['source', 'is_read', 'is_processed', 'folder', 'received_at']
+    search_fields = ['sender', 'sender_name', 'subject', 'body', 'message_id']
+    readonly_fields = ['created_at', 'updated_at', 'message_id', 'thread_id']
+    date_hierarchy = 'received_at'
+    list_per_page = 50
+    
+    fieldsets = (
+        ('Email Info', {
+            'fields': ('sender', 'sender_name', 'recipient', 'subject')
+        }),
+        ('Content', {
+            'fields': ('body', 'body_html')
+        }),
+        ('Status', {
+            'fields': ('source', 'folder', 'is_read', 'is_processed')
+        }),
+        ('Message IDs', {
+            'fields': ('message_id', 'thread_id', 'in_reply_to')
+        }),
+        ('Attachments', {
+            'fields': ('has_attachments', 'attachments')
+        }),
+        ('Linking', {
+            'fields': ('linked_message',)
+        }),
+        ('Headers & Metadata', {
+            'fields': ('headers',),
+            'classes': ('collapse',)
+        }),
+        ('System', {
+            'fields': ('received_at', 'created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+    
+    def subject_preview(self, obj):
+        return obj.subject[:60] if obj.subject else '(No Subject)'
+    subject_preview.short_description = "Subject"
+    subject_preview.admin_order_field = 'subject'
+    
+    actions = ['mark_as_read', 'mark_as_processed', 'process_and_link']
+    
+    def mark_as_read(self, request, queryset):
+        updated = queryset.filter(is_read=False).update(is_read=True)
+        self.message_user(request, f"{updated} emails marked as read.")
+    mark_as_read.short_description = "Mark as read"
+    
+    def mark_as_processed(self, request, queryset):
+        updated = queryset.filter(is_processed=False).update(is_processed=True)
+        self.message_user(request, f"{updated} emails marked as processed.")
+    mark_as_processed.short_description = "Mark as processed"
+    
+    def process_and_link(self, request, queryset):
+        """Process email and create ContactMessage if linked"""
+        from home.models import ContactMessage
+        count = 0
+        for email in queryset.filter(is_processed=False, linked_message__isnull=True):
+            try:
+                msg = ContactMessage.objects.create(
+                    name=email.sender_name or email.sender.split('@')[0],
+                    email=email.sender,
+                    subject=email.subject or '(No Subject)',
+                    message=email.body or '',
+                    channel='email',
+                    status='unread',
+                    priority='medium',
+                    message_id=email.message_id,
+                    thread_id=email.thread_id,
+                    is_incoming=True,
+                )
+                email.linked_message = msg
+                email.is_processed = True
+                email.save(update_fields=['linked_message', 'is_processed'])
+                count += 1
+            except Exception as e:
+                self.message_user(request, f"Error processing {email.sender}: {e}", level='ERROR')
+        
+        self.message_user(request, f"{count} emails processed and linked to ContactMessage.")
+    process_and_link.short_description = "Process & link to ContactMessage"

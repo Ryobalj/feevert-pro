@@ -230,7 +230,15 @@ class BulkNotificationSerializer(serializers.Serializer):
     notification_type = serializers.ChoiceField(choices=Notification.NOTIFICATION_TYPES)
     title = serializers.CharField(max_length=200)
     message = serializers.CharField()
-    priority = serializers.ChoiceField(choices=Notification.PRIORITY_CHOICES, default='medium')
+    priority = serializers.ChoiceField(
+        choices=[
+            ('low', 'Low'),
+            ('medium', 'Medium'),
+            ('high', 'High'),
+            ('urgent', 'Urgent'),
+        ],
+        default='medium'
+    )
     related_link = serializers.CharField(max_length=500, required=False, allow_blank=True)
 
 
