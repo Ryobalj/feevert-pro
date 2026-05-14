@@ -15,8 +15,8 @@ const TeamCard = ({ member }) => {
   // Social links
   const socialLinks = []
   if (member.email) socialLinks.push({ icon: '✉️', href: `mailto:${member.email}`, label: 'Email' })
-  if (member.linkedin_url) socialLinks.push({ icon: '🔗', href: member.linkedin_url, label: 'LinkedIn' })
-  if (member.twitter_url) socialLinks.push({ icon: '🐦', href: member.twitter_url, label: 'Twitter' })
+  if (member.linkedin) socialLinks.push({ icon: '🔗', href: member.linkedin, label: 'LinkedIn' })
+  if (member.twitter) socialLinks.push({ icon: '🐦', href: member.twitter, label: 'Twitter' })
 
   return (
     <Link to={`/team/${member.id}`} className="block group h-full">
@@ -31,12 +31,16 @@ const TeamCard = ({ member }) => {
             {/* Glow ring */}
             <div className="absolute -inset-2 bg-emerald-400/0 group-hover:bg-emerald-400/10 rounded-full blur-md transition-all duration-500" />
             
-            {member.profile_picture || member.photo || member.image ? (
+            {member.profile_image_url ? (
               <div className="relative w-24 h-24 rounded-full overflow-hidden ring-3 ring-white/10 group-hover:ring-emerald-400/40 transition-all duration-500">
                 <img 
-                  src={member.profile_picture || member.photo || member.image} 
+                  src={member.profile_image_url}
                   alt={member.full_name || member.name}
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                  onError={(e) => { 
+                    e.target.style.display = 'none' 
+                    e.target.parentElement.style.display = 'none'
+                  }}
                 />
                 {/* Overlay gradient */}
                 <div className="absolute inset-0 bg-gradient-to-t from-emerald-500/0 to-transparent group-hover:from-emerald-500/20 transition-all duration-500" />
@@ -70,9 +74,9 @@ const TeamCard = ({ member }) => {
           </p>
 
           {/* Department */}
-          {member.department && (
+          {member.department_name && (
             <p className="text-[10px] text-white/30 mb-3">
-              {member.department}
+              {member.department_name}
             </p>
           )}
 
