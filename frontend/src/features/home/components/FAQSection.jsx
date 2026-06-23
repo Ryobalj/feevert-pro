@@ -1,7 +1,10 @@
+// src/features/home/components/FAQSection.jsx
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 
 const FAQSection = ({ data }) => {
+  const { t } = useTranslation('home') // ✅ Badilisha kutoka 'common' hadi 'home'
   const [openIndex, setOpenIndex] = useState(null)
 
   if (!data || data.length === 0) return null
@@ -21,10 +24,12 @@ const FAQSection = ({ data }) => {
         >
           {/* Title */}
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white mb-4">
-            Frequently Asked{' '}
-            <span className="gradient-text">Questions</span>
+            {t('faq.title') || 'Frequently Asked'}{' '}
+            <span className="gradient-text">{t('faq.subtitle') || 'Questions'}</span>
           </h2>
-          <p className="text-white/60 text-lg">Got questions? We've got answers</p>
+          <p className="text-white/60 text-lg">
+            {t('faq.description') || "Got questions? We've got answers"}
+          </p>
         </motion.div>
 
         {/* FAQ Accordion */}
@@ -128,12 +133,14 @@ const FAQSection = ({ data }) => {
           className="text-center mt-12"
         >
           <div className="glass-card p-8 inline-block">
-            <p className="text-white/60 mb-3">Still have questions?</p>
+            <p className="text-white/60 mb-3">
+              {t('faq.still_have_questions') || 'Still have questions?'}
+            </p>
             <a 
               href="/contact" 
               className="text-emerald-400 hover:text-emerald-300 font-semibold transition-colors inline-flex items-center gap-2 group"
             >
-              Contact our support team
+              {t('faq.contact_support') || 'Contact our support team'}
               <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
               </svg>

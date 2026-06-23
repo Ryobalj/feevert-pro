@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 const CardView = ({ items, type, basePath, renderCard, itemsPerPage = 6 }) => {
+  const { t } = useTranslation('common')
   const [viewMode, setViewMode] = useState('grid')
   const [currentPage, setCurrentPage] = useState(1)
   
@@ -15,8 +17,8 @@ const CardView = ({ items, type, basePath, renderCard, itemsPerPage = 6 }) => {
     return (
       <div className="empty-state">
         <div className="empty-state-icon">📦</div>
-        <h3 className="empty-state-title">No items found</h3>
-        <p className="empty-state-description">Try adjusting your search or filter to find what you're looking for.</p>
+        <h3 className="empty-state-title">{t('common.no_items_found')}</h3>
+        <p className="empty-state-description">{t('common.adjust_filters')}</p>
       </div>
     )
   }
@@ -26,7 +28,7 @@ const CardView = ({ items, type, basePath, renderCard, itemsPerPage = 6 }) => {
       {/* View Toggle Bar */}
       <div className="flex justify-between items-center mb-6">
         <p className="text-sm text-[var(--g-text-tertiary)]">
-          Showing <span className="text-[var(--g-text-primary)] font-semibold">{items.length}</span> items
+          {t('common.showing')} <span className="text-[var(--g-text-primary)] font-semibold">{items.length}</span> {t('common.items')}
         </p>
         
         <div className="flex gap-1 p-1 glass rounded-lg">
@@ -37,7 +39,7 @@ const CardView = ({ items, type, basePath, renderCard, itemsPerPage = 6 }) => {
                 ? 'bg-[var(--g-color-primary)] text-white shadow-sm' 
                 : 'text-[var(--g-text-tertiary)] hover:text-[var(--g-text-primary)]'
             }`}
-            aria-label="Grid view"
+            aria-label={t('common.grid_view')}
           >
             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
               <path d="M3 3h7v7H3V3zm11 0h7v7h-7V3zM3 14h7v7H3v-7zm11 0h7v7h-7v-7z"/>
@@ -50,7 +52,7 @@ const CardView = ({ items, type, basePath, renderCard, itemsPerPage = 6 }) => {
                 ? 'bg-[var(--g-color-primary)] text-white shadow-sm' 
                 : 'text-[var(--g-text-tertiary)] hover:text-[var(--g-text-primary)]'
             }`}
-            aria-label="List view"
+            aria-label={t('common.list_view')}
           >
             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
               <path d="M3 4h18v2H3V4zm0 7h18v2H3v-2zm0 7h18v2H3v-2z"/>
@@ -83,6 +85,7 @@ const CardView = ({ items, type, basePath, renderCard, itemsPerPage = 6 }) => {
             onClick={() => paginate(currentPage - 1)}
             disabled={currentPage === 1}
             className="btn-icon btn-circle btn-sm glass disabled:opacity-30 disabled:cursor-not-allowed"
+            aria-label={t('common.previous')}
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -98,6 +101,7 @@ const CardView = ({ items, type, basePath, renderCard, itemsPerPage = 6 }) => {
                   ? 'bg-[var(--g-color-primary)] text-white shadow-md' 
                   : 'glass text-[var(--g-text-secondary)] hover:text-[var(--g-text-primary)] hover:border-[var(--g-color-primary)]'
               }`}
+              aria-label={`${t('common.page')} ${i + 1}`}
             >
               {i + 1}
             </button>
@@ -107,6 +111,7 @@ const CardView = ({ items, type, basePath, renderCard, itemsPerPage = 6 }) => {
             onClick={() => paginate(currentPage + 1)}
             disabled={currentPage === totalPages}
             className="btn-icon btn-circle btn-sm glass disabled:opacity-30 disabled:cursor-not-allowed"
+            aria-label={t('common.next')}
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />

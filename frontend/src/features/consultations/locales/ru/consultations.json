@@ -1,0 +1,93 @@
+﻿{
+  "status": {
+    "all": "Все",
+    "pending": "В ожидании",
+    "confirmed": "Подтверждено",
+    "in_progress": "В процессе",
+    "completed": "Завершено",
+    "cancelled": "Отменено",
+    "unknown": "Неизвестно"
+  },
+  "date": {
+    "tbd": "Дата не определена",
+    "today": "Сегодня",
+    "tomorrow": "Завтра",
+    "past_due": "Просрочено",
+    "in_days": "Через {{days}} дней"
+  },
+  "priority": {
+    "urgent": "Срочно",
+    "high": "Высокий",
+    "medium": "Средний",
+    "low": "Низкий"
+  },
+  "icons": {
+    "agriculture": "🌾",
+    "environment": "🌍",
+    "business": "💼",
+    "livestock": "🐄",
+    "default": "💬"
+  },
+  "consultation": {
+    "default_title": "Консультация",
+    "no_message": "Сообщение не предоставлено",
+    "view": "Просмотр"
+  },
+  "detail": {
+    "loading": "Загрузка деталей консультации...",
+    "error_title": "Ошибка",
+    "error_not_found": "Консультация не найдена",
+    "error_load_failed": "Не удалось загрузить детали консультации",
+    "back_to_list": "Назад к консультациям",
+    "title": "Детали консультации",
+    "request_id": "Запрос",
+    "service": "Услуга",
+    "assigned_to": "Назначено",
+    "pending_assignment": "Ожидает назначения",
+    "preferred_date": "Предпочтительная дата",
+    "budget_range": "Бюджетный диапазон",
+    "message": "Сообщение",
+    "response": "Ответ",
+    "requested_on": "Запрошено"
+  },
+  "list": {
+    "my_consultations": "Мои",
+    "consultations": "Консультации",
+    "track_requests": "Отслеживайте ваши запросы на консультацию",
+    "new_request": "Новый запрос",
+    "total": "всего",
+    "search_placeholder": "Поиск консультаций...",
+    "clear": "Очистить",
+    "date_label": "Дата",
+    "assigned_label": "Назначен",
+    "no_results": "Запросы на консультацию не найдены",
+    "no_results_message": "Вы ещё не отправляли запросы на консультацию.",
+    "no_filtered_results": "Запросы на консультацию {{status}} не найдены",
+    "no_filtered_message": "У вас ещё нет консультаций со статусом {{status}}.",
+    "request_now": "Запросить консультацию"
+  },
+  "request": {
+    "badge": "Свяжитесь с нами",
+    "title": "Запросить",
+    "subtitle": "консультацию",
+    "description": "Заполните форму, и мы свяжемся с вами в ближайшее время",
+    "loading_services": "Загрузка услуг...",
+    "select_service": "Выберите услугу",
+    "select_service_error": "Пожалуйста, выберите услугу",
+    "choose_service": "Выберите услугу",
+    "currency": "TZS",
+    "preferred_date": "Предпочтительная дата и время",
+    "select_date_error": "Пожалуйста, выберите предпочтительную дату",
+    "budget_range": "Бюджетный диапазон",
+    "optional": "необязательно",
+    "budget_placeholder": "например, 500,000 - 1,000,000 TZS",
+    "additional_message": "Дополнительное сообщение",
+    "message_placeholder": "Расскажите нам больше о ваших потребностях, требованиях или вопросах...",
+    "submit": "Отправить запрос",
+    "submitting": "Отправка...",
+    "submit_error": "Ошибка при отправке запроса. Пожалуйста, попробуйте снова.",
+    "success_title": "Запрос отправлен!",
+    "success_message": "Спасибо за ваш запрос. Мы свяжемся с вами в ближайшее время.",
+    "redirecting": "Перенаправление к консультациям..."
+  }
+}

@@ -3,12 +3,14 @@
 import React from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 import { useTheme } from '../../../context/ThemeContext'
 import { useBookingDetail } from '../hooks/useBookingDetail'
 import { BookingStatusBadge } from '../components'
 import { formatBookingDate, formatBookingTime, canCancel } from '../utils/bookingHelpers'
 
 const BookingDetail = () => {
+  const { t } = useTranslation('booking')
   const { id } = useParams()
   const navigate = useNavigate()
   const { darkMode } = useTheme()
@@ -23,7 +25,7 @@ const BookingDetail = () => {
             <div className="absolute inset-0 bg-emerald-400/10 rounded-full blur-xl animate-pulse" />
             <div className="spinner spinner-lg relative" />
           </div>
-          <p className="text-white/50 animate-pulse">Loading booking details...</p>
+          <p className="text-white/50 animate-pulse">{t('detail.loading')}</p>
         </div>
       </div>
     )
@@ -39,14 +41,14 @@ const BookingDetail = () => {
           className="glass-card p-10 text-center max-w-md"
         >
           <div className="text-5xl mb-4">⚠️</div>
-          <h2 className="text-xl font-bold text-white mb-2">Error</h2>
+          <h2 className="text-xl font-bold text-white mb-2">{t('detail.error_title')}</h2>
           <p className="text-white/50 mb-6">{error}</p>
           <div className="flex gap-3 justify-center">
             <button onClick={refreshBooking} className="glass px-6 py-3 rounded-full text-white font-semibold text-sm hover:border-emerald-400/40 transition-all">
-              Try Again
+              {t('detail.try_again')}
             </button>
             <Link to="/my-bookings" className="btn-primary">
-              Back to Bookings
+              {t('detail.back_to_bookings')}
             </Link>
           </div>
         </motion.div>
@@ -73,7 +75,7 @@ const BookingDetail = () => {
           <svg className="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
-          Back to Bookings
+          {t('detail.back_to_bookings')}
         </motion.button>
 
         {/* ============ MAIN CARD ============ */}
@@ -90,13 +92,13 @@ const BookingDetail = () => {
           <div className="flex flex-wrap items-start justify-between gap-4 mb-8">
             <div>
               <h1 className="text-2xl md:text-3xl font-extrabold text-white mb-1">
-                Booking Details
+                {t('detail.title')}
               </h1>
               <p className="text-sm text-white/30 flex items-center gap-2">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
                 </svg>
-                Booking #{booking.id}
+                {t('detail.booking_id')} #{booking.id}
               </p>
             </div>
             <BookingStatusBadge status={booking.status} />
@@ -112,8 +114,8 @@ const BookingDetail = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                   </svg>
                 }
-                label="Service"
-                value={booking.service_name || 'Consultation'}
+                label={t('detail.service')}
+                value={booking.service_name || t('consultation')}
               />
               <DetailCard
                 icon={
@@ -121,8 +123,8 @@ const BookingDetail = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                   </svg>
                 }
-                label="Consultant"
-                value={booking.consultant_name || 'To be assigned'}
+                label={t('consultant')}
+                value={booking.consultant_name || t('assigned_soon')}
               />
             </div>
 
@@ -134,7 +136,7 @@ const BookingDetail = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
                 }
-                label="Date"
+                label={t('date')}
                 value={formatBookingDate(booking.slot?.date)}
               />
               <DetailCard
@@ -143,7 +145,7 @@ const BookingDetail = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 }
-                label="Time"
+                label={t('time')}
                 value={formatBookingTime(booking.slot)}
               />
             </div>
@@ -156,7 +158,7 @@ const BookingDetail = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                   </svg>
                 }
-                label="Meeting Link"
+                label={t('detail.meeting_link')}
                 value={
                   <a 
                     href={booking.meeting_link} 
@@ -164,7 +166,7 @@ const BookingDetail = () => {
                     rel="noopener noreferrer"
                     className="text-emerald-400 hover:text-emerald-300 font-medium flex items-center gap-1 transition-colors"
                   >
-                    Join Meeting
+                    {t('detail.join_meeting')}
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                     </svg>
@@ -181,7 +183,7 @@ const BookingDetail = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
                 }
-                label="Notes"
+                label={t('detail.notes')}
                 value={booking.notes}
                 fullWidth
               />
@@ -194,7 +196,7 @@ const BookingDetail = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               }
-              label="Booked On"
+              label={t('detail.booked_on')}
               value={booking.created_at ? new Date(booking.created_at).toLocaleString() : 'N/A'}
             />
           </div>
@@ -213,14 +215,14 @@ const BookingDetail = () => {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                     </svg>
-                    Cancelling...
+                    {t('detail.cancelling')}
                   </>
                 ) : (
                   <>
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                     </svg>
-                    Cancel Booking
+                    {t('detail.cancel_booking')}
                   </>
                 )}
               </button>

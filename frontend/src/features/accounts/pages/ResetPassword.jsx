@@ -1,10 +1,14 @@
+// src/features/accounts/pages/ResetPassword.jsx
+
 import React, { useState } from 'react'
 import { useSearchParams, Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 import { useTheme } from '../../../context/ThemeContext'
 import api from '../../../app/api'
 
 const ResetPassword = () => {
+  const { t } = useTranslation('account')
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
   const [formData, setFormData] = useState({ password: '', password_confirm: '' })
@@ -22,22 +26,22 @@ const ResetPassword = () => {
     setError('')
     
     if (formData.password !== formData.password_confirm) {
-      setError('Passwords do not match')
+      setError(t('errors.password_match'))
       return
     }
     
     if (formData.password.length < 8) {
-      setError('Password must be at least 8 characters long')
+      setError(t('errors.password_min'))
       return
     }
     
     if (!/[A-Za-z]/.test(formData.password) || !/[0-9]/.test(formData.password)) {
-      setError('Password must contain at least one letter and one number')
+      setError(t('errors.password_complexity'))
       return
     }
     
     if (!token) {
-      setError('Invalid or missing reset token')
+      setError(t('reset.invalid_token'))
       return
     }
     
@@ -51,7 +55,7 @@ const ResetPassword = () => {
       setSuccess(true)
       setTimeout(() => navigate('/login', { replace: true }), 3500)
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to reset password. The link may be expired.')
+      setError(err.response?.data?.error || t('reset.error'))
     } finally {
       setLoading(false)
     }
@@ -66,7 +70,7 @@ const ResetPassword = () => {
           transition={{ duration: 0.5 }}
           className="glass-card !p-8"
         >
-          {/* ============ HEADER ============ */}
+          {/* Header */}
           <div className="text-center mb-8">
             <motion.div
               initial={{ opacity: 0, scale: 0.5 }}
@@ -87,16 +91,14 @@ const ResetPassword = () => {
             </motion.div>
 
             <h1 className="text-2xl md:text-3xl font-extrabold text-white mb-2">
-              {success ? 'Password Reset!' : 'Reset Password'}
+              {success ? t('reset.success_title') : t('reset.title')}
             </h1>
             <p className="text-white/50 text-sm">
-              {success 
-                ? 'Your password has been changed successfully. Redirecting...' 
-                : 'Enter your new password below'}
+              {success ? t('reset.success_message') : t('reset.subtitle')}
             </p>
           </div>
 
-          {/* ============ ERROR ============ */}
+          {/* Error Message */}
           {error && (
             <motion.div
               initial={{ opacity: 0, y: -10 }}
@@ -110,7 +112,7 @@ const ResetPassword = () => {
             </motion.div>
           )}
 
-          {/* ============ INVALID TOKEN ============ */}
+          {/* Invalid Token */}
           {!token && (
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
@@ -118,9 +120,9 @@ const ResetPassword = () => {
               className="text-center py-4"
             >
               <div className="text-5xl mb-4">🔗</div>
-              <h2 className="text-lg font-bold text-white mb-2">Invalid Link</h2>
+              <h2 className="text-lg font-bold text-white mb-2">{t('reset.invalid_title')}</h2>
               <p className="text-white/50 text-sm mb-6">
-                This password reset link is invalid or has expired.
+                {t('reset.invalid_message')}
               </p>
               <Link 
                 to="/forgot-password" 
@@ -129,12 +131,12 @@ const ResetPassword = () => {
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
-                Request New Link
+                {t('reset.request_new')}
               </Link>
             </motion.div>
           )}
 
-          {/* ============ SUCCESS ============ */}
+          {/* Success */}
           {success && (
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
@@ -143,17 +145,17 @@ const ResetPassword = () => {
               className="text-center py-4"
             >
               <div className="h-0.5 bg-emerald-400/30 rounded-full w-16 mx-auto mb-6 animate-pulse" />
-              <p className="text-white/30 text-xs">You will be redirected shortly...</p>
+              <p className="text-white/30 text-xs">{t('reset.redirecting')}</p>
             </motion.div>
           )}
 
-          {/* ============ FORM ============ */}
+          {/* Form */}
           {!success && token && (
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* New Password */}
               <div>
                 <label className="block text-sm font-medium text-white/60 mb-2">
-                  New Password <span className="text-red-400">*</span>
+                  {t('reset.new_password')} <span className="text-red-400">*</span>
                 </label>
                 <div className="relative">
                   <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40">
@@ -169,7 +171,7 @@ const ResetPassword = () => {
                     minLength="8"
                     autoComplete="new-password"
                     className="w-full pl-12 pr-12 py-3.5 glass text-white placeholder:text-white/30 rounded-2xl border-0 outline-none focus:ring-2 focus:ring-emerald-400/50 transition-all text-sm"
-                    placeholder="Enter new password"
+                    placeholder={t('reset.password_placeholder')}
                   />
                   <button
                     type="button"
@@ -190,14 +192,14 @@ const ResetPassword = () => {
                   </button>
                 </div>
                 <p className="text-[10px] text-white/30 mt-1">
-                  Min. 8 characters with letters and numbers
+                  {t('reset.password_hint')}
                 </p>
               </div>
 
               {/* Confirm Password */}
               <div>
                 <label className="block text-sm font-medium text-white/60 mb-2">
-                  Confirm Password <span className="text-red-400">*</span>
+                  {t('reset.confirm_password')} <span className="text-red-400">*</span>
                 </label>
                 <div className="relative">
                   <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40">
@@ -212,7 +214,7 @@ const ResetPassword = () => {
                     required
                     autoComplete="new-password"
                     className="w-full pl-12 pr-12 py-3.5 glass text-white placeholder:text-white/30 rounded-2xl border-0 outline-none focus:ring-2 focus:ring-emerald-400/50 transition-all text-sm"
-                    placeholder="Confirm new password"
+                    placeholder={t('reset.confirm_placeholder')}
                   />
                   <button
                     type="button"
@@ -240,8 +242,8 @@ const ResetPassword = () => {
                       : 'text-red-400'
                   }`}>
                     {formData.password === formData.password_confirm 
-                      ? '✓ Passwords match' 
-                      : '✗ Passwords do not match'}
+                      ? `✓ ${t('reset.password_match')}` 
+                      : `✗ ${t('reset.password_no_match')}`}
                   </p>
                 )}
               </div>
@@ -263,11 +265,11 @@ const ResetPassword = () => {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                     </svg>
-                    Resetting...
+                    {t('buttons.resetting')}
                   </span>
                 ) : (
                   <span className="relative z-10 flex items-center justify-center gap-2">
-                    Reset Password
+                    {t('reset.submit')}
                     <svg className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                     </svg>
@@ -277,22 +279,20 @@ const ResetPassword = () => {
             </form>
           )}
 
-          {/* ============ FOOTER ============ */}
+          {/* Footer */}
           {!success && token && (
-            <>
-              <div className="flex items-center gap-4 my-6">
-                <div className="flex-1 h-px bg-white/5" />
-                <span className="text-xs text-white/30">or</span>
-                <div className="flex-1 h-px bg-white/5" />
-              </div>
-            </>
+            <div className="flex items-center gap-4 my-6">
+              <div className="flex-1 h-px bg-white/5" />
+              <span className="text-xs text-white/30">or</span>
+              <div className="flex-1 h-px bg-white/5" />
+            </div>
           )}
           <p className="text-center text-sm text-white/40">
             <Link 
               to="/login" 
               className="font-semibold text-emerald-400 hover:text-emerald-300 transition-colors"
             >
-              Back to Login
+              {t('reset.back_to_login')}
             </Link>
           </p>
         </motion.div>

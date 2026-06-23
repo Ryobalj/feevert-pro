@@ -1,0 +1,93 @@
+﻿{
+  "status": {
+    "all": "Tous",
+    "pending": "En attente",
+    "confirmed": "Confirmé",
+    "in_progress": "En cours",
+    "completed": "Terminé",
+    "cancelled": "Annulé",
+    "unknown": "Inconnu"
+  },
+  "date": {
+    "tbd": "Date à déterminer",
+    "today": "Aujourd'hui",
+    "tomorrow": "Demain",
+    "past_due": "En retard",
+    "in_days": "Dans {{days}} jours"
+  },
+  "priority": {
+    "urgent": "Urgent",
+    "high": "Élevée",
+    "medium": "Moyenne",
+    "low": "Basse"
+  },
+  "icons": {
+    "agriculture": "🌾",
+    "environment": "🌍",
+    "business": "💼",
+    "livestock": "🐄",
+    "default": "💬"
+  },
+  "consultation": {
+    "default_title": "Consultation",
+    "no_message": "Aucun message fourni",
+    "view": "Voir"
+  },
+  "detail": {
+    "loading": "Chargement des détails de la consultation...",
+    "error_title": "Erreur",
+    "error_not_found": "Consultation non trouvée",
+    "error_load_failed": "Échec du chargement des détails de la consultation",
+    "back_to_list": "Retour aux consultations",
+    "title": "Détails de la consultation",
+    "request_id": "Demande",
+    "service": "Service",
+    "assigned_to": "Attribué à",
+    "pending_assignment": "En attente d'attribution",
+    "preferred_date": "Date préférée",
+    "budget_range": "Fourchette budgétaire",
+    "message": "Message",
+    "response": "Réponse",
+    "requested_on": "Demandé le"
+  },
+  "list": {
+    "my_consultations": "Mes",
+    "consultations": "Consultations",
+    "track_requests": "Suivez vos demandes de consultation",
+    "new_request": "Nouvelle demande",
+    "total": "total",
+    "search_placeholder": "Rechercher des consultations...",
+    "clear": "Effacer",
+    "date_label": "Date",
+    "assigned_label": "Attribué",
+    "no_results": "Aucune demande de consultation trouvée",
+    "no_results_message": "Vous n'avez pas encore fait de demandes de consultation.",
+    "no_filtered_results": "Aucune demande de consultation {{status}} trouvée",
+    "no_filtered_message": "Vous n'avez pas encore de consultations {{status}}.",
+    "request_now": "Demander une consultation"
+  },
+  "request": {
+    "badge": "Contactez-nous",
+    "title": "Demander",
+    "subtitle": "une consultation",
+    "description": "Remplissez le formulaire et nous vous répondrons rapidement",
+    "loading_services": "Chargement des services...",
+    "select_service": "Sélectionner un service",
+    "select_service_error": "Veuillez sélectionner un service",
+    "choose_service": "Choisir un service",
+    "currency": "TZS",
+    "preferred_date": "Date et heure préférées",
+    "select_date_error": "Veuillez sélectionner une date préférée",
+    "budget_range": "Fourchette budgétaire",
+    "optional": "optionnel",
+    "budget_placeholder": "ex., 500,000 - 1,000,000 TZS",
+    "additional_message": "Message supplémentaire",
+    "message_placeholder": "Dites-nous en plus sur vos besoins, exigences ou questions...",
+    "submit": "Soumettre la demande",
+    "submitting": "Envoi en cours...",
+    "submit_error": "Erreur lors de la soumission de la demande. Veuillez réessayer.",
+    "success_title": "Demande soumise !",
+    "success_message": "Merci pour votre demande. Nous vous contacterons bientôt.",
+    "redirecting": "Redirection vers les consultations..."
+  }
+}

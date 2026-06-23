@@ -1,8 +1,11 @@
 // src/components/ui/Loader.jsx
 
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 
 const Loader = ({ size = 'md', text = '' }) => {
+  const { t } = useTranslation('common')
+  
   const sizes = {
     sm: { outer: 64, middle: 48, inner: 32, dot: 8, text: 'text-xs' },
     md: { outer: 96, middle: 72, inner: 48, dot: 12, text: 'text-sm' },
@@ -10,6 +13,9 @@ const Loader = ({ size = 'md', text = '' }) => {
   }
 
   const s = sizes[size] || sizes.md
+  
+  // ✅ Tumia text iliyopitishwa, au default tafsiri
+  const displayText = text || t('common.loading')
 
   return (
     <div className="flex flex-col items-center justify-center py-20 gap-8">
@@ -81,12 +87,12 @@ const Loader = ({ size = 'md', text = '' }) => {
         />
       </div>
       
-      {text && (
+      {displayText && (
         <p 
           className={`${s.text} text-white/40 font-light uppercase tracking-[0.25em] animate-pulse`}
           style={{ animationDuration: '2.5s' }}
         >
-          {text}
+          {displayText}
         </p>
       )}
     </div>

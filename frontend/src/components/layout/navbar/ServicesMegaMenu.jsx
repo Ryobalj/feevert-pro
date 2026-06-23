@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { getIcon } from './IconMap'
+import Icon from '../../ui/Icon'  // ✅ Import Icon component
 
 const ServicesMegaMenu = ({ tree, categories, onClose, onMouseEnter, onMouseLeave }) => {
   const [activeMainId, setActiveMainId] = useState(null)
@@ -64,8 +64,12 @@ const ServicesMegaMenu = ({ tree, categories, onClose, onMouseEnter, onMouseLeav
     >
       {/* Title Bar */}
       <div className="flex items-center justify-between px-4 py-2.5 border-b border-[var(--g-border-glass)] bg-[var(--g-surface-glass)]/30">
-        <h3 className="text-xs font-semibold text-[var(--g-text-tertiary)] uppercase tracking-widest">🛠️ Services Menu</h3>
-        <Link to="/services" onClick={onClose} className="text-xs text-[var(--g-color-primary)] hover:underline font-medium">View All →</Link>
+        <h3 className="text-xs font-semibold text-[var(--g-text-tertiary)] uppercase tracking-widest flex items-center gap-1">
+          <Icon name="🛠️" size="text-sm" /> Services Menu
+        </h3>
+        <Link to="/services" onClick={onClose} className="text-xs text-[var(--g-color-primary)] hover:underline font-medium">
+          View All →
+        </Link>
       </div>
 
       {/* Mobile: Tabs */}
@@ -103,7 +107,7 @@ const ServicesMegaMenu = ({ tree, categories, onClose, onMouseEnter, onMouseLeav
                     className={`w-full text-left px-3 py-3 text-sm rounded-lg transition-all duration-200 flex items-center gap-2 ${
                       activeMainId === cat.id ? 'text-[var(--g-color-primary)] bg-[var(--g-liquid-primary)] font-semibold' : 'text-[var(--g-text-secondary)] hover:text-[var(--g-color-primary)] hover:bg-[var(--g-liquid-secondary)]'
                     }`}>
-                    <span className="text-lg">{getIcon(cat.icon)}</span>
+                    <Icon name={cat.icon} size="text-lg" className="flex-shrink-0" />
                     <span>{cat.name}</span>
                     <svg className="w-4 h-4 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
                   </button>
@@ -117,7 +121,9 @@ const ServicesMegaMenu = ({ tree, categories, onClose, onMouseEnter, onMouseLeav
                   <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
                   Back to Categories
                 </button>
-                <h4 className="px-3 py-1 text-xs font-semibold text-[var(--g-text-secondary)]">{getIcon(activeMain?.icon)} {activeMain?.name}</h4>
+                <h4 className="px-3 py-1 text-xs font-semibold text-[var(--g-text-secondary)] flex items-center gap-1">
+                  <Icon name={activeMain?.icon} size="text-sm" /> {activeMain?.name}
+                </h4>
                 {subCategories.length > 0 ? subCategories.map(sub => (
                   <button key={sub.id} onClick={() => handleSubSelect(sub.id)}
                     className={`w-full text-left px-3 py-3 text-sm rounded-lg transition-all duration-200 flex items-center justify-between ${
@@ -140,8 +146,13 @@ const ServicesMegaMenu = ({ tree, categories, onClose, onMouseEnter, onMouseLeav
                 {services.length > 0 ? services.map(service => (
                   <Link key={service.id} to={`/services/${service.id}`} onClick={onClose}
                     className="block px-3 py-3 text-sm rounded-lg transition-all duration-200 text-[var(--g-text-secondary)] hover:text-[var(--g-color-primary)] hover:bg-[var(--g-liquid-secondary)]">
-                    <div className="font-medium flex items-center gap-2"><span className="text-lg">{getIcon(service.icon)}</span><span>{service.name}</span></div>
-                    {service.display_price && service.display_price !== 'Get Quote' && <div className="text-[10px] text-[var(--g-text-tertiary)] mt-0.5 ml-7">{service.display_price}</div>}
+                    <div className="font-medium flex items-center gap-2">
+                      <Icon name={service.icon} size="text-lg" />
+                      <span>{service.name}</span>
+                    </div>
+                    {service.display_price && service.display_price !== 'Get Quote' && (
+                      <div className="text-[10px] text-[var(--g-text-tertiary)] mt-0.5 ml-7">{service.display_price}</div>
+                    )}
                   </Link>
                 )) : <div className="px-3 py-6 text-center text-xs text-[var(--g-text-tertiary)]">No services</div>}
               </div>
@@ -168,7 +179,7 @@ const ServicesMegaMenu = ({ tree, categories, onClose, onMouseEnter, onMouseLeav
                       : 'text-[var(--g-text-secondary)] hover:text-[var(--g-color-primary)] hover:bg-[var(--g-liquid-secondary)]'
                   }`}
                 >
-                  <span className="text-base flex-shrink-0">{getIcon(cat.icon)}</span>
+                  <Icon name={cat.icon} size="text-base" className="flex-shrink-0" />
                   <span className="truncate">{cat.name}</span>
                 </button>
               ))}
@@ -222,7 +233,7 @@ const ServicesMegaMenu = ({ tree, categories, onClose, onMouseEnter, onMouseLeav
                       className="block px-3 py-2 text-sm rounded-lg transition-all duration-200 text-[var(--g-text-secondary)] hover:text-[var(--g-color-primary)] hover:bg-[var(--g-liquid-secondary)]"
                     >
                       <div className="font-medium flex items-center gap-2">
-                        <span className="text-base">{getIcon(service.icon)}</span>
+                        <Icon name={service.icon} size="text-base" />
                         <span>{service.name}</span>
                       </div>
                       {service.display_price && service.display_price !== 'Get Quote' && (
@@ -245,7 +256,7 @@ const ServicesMegaMenu = ({ tree, categories, onClose, onMouseEnter, onMouseLeav
       <div className="border-t border-[var(--g-border-glass)] p-3 bg-[var(--g-surface-glass)]/30">
         <Link to="/request-consultation" onClick={onClose}
           className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl bg-[var(--g-color-primary)] text-white text-sm font-semibold hover:opacity-90 transition-all duration-300 shadow-sm">
-          📋 Request Consultation
+          <Icon name="📋" size="text-sm" /> Request Consultation
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
         </Link>
       </div>

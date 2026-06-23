@@ -1,7 +1,10 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next' // ✅ Ongeza hii
 
 const TeamCard = ({ member }) => {
+  const { t } = useTranslation('home') // ✅ Ongeza hii
+
   const gradients = [
     'from-emerald-400 via-green-500 to-teal-600',
     'from-green-400 via-emerald-500 to-cyan-600',
@@ -60,7 +63,7 @@ const TeamCard = ({ member }) => {
 
           {/* Role */}
           <p className="text-xs font-semibold text-emerald-400/80 mb-3 uppercase tracking-wider">
-            {member.role || member.position || 'Team Member'}
+            {member.role || member.position || t('team.member') || 'Team Member'}
           </p>
 
           {/* Bio */}
@@ -80,7 +83,7 @@ const TeamCard = ({ member }) => {
                 href={`mailto:${member.email}`}
                 onClick={(e) => e.stopPropagation()}
                 className="w-8 h-8 rounded-full glass flex items-center justify-center text-xs hover:border-emerald-400/40 hover:bg-emerald-400/10 hover:scale-110 transition-all duration-300"
-                title="Email"
+                title={t('team.email') || 'Email'}
               >
                 <svg className="w-3.5 h-3.5 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -94,7 +97,7 @@ const TeamCard = ({ member }) => {
                 rel="noopener noreferrer"
                 onClick={(e) => e.stopPropagation()}
                 className="w-8 h-8 rounded-full glass flex items-center justify-center text-xs hover:border-emerald-400/40 hover:bg-emerald-400/10 hover:scale-110 transition-all duration-300"
-                title="LinkedIn"
+                title={t('team.linkedin') || 'LinkedIn'}
               >
                 <span className="text-white/60 text-xs font-bold">in</span>
               </a>
@@ -106,7 +109,7 @@ const TeamCard = ({ member }) => {
                 rel="noopener noreferrer"
                 onClick={(e) => e.stopPropagation()}
                 className="w-8 h-8 rounded-full glass flex items-center justify-center text-xs hover:border-emerald-400/40 hover:bg-emerald-400/10 hover:scale-110 transition-all duration-300"
-                title="Twitter"
+                title={t('team.twitter') || 'Twitter'}
               >
                 <svg className="w-3.5 h-3.5 text-white/60" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>

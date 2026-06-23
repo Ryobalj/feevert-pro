@@ -1,6 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next' // ✅ Ongeza hii
 
 const StarRating = ({ rating }) => (
   <div className="flex gap-0.5">
@@ -21,6 +22,8 @@ const StarRating = ({ rating }) => (
 )
 
 const TestimonialsSection = ({ data }) => {
+  const { t } = useTranslation('home') // ✅ Ongeza hii
+
   if (!data || data.length === 0) return null
 
   const displayedTestimonials = data.slice(0, 3)
@@ -51,16 +54,18 @@ const TestimonialsSection = ({ data }) => {
               animate={{ scale: [1, 1.5, 1], opacity: [0.7, 1, 0.7] }}
               transition={{ duration: 2, repeat: Infinity }}
             />
-            <span className="text-sm font-medium text-white/80">⭐ Client Testimonials</span>
+            <span className="text-sm font-medium text-white/80">
+              {t('reviews.badge') || '⭐ Client Testimonials'}
+            </span>
           </motion.div>
 
           {/* Title */}
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white mb-4">
-            What Our{' '}
-            <span className="gradient-text">Clients</span> Say
+            {t('reviews.title') || 'What Our'}{' '}
+            <span className="gradient-text">{t('reviews.subtitle') || 'Clients'}</span> {t('reviews.say') || 'Say'}
           </h2>
           <p className="text-white/60 text-lg max-w-xl mx-auto">
-            Don't just take our word for it — hear from our satisfied clients
+            {t('reviews.description') || "Don't just take our word for it — hear from our satisfied clients"}
           </p>
         </motion.div>
 
@@ -109,7 +114,7 @@ const TestimonialsSection = ({ data }) => {
                         {testimonial.client_name}
                       </h4>
                       <p className="text-xs text-white/40">
-                        {testimonial.client_role || 'Client'}
+                        {testimonial.client_role || t('reviews.client') || 'Client'}
                       </p>
                     </div>
                   </div>
@@ -132,7 +137,7 @@ const TestimonialsSection = ({ data }) => {
             className="group relative inline-flex items-center gap-3 border-2 border-white/20 text-white px-8 py-4 rounded-full font-bold text-base hover:border-emerald-400/50 transition-all duration-300 overflow-hidden"
           >
             <span className="absolute inset-0 bg-emerald-500/0 group-hover:bg-emerald-500/5 transition-colors duration-300" />
-            <span className="relative z-10">Read All Reviews</span>
+            <span className="relative z-10">{t('reviews.view_all') || 'Read All Reviews'}</span>
             <motion.svg 
               className="w-5 h-5 relative z-10" 
               fill="none" stroke="currentColor" viewBox="0 0 24 24"

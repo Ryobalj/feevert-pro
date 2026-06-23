@@ -1,8 +1,20 @@
+// src/features/home/components/CTASection.jsx
+
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 
 const CTASection = ({ data }) => {
+  const { t } = useTranslation('home') // ✅ Badilisha kutoka 'common' hadi 'home'
+
+  // Trust indicators data with translation keys
+  const trustIndicators = [
+    { icon: '✅', key: 'cta.trust.free_consultation' },
+    { icon: '⚡', key: 'cta.trust.quick_response' },
+    { icon: '🔒', key: 'cta.trust.confidential' }
+  ]
+
   return (
     <section className="relative py-24 md:py-32 overflow-hidden">
       {/* === JUNGLE GREEN BACKGROUND (No light mode) === */}
@@ -59,7 +71,9 @@ const CTASection = ({ data }) => {
               animate={{ scale: [1, 1.5, 1], opacity: [0.7, 1, 0.7] }}
               transition={{ duration: 2, repeat: Infinity }}
             />
-            <span className="text-sm font-medium text-white/90">Let's Work Together</span>
+            <span className="text-sm font-medium text-white/90">
+              {t('cta.badge') || "Let's Work Together"}
+            </span>
           </motion.div>
 
           {/* Title */}
@@ -70,7 +84,7 @@ const CTASection = ({ data }) => {
             transition={{ delay: 0.2 }}
             className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white mb-6 leading-tight"
           >
-            {data?.title || 'Ready to Get Started?'}
+            {data?.title || t('cta.title') || 'Ready to Get Started?'}
           </motion.h2>
 
           {/* Subtitle */}
@@ -81,7 +95,7 @@ const CTASection = ({ data }) => {
             transition={{ delay: 0.3 }}
             className="text-lg md:text-xl text-white/75 mb-10 max-w-2xl mx-auto leading-relaxed"
           >
-            {data?.subtitle || 'Contact us today for a free consultation and let us help you achieve your goals.'}
+            {data?.subtitle || t('cta.subtitle') || 'Contact us today for a free consultation and let us help you achieve your goals.'}
           </motion.p>
 
           {/* CTA Buttons */}
@@ -105,7 +119,7 @@ const CTASection = ({ data }) => {
                   transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
                 />
                 <span className="relative z-10 flex items-center gap-2">
-                  Contact Us Now
+                  {t('cta.contact_now') || 'Contact Us Now'}
                   <motion.svg 
                     className="w-5 h-5" 
                     fill="none" stroke="currentColor" viewBox="0 0 24 24"
@@ -127,7 +141,7 @@ const CTASection = ({ data }) => {
               >
                 <div className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-colors duration-300" />
                 <span className="relative z-10 flex items-center gap-2">
-                  View Services
+                  {t('cta.view_services') || 'View Services'}
                   <motion.svg 
                     className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                     animate={{ x: [0, 4, 0] }}
@@ -148,11 +162,7 @@ const CTASection = ({ data }) => {
             transition={{ delay: 0.6 }}
             className="flex flex-wrap items-center justify-center gap-8 mt-12"
           >
-            {[
-              { icon: '✅', text: 'Free Consultation' },
-              { icon: '⚡', text: 'Quick Response' },
-              { icon: '🔒', text: 'Confidential' }
-            ].map((item, index) => (
+            {trustIndicators.map((item, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, y: 10 }}
@@ -163,7 +173,7 @@ const CTASection = ({ data }) => {
                 className="flex items-center gap-2 text-white/80 text-sm font-medium"
               >
                 <span>{item.icon}</span>
-                <span>{item.text}</span>
+                <span>{t(item.key)}</span>
               </motion.div>
             ))}
           </motion.div>

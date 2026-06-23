@@ -1,0 +1,126 @@
+﻿{
+  "consultation": "Ushauri",
+  "date": "Tarehe",
+  "time": "Muda",
+  "consultant": "Mshauri",
+  "assigned_soon": "Atateuliwa hivi karibuni",
+  "view": "Tazama",
+  "na": "N/A",
+  "status": {
+    "all": "Zote",
+    "confirmed": "Imethibitishwa",
+    "pending": "Inasubiri",
+    "completed": "Imekamilika",
+    "cancelled": "Imefutwa",
+    "in_progress": "Inaendelea",
+    "approved": "Imekubaliwa",
+    "rejected": "Imekataliwa",
+    "unknown": "Haijulikani"
+  },
+  "time": {
+    "in": "baada ya",
+    "ago": "zilizopita",
+    "now": "sasa",
+    "min": "dakika",
+    "hr": "saa",
+    "hour": "saa",
+    "day": "siku"
+  },
+  "sort": {
+    "date_asc": "Tarehe (Kwanza kongwe)",
+    "date_desc": "Tarehe (Kwanza mpya)",
+    "service_asc": "Huduma (A-Z)",
+    "service_desc": "Huduma (Z-A)",
+    "status": "Hali"
+  },
+  "empty": {
+    "all": {
+      "title": "Hakuna uteuzi bado",
+      "description": "Hujafanya uteuzi wowote bado. Anza kwa kupanga uteuzi na wataalamu wetu.",
+      "action": "Panga Uteuzi"
+    },
+    "pending": {
+      "title": "Hakuna uteuzi unaosubiri",
+      "description": "Huna uteuzi wowote unaosubiri. Umemaliza yote!",
+      "action": "Tazama Huduma"
+    },
+    "confirmed": {
+      "title": "Hakuna uteuzi uliothibitishwa",
+      "description": "Huna uteuzi wowote uliothibitishwa bado. Panga huduma ili kuanza.",
+      "action": "Panga Sasa"
+    },
+    "completed": {
+      "title": "Hakuna uteuzi uliokamilika",
+      "description": "Hujakamilisha uteuzi wowote bado. Historia yako itaonekana hapa.",
+      "action": "Tazama Huduma"
+    },
+    "cancelled": {
+      "title": "Hakuna uteuzi uliofutwa",
+      "description": "Huna uteuzi wowote uliofutwa. Hongera kwa kuweka miadi yako!",
+      "action": "Tazama Uteuzi"
+    },
+    "no_filter_prefix": "Hakuna",
+    "no_filter_suffix": "uteuzi uliopatikana",
+    "help_text": "Unahitaji msaada?",
+    "contact_support": "Wasiliana na msaada"
+  },
+  "detail": {
+    "loading": "Inapakia maelezo ya uteuzi...",
+    "error_title": "Hitilafu",
+    "try_again": "Jaribu Tena",
+    "back_to_bookings": "Rudi kwa Uteuzi",
+    "title": "Maelezo ya Uteuzi",
+    "booking_id": "Uteuzi",
+    "service": "Huduma",
+    "consultant": "Mshauri",
+    "date": "Tarehe",
+    "time": "Muda",
+    "meeting_link": "Kiungo cha Mkutano",
+    "join_meeting": "Jiunge na Mkutano",
+    "notes": "Maelezo",
+    "booked_on": "Iliyopangwa Tarehe",
+    "cancel_booking": "Futa Uteuzi",
+    "cancelling": "Inafuta..."
+  },
+  "booking": {
+    "schedule": "Ratiba",
+    "title": "Panga",
+    "subtitle": "Uteuzi",
+    "description": "Panga muda wa kushauriana na wataalamu wetu",
+    "select_service": "Chagua Huduma",
+    "select_service_optional": "Chagua huduma (hiari)",
+    "select_consultant": "Chagua Mshauri",
+    "choose_consultant": "Chagua mshauri",
+    "select_date": "Chagua Tarehe",
+    "available_slots": "Muda Unaopatikana",
+    "loading_slots": "Inapakia muda unaopatikana...",
+    "no_slots": "Hakuna muda unaopatikana kwa tarehe hii",
+    "no_slots_hint": "Jaribu kuchagua tarehe nyingine",
+    "period": {
+      "morning": "Asubuhi",
+      "afternoon": "Mchana",
+      "evening": "Jioni"
+    },
+    "additional_notes": "Maelezo Zaidi",
+    "notes_placeholder": "Mahitaji maalum au maswali...",
+    "confirm_booking": "Thibitisha Uteuzi",
+    "booking": "Inapanga...",
+    "select_slot_alert": "Tafadhali chagua muda",
+    "success_message": "Uteuzi umethibitishwa kwa mafanikio!",
+    "error_message": "Hitilafu ya kupanga uteuzi. Tafadhali jaribu tena."
+  },
+  "mybookings": {
+    "loading": "Inapakia uteuzi wako...",
+    "error_title": "Hitilafu",
+    "try_again": "Jaribu Tena",
+    "title": "Uteuzi",
+    "subtitle": "Wangu",
+    "description": "Dhibiti miadi yako",
+    "refresh": "Sasisha",
+    "new_booking": "Uteuzi Mpya",
+    "total": "jumla",
+    "upcoming": "inayokuja",
+    "search_placeholder": "Tafuta uteuzi...",
+    "clear": "Futa"
+  }
+}

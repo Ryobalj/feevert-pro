@@ -1,0 +1,105 @@
+﻿{
+  "title": "Msimamizi",
+  "dashboard_title": "Dashibodi",
+  "subtitle": "Muhtasari na usimamizi wa mfumo",
+  "loading": "Inapakia dashibodi...",
+  "welcome_back": "Karibu tena",
+  "total_users": "Watumiaji Wote",
+  "pending_consultations": "Ushauri Unaosubiri",
+  "pending_bookings": "Uteuzi Unaosubiri",
+  "total_revenue": "Mapato Yote",
+  "recent_consultations": "Ushauri wa Hivi Karibuni",
+  "recent_bookings": "Uteuzi wa Hivi Karibuni",
+  "no_consultations": "Hakuna ushauri bado",
+  "no_bookings": "Hakuna uteuzi bado",
+  "view_all": "Tazama zote",
+  "quick_actions": "Vitendo vya Haraka",
+  "manage_users": "Simamia Watumiaji",
+  "manage_roles": "Simamia Majukumu",
+  "site_settings": "Mipangilio ya Tovuti",
+  "project": {
+    "client": "Mteja",
+    "internal": "Mradi wa FeeVert",
+    "view": "Tazama"
+  },
+  "booking": {
+    "status": {
+      "confirmed": "Imethibitishwa",
+      "pending": "Inasubiri",
+      "completed": "Imekamilika",
+      "cancelled": "Imefutwa"
+    },
+    "date_tbd": "Tarehe Bado",
+    "service": "Uteuzi"
+  },
+  "consultation": {
+    "status": {
+      "confirmed": "Imethibitishwa",
+      "pending": "Inasubiri",
+      "in_progress": "Inaendelea",
+      "completed": "Imekamilika",
+      "cancelled": "Imefutwa"
+    },
+    "date_tbd": "Tarehe Bado",
+    "service": "Ushauri"
+  },
+  "client": {
+    "loading": "Inapakia dashibodi yako...",
+    "welcome_back": "Karibu tena",
+    "activity_overview": "Hapa ni muhtasari wa shughuli zako",
+    "member_since": "Mwanachama tangu",
+    "pending_bookings": "Uteuzi Unaosubiri",
+    "pending_consultations": "Ushauri Unaosubiri",
+    "completed_payments": "Malipo Yaliyokamilika",
+    "recent_bookings": "Uteuzi wa Hivi Karibuni",
+    "recent_consultations": "Ushauri wa Hivi Karibuni",
+    "your_projects": "Miradi Yako",
+    "quick_actions": "Vitendo vya Haraka",
+    "no_bookings": "Hakuna uteuzi bado",
+    "no_consultations": "Hakuna ushauri bado",
+    "no_projects": "Hakuna miradi bado",
+    "book_appointment": "Panga uteuzi",
+    "request_consultation": "Omba ushauri",
+    "update_profile": "Sasisha Wasifu"
+  },
+  "consultant": {
+    "loading": "Inapakia dashibodi yako...",
+    "title": "Mshauri",
+    "dashboard": "Dashibodi",
+    "welcome_back": "Karibu tena",
+    "pending": "inasubiri",
+    "upcoming": "inayokuja",
+    "assigned_consultations": "Ushauri Uliopangiwa",
+    "upcoming_bookings": "Uteuzi Unaokuja",
+    "active_projects": "Miradi Inayoendelea",
+    "no_consultations": "Hakuna ushauri uliopangiwa bado",
+    "no_bookings": "Hakuna uteuzi unaokuja"
+  },
+  "employee": {
+    "loading": "Inapakia dashibodi yako...",
+    "title": "Mfanyakazi",
+    "dashboard": "Dashibodi",
+    "welcome": "Karibu",
+    "projects": "miradi",
+    "news": "habari",
+    "teammates": "wenzako",
+    "projects_title": "Miradi",
+    "latest_news": "Habari za Hivi Karibuni",
+    "team_members": "Washiriki wa Timu",
+    "no_projects": "Hakuna miradi uliyopangiwa bado",
+    "no_news": "Hakuna habari bado",
+    "no_team": "Hakuna washiriki wa timu bado"
+  },
+  "news": {
+    "date_tbd": "Tarehe Bado"
+  },
+  "team": {
+    "member": "Mwanachama wa Timu"
+  },
+  "dashboard": {
+    "loading": "Inapakia dashibodi yako...",
+    "pending_title": "Akaunti Inasubiri",
+    "pending_message": "Akaunti yako inaandaliwa. Tafadhali subiri idhini ya msimamizi au wasiliana na msaada.",
+    "contact_support": "Wasiliana na Msaada"
+  }
+}

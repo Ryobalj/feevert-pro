@@ -1,0 +1,105 @@
+﻿{
+  "title": "المشرف",
+  "dashboard_title": "لوحة التحكم",
+  "subtitle": "نظرة عامة وإدارة النظام",
+  "loading": "جاري تحميل لوحة التحكم...",
+  "welcome_back": "مرحباً بعودتك",
+  "total_users": "إجمالي المستخدمين",
+  "pending_consultations": "الاستشارات المعلقة",
+  "pending_bookings": "الحجوزات المعلقة",
+  "total_revenue": "إجمالي الإيرادات",
+  "recent_consultations": "الاستشارات الأخيرة",
+  "recent_bookings": "الحجوزات الأخيرة",
+  "no_consultations": "لا توجد استشارات بعد",
+  "no_bookings": "لا توجد حجوزات بعد",
+  "view_all": "عرض الكل",
+  "quick_actions": "إجراءات سريعة",
+  "manage_users": "إدارة المستخدمين",
+  "manage_roles": "إدارة الأدوار",
+  "site_settings": "إعدادات الموقع",
+  "project": {
+    "client": "العميل",
+    "internal": "مشروع FeeVert",
+    "view": "عرض"
+  },
+  "booking": {
+    "status": {
+      "confirmed": "تم التأكيد",
+      "pending": "قيد الانتظار",
+      "completed": "مكتمل",
+      "cancelled": "ملغي"
+    },
+    "date_tbd": "التاريخ غير محدد",
+    "service": "الحجز"
+  },
+  "consultation": {
+    "status": {
+      "confirmed": "تم التأكيد",
+      "pending": "قيد الانتظار",
+      "in_progress": "قيد التنفيذ",
+      "completed": "مكتمل",
+      "cancelled": "ملغي"
+    },
+    "date_tbd": "التاريخ غير محدد",
+    "service": "استشارة"
+  },
+  "client": {
+    "loading": "جاري تحميل لوحة التحكم الخاصة بك...",
+    "welcome_back": "مرحباً بعودتك",
+    "activity_overview": "نظرة عامة على نشاطك",
+    "member_since": "عضو منذ",
+    "pending_bookings": "الحجوزات المعلقة",
+    "pending_consultations": "الاستشارات المعلقة",
+    "completed_payments": "المدفوعات المكتملة",
+    "recent_bookings": "الحجوزات الأخيرة",
+    "recent_consultations": "الاستشارات الأخيرة",
+    "your_projects": "مشاريعك",
+    "quick_actions": "إجراءات سريعة",
+    "no_bookings": "لا توجد حجوزات بعد",
+    "no_consultations": "لا توجد استشارات بعد",
+    "no_projects": "لا توجد مشاريع بعد",
+    "book_appointment": "حجز موعد",
+    "request_consultation": "طلب استشارة",
+    "update_profile": "تحديث الملف الشخصي"
+  },
+  "consultant": {
+    "loading": "جاري تحميل لوحة التحكم الخاصة بك...",
+    "title": "استشاري",
+    "dashboard": "لوحة التحكم",
+    "welcome_back": "مرحباً بعودتك",
+    "pending": "قيد الانتظار",
+    "upcoming": "القادمة",
+    "assigned_consultations": "الاستشارات المعينة",
+    "upcoming_bookings": "الحجوزات القادمة",
+    "active_projects": "المشاريع النشطة",
+    "no_consultations": "لا توجد استشارات معينة بعد",
+    "no_bookings": "لا توجد حجوزات قادمة"
+  },
+  "employee": {
+    "loading": "جاري تحميل لوحة التحكم الخاصة بك...",
+    "title": "موظف",
+    "dashboard": "لوحة التحكم",
+    "welcome": "مرحباً",
+    "projects": "مشاريع",
+    "news": "أخبار",
+    "teammates": "زملاء",
+    "projects_title": "المشاريع",
+    "latest_news": "آخر الأخبار",
+    "team_members": "أعضاء الفريق",
+    "no_projects": "لا توجد مشاريع معينة بعد",
+    "no_news": "لا توجد أخبار بعد",
+    "no_team": "لا توجد أعضاء فريق بعد"
+  },
+  "news": {
+    "date_tbd": "التاريخ غير محدد"
+  },
+  "team": {
+    "member": "عضو الفريق"
+  },
+  "dashboard": {
+    "loading": "جاري تحميل لوحة التحكم الخاصة بك...",
+    "pending_title": "الحساب قيد الانتظار",
+    "pending_message": "يتم إعداد حسابك. يرجى انتظار موافقة المشرف أو الاتصال بالدعم.",
+    "contact_support": "اتصل بالدعم"
+  }
+}

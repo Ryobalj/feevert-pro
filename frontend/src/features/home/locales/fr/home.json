@@ -1,0 +1,118 @@
+﻿{
+  "cta": {
+    "badge": "Travaillons Ensemble",
+    "title": "Prêt à Commencer ?",
+    "subtitle": "Contactez-nous dès aujourd'hui pour une consultation gratuite et laissez-nous vous aider à atteindre vos objectifs.",
+    "contact_now": "Contactez-nous Maintenant",
+    "view_services": "Voir les Services",
+    "trust": {
+      "free_consultation": "Consultation Gratuite",
+      "quick_response": "Réponse Rapide",
+      "confidential": "Confidentiel"
+    }
+  },
+  "faq": {
+    "title": "Foire aux",
+    "subtitle": "Questions",
+    "description": "Des questions ? Nous avons des réponses",
+    "still_have_questions": "Vous avez encore des questions ?",
+    "contact_support": "Contactez notre équipe de support"
+  },
+  "hero": {
+    "badge": "Cabinet de conseil de confiance en Tanzanie",
+    "title_part1": "Conseil",
+    "title_part2": "Expert",
+    "title_part3": "pour un Avenir Durable",
+    "subtitle": "Services professionnels en Agriculture, Environnement et Santé et Sécurité au Travail",
+    "cta_primary": "Commencer",
+    "cta_secondary": "En savoir plus",
+    "trust": {
+      "iso_certified": "Certifié ISO",
+      "experience": "5+ Ans d'Expérience",
+      "clients": "50+ Clients Satisfaits"
+    }
+  },
+  "newsletter": {
+    "title": "Abonnez-vous à Notre",
+    "title_highlight": "Lettre d'Information",
+    "description": "Recevez les dernières actualités, nouvelles et offres exclusives directement dans votre boîte mail.",
+    "input_placeholder": "Entrez votre adresse email",
+    "subscribe_button": "S'abonner",
+    "subscribing": "Abonnement en cours...",
+    "success_message": "Abonnement réussi !",
+    "error_invalid_email": "Veuillez entrer une adresse email valide",
+    "error_subscribe": "Échec de l'abonnement. Veuillez réessayer.",
+    "privacy_note": "Nous respectons votre vie privée. Désabonnez-vous à tout moment."
+  },
+  "projects": {
+    "badge": "📁 Notre Portfolio",
+    "title": "Projets",
+    "subtitle": "En vedette",
+    "description": "Quelques-uns de nos projets réussis qui démontrent notre expertise",
+    "view_all": "Voir tous les projets"
+  },
+  "reviews": {
+    "badge": "⭐ Témoignages Clients",
+    "title": "Ce que Nos",
+    "subtitle": "Clients",
+    "say": "Disent",
+    "description": "Ne vous fiez pas seulement à notre parole — écoutez nos clients satisfaits",
+    "client": "Client",
+    "view_all": "Lire tous les avis",
+    "reviews_label": "Avis",
+    "loading": "Chargement des témoignages...",
+    "page_title": "Ce que Nos",
+    "page_subtitle": "Clients",
+    "page_description": "Ne vous fiez pas seulement à notre parole. Lisez ce que nos clients satisfaits disent de nos services.",
+    "no_reviews_title": "Pas encore d'avis",
+    "no_filtered_reviews": "Aucun avis {{rating}} étoiles trouvé. Essayez un autre filtre.",
+    "no_reviews_message": "Soyez le premier à partager votre expérience avec nous !",
+    "share_title": "Partagez Votre Expérience",
+    "share_description": "Nous aimerions connaître votre expérience avec nos services.",
+    "write_review": "Écrire un avis"
+  },
+  "services": {
+    "badge": "🛠️ Ce Que Nous Offrons",
+    "title": "Nos Services",
+    "subtitle": "Principaux",
+    "description": "Des solutions complètes adaptées à vos besoins",
+    "from": "À partir de",
+    "currency": "TZS",
+    "contact_pricing": "Contactez-nous pour le prix",
+    "learn_more": "En savoir plus",
+    "view_all": "Voir tous les services"
+  },
+  "stats": {
+    "projects": "Projets Réalisés",
+    "clients": "Clients Satisfaits",
+    "services": "Services Offerts",
+    "years": "Années d'Expérience"
+  },
+  "team": {
+    "badge": "👥 Nos Experts",
+    "title": "Rencontrez Notre",
+    "subtitle": "Équipe",
+    "description": "Les professionnels passionnés derrière FeeVert, dédiés à votre succès",
+    "view_all": "Rencontrer Tous les Membres de l'Équipe",
+    "member": "Membre de l'Équipe",
+    "email": "Email",
+    "linkedin": "LinkedIn",
+    "twitter": "Twitter"
+  },
+  "about": {
+    "badge": "Notre Histoire",
+    "title": "À Propos",
+    "company": "FeeVert",
+    "loading": "Chargement",
+    "error_title": "Impossible de charger le contenu",
+    "error_message": "Veuillez vérifier votre connexion et réessayer.",
+    "retry": "Réessayer",
+    "mission": "Notre Mission",
+    "vision": "Notre Vision",
+    "core_values_title": "Nos Valeurs",
+    "core_values_subtitle": "Fondamentales",
+    "impact_title": "Notre Impact en Chiffres",
+    "why_choose_title": "Pourquoi Choisir",
+    "why_choose_subtitle": "FeeVert"
+  }
+}

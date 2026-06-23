@@ -1,10 +1,14 @@
+// src/features/accounts/pages/ForgotPassword.jsx
+
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 import { useTheme } from '../../../context/ThemeContext'
 import api from '../../../app/api'
 
 const ForgotPassword = () => {
+  const { t } = useTranslation('account')
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
   const [submitted, setSubmitted] = useState(false)
@@ -20,7 +24,8 @@ const ForgotPassword = () => {
       await api.post('/auth/forgot-password/', { email })
       setSubmitted(true)
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to send reset link. Please try again.')
+      const errorMsg = err.response?.data?.error || t('errors.network_error')
+      setError(errorMsg)
     } finally {
       setLoading(false)
     }
@@ -51,10 +56,10 @@ const ForgotPassword = () => {
             </motion.div>
 
             <h1 className="text-2xl md:text-3xl font-extrabold text-white mb-2">
-              Forgot <span className="gradient-text">Password</span>
+              {t('forgot.title')} <span className="gradient-text">{t('forgot.subtitle')}</span>
             </h1>
             <p className="text-white/50 text-sm">
-              Enter your email to receive a password reset link
+              {t('forgot.subtitle')}
             </p>
           </div>
 
@@ -89,16 +94,16 @@ const ForgotPassword = () => {
                 📧
               </motion.div>
               <h2 className="text-xl font-bold text-white mb-2">
-                Check Your Email
+                {t('verify.title')}
               </h2>
               <p className="text-white/50 text-sm mb-2">
-                We've sent a password reset link to
+                {t('verify.subtitle')}
               </p>
               <p className="text-emerald-400 font-semibold mb-6 break-all">
                 {email}
               </p>
               <p className="text-white/30 text-xs mb-6">
-                Didn't receive it? Check your spam folder or try again.
+                {t('verify.resend_info') || "Didn't receive it? Check your spam folder or try again."}
               </p>
               <Link 
                 to="/login" 
@@ -107,7 +112,7 @@ const ForgotPassword = () => {
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
-                Back to Login
+                {t('forgot.back_to_login')}
               </Link>
             </motion.div>
           ) : (
@@ -115,7 +120,7 @@ const ForgotPassword = () => {
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
                 <label className="block text-sm font-medium text-white/70 mb-2">
-                  Email Address
+                  {t('forgot.email')}
                 </label>
                 <div className="relative">
                   <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40">
@@ -132,7 +137,7 @@ const ForgotPassword = () => {
                     }}
                     required
                     className="w-full pl-12 pr-5 py-3.5 glass text-white placeholder:text-white/30 rounded-2xl border-0 outline-none focus:ring-2 focus:ring-emerald-400/50 transition-all text-sm"
-                    placeholder="Enter your email address"
+                    placeholder={t('forgot.email_placeholder')}
                   />
                 </div>
               </div>
@@ -148,11 +153,11 @@ const ForgotPassword = () => {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                     </svg>
-                    Sending...
+                    {t('buttons.sending')}
                   </span>
                 ) : (
                   <span className="flex items-center justify-center gap-2">
-                    Send Reset Link
+                    {t('forgot.submit')}
                     <svg className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                     </svg>
@@ -171,12 +176,12 @@ const ForgotPassword = () => {
                 <div className="flex-1 h-px bg-white/5" />
               </div>
               <p className="text-center text-sm text-white/40">
-                Remember your password?{' '}
+                {t('forgot.back_to_login_text') || 'Remember your password?'}{' '}
                 <Link 
                   to="/login" 
                   className="font-semibold text-emerald-400 hover:text-emerald-300 transition-colors"
                 >
-                  Sign in
+                  {t('forgot.back_to_login')}
                 </Link>
               </p>
             </>

@@ -1,0 +1,105 @@
+﻿{
+  "title": "Админ",
+  "dashboard_title": "Панель управления",
+  "subtitle": "Обзор и управление системой",
+  "loading": "Загрузка панели управления...",
+  "welcome_back": "С возвращением",
+  "total_users": "Всего пользователей",
+  "pending_consultations": "Ожидающие консультации",
+  "pending_bookings": "Ожидающие бронирования",
+  "total_revenue": "Общий доход",
+  "recent_consultations": "Последние консультации",
+  "recent_bookings": "Последние бронирования",
+  "no_consultations": "Пока нет консультаций",
+  "no_bookings": "Пока нет бронирований",
+  "view_all": "Посмотреть всё",
+  "quick_actions": "Быстрые действия",
+  "manage_users": "Управление пользователями",
+  "manage_roles": "Управление ролями",
+  "site_settings": "Настройки сайта",
+  "project": {
+    "client": "Клиент",
+    "internal": "Проект FeeVert",
+    "view": "Просмотр"
+  },
+  "booking": {
+    "status": {
+      "confirmed": "Подтверждено",
+      "pending": "Ожидает",
+      "completed": "Завершено",
+      "cancelled": "Отменено"
+    },
+    "date_tbd": "Дата не указана",
+    "service": "Бронирование"
+  },
+  "consultation": {
+    "status": {
+      "confirmed": "Подтверждено",
+      "pending": "Ожидает",
+      "in_progress": "В процессе",
+      "completed": "Завершено",
+      "cancelled": "Отменено"
+    },
+    "date_tbd": "Дата не указана",
+    "service": "Консультация"
+  },
+  "client": {
+    "loading": "Загрузка вашей панели управления...",
+    "welcome_back": "С возвращением",
+    "activity_overview": "Обзор вашей активности",
+    "member_since": "Участник с",
+    "pending_bookings": "Ожидающие бронирования",
+    "pending_consultations": "Ожидающие консультации",
+    "completed_payments": "Завершённые платежи",
+    "recent_bookings": "Последние бронирования",
+    "recent_consultations": "Последние консультации",
+    "your_projects": "Ваши проекты",
+    "quick_actions": "Быстрые действия",
+    "no_bookings": "Пока нет бронирований",
+    "no_consultations": "Пока нет консультаций",
+    "no_projects": "Пока нет проектов",
+    "book_appointment": "Записаться",
+    "request_consultation": "Запросить консультацию",
+    "update_profile": "Обновить профиль"
+  },
+  "consultant": {
+    "loading": "Загрузка вашей панели управления...",
+    "title": "Консультант",
+    "dashboard": "Панель управления",
+    "welcome_back": "С возвращением",
+    "pending": "ожидает",
+    "upcoming": "предстоящие",
+    "assigned_consultations": "Назначенные консультации",
+    "upcoming_bookings": "Предстоящие бронирования",
+    "active_projects": "Активные проекты",
+    "no_consultations": "Нет назначенных консультаций",
+    "no_bookings": "Нет предстоящих бронирований"
+  },
+  "employee": {
+    "loading": "Загрузка вашей панели управления...",
+    "title": "Сотрудник",
+    "dashboard": "Панель управления",
+    "welcome": "Добро пожаловать",
+    "projects": "проекты",
+    "news": "новости",
+    "teammates": "коллеги",
+    "projects_title": "Проекты",
+    "latest_news": "Последние новости",
+    "team_members": "Члены команды",
+    "no_projects": "Нет назначенных проектов",
+    "no_news": "Нет новостей",
+    "no_team": "Нет членов команды"
+  },
+  "news": {
+    "date_tbd": "Дата не указана"
+  },
+  "team": {
+    "member": "Член команды"
+  },
+  "dashboard": {
+    "loading": "Загрузка вашей панели управления...",
+    "pending_title": "Аккаунт ожидает",
+    "pending_message": "Ваш аккаунт настраивается. Пожалуйста, подождите одобрения администратора или свяжитесь с поддержкой.",
+    "contact_support": "Связаться с поддержкой"
+  }
+}

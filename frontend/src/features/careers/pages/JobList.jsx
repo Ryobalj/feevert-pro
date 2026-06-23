@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useTranslation } from 'react-i18next' // ✅ Ongeza hii
 import { useTheme } from '../../../context/ThemeContext'
 import api from '../../../app/api'
 
 const JobList = () => {
+  const { t } = useTranslation('careers') // ✅ Ongeza hii
   const [jobs, setJobs] = useState([])
   const [categories, setCategories] = useState([])
   const [selectedCategory, setSelectedCategory] = useState('all')
@@ -49,6 +51,14 @@ const JobList = () => {
   const activeJobs = jobs.filter(j => j.is_active !== false)
   const featuredJobs = activeJobs.filter(j => j.is_featured)
 
+  // Helper function for pluralization
+  const getPositionText = (count) => {
+    if (count === 1) {
+      return t('jobs.position')
+    }
+    return t('jobs.positions')
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -57,7 +67,7 @@ const JobList = () => {
             <div className="absolute inset-0 bg-emerald-400/10 rounded-full blur-xl animate-pulse" />
             <div className="spinner spinner-lg relative" />
           </div>
-          <p className="text-white/50 animate-pulse">Loading opportunities...</p>
+          <p className="text-white/50 animate-pulse">{t('jobs.loading') || 'Loading opportunities...'}</p>
         </div>
       </div>
     )
@@ -71,13 +81,13 @@ const JobList = () => {
           <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.1, type: "spring" }}
             className="inline-flex items-center gap-2 px-5 py-2 rounded-full glass mb-6">
             <motion.span className="w-2 h-2 bg-emerald-400 rounded-full" animate={{ scale: [1, 1.5, 1], opacity: [0.7, 1, 0.7] }} transition={{ duration: 2, repeat: Infinity }} />
-            <span className="text-sm font-medium text-white/80">💼 We're Hiring!</span>
+            <span className="text-sm font-medium text-white/80">💼 {t('jobs.hiring_badge') || "We're Hiring!"}</span>
           </motion.div>
           <h1 className="text-3xl md:text-4xl lg:text-6xl font-extrabold text-white mb-4">
-            Join Our <span className="gradient-text">Team</span>
+            {t('jobs.join_team') || 'Join Our'} <span className="gradient-text">{t('jobs.team') || 'Team'}</span>
           </h1>
           <p className="text-lg text-white/50 max-w-2xl mx-auto">
-            Explore career opportunities and grow with us
+            {t('jobs.subtitle') || 'Explore career opportunities and grow with us'}
           </p>
         </motion.div>
 
@@ -91,32 +101,48 @@ const JobList = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </div>
-            <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search jobs by title, location, or keyword..."
-              className="w-full pl-12 pr-4 py-3.5 glass text-white placeholder:text-white/30 rounded-2xl border-0 outline-none focus:ring-2 focus:ring-emerald-400/50 transition-all text-sm" />
+            <input 
+              type="text" 
+              value={searchQuery} 
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={t('jobs.search_placeholder') || 'Search jobs by title, location, or keyword...'}
+              className="w-full pl-12 pr-4 py-3.5 glass text-white placeholder:text-white/30 rounded-2xl border-0 outline-none focus:ring-2 focus:ring-emerald-400/50 transition-all text-sm" 
+            />
           </div>
 
           {/* Filter Dropdowns */}
           <div className="flex flex-wrap justify-center gap-3">
-            <select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)}
-              className="px-4 py-2.5 glass text-white rounded-full border-0 outline-none focus:ring-2 focus:ring-emerald-400/40 text-sm cursor-pointer">
-              <option value="all" className="bg-[#0d3320]">All Categories</option>
+            <select 
+              value={selectedCategory} 
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="px-4 py-2.5 glass text-white rounded-full border-0 outline-none focus:ring-2 focus:ring-emerald-400/40 text-sm cursor-pointer"
+            >
+              <option value="all" className="bg-[#0d3320]">{t('jobs.all_categories') || 'All Categories'}</option>
               {categories.map(cat => (
                 <option key={cat.id} value={cat.id} className="bg-[#0d3320]">{cat.name}</option>
               ))}
             </select>
-            <select value={selectedType} onChange={(e) => setSelectedType(e.target.value)}
-              className="px-4 py-2.5 glass text-white rounded-full border-0 outline-none focus:ring-2 focus:ring-emerald-400/40 text-sm cursor-pointer">
-              <option value="all" className="bg-[#0d3320]">All Types</option>
+            <select 
+              value={selectedType} 
+              onChange={(e) => setSelectedType(e.target.value)}
+              className="px-4 py-2.5 glass text-white rounded-full border-0 outline-none focus:ring-2 focus:ring-emerald-400/40 text-sm cursor-pointer"
+            >
+              <option value="all" className="bg-[#0d3320]">{t('jobs.all_types') || 'All Types'}</option>
               {employmentTypes.map(type => (
-                <option key={type} value={type} className="bg-[#0d3320]">{type.replace(/_/g, ' ').toUpperCase()}</option>
+                <option key={type} value={type} className="bg-[#0d3320]">
+                  {type.replace(/_/g, ' ').toUpperCase()}
+                </option>
               ))}
             </select>
             {(selectedCategory !== 'all' || selectedType !== 'all' || searchQuery) && (
-              <button onClick={() => { setSelectedCategory('all'); setSelectedType('all'); setSearchQuery('') }}
-                className="px-4 py-2.5 text-sm text-white/40 hover:text-white/70 transition-colors flex items-center gap-1">
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-                Clear
+              <button 
+                onClick={() => { setSelectedCategory('all'); setSelectedType('all'); setSearchQuery('') }}
+                className="px-4 py-2.5 text-sm text-white/40 hover:text-white/70 transition-colors flex items-center gap-1"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                {t('jobs.clear') || 'Clear'}
               </button>
             )}
           </div>
@@ -127,11 +153,12 @@ const JobList = () => {
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}
             className="flex flex-wrap justify-center gap-3 mb-8">
             <div className="glass px-4 py-2 rounded-full text-sm text-white/50">
-              <span className="text-white font-semibold">{activeJobs.length}</span> open position{activeJobs.length !== 1 ? 's' : ''}
+              <span className="text-white font-semibold">{activeJobs.length}</span> 
+              {' '}{activeJobs.length === 1 ? t('jobs.position') : t('jobs.positions')} {t('jobs.open') || 'open'}
             </div>
             {featuredJobs.length > 0 && (
               <div className="glass px-4 py-2 rounded-full text-sm text-amber-400/70">
-                <span className="text-amber-400 font-semibold">{featuredJobs.length}</span> featured
+                <span className="text-amber-400 font-semibold">{featuredJobs.length}</span> {t('jobs.featured') || 'featured'}
               </div>
             )}
           </motion.div>
@@ -158,7 +185,7 @@ const JobList = () => {
                               </h3>
                               {job.is_featured && (
                                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/15 text-amber-400 border border-amber-500/20 flex-shrink-0">
-                                  ⭐ Featured
+                                  ⭐ {t('job_card.featured')}
                                 </span>
                               )}
                             </div>
@@ -168,11 +195,12 @@ const JobList = () => {
                               <span className="inline-flex items-center gap-1.5 text-xs text-white/50">
                                 <svg className="w-3.5 h-3.5 text-emerald-400/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                                {job.location || 'Various'}
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                                {job.location || t('job_card.various')}
                               </span>
                               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/20">
-                                {job.employment_type_display || job.employment_type?.replace(/_/g, ' ')}
+                                {job.employment_type_display || job.employment_type?.replace(/_/g, ' ') || t('job_card.not_specified')}
                               </span>
                               {job.category_name && (
                                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-purple-500/15 text-purple-400 border border-purple-500/20">
@@ -192,8 +220,10 @@ const JobList = () => {
                               </p>
                             )}
                             <span className="text-sm font-semibold text-emerald-400 flex items-center gap-1 justify-end group-hover:gap-2 transition-all">
-                              View Details
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                              {t('jobs.view_details') || 'View Details'}
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                              </svg>
                             </span>
                           </div>
                         </div>
@@ -207,14 +237,18 @@ const JobList = () => {
             <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
               className="glass-card p-12 text-center">
               <div className="text-5xl mb-4 opacity-40">🔍</div>
-              <h3 className="text-xl font-bold text-white mb-2">No positions found</h3>
+              <h3 className="text-xl font-bold text-white mb-2">{t('jobs.no_positions') || 'No positions found'}</h3>
               <p className="text-white/40 max-w-sm mx-auto">
-                {searchQuery ? `No jobs matching "${searchQuery}".` : 'No open positions matching your criteria.'}
+                {searchQuery 
+                  ? `${t('jobs.no_matching') || 'No jobs matching'} "${searchQuery}".`
+                  : t('jobs.no_positions_message') || 'No open positions matching your criteria.'}
               </p>
               {(selectedCategory !== 'all' || selectedType !== 'all' || searchQuery) && (
-                <button onClick={() => { setSelectedCategory('all'); setSelectedType('all'); setSearchQuery('') }}
-                  className="mt-6 px-6 py-3 rounded-full border-2 border-white/20 text-white font-semibold hover:border-emerald-400/50 transition-all duration-300">
-                  Clear all filters
+                <button 
+                  onClick={() => { setSelectedCategory('all'); setSelectedType('all'); setSearchQuery('') }}
+                  className="mt-6 px-6 py-3 rounded-full border-2 border-white/20 text-white font-semibold hover:border-emerald-400/50 transition-all duration-300"
+                >
+                  {t('jobs.clear_filters') || 'Clear all filters'}
                 </button>
               )}
             </motion.div>

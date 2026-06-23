@@ -3,10 +3,12 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 import api from '../../../../app/api'
 import { BookingItem, ConsultationItem } from './index'
 
 const ConsultantDashboard = ({ user, darkMode }) => {
+  const { t } = useTranslation('admin')
   const [isLoading, setIsLoading] = useState(true)
   const [consultations, setConsultations] = useState([])
   const [bookings, setBookings] = useState([])
@@ -38,16 +40,16 @@ const ConsultantDashboard = ({ user, darkMode }) => {
       <div className="min-h-screen flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div className="spinner spinner-lg" />
-          <p className="text-white/50 animate-pulse">Loading your dashboard...</p>
+          <p className="text-white/50 animate-pulse">{t('consultant.loading')}</p>
         </div>
       </div>
     )
   }
 
   const stats = [
-    { label: 'Assigned Consultations', value: consultations.length, icon: '💬', color: 'emerald' },
-    { label: 'Upcoming Bookings', value: bookings.length, icon: '📅', color: 'amber' },
-    { label: 'Active Projects', value: projects.length, icon: '📁', color: 'purple' },
+    { label: t('consultant.assigned_consultations'), value: consultations.length, icon: '💬', color: 'emerald' },
+    { label: t('consultant.upcoming_bookings'), value: bookings.length, icon: '📅', color: 'amber' },
+    { label: t('consultant.active_projects'), value: projects.length, icon: '📁', color: 'purple' },
   ]
 
   const pendingConsultations = consultations.filter(c => c?.status === 'pending').length
@@ -69,16 +71,16 @@ const ConsultantDashboard = ({ user, darkMode }) => {
           <div className="flex flex-wrap items-center justify-between gap-4 mb-2">
             <div>
               <h1 className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-white">
-                Consultant <span className="gradient-text">Dashboard</span>
+                {t('consultant.title')} <span className="gradient-text">{t('consultant.dashboard')}</span>
               </h1>
               <p className="mt-2 text-white/40 text-sm">
-                Welcome back, {user?.full_name || user?.username}
+                {t('consultant.welcome_back')}, {user?.full_name || user?.username}
               </p>
             </div>
             {/* Status badge */}
             <div className="glass px-4 py-2 rounded-full text-sm text-white/50">
-              <span className="text-emerald-400 font-semibold">{pendingConsultations}</span> pending •{' '}
-              <span className="text-amber-400 font-semibold">{upcomingBookings}</span> upcoming
+              <span className="text-emerald-400 font-semibold">{pendingConsultations}</span> {t('consultant.pending')} •{' '}
+              <span className="text-amber-400 font-semibold">{upcomingBookings}</span> {t('consultant.upcoming')}
             </div>
           </div>
         </motion.div>
@@ -113,10 +115,10 @@ const ConsultantDashboard = ({ user, darkMode }) => {
           <div className="flex items-center justify-between mb-5">
             <h2 className="text-lg font-bold text-white flex items-center gap-2">
               <span className="w-8 h-8 rounded-lg glass flex items-center justify-center text-sm">💬</span>
-              Assigned Consultations
+              {t('consultant.assigned_consultations')}
             </h2>
             <Link to="/consultations" className="text-xs text-emerald-400 hover:text-emerald-300 font-medium transition-colors flex items-center gap-1 group/link">
-              View all
+              {t('view_all')}
               <svg className="w-3.5 h-3.5 group-hover/link:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
@@ -129,7 +131,7 @@ const ConsultantDashboard = ({ user, darkMode }) => {
               ))}
             </div>
           ) : (
-            <div className="text-center py-8 text-white/30 text-sm">No consultations assigned yet</div>
+            <div className="text-center py-8 text-white/30 text-sm">{t('consultant.no_consultations')}</div>
           )}
         </motion.div>
 
@@ -143,10 +145,10 @@ const ConsultantDashboard = ({ user, darkMode }) => {
           <div className="flex items-center justify-between mb-5">
             <h2 className="text-lg font-bold text-white flex items-center gap-2">
               <span className="w-8 h-8 rounded-lg glass flex items-center justify-center text-sm">📅</span>
-              Upcoming Bookings
+              {t('consultant.upcoming_bookings')}
             </h2>
             <Link to="/my-bookings" className="text-xs text-emerald-400 hover:text-emerald-300 font-medium transition-colors flex items-center gap-1 group/link">
-              View all
+              {t('view_all')}
               <svg className="w-3.5 h-3.5 group-hover/link:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
@@ -159,7 +161,7 @@ const ConsultantDashboard = ({ user, darkMode }) => {
               ))}
             </div>
           ) : (
-            <div className="text-center py-8 text-white/30 text-sm">No upcoming bookings</div>
+            <div className="text-center py-8 text-white/30 text-sm">{t('consultant.no_bookings')}</div>
           )}
         </motion.div>
       </div>

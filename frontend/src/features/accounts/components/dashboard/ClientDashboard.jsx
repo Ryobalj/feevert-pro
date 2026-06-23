@@ -3,10 +3,12 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 import api from '../../../../app/api'
 import { BookingItem, ConsultationItem, ProjectCard } from './index'
 
 const ClientDashboard = ({ user, darkMode }) => {
+  const { t } = useTranslation('admin')
   const [isLoading, setIsLoading] = useState(true)
   const [bookings, setBookings] = useState([])
   const [consultations, setConsultations] = useState([])
@@ -17,9 +19,9 @@ const ClientDashboard = ({ user, darkMode }) => {
     const loadData = async () => {
       try {
         const [bookingsRes, consultationsRes, paymentsRes, projectsRes] = await Promise.all([
-          api.get('/bookings/').catch(() => ({ data: { results: [] } })),                  // ✅ Fixed
-          api.get('/consultation-requests/').catch(() => ({ data: { results: [] } })),      // ✅ Fixed
-          api.get('/payments/transactions/').catch(() => ({ data: { results: [] } })),      // ✅ Fixed
+          api.get('/bookings/').catch(() => ({ data: { results: [] } })),
+          api.get('/consultation-requests/').catch(() => ({ data: { results: [] } })),
+          api.get('/payments/transactions/').catch(() => ({ data: { results: [] } })),
           api.get('/projects/').catch(() => ({ data: { results: [] } }))
         ])
         
@@ -41,20 +43,20 @@ const ClientDashboard = ({ user, darkMode }) => {
       <div className="min-h-screen flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div className="spinner spinner-lg" />
-          <p className="text-white/50 animate-pulse">Loading your dashboard...</p>
+          <p className="text-white/50 animate-pulse">{t('client.loading')}</p>
         </div>
       </div>
     )
   }
 
-  const pendingBookings = bookings.filter(b => b.status === 'pending').length
-  const pendingConsultations = consultations.filter(c => c.status === 'pending').length
-  const completedPayments = payments.filter(p => p.status === 'completed').length
+  const pendingBookings = bookings.filter(b => b?.status === 'pending').length
+  const pendingConsultations = consultations.filter(c => c?.status === 'pending').length
+  const completedPayments = payments.filter(p => p?.status === 'completed').length
 
   const stats = [
-    { label: 'Pending Bookings', value: pendingBookings, icon: '📅', color: 'emerald', link: '/my-bookings' },
-    { label: 'Pending Consultations', value: pendingConsultations, icon: '💬', color: 'amber', link: '/consultations' },
-    { label: 'Completed Payments', value: completedPayments, icon: '💳', color: 'purple', link: '/payment-history' },
+    { label: t('client.pending_bookings'), value: pendingBookings, icon: '📅', color: 'emerald', link: '/my-bookings' },
+    { label: t('client.pending_consultations'), value: pendingConsultations, icon: '💬', color: 'amber', link: '/consultations' },
+    { label: t('client.completed_payments'), value: completedPayments, icon: '💳', color: 'purple', link: '/payment-history' },
   ]
 
   return (
@@ -73,15 +75,15 @@ const ClientDashboard = ({ user, darkMode }) => {
           <div className="flex flex-wrap items-center justify-between gap-4 mb-2">
             <div>
               <h1 className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-white">
-                Welcome back, <span className="gradient-text">{user?.full_name || user?.username}</span>
+                {t('client.welcome_back')}, <span className="gradient-text">{user?.full_name || user?.username}</span>
               </h1>
               <p className="mt-2 text-white/40 text-sm">
-                Here's an overview of your activity
+                {t('client.activity_overview')}
               </p>
             </div>
             {user?.date_joined && (
               <div className="glass px-4 py-2 rounded-full text-sm text-white/50">
-                Member since{' '}
+                {t('client.member_since')}{' '}
                 <span className="text-white font-semibold">
                   {new Date(user.date_joined).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })}
                 </span>
@@ -113,7 +115,13 @@ const ClientDashboard = ({ user, darkMode }) => {
         </motion.div>
 
         {/* Recent Bookings */}
-        <DashboardSection title="Recent Bookings" link="/my-bookings" icon="📅" delay={0.15}>
+        <DashboardSection 
+          title={t('client.recent_bookings')} 
+          link="/my-bookings" 
+          icon="📅" 
+          delay={0.15}
+          viewAllText={t('view_all')}
+        >
           {bookings.length > 0 ? (
             <div className="space-y-3">
               {bookings.slice(0, 3).map(booking => (
@@ -121,12 +129,22 @@ const ClientDashboard = ({ user, darkMode }) => {
               ))}
             </div>
           ) : (
-            <EmptyMessage message="No bookings yet" link="/book-appointment" linkText="Book an appointment" />
+            <EmptyMessage 
+              message={t('client.no_bookings')} 
+              link="/book-appointment" 
+              linkText={t('client.book_appointment')} 
+            />
           )}
         </DashboardSection>
 
         {/* Recent Consultations */}
-        <DashboardSection title="Recent Consultations" link="/consultations" icon="💬" delay={0.2}>
+        <DashboardSection 
+          title={t('client.recent_consultations')} 
+          link="/consultations" 
+          icon="💬" 
+          delay={0.2}
+          viewAllText={t('view_all')}
+        >
           {consultations.length > 0 ? (
             <div className="space-y-3">
               {consultations.slice(0, 3).map(consultation => (
@@ -134,12 +152,22 @@ const ClientDashboard = ({ user, darkMode }) => {
               ))}
             </div>
           ) : (
-            <EmptyMessage message="No consultations yet" link="/request-consultation" linkText="Request a consultation" />
+            <EmptyMessage 
+              message={t('client.no_consultations')} 
+              link="/request-consultation" 
+              linkText={t('client.request_consultation')} 
+            />
           )}
         </DashboardSection>
 
         {/* Your Projects */}
-        <DashboardSection title="Your Projects" link="/projects" icon="📁" delay={0.25}>
+        <DashboardSection 
+          title={t('client.your_projects')} 
+          link="/projects" 
+          icon="📁" 
+          delay={0.25}
+          viewAllText={t('view_all')}
+        >
           {projects.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {projects.slice(0, 4).map(project => (
@@ -147,7 +175,7 @@ const ClientDashboard = ({ user, darkMode }) => {
               ))}
             </div>
           ) : (
-            <EmptyMessage message="No projects yet" />
+            <EmptyMessage message={t('client.no_projects')} />
           )}
         </DashboardSection>
 
@@ -160,7 +188,7 @@ const ClientDashboard = ({ user, darkMode }) => {
         >
           <h2 className="text-lg font-bold text-white mb-5 flex items-center gap-2">
             <span className="w-8 h-8 rounded-lg glass flex items-center justify-center text-sm">⚡</span>
-            Quick Actions
+            {t('client.quick_actions')}
           </h2>
           <div className="flex flex-wrap gap-3">
             <Link 
@@ -168,19 +196,19 @@ const ClientDashboard = ({ user, darkMode }) => {
               className="group relative inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-white px-6 py-3 rounded-full font-semibold text-sm shadow-lg shadow-emerald-500/20 transition-all overflow-hidden"
             >
               <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 animate-[shimmer_2s_infinite]" />
-              <span className="relative z-10">📅 Book Appointment</span>
+              <span className="relative z-10">📅 {t('client.book_appointment')}</span>
             </Link>
             <Link 
               to="/request-consultation" 
               className="glass px-6 py-3 rounded-full text-white font-semibold text-sm hover:border-emerald-400/40 hover:text-emerald-400 transition-all duration-300"
             >
-              💬 Request Consultation
+              💬 {t('client.request_consultation')}
             </Link>
             <Link 
               to="/profile" 
               className="glass px-6 py-3 rounded-full text-white font-semibold text-sm hover:border-emerald-400/40 hover:text-emerald-400 transition-all duration-300"
             >
-              👤 Update Profile
+              👤 {t('client.update_profile')}
             </Link>
           </div>
         </motion.div>
@@ -190,7 +218,7 @@ const ClientDashboard = ({ user, darkMode }) => {
 }
 
 // ============ DASHBOARD SECTION ============
-const DashboardSection = ({ title, link, icon, children, delay = 0 }) => (
+const DashboardSection = ({ title, link, icon, children, delay = 0, viewAllText = 'View all' }) => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
@@ -203,7 +231,7 @@ const DashboardSection = ({ title, link, icon, children, delay = 0 }) => (
         {title}
       </h2>
       <Link to={link} className="text-xs text-emerald-400 hover:text-emerald-300 font-medium transition-colors flex items-center gap-1 group/link">
-        View all
+        {viewAllText}
         <svg className="w-3.5 h-3.5 group-hover/link:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
         </svg>

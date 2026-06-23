@@ -3,10 +3,12 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 import api from '../../../../app/api'
 import { StatsCard, BookingItem, ConsultationItem } from './index'
 
 const AdminDashboard = ({ user, darkMode }) => {
+  const { t } = useTranslation('admin')
   const [isLoading, setIsLoading] = useState(true)
   const [users, setUsers] = useState([])
   const [consultations, setConsultations] = useState([])
@@ -41,7 +43,7 @@ const AdminDashboard = ({ user, darkMode }) => {
       <div className="min-h-screen flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div className="spinner spinner-lg" />
-          <p className="text-white/50 animate-pulse">Loading dashboard...</p>
+          <p className="text-white/50 animate-pulse">{t('loading')}</p>
         </div>
       </div>
     )
@@ -52,10 +54,10 @@ const AdminDashboard = ({ user, darkMode }) => {
   const totalRevenue = payments.filter(p => p?.status === 'completed').reduce((sum, p) => sum + parseFloat(p.amount || 0), 0)
 
   const stats = [
-    { label: 'Total Users', value: users.length, icon: '👥', color: 'emerald', link: '/admin/users' },
-    { label: 'Pending Consultations', value: pendingConsultations, icon: '💬', color: 'amber' },
-    { label: 'Pending Bookings', value: pendingBookings, icon: '📅', color: 'green' },
-    { label: 'Total Revenue', value: `TZS ${totalRevenue.toLocaleString()}`, icon: '💰', color: 'purple' },
+    { label: t('total_users'), value: users.length, icon: '👥', color: 'emerald', link: '/admin/users' },
+    { label: t('pending_consultations'), value: pendingConsultations, icon: '💬', color: 'amber' },
+    { label: t('pending_bookings'), value: pendingBookings, icon: '📅', color: 'green' },
+    { label: t('total_revenue'), value: `TZS ${totalRevenue.toLocaleString()}`, icon: '💰', color: 'purple' },
   ]
 
   return (
@@ -74,15 +76,15 @@ const AdminDashboard = ({ user, darkMode }) => {
           <div className="flex flex-wrap items-center justify-between gap-4 mb-2">
             <div>
               <h1 className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-white">
-                Admin <span className="gradient-text">Dashboard</span>
+                {t('title')} <span className="gradient-text">{t('dashboard')}</span>
               </h1>
               <p className="mt-2 text-white/40 text-sm">
-                System overview and management
+                {t('subtitle')}
               </p>
             </div>
             {/* Welcome badge */}
             <div className="glass px-4 py-2 rounded-full text-sm text-white/60">
-              Welcome back, <span className="text-white font-semibold">{user?.full_name || user?.username || 'Admin'}</span>
+              {t('welcome_back')}, <span className="text-white font-semibold">{user?.full_name || user?.username || 'Admin'}</span>
             </div>
           </div>
         </motion.div>
@@ -125,10 +127,10 @@ const AdminDashboard = ({ user, darkMode }) => {
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-lg font-bold text-white flex items-center gap-2">
                 <span className="w-8 h-8 rounded-lg glass flex items-center justify-center text-sm">💬</span>
-                Recent Consultations
+                {t('recent_consultations')}
               </h2>
               <Link to="/consultations" className="text-xs text-emerald-400 hover:text-emerald-300 font-medium transition-colors">
-                View all →
+                {t('view_all')} →
               </Link>
             </div>
             {consultations.length > 0 ? (
@@ -138,7 +140,7 @@ const AdminDashboard = ({ user, darkMode }) => {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-8 text-white/30 text-sm">No consultations yet</div>
+              <div className="text-center py-8 text-white/30 text-sm">{t('no_consultations')}</div>
             )}
           </motion.div>
 
@@ -152,10 +154,10 @@ const AdminDashboard = ({ user, darkMode }) => {
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-lg font-bold text-white flex items-center gap-2">
                 <span className="w-8 h-8 rounded-lg glass flex items-center justify-center text-sm">📅</span>
-                Recent Bookings
+                {t('recent_bookings')}
               </h2>
               <Link to="/my-bookings" className="text-xs text-emerald-400 hover:text-emerald-300 font-medium transition-colors">
-                View all →
+                {t('view_all')} →
               </Link>
             </div>
             {bookings.length > 0 ? (
@@ -165,7 +167,7 @@ const AdminDashboard = ({ user, darkMode }) => {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-8 text-white/30 text-sm">No bookings yet</div>
+              <div className="text-center py-8 text-white/30 text-sm">{t('no_bookings')}</div>
             )}
           </motion.div>
         </div>
@@ -179,18 +181,18 @@ const AdminDashboard = ({ user, darkMode }) => {
         >
           <h2 className="text-lg font-bold text-white mb-5 flex items-center gap-2">
             <span className="w-8 h-8 rounded-lg glass flex items-center justify-center text-sm">⚡</span>
-            Quick Actions
+            {t('quick_actions')}
           </h2>
           <div className="flex flex-wrap gap-3">
             <Link to="/admin/users" className="group relative inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-white px-6 py-3 rounded-full font-semibold text-sm shadow-lg shadow-emerald-500/20 transition-all overflow-hidden">
               <motion.div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12" animate={{ x: ['-200%', '200%'] }} transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }} />
-              <span className="relative z-10">👥 Manage Users</span>
+              <span className="relative z-10">👥 {t('manage_users')}</span>
             </Link>
             <Link to="/admin/roles" className="glass px-6 py-3 rounded-full text-white font-semibold text-sm hover:border-emerald-400/40 hover:text-emerald-400 transition-all duration-300">
-              🔑 Manage Roles
+              🔑 {t('manage_roles')}
             </Link>
             <Link to="/admin/settings" className="glass px-6 py-3 rounded-full text-white font-semibold text-sm hover:border-emerald-400/40 hover:text-emerald-400 transition-all duration-300">
-              ⚙️ Site Settings
+              ⚙️ {t('site_settings')}
             </Link>
           </div>
         </motion.div>

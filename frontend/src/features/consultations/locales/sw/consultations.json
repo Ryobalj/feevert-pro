@@ -1,0 +1,93 @@
+﻿{
+  "status": {
+    "all": "Zote",
+    "pending": "Inasubiri",
+    "confirmed": "Imethibitishwa",
+    "in_progress": "Inaendelea",
+    "completed": "Imekamilika",
+    "cancelled": "Imefutwa",
+    "unknown": "Haijulikani"
+  },
+  "date": {
+    "tbd": "Tarehe Bado",
+    "today": "Leo",
+    "tomorrow": "Kesho",
+    "past_due": "Imechelewa",
+    "in_days": "Baada ya siku {{days}}"
+  },
+  "priority": {
+    "urgent": "Dharura",
+    "high": "Juu",
+    "medium": "Wastani",
+    "low": "Chini"
+  },
+  "icons": {
+    "agriculture": "🌾",
+    "environment": "🌍",
+    "business": "💼",
+    "livestock": "🐄",
+    "default": "💬"
+  },
+  "consultation": {
+    "default_title": "Ushauri",
+    "no_message": "Hakuna ujumbe uliotolewa",
+    "view": "Tazama"
+  },
+  "detail": {
+    "loading": "Inapakia maelezo ya ushauri...",
+    "error_title": "Hitilafu",
+    "error_not_found": "Ushauri haukupatikana",
+    "error_load_failed": "Imeshindwa kupakia maelezo ya ushauri",
+    "back_to_list": "Rudi kwenye Ushauri",
+    "title": "Maelezo ya Ushauri",
+    "request_id": "Ombi",
+    "service": "Huduma",
+    "assigned_to": "Imepewa",
+    "pending_assignment": "Inasubiri kupewa",
+    "preferred_date": "Tarehe Inayopendekezwa",
+    "budget_range": "Kiwango cha Bajeti",
+    "message": "Ujumbe",
+    "response": "Jibu",
+    "requested_on": "Iliombwa Tarehe"
+  },
+  "list": {
+    "my_consultations": "Ushauri",
+    "consultations": "Wangu",
+    "track_requests": "Fuatilia maombi yako ya ushauri",
+    "new_request": "Ombi Jipya",
+    "total": "jumla",
+    "search_placeholder": "Tafuta ushauri...",
+    "clear": "Futa",
+    "date_label": "Tarehe",
+    "assigned_label": "Imepewa",
+    "no_results": "Hakuna maombi ya ushauri yaliyopatikana",
+    "no_results_message": "Bado hujafanya maombi yoyote ya ushauri.",
+    "no_filtered_results": "Hakuna maombi ya ushauri ya {{status}} yaliyopatikana",
+    "no_filtered_message": "Bado huna ushauri wowote wa {{status}}.",
+    "request_now": "Omba Ushauri"
+  },
+  "request": {
+    "badge": "Wasiliana Nasi",
+    "title": "Omba",
+    "subtitle": "Ushauri",
+    "description": "Jaza fomu na tutakurudishia hivi karibuni",
+    "loading_services": "Inapakia huduma...",
+    "select_service": "Chagua Huduma",
+    "select_service_error": "Tafadhali chagua huduma",
+    "choose_service": "Chagua huduma",
+    "currency": "TSh",
+    "preferred_date": "Tarehe na Muda Unayopendelea",
+    "select_date_error": "Tafadhali chagua tarehe unayopendelea",
+    "budget_range": "Kiwango cha Bajeti",
+    "optional": "hiari",
+    "budget_placeholder": "mfano, 500,000 - 1,000,000 TSh",
+    "additional_message": "Ujumbe wa Ziada",
+    "message_placeholder": "Tuambie zaidi kuhusu mahitaji yako, masharti, au maswali yoyote uliyonayo...",
+    "submit": "Tuma Ombi",
+    "submitting": "Inatuma...",
+    "submit_error": "Hitilafu ya kutuma ombi. Tafadhali jaribu tena.",
+    "success_title": "Ombi Limetumwa!",
+    "success_message": "Asante kwa ombi lako. Tutawasiliana nawe hivi karibuni.",
+    "redirecting": "Inaelekeza kwenye ushauri..."
+  }
+}

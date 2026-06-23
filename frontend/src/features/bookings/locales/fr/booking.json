@@ -1,0 +1,126 @@
+﻿{
+  "consultation": "Consultation",
+  "date": "Date",
+  "time": "Heure",
+  "consultant": "Consultant",
+  "assigned_soon": "Bientôt attribué",
+  "view": "Voir",
+  "na": "N/A",
+  "status": {
+    "all": "Tous",
+    "confirmed": "Confirmé",
+    "pending": "En attente",
+    "completed": "Terminé",
+    "cancelled": "Annulé",
+    "in_progress": "En cours",
+    "approved": "Approuvé",
+    "rejected": "Rejeté",
+    "unknown": "Inconnu"
+  },
+  "time": {
+    "in": "dans",
+    "ago": "il y a",
+    "now": "maintenant",
+    "min": "min",
+    "hr": "h",
+    "hour": "heure",
+    "day": "jour"
+  },
+  "sort": {
+    "date_asc": "Date (Plus ancien d'abord)",
+    "date_desc": "Date (Plus récent d'abord)",
+    "service_asc": "Service (A-Z)",
+    "service_desc": "Service (Z-A)",
+    "status": "Statut"
+  },
+  "empty": {
+    "all": {
+      "title": "Aucune réservation",
+      "description": "Vous n'avez pas encore effectué de réservation. Commencez par prendre rendez-vous avec nos experts.",
+      "action": "Prendre rendez-vous"
+    },
+    "pending": {
+      "title": "Aucune réservation en attente",
+      "description": "Vous n'avez aucune réservation en attente. Tout est à jour !",
+      "action": "Parcourir les services"
+    },
+    "confirmed": {
+      "title": "Aucune réservation confirmée",
+      "description": "Vous n'avez pas encore de réservation confirmée. Réservez un service pour commencer.",
+      "action": "Réserver maintenant"
+    },
+    "completed": {
+      "title": "Aucune réservation terminée",
+      "description": "Vous n'avez pas encore terminé de réservation. Votre historique apparaîtra ici.",
+      "action": "Voir les services"
+    },
+    "cancelled": {
+      "title": "Aucune réservation annulée",
+      "description": "Vous n'avez aucune réservation annulée. Bon travail pour garder vos rendez-vous !",
+      "action": "Voir les réservations"
+    },
+    "no_filter_prefix": "Aucune",
+    "no_filter_suffix": "réservation trouvée",
+    "help_text": "Besoin d'aide ?",
+    "contact_support": "Contacter le support"
+  },
+  "detail": {
+    "loading": "Chargement des détails de la réservation...",
+    "error_title": "Erreur",
+    "try_again": "Réessayer",
+    "back_to_bookings": "Retour aux réservations",
+    "title": "Détails de la réservation",
+    "booking_id": "Réservation",
+    "service": "Service",
+    "consultant": "Consultant",
+    "date": "Date",
+    "time": "Heure",
+    "meeting_link": "Lien de réunion",
+    "join_meeting": "Rejoindre la réunion",
+    "notes": "Notes",
+    "booked_on": "Réservé le",
+    "cancel_booking": "Annuler la réservation",
+    "cancelling": "Annulation..."
+  },
+  "booking": {
+    "schedule": "Planifier",
+    "title": "Prendre un",
+    "subtitle": "Rendez-vous",
+    "description": "Planifiez une consultation avec nos experts",
+    "select_service": "Choisir un service",
+    "select_service_optional": "Choisir un service (facultatif)",
+    "select_consultant": "Choisir un consultant",
+    "choose_consultant": "Choisir un consultant",
+    "select_date": "Choisir une date",
+    "available_slots": "Créneaux disponibles",
+    "loading_slots": "Chargement des créneaux...",
+    "no_slots": "Aucun créneau disponible pour cette date",
+    "no_slots_hint": "Essayez de choisir une autre date",
+    "period": {
+      "morning": "Matin",
+      "afternoon": "Après-midi",
+      "evening": "Soir"
+    },
+    "additional_notes": "Notes supplémentaires",
+    "notes_placeholder": "Exigences particulières ou questions...",
+    "confirm_booking": "Confirmer le rendez-vous",
+    "booking": "Réservation...",
+    "select_slot_alert": "Veuillez sélectionner un créneau",
+    "success_message": "Rendez-vous confirmé avec succès !",
+    "error_message": "Erreur lors de la réservation. Veuillez réessayer."
+  },
+  "mybookings": {
+    "loading": "Chargement de vos réservations...",
+    "error_title": "Erreur",
+    "try_again": "Réessayer",
+    "title": "Mes",
+    "subtitle": "Réservations",
+    "description": "Gérez vos rendez-vous",
+    "refresh": "Actualiser",
+    "new_booking": "Nouvelle réservation",
+    "total": "total",
+    "upcoming": "à venir",
+    "search_placeholder": "Rechercher des réservations...",
+    "clear": "Effacer"
+  }
+}

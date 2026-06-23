@@ -1,8 +1,11 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next' // ✅ Ongeza hii
 
 const HeroSection = ({ data }) => {
+  const { t } = useTranslation('home') // ✅ Ongeza hii
+
   return (
     <section className="relative min-h-[90vh] flex items-center overflow-hidden">
       {/* === JUNGLE GREEN BACKGROUND === */}
@@ -70,7 +73,7 @@ const HeroSection = ({ data }) => {
               transition={{ duration: 2, repeat: Infinity }}
             />
             <span className="text-sm font-medium text-white/80">
-              Tanzania's Trusted Consultancy
+              {t('hero.badge') || "Tanzania's Trusted Consultancy"}
             </span>
           </motion.div>
 
@@ -85,10 +88,10 @@ const HeroSection = ({ data }) => {
               <span dangerouslySetInnerHTML={{ __html: data.title }} />
             ) : (
               <>
-                Expert{' '}
-                <span className="gradient-text">Consultancy</span>
+                {t('hero.title_part1') || 'Expert'}{' '}
+                <span className="gradient-text">{t('hero.title_part2') || 'Consultancy'}</span>
                 <br />
-                for a Sustainable Future
+                {t('hero.title_part3') || 'for a Sustainable Future'}
               </>
             )}
           </motion.h1>
@@ -100,7 +103,7 @@ const HeroSection = ({ data }) => {
             transition={{ delay: 0.4 }}
             className="text-lg md:text-xl text-white/60 mb-10 max-w-2xl mx-auto leading-relaxed"
           >
-            {data?.subtitle || 'Professional services in Agriculture, Environment & Occupational Health & Safety'}
+            {data?.subtitle || t('hero.subtitle') || 'Professional services in Agriculture, Environment & Occupational Health & Safety'}
           </motion.p>
 
           {/* CTA Buttons */}
@@ -123,7 +126,7 @@ const HeroSection = ({ data }) => {
                   transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
                 />
                 <span className="relative z-10 flex items-center gap-2">
-                  Get Started
+                  {t('hero.cta_primary') || 'Get Started'}
                   <motion.svg 
                     className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                     animate={{ x: [0, 4, 0] }}
@@ -144,7 +147,7 @@ const HeroSection = ({ data }) => {
               >
                 <div className="absolute inset-0 bg-white/0 group-hover:bg-white/5 transition-colors duration-300" />
                 <span className="relative z-10 flex items-center gap-2">
-                  Learn More
+                  {t('hero.cta_secondary') || 'Learn More'}
                   <motion.svg 
                     className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                     animate={{ x: [0, 4, 0] }}
@@ -165,9 +168,9 @@ const HeroSection = ({ data }) => {
             className="flex flex-wrap items-center justify-center gap-8 mt-14"
           >
             {[
-              { text: 'ISO Certified', color: 'bg-emerald-400' },
-              { text: '5+ Years Experience', color: 'bg-green-400' },
-              { text: '50+ Happy Clients', color: 'bg-teal-400' }
+              { key: 'trust.iso_certified', color: 'bg-emerald-400' },
+              { key: 'trust.experience', color: 'bg-green-400' },
+              { key: 'trust.clients', color: 'bg-teal-400' }
             ].map((item, i) => (
               <motion.div
                 key={i}
@@ -182,7 +185,9 @@ const HeroSection = ({ data }) => {
                     <path fillRule="evenodd" d="M19.916 4.626a.75.75 0 01.208 1.04l-9 13.5a.75.75 0 01-1.154.114l-6-6a.75.75 0 011.06-1.06l5.353 5.353 8.493-12.739a.75.75 0 011.04-.208z" clipRule="evenodd" />
                   </svg>
                 </div>
-                <span className="group-hover:text-white transition-colors">{item.text}</span>
+                <span className="group-hover:text-white transition-colors">
+                  {t(`hero.${item.key}`)}
+                </span>
               </motion.div>
             ))}
           </motion.div>

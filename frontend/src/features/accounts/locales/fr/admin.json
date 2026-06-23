@@ -1,0 +1,105 @@
+﻿{
+  "title": "Admin",
+  "dashboard_title": "Tableau de bord",
+  "subtitle": "Aperçu et gestion du système",
+  "loading": "Chargement du tableau de bord...",
+  "welcome_back": "Bon retour",
+  "total_users": "Total des utilisateurs",
+  "pending_consultations": "Consultations en attente",
+  "pending_bookings": "Réservations en attente",
+  "total_revenue": "Revenu total",
+  "recent_consultations": "Consultations récentes",
+  "recent_bookings": "Réservations récentes",
+  "no_consultations": "Aucune consultation pour l'instant",
+  "no_bookings": "Aucune réservation pour l'instant",
+  "view_all": "Voir tout",
+  "quick_actions": "Actions rapides",
+  "manage_users": "Gérer les utilisateurs",
+  "manage_roles": "Gérer les rôles",
+  "site_settings": "Paramètres du site",
+  "project": {
+    "client": "Client",
+    "internal": "Projet FeeVert",
+    "view": "Voir"
+  },
+  "booking": {
+    "status": {
+      "confirmed": "Confirmé",
+      "pending": "En attente",
+      "completed": "Terminé",
+      "cancelled": "Annulé"
+    },
+    "date_tbd": "Date à déterminer",
+    "service": "Réservation"
+  },
+  "consultation": {
+    "status": {
+      "confirmed": "Confirmé",
+      "pending": "En attente",
+      "in_progress": "En cours",
+      "completed": "Terminé",
+      "cancelled": "Annulé"
+    },
+    "date_tbd": "Date à déterminer",
+    "service": "Consultation"
+  },
+  "client": {
+    "loading": "Chargement de votre tableau de bord...",
+    "welcome_back": "Bon retour",
+    "activity_overview": "Voici un aperçu de votre activité",
+    "member_since": "Membre depuis",
+    "pending_bookings": "Réservations en attente",
+    "pending_consultations": "Consultations en attente",
+    "completed_payments": "Paiements effectués",
+    "recent_bookings": "Réservations récentes",
+    "recent_consultations": "Consultations récentes",
+    "your_projects": "Vos projets",
+    "quick_actions": "Actions rapides",
+    "no_bookings": "Aucune réservation pour l'instant",
+    "no_consultations": "Aucune consultation pour l'instant",
+    "no_projects": "Aucun projet pour l'instant",
+    "book_appointment": "Prendre rendez-vous",
+    "request_consultation": "Demander une consultation",
+    "update_profile": "Mettre à jour le profil"
+  },
+  "consultant": {
+    "loading": "Chargement de votre tableau de bord...",
+    "title": "Consultant",
+    "dashboard": "Tableau de bord",
+    "welcome_back": "Bon retour",
+    "pending": "en attente",
+    "upcoming": "à venir",
+    "assigned_consultations": "Consultations assignées",
+    "upcoming_bookings": "Réservations à venir",
+    "active_projects": "Projets actifs",
+    "no_consultations": "Aucune consultation assignée",
+    "no_bookings": "Aucune réservation à venir"
+  },
+  "employee": {
+    "loading": "Chargement de votre tableau de bord...",
+    "title": "Employé",
+    "dashboard": "Tableau de bord",
+    "welcome": "Bienvenue",
+    "projects": "projets",
+    "news": "actualités",
+    "teammates": "collègues",
+    "projects_title": "Projets",
+    "latest_news": "Dernières actualités",
+    "team_members": "Membres de l'équipe",
+    "no_projects": "Aucun projet assigné",
+    "no_news": "Aucune actualité",
+    "no_team": "Aucun membre de l'équipe"
+  },
+  "news": {
+    "date_tbd": "Date à déterminer"
+  },
+  "team": {
+    "member": "Membre de l'équipe"
+  },
+  "dashboard": {
+    "loading": "Chargement de votre tableau de bord...",
+    "pending_title": "Compte en attente",
+    "pending_message": "Votre compte est en cours de configuration. Veuillez attendre l'approbation de l'administrateur ou contacter le support.",
+    "contact_support": "Contacter le support"
+  }
+}

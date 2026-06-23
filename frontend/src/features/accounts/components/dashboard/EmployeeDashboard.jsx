@@ -3,10 +3,12 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 import api from '../../../../app/api'
 import { ProjectCard, NewsItem, TeamMemberCard } from './index'
 
 const EmployeeDashboard = ({ user, darkMode }) => {
+  const { t } = useTranslation('admin')
   const [isLoading, setIsLoading] = useState(true)
   const [projects, setProjects] = useState([])
   const [news, setNews] = useState([])
@@ -38,7 +40,7 @@ const EmployeeDashboard = ({ user, darkMode }) => {
       <div className="min-h-screen flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div className="spinner spinner-lg" />
-          <p className="text-white/50 animate-pulse">Loading your dashboard...</p>
+          <p className="text-white/50 animate-pulse">{t('employee.loading')}</p>
         </div>
       </div>
     )
@@ -60,23 +62,29 @@ const EmployeeDashboard = ({ user, darkMode }) => {
           <div className="flex flex-wrap items-center justify-between gap-4 mb-2">
             <div>
               <h1 className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-white">
-                Employee <span className="gradient-text">Dashboard</span>
+                {t('employee.title')} <span className="gradient-text">{t('employee.dashboard')}</span>
               </h1>
               <p className="mt-2 text-white/40 text-sm">
-                Welcome, {user?.full_name || user?.username}
+                {t('employee.welcome')}, {user?.full_name || user?.username}
               </p>
             </div>
             {/* Quick stats badge */}
             <div className="glass px-4 py-2 rounded-full text-sm text-white/50">
-              <span className="text-emerald-400 font-semibold">{projects.length}</span> projects •{' '}
-              <span className="text-amber-400 font-semibold">{news.length}</span> news •{' '}
-              <span className="text-purple-400 font-semibold">{team.length}</span> teammates
+              <span className="text-emerald-400 font-semibold">{projects.length}</span> {t('employee.projects')} •{' '}
+              <span className="text-amber-400 font-semibold">{news.length}</span> {t('employee.news')} •{' '}
+              <span className="text-purple-400 font-semibold">{team.length}</span> {t('employee.teammates')}
             </div>
           </div>
         </motion.div>
 
         {/* ============ PROJECTS ============ */}
-        <DashboardSection title="Projects" icon="📁" link="/projects" delay={0.1}>
+        <DashboardSection 
+          title={t('employee.projects_title')} 
+          icon="📁" 
+          link="/projects" 
+          delay={0.1}
+          viewAllText={t('view_all')}
+        >
           {projects.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {projects.slice(0, 4).map(project => (
@@ -84,12 +92,18 @@ const EmployeeDashboard = ({ user, darkMode }) => {
               ))}
             </div>
           ) : (
-            <EmptyMessage message="No projects assigned yet" />
+            <EmptyMessage message={t('employee.no_projects')} />
           )}
         </DashboardSection>
 
         {/* ============ LATEST NEWS ============ */}
-        <DashboardSection title="Latest News" icon="📰" link="/news" delay={0.15}>
+        <DashboardSection 
+          title={t('employee.latest_news')} 
+          icon="📰" 
+          link="/news" 
+          delay={0.15}
+          viewAllText={t('view_all')}
+        >
           {news.length > 0 ? (
             <div className="space-y-3">
               {news.slice(0, 3).map(item => (
@@ -97,12 +111,18 @@ const EmployeeDashboard = ({ user, darkMode }) => {
               ))}
             </div>
           ) : (
-            <EmptyMessage message="No news articles yet" />
+            <EmptyMessage message={t('employee.no_news')} />
           )}
         </DashboardSection>
 
         {/* ============ TEAM MEMBERS ============ */}
-        <DashboardSection title="Team Members" icon="👥" link="/team" delay={0.2}>
+        <DashboardSection 
+          title={t('employee.team_members')} 
+          icon="👥" 
+          link="/team" 
+          delay={0.2}
+          viewAllText={t('view_all')}
+        >
           {team.length > 0 ? (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {team.slice(0, 4).map(member => (
@@ -110,7 +130,7 @@ const EmployeeDashboard = ({ user, darkMode }) => {
               ))}
             </div>
           ) : (
-            <EmptyMessage message="No team members yet" />
+            <EmptyMessage message={t('employee.no_team')} />
           )}
         </DashboardSection>
       </div>
@@ -119,7 +139,7 @@ const EmployeeDashboard = ({ user, darkMode }) => {
 }
 
 // ============ DASHBOARD SECTION ============
-const DashboardSection = ({ title, icon, link, children, delay = 0 }) => (
+const DashboardSection = ({ title, icon, link, children, delay = 0, viewAllText = 'View all' }) => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
@@ -132,7 +152,7 @@ const DashboardSection = ({ title, icon, link, children, delay = 0 }) => (
         {title}
       </h2>
       <Link to={link} className="text-xs text-emerald-400 hover:text-emerald-300 font-medium transition-colors flex items-center gap-1 group/link">
-        View all
+        {viewAllText}
         <svg className="w-3.5 h-3.5 group-hover/link:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
         </svg>

@@ -1,8 +1,10 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useTranslation } from 'react-i18next' // ✅ Ongeza hii
 import api from '../../../app/api'
 
 const NewsletterSection = () => {
+  const { t } = useTranslation('home') // ✅ Ongeza hii
   const [email, setEmail] = useState('')
   const [subscribed, setSubscribed] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -17,7 +19,7 @@ const NewsletterSection = () => {
     setError('')
     
     if (!validateEmail(email)) {
-      setError('Please enter a valid email address')
+      setError(t('newsletter.error_invalid_email') || 'Please enter a valid email address')
       return
     }
     
@@ -29,7 +31,7 @@ const NewsletterSection = () => {
       setTimeout(() => setSubscribed(false), 5000)
     } catch (error) {
       console.error('Error subscribing:', error)
-      setError('Failed to subscribe. Please try again.')
+      setError(t('newsletter.error_subscribe') || 'Failed to subscribe. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -106,8 +108,8 @@ const NewsletterSection = () => {
             transition={{ delay: 0.2 }}
             className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white mb-4"
           >
-            Subscribe to Our{' '}
-            <span className="gradient-text">Newsletter</span>
+            {t('newsletter.title') || 'Subscribe to Our'}{' '}
+            <span className="gradient-text">{t('newsletter.title_highlight') || 'Newsletter'}</span>
           </motion.h2>
 
           {/* Description */}
@@ -118,7 +120,7 @@ const NewsletterSection = () => {
             transition={{ delay: 0.3 }}
             className="text-lg text-white/60 mb-10"
           >
-            Get the latest updates, news, and exclusive offers directly to your inbox.
+            {t('newsletter.description') || 'Get the latest updates, news, and exclusive offers directly to your inbox.'}
           </motion.p>
 
           {/* Success Message */}
@@ -141,7 +143,7 @@ const NewsletterSection = () => {
                 >
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </motion.svg>
-                <span className="font-medium">Successfully subscribed!</span>
+                <span className="font-medium">{t('newsletter.success_message') || 'Successfully subscribed!'}</span>
               </motion.div>
             )}
           </AnimatePresence>
@@ -187,7 +189,7 @@ const NewsletterSection = () => {
                   setEmail(e.target.value)
                   setError('')
                 }}
-                placeholder="Enter your email address"
+                placeholder={t('newsletter.input_placeholder') || 'Enter your email address'}
                 className="w-full pl-14 pr-5 py-4 glass text-white placeholder:text-white/40 rounded-2xl border-0 outline-none focus:ring-2 focus:ring-emerald-400/50 transition-all text-base"
                 required
               />
@@ -214,11 +216,11 @@ const NewsletterSection = () => {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                     </svg>
-                    Subscribing...
+                    {t('newsletter.subscribing') || 'Subscribing...'}
                   </>
                 ) : (
                   <>
-                    Subscribe
+                    {t('newsletter.subscribe_button') || 'Subscribe'}
                     <motion.svg 
                       className="w-4 h-4" 
                       fill="none" stroke="currentColor" viewBox="0 0 24 24"
@@ -244,7 +246,7 @@ const NewsletterSection = () => {
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
             </svg>
-            We respect your privacy. Unsubscribe anytime.
+            {t('newsletter.privacy_note') || 'We respect your privacy. Unsubscribe anytime.'}
           </motion.p>
         </motion.div>
       </div>

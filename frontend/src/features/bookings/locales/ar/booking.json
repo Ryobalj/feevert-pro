@@ -1,0 +1,126 @@
+﻿{
+  "consultation": "استشارة",
+  "date": "التاريخ",
+  "time": "الوقت",
+  "consultant": "استشاري",
+  "assigned_soon": "سيتم تعيينه قريباً",
+  "view": "عرض",
+  "na": "غير متوفر",
+  "status": {
+    "all": "الكل",
+    "confirmed": "تم التأكيد",
+    "pending": "قيد الانتظار",
+    "completed": "مكتمل",
+    "cancelled": "ملغي",
+    "in_progress": "قيد التنفيذ",
+    "approved": "تمت الموافقة",
+    "rejected": "مرفوض",
+    "unknown": "غير معروف"
+  },
+  "time": {
+    "in": "بعد",
+    "ago": "منذ",
+    "now": "الآن",
+    "min": "دقيقة",
+    "hr": "ساعة",
+    "hour": "ساعة",
+    "day": "يوم"
+  },
+  "sort": {
+    "date_asc": "التاريخ (الأقدم أولاً)",
+    "date_desc": "التاريخ (الأحدث أولاً)",
+    "service_asc": "الخدمة (أ-ي)",
+    "service_desc": "الخدمة (ي-أ)",
+    "status": "الحالة"
+  },
+  "empty": {
+    "all": {
+      "title": "لا توجد حجوزات",
+      "description": "لم تقم بأي حجز حتى الآن. ابدأ بحجز موعد مع خبرائنا.",
+      "action": "حجز موعد"
+    },
+    "pending": {
+      "title": "لا توجد حجوزات معلقة",
+      "description": "ليس لديك أي حجوزات معلقة. كل شيء منجز!",
+      "action": "تصفح الخدمات"
+    },
+    "confirmed": {
+      "title": "لا توجد حجوزات مؤكدة",
+      "description": "ليس لديك أي حجوزات مؤكدة حتى الآن. احجز خدمة للبدء.",
+      "action": "احجز الآن"
+    },
+    "completed": {
+      "title": "لا توجد حجوزات مكتملة",
+      "description": "لم تكمل أي حجز حتى الآن. سيظهر تاريخك هنا.",
+      "action": "عرض الخدمات"
+    },
+    "cancelled": {
+      "title": "لا توجد حجوزات ملغية",
+      "description": "ليس لديك أي حجوزات ملغية. عمل رائع في الحفاظ على مواعيدك!",
+      "action": "عرض الحجوزات"
+    },
+    "no_filter_prefix": "لا توجد",
+    "no_filter_suffix": "حجوزات موجودة",
+    "help_text": "تحتاج مساعدة؟",
+    "contact_support": "اتصل بالدعم"
+  },
+  "detail": {
+    "loading": "جاري تحميل تفاصيل الحجز...",
+    "error_title": "خطأ",
+    "try_again": "حاول مرة أخرى",
+    "back_to_bookings": "العودة إلى الحجوزات",
+    "title": "تفاصيل الحجز",
+    "booking_id": "الحجز",
+    "service": "الخدمة",
+    "consultant": "استشاري",
+    "date": "التاريخ",
+    "time": "الوقت",
+    "meeting_link": "رابط الاجتماع",
+    "join_meeting": "انضم إلى الاجتماع",
+    "notes": "ملاحظات",
+    "booked_on": "تم الحجز في",
+    "cancel_booking": "إلغاء الحجز",
+    "cancelling": "جاري الإلغاء..."
+  },
+  "booking": {
+    "schedule": "جدولة",
+    "title": "احجز",
+    "subtitle": "موعداً",
+    "description": "حدد موعداً للاستشارة مع خبرائنا",
+    "select_service": "اختر الخدمة",
+    "select_service_optional": "اختر خدمة (اختياري)",
+    "select_consultant": "اختر الاستشاري",
+    "choose_consultant": "اختر استشارياً",
+    "select_date": "اختر التاريخ",
+    "available_slots": "المواعيد المتاحة",
+    "loading_slots": "جاري تحميل المواعيد المتاحة...",
+    "no_slots": "لا توجد مواعيد متاحة لهذا التاريخ",
+    "no_slots_hint": "حاول اختيار تاريخ آخر",
+    "period": {
+      "morning": "الصباح",
+      "afternoon": "بعد الظهر",
+      "evening": "المساء"
+    },
+    "additional_notes": "ملاحظات إضافية",
+    "notes_placeholder": "أي متطلبات محددة أو أسئلة...",
+    "confirm_booking": "تأكيد الحجز",
+    "booking": "جاري الحجز...",
+    "select_slot_alert": "يرجى تحديد موعد",
+    "success_message": "تم تأكيد الحجز بنجاح!",
+    "error_message": "خطأ في الحجز. يرجى المحاولة مرة أخرى."
+  },
+  "mybookings": {
+    "loading": "جاري تحميل حجوزاتك...",
+    "error_title": "خطأ",
+    "try_again": "حاول مرة أخرى",
+    "title": "حجوزاتي",
+    "subtitle": "الحجوزات",
+    "description": "إدارة مواعيدك",
+    "refresh": "تحديث",
+    "new_booking": "حجز جديد",
+    "total": "الإجمالي",
+    "upcoming": "القادمة",
+    "search_placeholder": "بحث عن حجوزات...",
+    "clear": "مسح"
+  }
+}

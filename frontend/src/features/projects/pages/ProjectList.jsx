@@ -1,3 +1,5 @@
+// src/features/projects/pages/ProjectList.jsx
+
 import React, { useState, useEffect } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -11,7 +13,6 @@ const ProjectList = () => {
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   
-  // Pagination
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [totalCount, setTotalCount] = useState(0)
@@ -144,7 +145,7 @@ const ProjectList = () => {
               className="w-full pl-12 pr-4 py-3.5 glass text-white placeholder:text-white/30 rounded-2xl border-0 outline-none focus:ring-2 focus:ring-emerald-400/50 transition-all text-sm" />
           </div>
 
-          {/* Category Filters - Dropdown + Buttons */}
+          {/* Category Filters */}
           {categories.length > 0 && (
             <div className="flex flex-wrap justify-center gap-2 items-center">
               {[{ id: 'all', name: 'All Projects' }, ...categories].slice(0, 6).map(cat => (
@@ -177,7 +178,7 @@ const ProjectList = () => {
                 ))}
               </motion.div>
 
-              {/* ============ PAGINATION ============ */}
+              {/* Pagination */}
               {totalPages > 1 && (
                 <div className="flex justify-center items-center gap-2 mt-10">
                   <button
@@ -244,14 +245,27 @@ const ProjectGridCard = ({ project, index }) => (
     transition={{ delay: (index % 9) * 0.04, duration: 0.4 }} whileHover={{ y: -4 }}>
     <Link to={`/projects/${project.id}`} className="block group h-full">
       <div className="glass-card p-0 overflow-hidden h-full flex flex-col hover:border-emerald-400/30 hover:shadow-lg hover:shadow-emerald-500/5 transition-all duration-500">
-        {project.featured_image || project.gallery?.[0] ? (
+        
+        {/* ✅ IMAGE - Using cover_image_url */}
+        {project.cover_image_url ? (
           <div className="aspect-[16/10] overflow-hidden relative">
-            <img src={project.featured_image || project.gallery[0]} alt={project.title}
+            <img 
+              src={project.cover_image_url} 
+              alt={project.title}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-              onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex' }} />
+              loading="lazy"
+              onError={(e) => { 
+                e.target.style.display = 'none'
+                e.target.nextSibling.style.display = 'flex'
+              }} 
+            />
+            <div className="w-full h-full bg-gradient-to-br from-emerald-500 to-green-700 items-center justify-center hidden">
+              <span className="text-4xl">📁</span>
+            </div>
             {project.status && (
-              <span className={`absolute top-3 right-3 px-2.5 py-1 rounded-full text-[10px] font-semibold shadow-lg ${
-                project.status === 'completed' ? 'bg-emerald-500 text-white' : project.status === 'in_progress' ? 'bg-blue-500 text-white' : 'bg-amber-500 text-white'
+              <span className={`absolute top-3 right-3 px-2.5 py-1 rounded-full text-[10px] font-semibold shadow-lg z-10 ${
+                project.status === 'completed' ? 'bg-emerald-500 text-white' : 
+                project.status === 'in_progress' ? 'bg-blue-500 text-white' : 'bg-amber-500 text-white'
               }`}>
                 {project.status.replace('_', ' ')}
               </span>
@@ -262,8 +276,9 @@ const ProjectGridCard = ({ project, index }) => (
             <div className="absolute top-4 right-4 w-16 h-16 rounded-full bg-white/10 group-hover:scale-150 transition-transform duration-700" />
             <span className="text-4xl relative z-10">📁</span>
             {project.status && (
-              <span className={`absolute top-3 right-3 px-2.5 py-1 rounded-full text-[10px] font-semibold shadow-lg ${
-                project.status === 'completed' ? 'bg-emerald-500 text-white' : project.status === 'in_progress' ? 'bg-blue-500 text-white' : 'bg-amber-500 text-white'
+              <span className={`absolute top-3 right-3 px-2.5 py-1 rounded-full text-[10px] font-semibold shadow-lg z-10 ${
+                project.status === 'completed' ? 'bg-emerald-500 text-white' : 
+                project.status === 'in_progress' ? 'bg-blue-500 text-white' : 'bg-amber-500 text-white'
               }`}>
                 {project.status.replace('_', ' ')}
               </span>

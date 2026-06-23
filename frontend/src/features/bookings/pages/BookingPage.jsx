@@ -1,10 +1,14 @@
+// src/features/bookings/pages/BookingPage.jsx
+
 import React, { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 import api from '../../../app/api'
 import { useAuth } from '../../accounts/hooks/useAuth'
 
 const BookingPage = () => {
+  const { t } = useTranslation('booking')
   const navigate = useNavigate()
   const { isAuthenticated, user } = useAuth()
   const [consultants, setConsultants] = useState([])
@@ -73,7 +77,7 @@ const BookingPage = () => {
       return
     }
     if (!selectedSlot) {
-      alert('Please select a time slot')
+      alert(t('booking.select_slot_alert'))
       return
     }
 
@@ -84,10 +88,10 @@ const BookingPage = () => {
         service: selectedService || null,
         notes: notes
       })
-      navigate('/my-bookings', { state: { message: 'Booking confirmed successfully!' } })
+      navigate('/my-bookings', { state: { message: t('booking.success_message') } })
     } catch (error) {
       console.error('Error booking:', error)
-      alert('Error booking appointment. Please try again.')
+      alert(t('booking.error_message'))
     } finally {
       setSubmitting(false)
     }
@@ -119,13 +123,13 @@ const BookingPage = () => {
               animate={{ scale: [1, 1.5, 1], opacity: [0.7, 1, 0.7] }}
               transition={{ duration: 2, repeat: Infinity }}
             />
-            <span className="text-sm font-medium text-white/80">📅 Schedule</span>
+            <span className="text-sm font-medium text-white/80">📅 {t('booking.schedule')}</span>
           </motion.div>
           <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white mb-3">
-            Book an <span className="gradient-text">Appointment</span>
+            {t('booking.title')} <span className="gradient-text">{t('booking.subtitle')}</span>
           </h1>
           <p className="text-white/50 text-lg">
-            Schedule a consultation with our experts
+            {t('booking.description')}
           </p>
         </motion.div>
 
@@ -148,14 +152,14 @@ const BookingPage = () => {
               <svg className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
               </svg>
-              Select Service
+              {t('booking.select_service')}
             </label>
             <select 
               value={selectedService} 
               onChange={(e) => setSelectedService(e.target.value)} 
               className="w-full px-4 py-3.5 glass text-white rounded-2xl border-0 outline-none focus:ring-2 focus:ring-emerald-400/50 transition-all text-sm cursor-pointer"
             >
-              <option value="" className="bg-[#0d3320]">Select a service (optional)</option>
+              <option value="" className="bg-[#0d3320]">{t('booking.select_service_optional')}</option>
               {services.map(service => (
                 <option key={service.id} value={service.id} className="bg-[#0d3320]">
                   {service.name}
@@ -170,7 +174,7 @@ const BookingPage = () => {
               <svg className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
-              Select Consultant <span className="text-red-400">*</span>
+              {t('booking.select_consultant')} <span className="text-red-400">*</span>
             </label>
             <select 
               value={selectedConsultant} 
@@ -178,7 +182,7 @@ const BookingPage = () => {
               className="w-full px-4 py-3.5 glass text-white rounded-2xl border-0 outline-none focus:ring-2 focus:ring-emerald-400/50 transition-all text-sm cursor-pointer"
               required
             >
-              <option value="" className="bg-[#0d3320]">Choose a consultant</option>
+              <option value="" className="bg-[#0d3320]">{t('booking.choose_consultant')}</option>
               {consultants.map(c => (
                 <option key={c.id} value={c.id} className="bg-[#0d3320]">
                   {c.full_name || c.username} - {c.role_name || c.role?.name || 'Consultant'}
@@ -193,7 +197,7 @@ const BookingPage = () => {
               <svg className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
-              Select Date <span className="text-red-400">*</span>
+              {t('booking.select_date')} <span className="text-red-400">*</span>
             </label>
             <input 
               type="date" 
@@ -217,7 +221,7 @@ const BookingPage = () => {
                   <svg className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  Available Time Slots <span className="text-red-400">*</span>
+                  {t('booking.available_slots')} <span className="text-red-400">*</span>
                 </label>
                 
                 {loading ? (
@@ -226,13 +230,13 @@ const BookingPage = () => {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                     </svg>
-                    <span className="text-sm text-white/40">Loading available slots...</span>
+                    <span className="text-sm text-white/40">{t('booking.loading_slots')}</span>
                   </div>
                 ) : timeSlots.length === 0 ? (
                   <div className="glass rounded-2xl p-8 text-center">
                     <div className="text-4xl mb-3 opacity-50">📅</div>
-                    <p className="text-white/40 font-medium">No available slots for this date</p>
-                    <p className="text-sm text-white/25 mt-1">Try selecting a different date</p>
+                    <p className="text-white/40 font-medium">{t('booking.no_slots')}</p>
+                    <p className="text-sm text-white/25 mt-1">{t('booking.no_slots_hint')}</p>
                   </div>
                 ) : (
                   <div className="space-y-4">
@@ -240,7 +244,7 @@ const BookingPage = () => {
                       slots.length > 0 && (
                         <div key={period}>
                           <p className="text-xs text-white/30 uppercase tracking-wider mb-2 font-medium">
-                            {period} ({slots.length})
+                            {t(`booking.period.${period}`)} ({slots.length})
                           </p>
                           <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                             {slots.map(slot => (
@@ -273,14 +277,14 @@ const BookingPage = () => {
               <svg className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
-              Additional Notes
+              {t('booking.additional_notes')}
             </label>
             <textarea 
               rows="4" 
               value={notes} 
               onChange={(e) => setNotes(e.target.value)} 
               className="w-full px-4 py-3.5 glass text-white placeholder:text-white/25 rounded-2xl border-0 outline-none focus:ring-2 focus:ring-emerald-400/50 transition-all text-sm resize-none"
-              placeholder="Any specific requirements or questions..."
+              placeholder={t('booking.notes_placeholder')}
             />
           </div>
 
@@ -301,14 +305,14 @@ const BookingPage = () => {
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                 </svg>
-                Booking...
+                {t('booking.booking')}
               </span>
             ) : (
               <span className="relative z-10 flex items-center justify-center gap-2">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
-                Confirm Booking
+                {t('booking.confirm_booking')}
               </span>
             )}
           </button>

@@ -1,10 +1,14 @@
+// src/features/accounts/pages/LoginPage.jsx
+
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 import { useTheme } from '../../../context/ThemeContext'
 import { useAuth } from '../hooks/useAuth'
 
 const LoginPage = () => {
+  const { t } = useTranslation('account')
   const [formData, setFormData] = useState({ username: '', password: '' })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -37,7 +41,7 @@ const LoginPage = () => {
         window.location.reload()
       }, 150)
     } else {
-      setError(result.error || 'Invalid username or password')
+      setError(result.error || t('errors.invalid_credentials'))
       setLoading(false)
     }
   }
@@ -71,11 +75,8 @@ const LoginPage = () => {
             </motion.div>
 
             <h1 className="text-2xl md:text-3xl font-extrabold text-white mb-2">
-              Welcome <span className="gradient-text">Back</span>
+              {t('login.title')} <span className="gradient-text">{t('login.subtitle')}</span>
             </h1>
-            <p className="text-white/50 text-sm">
-              Sign in to your account to continue
-            </p>
           </div>
 
           {/* ============ ERROR MESSAGE ============ */}
@@ -97,7 +98,7 @@ const LoginPage = () => {
             {/* Username */}
             <div>
               <label className="block text-sm font-medium text-white/60 mb-2">
-                Username or Email
+                {t('login.username') || 'Username or Email'}
               </label>
               <div className="relative">
                 <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40">
@@ -115,7 +116,7 @@ const LoginPage = () => {
                   required
                   autoComplete="username"
                   className="w-full pl-12 pr-5 py-3.5 glass text-white placeholder:text-white/30 rounded-2xl border-0 outline-none focus:ring-2 focus:ring-emerald-400/50 transition-all text-sm"
-                  placeholder="Enter your username or email"
+                  placeholder={t('login.username_placeholder') || 'Enter your username or email'}
                 />
               </div>
             </div>
@@ -123,7 +124,7 @@ const LoginPage = () => {
             {/* Password */}
             <div>
               <label className="block text-sm font-medium text-white/60 mb-2">
-                Password
+                {t('login.password')}
               </label>
               <div className="relative">
                 <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40">
@@ -141,7 +142,7 @@ const LoginPage = () => {
                   required
                   autoComplete="current-password"
                   className="w-full pl-12 pr-12 py-3.5 glass text-white placeholder:text-white/30 rounded-2xl border-0 outline-none focus:ring-2 focus:ring-emerald-400/50 transition-all text-sm"
-                  placeholder="Enter your password"
+                  placeholder={t('login.password_placeholder')}
                 />
                 <button
                   type="button"
@@ -173,14 +174,14 @@ const LoginPage = () => {
                   className="w-4 h-4 rounded border-white/20 bg-white/10 text-emerald-500 focus:ring-emerald-500/30 cursor-pointer"
                 />
                 <span className="text-xs text-white/50 group-hover:text-white/70 transition-colors">
-                  Remember me
+                  {t('login.remember_me')}
                 </span>
               </label>
               <Link 
                 to="/forgot-password" 
                 className="text-xs text-emerald-400 hover:text-emerald-300 font-medium transition-colors"
               >
-                Forgot password?
+                {t('login.forgot_password')}
               </Link>
             </div>
 
@@ -201,11 +202,11 @@ const LoginPage = () => {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                   </svg>
-                  Signing in...
+                  {t('buttons.signing_in') || 'Signing in...'}
                 </span>
               ) : (
                 <span className="relative z-10 flex items-center justify-center gap-2">
-                  Sign In
+                  {t('login.submit')}
                   <svg className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                   </svg>
@@ -222,12 +223,12 @@ const LoginPage = () => {
           </div>
 
           <p className="text-center text-sm text-white/40">
-            Don't have an account?{' '}
+            {t('login.no_account')}{' '}
             <Link 
               to="/register" 
               className="font-semibold text-emerald-400 hover:text-emerald-300 transition-colors"
             >
-              Create one
+              {t('login.register')}
             </Link>
           </p>
         </motion.div>

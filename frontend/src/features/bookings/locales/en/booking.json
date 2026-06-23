@@ -1,0 +1,126 @@
+﻿{
+  "consultation": "Consultation",
+  "date": "Date",
+  "time": "Time",
+  "consultant": "Consultant",
+  "assigned_soon": "Assigned soon",
+  "view": "View",
+  "na": "N/A",
+  "status": {
+    "all": "All",
+    "confirmed": "Confirmed",
+    "pending": "Pending",
+    "completed": "Completed",
+    "cancelled": "Cancelled",
+    "in_progress": "In Progress",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "unknown": "Unknown"
+  },
+  "time": {
+    "in": "in",
+    "ago": "ago",
+    "now": "now",
+    "min": "min",
+    "hr": "h",
+    "hour": "hour",
+    "day": "day"
+  },
+  "sort": {
+    "date_asc": "Date (Oldest first)",
+    "date_desc": "Date (Newest first)",
+    "service_asc": "Service (A-Z)",
+    "service_desc": "Service (Z-A)",
+    "status": "Status"
+  },
+  "empty": {
+    "all": {
+      "title": "No bookings yet",
+      "description": "You haven't made any bookings yet. Start by booking an appointment with our experts.",
+      "action": "Book an Appointment"
+    },
+    "pending": {
+      "title": "No pending bookings",
+      "description": "You don't have any pending bookings. All caught up!",
+      "action": "Browse Services"
+    },
+    "confirmed": {
+      "title": "No confirmed bookings",
+      "description": "You don't have any confirmed bookings yet. Book a service to get started.",
+      "action": "Book Now"
+    },
+    "completed": {
+      "title": "No completed bookings",
+      "description": "You haven't completed any bookings yet. Your history will appear here.",
+      "action": "View Services"
+    },
+    "cancelled": {
+      "title": "No cancelled bookings",
+      "description": "You don't have any cancelled bookings. Great job keeping your appointments!",
+      "action": "View Bookings"
+    },
+    "no_filter_prefix": "No",
+    "no_filter_suffix": "bookings found",
+    "help_text": "Need help?",
+    "contact_support": "Contact support"
+  },
+  "detail": {
+    "loading": "Loading booking details...",
+    "error_title": "Error",
+    "try_again": "Try Again",
+    "back_to_bookings": "Back to Bookings",
+    "title": "Booking Details",
+    "booking_id": "Booking",
+    "service": "Service",
+    "consultant": "Consultant",
+    "date": "Date",
+    "time": "Time",
+    "meeting_link": "Meeting Link",
+    "join_meeting": "Join Meeting",
+    "notes": "Notes",
+    "booked_on": "Booked On",
+    "cancel_booking": "Cancel Booking",
+    "cancelling": "Cancelling..."
+  },
+  "booking": {
+    "schedule": "Schedule",
+    "title": "Book an",
+    "subtitle": "Appointment",
+    "description": "Schedule a consultation with our experts",
+    "select_service": "Select Service",
+    "select_service_optional": "Select a service (optional)",
+    "select_consultant": "Select Consultant",
+    "choose_consultant": "Choose a consultant",
+    "select_date": "Select Date",
+    "available_slots": "Available Time Slots",
+    "loading_slots": "Loading available slots...",
+    "no_slots": "No available slots for this date",
+    "no_slots_hint": "Try selecting a different date",
+    "period": {
+      "morning": "Morning",
+      "afternoon": "Afternoon",
+      "evening": "Evening"
+    },
+    "additional_notes": "Additional Notes",
+    "notes_placeholder": "Any specific requirements or questions...",
+    "confirm_booking": "Confirm Booking",
+    "booking": "Booking...",
+    "select_slot_alert": "Please select a time slot",
+    "success_message": "Booking confirmed successfully!",
+    "error_message": "Error booking appointment. Please try again."
+  },
+  "mybookings": {
+    "loading": "Loading your bookings...",
+    "error_title": "Error",
+    "try_again": "Try Again",
+    "title": "My",
+    "subtitle": "Bookings",
+    "description": "Manage your appointments",
+    "refresh": "Refresh",
+    "new_booking": "New Booking",
+    "total": "total",
+    "upcoming": "upcoming",
+    "search_placeholder": "Search bookings...",
+    "clear": "Clear"
+  }
+}

@@ -3,11 +3,13 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 import { useTheme } from '../../../context/ThemeContext'
 import { useBookings } from '../hooks'
 import { BookingCard, BookingFilters, EmptyBookingState } from '../components'
 
 const MyBookings = () => {
+  const { t } = useTranslation('booking')
   const { darkMode } = useTheme()
   const { 
     bookings, 
@@ -34,7 +36,7 @@ const MyBookings = () => {
             <div className="absolute inset-0 bg-emerald-400/10 rounded-full blur-xl animate-pulse" />
             <div className="spinner spinner-lg relative" />
           </div>
-          <p className="text-white/50 animate-pulse">Loading your bookings...</p>
+          <p className="text-white/50 animate-pulse">{t('mybookings.loading')}</p>
         </div>
       </div>
     )
@@ -50,13 +52,13 @@ const MyBookings = () => {
           className="glass-card p-10 text-center max-w-md"
         >
           <div className="text-5xl mb-4">⚠️</div>
-          <h2 className="text-xl font-bold text-white mb-2">Error</h2>
+          <h2 className="text-xl font-bold text-white mb-2">{t('mybookings.error_title')}</h2>
           <p className="text-white/50 mb-6">{error}</p>
-          <button onClick={refetch} className="btn-primary">
+          <button onClick={refetch} className="btn-primary inline-flex items-center gap-2">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
-            Try Again
+            {t('mybookings.try_again')}
           </button>
         </motion.div>
       </div>
@@ -87,9 +89,9 @@ const MyBookings = () => {
         <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
             <h1 className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-white mb-2">
-              My <span className="gradient-text">Bookings</span>
+              {t('mybookings.title')} <span className="gradient-text">{t('mybookings.subtitle')}</span>
             </h1>
-            <p className="text-white/40 text-sm">Manage your appointments</p>
+            <p className="text-white/40 text-sm">{t('mybookings.description')}</p>
           </motion.div>
           
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="flex items-center gap-3">
@@ -97,7 +99,7 @@ const MyBookings = () => {
             <button 
               onClick={refetch}
               className="glass p-2.5 rounded-full text-white/50 hover:text-white hover:border-emerald-400/30 transition-all duration-300"
-              title="Refresh"
+              title={t('mybookings.refresh')}
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -109,7 +111,7 @@ const MyBookings = () => {
               <svg className="w-4 h-4 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
-              <span className="relative z-10">New Booking</span>
+              <span className="relative z-10">{t('mybookings.new_booking')}</span>
             </Link>
           </motion.div>
         </div>
@@ -122,21 +124,21 @@ const MyBookings = () => {
             className="flex flex-wrap gap-3 mb-6"
           >
             <div className="glass px-4 py-2 rounded-full text-sm text-white/50">
-              <span className="text-white font-semibold">{stats.total}</span> total
+              <span className="text-white font-semibold">{stats.total}</span> {t('mybookings.total')}
             </div>
             {stats.pending > 0 && (
               <div className="glass px-4 py-2 rounded-full text-sm text-amber-400/70">
-                <span className="text-amber-400 font-semibold">{stats.pending}</span> pending
+                <span className="text-amber-400 font-semibold">{stats.pending}</span> {t('status.pending')}
               </div>
             )}
             {stats.confirmed > 0 && (
               <div className="glass px-4 py-2 rounded-full text-sm text-emerald-400/70">
-                <span className="text-emerald-400 font-semibold">{stats.confirmed}</span> confirmed
+                <span className="text-emerald-400 font-semibold">{stats.confirmed}</span> {t('status.confirmed')}
               </div>
             )}
             {stats.upcoming > 0 && (
               <div className="glass px-4 py-2 rounded-full text-sm text-blue-400/70">
-                <span className="text-blue-400 font-semibold">{stats.upcoming}</span> upcoming
+                <span className="text-blue-400 font-semibold">{stats.upcoming}</span> {t('mybookings.upcoming')}
               </div>
             )}
           </motion.div>
@@ -160,7 +162,7 @@ const MyBookings = () => {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search bookings..."
+              placeholder={t('mybookings.search_placeholder')}
               className="w-full pl-11 pr-4 py-2.5 glass text-white placeholder:text-white/25 rounded-full border-0 outline-none focus:ring-2 focus:ring-emerald-400/40 transition-all text-sm"
             />
           </div>
@@ -180,7 +182,7 @@ const MyBookings = () => {
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
-                Clear
+                {t('mybookings.clear')}
               </button>
             )}
           </div>

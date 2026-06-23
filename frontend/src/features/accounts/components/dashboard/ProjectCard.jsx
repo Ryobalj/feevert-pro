@@ -1,7 +1,12 @@
+// src/features/accounts/components/dashboard/ProjectCard.jsx
+
 import React from 'react'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 
 const ProjectCard = ({ project, darkMode }) => {
+  const { t } = useTranslation('admin')
+
   const gradients = [
     'from-emerald-400 to-green-600',
     'from-green-400 to-emerald-600',
@@ -10,20 +15,20 @@ const ProjectCard = ({ project, darkMode }) => {
     'from-green-500 to-emerald-500',
     'from-cyan-400 to-emerald-500',
   ]
-  const gradient = gradients[project.id ? project.id % gradients.length : 0]
+  const gradient = project?.id ? gradients[project.id % gradients.length] : gradients[0]
 
   return (
     <Link 
-      to={`/projects/${project.id}`} 
+      to={`/projects/${project?.id}`} 
       className="block group h-full"
     >
       <div className="glass-card p-0 overflow-hidden h-full flex flex-col hover:border-emerald-400/30 hover:shadow-lg hover:shadow-emerald-500/5 transition-all duration-500">
         {/* Image / Gradient Header */}
-        {project.image || project.featured_image ? (
-          <div className="aspect-[16/10] overflow-hidden">
+        {project?.image || project?.featured_image ? (
+          <div className="aspect-[16/10] overflow-hidden relative">
             <img 
               src={project.image || project.featured_image} 
-              alt={project.title}
+              alt={project?.title || 'Project'}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#0d3320]/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -43,7 +48,7 @@ const ProjectCard = ({ project, darkMode }) => {
         {/* Content */}
         <div className="p-5 flex-1 flex flex-col">
           {/* Category Badge */}
-          {project.category_name && (
+          {project?.category_name && (
             <div className="mb-3">
               <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/20">
                 {project.category_name}
@@ -53,26 +58,26 @@ const ProjectCard = ({ project, darkMode }) => {
 
           {/* Title */}
           <h3 className="text-lg font-bold text-white mb-2 group-hover:text-emerald-400 transition-colors line-clamp-1">
-            {project.title}
+            {project?.title}
           </h3>
 
           {/* Description */}
           <p className="text-sm text-white/40 mb-4 line-clamp-2 flex-1 leading-relaxed">
-            {project.description}
+            {project?.description}
           </p>
 
           {/* Footer */}
           <div className="flex items-center justify-between pt-4 border-t border-white/5">
-            {project.client_name ? (
+            {project?.client_name ? (
               <span className="text-xs text-white/30">
-                Client:{' '}
+                {t('project.client')}:{' '}
                 <span className="text-white/50 font-medium">{project.client_name}</span>
               </span>
             ) : (
-              <span className="text-xs text-white/20">FeeVert Project</span>
+              <span className="text-xs text-white/20">{t('project.internal')}</span>
             )}
             <span className="text-sm font-semibold text-emerald-400 flex items-center gap-1 group-hover:gap-2 transition-all ml-auto">
-              View
+              {t('project.view')}
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>

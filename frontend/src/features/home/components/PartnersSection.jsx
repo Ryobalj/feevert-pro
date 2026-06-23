@@ -1,13 +1,21 @@
-import React from 'react'
+// src/features/home/components/PartnersSection.jsx
+
+import React, { useRef, useEffect } from 'react'
 import { motion } from 'framer-motion'
 
 const PartnersSection = ({ data }) => {
   if (!data || data.length === 0) return null
 
+  // Duplicate data for seamless scrolling
+  const duplicatedData = [...data, ...data, ...data]
+
   return (
     <section className="relative py-16 md:py-20 overflow-hidden">
       {/* Subtle top border glow */}
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-emerald-400/20 to-transparent" />
+      
+      {/* Background subtle gradient */}
+      <div className="absolute inset-0 bg-emerald-500/[0.02] pointer-events-none" />
       
       <div className="container-main relative z-10">
         {/* Section Label */}
@@ -26,45 +34,61 @@ const PartnersSection = ({ data }) => {
           </div>
         </motion.div>
 
-        {/* Partners Grid */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.1 }}
-          className="flex flex-wrap justify-center items-center gap-8 md:gap-14"
-        >
-          {data.map((partner, index) => (
+        {/* ============ MARQUEE / TICKER ============ */}
+        <div className="relative overflow-hidden py-4">
+          {/* Gradient overlays for smooth fade on edges */}
+          <div className="absolute left-0 top-0 bottom-0 w-16 md:w-24 bg-gradient-to-r from-[#0d3320] to-transparent z-10 pointer-events-none" />
+          <div className="absolute right-0 top-0 bottom-0 w-16 md:w-24 bg-gradient-to-l from-[#0d3320] to-transparent z-10 pointer-events-none" />
+          
+          {/* Scrolling container */}
+          <div className="flex overflow-hidden">
             <motion.div
-              key={partner.id}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.1 + index * 0.06 }}
-              whileHover={{ scale: 1.08 }}
-              className="group"
+              className="flex items-center gap-12 md:gap-16 flex-shrink-0"
+              animate={{
+                x: ['0%', '-50%']
+              }}
+              transition={{
+                duration: 30,
+                repeat: Infinity,
+                ease: 'linear',
+              }}
             >
-              {partner.logo ? (
-                <div className="relative">
-                  {/* Glow effect on hover */}
-                  <div className="absolute inset-0 bg-emerald-400/0 group-hover:bg-emerald-400/10 rounded-2xl blur-xl transition-all duration-500 scale-150" />
+              {duplicatedData.map((partner, index) => (
+                <div
+                  key={`${partner.id}-${index}`}
+                  className="flex items-center gap-3 flex-shrink-0 group cursor-default"
+                >
+                  {/* Logo (small) */}
+                  {partner.logo_url || partner.logo ? (
+                    <div className="relative">
+                      <img
+                        src={partner.logo_url || partner.logo}
+                        alt={partner.name}
+                        className="h-6 md:h-8 w-auto object-contain opacity-60 group-hover:opacity-100 grayscale group-hover:grayscale-0 transition-all duration-500"
+                        loading="lazy"
+                        onError={(e) => {
+                          e.target.style.display = 'none'
+                          e.target.nextSibling.style.display = 'flex'
+                        }}
+                      />
+                      {/* Fallback if image fails */}
+                      <span className="hidden text-white/60 group-hover:text-white font-semibold text-sm whitespace-nowrap">
+                        {partner.name}
+                      </span>
+                    </div>
+                  ) : (
+                    <span className="text-white/60 group-hover:text-white font-semibold text-sm whitespace-nowrap transition-colors duration-300">
+                      {partner.name}
+                    </span>
+                  )}
                   
-                  <img 
-                    src={partner.logo} 
-                    alt={partner.name} 
-                    className="relative h-10 md:h-14 w-auto object-contain opacity-40 group-hover:opacity-100 grayscale group-hover:grayscale-0 transition-all duration-500"
-                  />
+                  {/* Separator dot */}
+                  <span className="w-1 h-1 rounded-full bg-white/20 group-hover:bg-emerald-400/50 transition-colors duration-300 flex-shrink-0" />
                 </div>
-              ) : (
-                <div className="glass px-8 py-4 rounded-2xl group-hover:border-emerald-400/30 group-hover:shadow-lg group-hover:shadow-emerald-500/5 transition-all duration-300">
-                  <span className="text-white/50 group-hover:text-white font-bold text-lg transition-colors duration-300">
-                    {partner.name}
-                  </span>
-                </div>
-              )}
+              ))}
             </motion.div>
-          ))}
-        </motion.div>
+          </div>
+        </div>
 
         {/* Bottom subtle text */}
         <motion.p
@@ -72,7 +96,7 @@ const PartnersSection = ({ data }) => {
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           transition={{ delay: 0.4 }}
-          className="text-center text-white/20 text-xs mt-10"
+          className="text-center text-white/20 text-xs mt-6"
         >
           And many more amazing partners
         </motion.p>

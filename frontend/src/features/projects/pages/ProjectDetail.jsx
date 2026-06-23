@@ -1,3 +1,5 @@
+// src/features/projects/pages/ProjectDetail.jsx
+
 import React, { useState, useEffect } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -27,21 +29,20 @@ const ProjectDetail = () => {
     loadProject()
   }, [id, navigate])
 
-  // 🆕 Kusanya images kutoka vyanzo vyote
+  // ✅ FIXED: Kusanya images kutoka cover_image_url
   const images = React.useMemo(() => {
     if (!project) return []
     
     const imgs = []
     
-    // Featured image
-    if (project.featured_image) {
-      const url = typeof project.featured_image === 'string' ? project.featured_image : project.featured_image.url || project.featured_image
-      if (url) imgs.push(url)
+    // ✅ Use cover_image_url from serializer
+    if (project.cover_image_url) {
+      imgs.push(project.cover_image_url)
     }
     
-    // Main image
-    if (project.image) {
-      const url = typeof project.image === 'string' ? project.image : project.image.url || project.image
+    // Fallback: cover_image
+    if (project.cover_image) {
+      const url = typeof project.cover_image === 'string' ? project.cover_image : project.cover_image.url || project.cover_image
       if (url && !imgs.includes(url)) imgs.push(url)
     }
     
@@ -53,9 +54,9 @@ const ProjectDetail = () => {
       })
     }
     
-    // All images
-    if (project.all_images && Array.isArray(project.all_images)) {
-      project.all_images.forEach(img => {
+    // All images (images field from serializer)
+    if (project.images && Array.isArray(project.images)) {
+      project.images.forEach(img => {
         const url = typeof img === 'string' ? img : img.image_url || img.image || img.url
         if (url && !imgs.includes(url)) imgs.push(url)
       })
@@ -64,7 +65,7 @@ const ProjectDetail = () => {
     return imgs
   }, [project])
 
-  // Keyboard navigation kwa lightbox
+  // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (selectedImageIndex === null) return
@@ -83,6 +84,16 @@ const ProjectDetail = () => {
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [selectedImageIndex, images])
+
+  // Prevent body scroll when lightbox open
+  useEffect(() => {
+    if (selectedImageIndex !== null) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'unset'
+    }
+    return () => { document.body.style.overflow = 'unset' }
+  }, [selectedImageIndex])
 
   // ============ LOADING ============
   if (loading) {
@@ -110,7 +121,8 @@ const ProjectDetail = () => {
         <motion.button
           initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}
           onClick={() => navigate('/projects')}
-          className="flex items-center gap-2 text-sm text-white/40 hover:text-emerald-400 transition-colors mb-8 group">
+          className="flex items-center gap-2 text-sm text-white/40 hover:text-emerald-400 transition-colors mb-8 group"
+        >
           <svg className="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
@@ -121,26 +133,25 @@ const ProjectDetail = () => {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
           className="glass-card p-6 md:p-8 mb-6 relative overflow-hidden group hover:border-emerald-400/20 transition-all duration-300">
           
-          {/* Top accent */}
           <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-400 via-green-500 to-transparent" />
 
-          {/* Title + Status */}
           <div className="flex flex-wrap items-start justify-between gap-4 mb-6">
             <h1 className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-white">
               {project.title}
             </h1>
-            {project.status && (
+            {project.status && project.status !== 'published' && (
               <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold ${
                 project.status === 'completed' 
                   ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/20' 
+                  : project.status === 'in_progress'
+                  ? 'bg-blue-500/15 text-blue-400 border border-blue-500/20'
                   : 'bg-amber-500/15 text-amber-400 border border-amber-500/20'
               }`}>
-                {project.status === 'completed' ? '✅' : '🔄'} {project.status}
+                {project.status === 'completed' ? '✅' : project.status === 'in_progress' ? '🔄' : '⏳'} {project.status.replace('_', ' ')}
               </span>
             )}
           </div>
           
-          {/* Meta Info */}
           <div className="flex flex-wrap gap-4 mb-6">
             {project.client_name && (
               <div className="flex items-center gap-2 text-sm text-white/50">
@@ -168,11 +179,8 @@ const ProjectDetail = () => {
             )}
           </div>
           
-          {/* Description */}
           <div className="h-px bg-white/5 mb-6" />
-          <p className="text-white/60 leading-relaxed">
-            {project.description}
-          </p>
+          <p className="text-white/60 leading-relaxed">{project.description}</p>
         </motion.div>
 
         {/* ============ IMAGE GALLERY ============ */}
@@ -196,16 +204,15 @@ const ProjectDetail = () => {
                     src={img} 
                     alt={`Project ${index + 1}`}
                     className="w-full h-full object-cover group-hover/img:scale-110 transition-transform duration-500"
+                    loading="lazy"
                     onError={(e) => {
                       e.target.style.display = 'none'
                       e.target.nextSibling.style.display = 'flex'
                     }}
                   />
-                  {/* Fallback */}
                   <div className="w-full h-full bg-gradient-to-br from-emerald-500 to-green-700 items-center justify-center hidden">
                     <span className="text-3xl">🖼️</span>
                   </div>
-                  {/* Hover overlay */}
                   <div className="absolute inset-0 bg-black/30 opacity-0 group-hover/img:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                     <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -219,31 +226,31 @@ const ProjectDetail = () => {
 
         {/* ============ PROJECT DETAILS ============ */}
         <div className="grid md:grid-cols-2 gap-6">
-          {/* Challenge */}
-          {project.challenge && (
+          {/* ✅ FIXED: challenges (plural) */}
+          {project.challenges && (
             <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
               className="glass-card p-6 group hover:border-emerald-400/20 transition-all duration-300">
               <h3 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
                 <span className="w-8 h-8 rounded-lg bg-amber-500/15 flex items-center justify-center text-sm">🎯</span>
                 The Challenge
               </h3>
-              <p className="text-white/50 leading-relaxed text-sm">{project.challenge}</p>
+              <p className="text-white/50 leading-relaxed text-sm">{project.challenges}</p>
             </motion.div>
           )}
 
-          {/* Solution */}
-          {project.solution && (
+          {/* ✅ FIXED: solutions (plural) */}
+          {project.solutions && (
             <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
               className="glass-card p-6 group hover:border-emerald-400/20 transition-all duration-300">
               <h3 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
                 <span className="w-8 h-8 rounded-lg bg-emerald-500/15 flex items-center justify-center text-sm">💡</span>
                 Our Solution
               </h3>
-              <p className="text-white/50 leading-relaxed text-sm">{project.solution}</p>
+              <p className="text-white/50 leading-relaxed text-sm">{project.solutions}</p>
             </motion.div>
           )}
 
-          {/* Results */}
+          {/* Results (already correct) */}
           {project.results && (
             <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}
               className="glass-card p-6 md:col-span-2 group hover:border-emerald-400/20 transition-all duration-300">
@@ -275,9 +282,7 @@ const ProjectDetail = () => {
                       </svg>
                     ))}
                   </div>
-                  <p className="text-white/60 italic mb-3 text-sm leading-relaxed">
-                    "{t.content}"
-                  </p>
+                  <p className="text-white/60 italic mb-3 text-sm leading-relaxed">"{t.content}"</p>
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-400 to-green-600 flex items-center justify-center text-white font-bold text-xs">
                       {t.client_name?.charAt(0) || 'C'}
@@ -294,7 +299,7 @@ const ProjectDetail = () => {
         )}
       </div>
 
-      {/* ============ 🆕 LIGHTBOX MODAL (WITH NAVIGATION) ============ */}
+      {/* ============ LIGHTBOX MODAL ============ */}
       <AnimatePresence>
         {selectedImageIndex !== null && selectedImage && (
           <motion.div
@@ -302,7 +307,6 @@ const ProjectDetail = () => {
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4"
             onClick={() => setSelectedImageIndex(null)}
           >
-            {/* Close button */}
             <button
               onClick={() => setSelectedImageIndex(null)}
               className="absolute top-6 right-6 w-10 h-10 rounded-full glass flex items-center justify-center text-white/70 hover:text-white hover:border-red-400/50 transition-all duration-300 z-10"
@@ -312,46 +316,39 @@ const ProjectDetail = () => {
               </svg>
             </button>
 
-            {/* Counter */}
             <div className="absolute top-6 left-6 px-3 py-1.5 rounded-full bg-black/50 backdrop-blur-sm text-white text-sm font-medium z-10">
               {selectedImageIndex + 1} / {images.length}
             </div>
 
-            {/* Previous arrow */}
             {images.length > 1 && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation()
-                  const prevIndex = (selectedImageIndex - 1 + images.length) % images.length
-                  setSelectedImageIndex(prevIndex)
-                }}
-                className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-black/50 backdrop-blur-sm text-white/80 flex items-center justify-center hover:bg-black/70 hover:text-white hover:scale-110 transition-all duration-300 z-10 border border-white/10"
-                aria-label="Previous image"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-              </button>
+              <>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    const prevIndex = (selectedImageIndex - 1 + images.length) % images.length
+                    setSelectedImageIndex(prevIndex)
+                  }}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-black/50 backdrop-blur-sm text-white/80 flex items-center justify-center hover:bg-black/70 hover:text-white hover:scale-110 transition-all duration-300 z-10 border border-white/10"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    const nextIndex = (selectedImageIndex + 1) % images.length
+                    setSelectedImageIndex(nextIndex)
+                  }}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-black/50 backdrop-blur-sm text-white/80 flex items-center justify-center hover:bg-black/70 hover:text-white hover:scale-110 transition-all duration-300 z-10 border border-white/10"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              </>
             )}
 
-            {/* Next arrow */}
-            {images.length > 1 && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation()
-                  const nextIndex = (selectedImageIndex + 1) % images.length
-                  setSelectedImageIndex(nextIndex)
-                }}
-                className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-black/50 backdrop-blur-sm text-white/80 flex items-center justify-center hover:bg-black/70 hover:text-white hover:scale-110 transition-all duration-300 z-10 border border-white/10"
-                aria-label="Next image"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
-            )}
-
-            {/* Image */}
             <motion.img
               initial={{ scale: 0.9 }} animate={{ scale: 1 }} exit={{ scale: 0.9 }}
               key={selectedImage}
@@ -361,22 +358,17 @@ const ProjectDetail = () => {
               onClick={(e) => e.stopPropagation()}
             />
 
-            {/* Dots indicator chini */}
             {images.length > 1 && (
               <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
                 {images.map((_, index) => (
                   <button
                     key={index}
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      setSelectedImageIndex(index)
-                    }}
+                    onClick={(e) => { e.stopPropagation(); setSelectedImageIndex(index) }}
                     className={`rounded-full transition-all duration-300 ${
                       index === selectedImageIndex
                         ? 'bg-emerald-400 w-6 h-2 shadow-lg shadow-emerald-500/30'
                         : 'bg-white/40 w-2 h-2 hover:bg-white/70'
                     }`}
-                    aria-label={`Image ${index + 1}`}
                   />
                 ))}
               </div>

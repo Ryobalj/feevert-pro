@@ -1,10 +1,14 @@
+// src/features/accounts/pages/SettingsPage.jsx
+
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 import { useTheme } from '../../../context/ThemeContext'
 import { useAuth } from '../hooks/useAuth'
 import api from '../../../app/api'
 
 const SettingsPage = () => {
+  const { t } = useTranslation('account')
   const [passwordData, setPasswordData] = useState({ old_password: '', new_password: '', confirm_password: '' })
   const [notificationSettings, setNotificationSettings] = useState({ email: true, sms: false, in_app: true })
   const [language, setLanguage] = useState(localStorage.getItem('language') || 'en')
@@ -24,11 +28,11 @@ const SettingsPage = () => {
   const handlePasswordChange = async (e) => {
     e.preventDefault()
     if (passwordData.new_password !== passwordData.confirm_password) {
-      showMessage('New passwords do not match', 'error')
+      showMessage(t('errors.password_match'), 'error')
       return
     }
     if (passwordData.new_password.length < 8) {
-      showMessage('Password must be at least 8 characters', 'error')
+      showMessage(t('errors.password_min'), 'error')
       return
     }
     
@@ -39,11 +43,11 @@ const SettingsPage = () => {
         old_password: passwordData.old_password,
         new_password: passwordData.new_password
       })
-      showMessage('Password changed successfully!')
+      showMessage(t('settings.password_success'))
       setPasswordData({ old_password: '', new_password: '', confirm_password: '' })
       setShowCurrentPwd(false)
     } catch (error) {
-      showMessage('Error changing password. Please check your current password.', 'error')
+      showMessage(t('settings.password_error'), 'error')
     } finally {
       setSaving(prev => ({ ...prev, password: false }))
     }
@@ -53,9 +57,9 @@ const SettingsPage = () => {
     setSaving(prev => ({ ...prev, notification: true }))
     try {
       await api.patch('/notification-settings/', notificationSettings)
-      showMessage('Notification settings saved!')
+      showMessage(t('settings.notification_success'))
     } catch (error) {
-      showMessage('Error saving notification settings', 'error')
+      showMessage(t('settings.notification_error'), 'error')
     } finally {
       setSaving(prev => ({ ...prev, notification: false }))
     }
@@ -66,9 +70,9 @@ const SettingsPage = () => {
     try {
       await api.post('/language/set-language/', { language })
       localStorage.setItem('language', language)
-      showMessage('Language preference saved!')
+      showMessage(t('settings.language_success'))
     } catch (error) {
-      showMessage('Error saving language preference', 'error')
+      showMessage(t('settings.language_error'), 'error')
     } finally {
       setSaving(prev => ({ ...prev, language: false }))
     }
@@ -81,19 +85,19 @@ const SettingsPage = () => {
       className="min-h-screen py-10 md:py-16"
     >
       <div className="container-main max-w-3xl">
-        {/* ============ HEADER ============ */}
+        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="mb-10"
         >
           <h1 className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-white">
-            Account <span className="gradient-text">Settings</span>
+            {t('settings.title')} <span className="gradient-text">{t('settings.subtitle')}</span>
           </h1>
-          <p className="mt-2 text-white/40 text-sm">Manage your account preferences</p>
+          <p className="mt-2 text-white/40 text-sm">{t('settings.description')}</p>
         </motion.div>
 
-        {/* ============ MESSAGE ============ */}
+        {/* Message */}
         {message && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
@@ -119,7 +123,7 @@ const SettingsPage = () => {
         )}
 
         <div className="space-y-6">
-          {/* ============ APPEARANCE ============ */}
+          {/* Appearance */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -128,12 +132,12 @@ const SettingsPage = () => {
           >
             <h2 className="text-lg font-bold text-white mb-5 flex items-center gap-2">
               <span className="w-8 h-8 rounded-lg glass flex items-center justify-center text-sm">🎨</span>
-              Appearance
+              {t('settings.appearance')}
             </h2>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-white font-semibold">Dark Mode</p>
-                <p className="text-xs text-white/40 mt-0.5">Toggle dark mode on or off</p>
+                <p className="text-white font-semibold">{t('settings.dark_mode')}</p>
+                <p className="text-xs text-white/40 mt-0.5">{t('settings.dark_mode_desc')}</p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input
@@ -147,7 +151,7 @@ const SettingsPage = () => {
             </div>
           </motion.div>
 
-          {/* ============ CHANGE PASSWORD ============ */}
+          {/* Change Password */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -156,11 +160,11 @@ const SettingsPage = () => {
           >
             <h2 className="text-lg font-bold text-white mb-5 flex items-center gap-2">
               <span className="w-8 h-8 rounded-lg glass flex items-center justify-center text-sm">🔒</span>
-              Change Password
+              {t('settings.change_password')}
             </h2>
             <form onSubmit={handlePasswordChange} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-white/60 mb-2">Current Password</label>
+                <label className="block text-sm font-medium text-white/60 mb-2">{t('settings.current_password')}</label>
                 <div className="relative">
                   <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -173,7 +177,7 @@ const SettingsPage = () => {
                     onChange={(e) => setPasswordData({...passwordData, old_password: e.target.value})}
                     required
                     className="w-full pl-11 pr-12 py-3 glass text-white placeholder:text-white/20 rounded-xl border-0 outline-none focus:ring-2 focus:ring-emerald-400/40 transition-all text-sm"
-                    placeholder="Enter current password"
+                    placeholder={t('settings.current_password_placeholder')}
                   />
                   <button type="button" onClick={() => setShowCurrentPwd(!showCurrentPwd)} className="absolute right-4 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors" tabIndex={-1}>
                     {showCurrentPwd ? (
@@ -191,7 +195,7 @@ const SettingsPage = () => {
               </div>
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-white/60 mb-2">New Password</label>
+                  <label className="block text-sm font-medium text-white/60 mb-2">{t('settings.new_password')}</label>
                   <input
                     type="password"
                     value={passwordData.new_password}
@@ -199,18 +203,18 @@ const SettingsPage = () => {
                     required
                     minLength="8"
                     className="w-full px-4 py-3 glass text-white placeholder:text-white/20 rounded-xl border-0 outline-none focus:ring-2 focus:ring-emerald-400/40 transition-all text-sm"
-                    placeholder="New password"
+                    placeholder={t('settings.new_password_placeholder')}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-white/60 mb-2">Confirm New Password</label>
+                  <label className="block text-sm font-medium text-white/60 mb-2">{t('settings.confirm_password')}</label>
                   <input
                     type="password"
                     value={passwordData.confirm_password}
                     onChange={(e) => setPasswordData({...passwordData, confirm_password: e.target.value})}
                     required
                     className="w-full px-4 py-3 glass text-white placeholder:text-white/20 rounded-xl border-0 outline-none focus:ring-2 focus:ring-emerald-400/40 transition-all text-sm"
-                    placeholder="Confirm password"
+                    placeholder={t('settings.confirm_password_placeholder')}
                   />
                 </div>
               </div>
@@ -219,16 +223,16 @@ const SettingsPage = () => {
                 {saving.password ? (
                   <span className="relative z-10 flex items-center gap-2">
                     <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
-                    Updating...
+                    {t('buttons.updating')}
                   </span>
                 ) : (
-                  <span className="relative z-10 flex items-center gap-2">Update Password <svg className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg></span>
+                  <span className="relative z-10 flex items-center gap-2">{t('settings.update_password')} <svg className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg></span>
                 )}
               </button>
             </form>
           </motion.div>
 
-          {/* ============ NOTIFICATIONS ============ */}
+          {/* Notifications */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -237,13 +241,13 @@ const SettingsPage = () => {
           >
             <h2 className="text-lg font-bold text-white mb-5 flex items-center gap-2">
               <span className="w-8 h-8 rounded-lg glass flex items-center justify-center text-sm">🔔</span>
-              Notification Preferences
+              {t('settings.notifications')}
             </h2>
             <div className="space-y-4 mb-6">
               {[
-                { key: 'email', label: 'Email notifications', icon: '✉️', desc: 'Receive updates via email' },
-                { key: 'sms', label: 'SMS notifications', icon: '📱', desc: 'Receive updates via text message' },
-                { key: 'in_app', label: 'In-app notifications', icon: '💬', desc: 'Receive updates within the app' },
+                { key: 'email', label: t('settings.email_notifications'), icon: '✉️', desc: t('settings.email_notifications_desc') },
+                { key: 'sms', label: t('settings.sms_notifications'), icon: '📱', desc: t('settings.sms_notifications_desc') },
+                { key: 'in_app', label: t('settings.in_app_notifications'), icon: '💬', desc: t('settings.in_app_notifications_desc') },
               ].map((item) => (
                 <label key={item.key} className="flex items-center justify-between cursor-pointer group/item">
                   <div className="flex items-center gap-3">
@@ -266,11 +270,11 @@ const SettingsPage = () => {
               ))}
             </div>
             <button onClick={handleNotificationSave} disabled={saving.notification} className="glass px-6 py-3 rounded-full text-white font-semibold text-sm hover:border-emerald-400/40 hover:text-emerald-400 transition-all duration-300 disabled:opacity-60">
-              {saving.notification ? 'Saving...' : 'Save Preferences'}
+              {saving.notification ? t('buttons.saving') : t('settings.save_notifications')}
             </button>
           </motion.div>
 
-          {/* ============ LANGUAGE ============ */}
+          {/* Language */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -279,7 +283,7 @@ const SettingsPage = () => {
           >
             <h2 className="text-lg font-bold text-white mb-5 flex items-center gap-2">
               <span className="w-8 h-8 rounded-lg glass flex items-center justify-center text-sm">🌐</span>
-              Language
+              {t('settings.language')}
             </h2>
             <div className="flex flex-wrap items-center gap-4">
               <select
@@ -289,9 +293,13 @@ const SettingsPage = () => {
               >
                 <option value="en" className="bg-[#0d3320]">🇬🇧 English</option>
                 <option value="sw" className="bg-[#0d3320]">🇹🇿 Kiswahili</option>
+                <option value="zh" className="bg-[#0d3320]">🇨🇳 中文</option>
+                <option value="fr" className="bg-[#0d3320]">🇫🇷 Français</option>
+                <option value="ru" className="bg-[#0d3320]">🇷🇺 Русский</option>
+                <option value="ar" className="bg-[#0d3320]">🇸🇦 العربية</option>
               </select>
               <button onClick={handleLanguageSave} disabled={saving.language} className="glass px-6 py-3 rounded-full text-white font-semibold text-sm hover:border-emerald-400/40 hover:text-emerald-400 transition-all duration-300 disabled:opacity-60">
-                {saving.language ? 'Saving...' : 'Save Language'}
+                {saving.language ? t('buttons.saving') : t('settings.save_language')}
               </button>
             </div>
           </motion.div>

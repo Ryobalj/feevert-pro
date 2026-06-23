@@ -1,0 +1,126 @@
+﻿{
+  "consultation": "咨询",
+  "date": "日期",
+  "time": "时间",
+  "consultant": "顾问",
+  "assigned_soon": "即将分配",
+  "view": "查看",
+  "na": "无",
+  "status": {
+    "all": "全部",
+    "confirmed": "已确认",
+    "pending": "待处理",
+    "completed": "已完成",
+    "cancelled": "已取消",
+    "in_progress": "进行中",
+    "approved": "已批准",
+    "rejected": "已拒绝",
+    "unknown": "未知"
+  },
+  "time": {
+    "in": "后",
+    "ago": "前",
+    "now": "现在",
+    "min": "分钟",
+    "hr": "小时",
+    "hour": "小时",
+    "day": "天"
+  },
+  "sort": {
+    "date_asc": "日期（从旧到新）",
+    "date_desc": "日期（从新到旧）",
+    "service_asc": "服务（A-Z）",
+    "service_desc": "服务（Z-A）",
+    "status": "状态"
+  },
+  "empty": {
+    "all": {
+      "title": "暂无预订",
+      "description": "您尚未进行任何预订。从预约我们的专家开始。",
+      "action": "预约"
+    },
+    "pending": {
+      "title": "暂无待处理预订",
+      "description": "您没有待处理的预订。一切已完成！",
+      "action": "浏览服务"
+    },
+    "confirmed": {
+      "title": "暂无已确认预订",
+      "description": "您还没有已确认的预订。预订服务以开始。",
+      "action": "立即预订"
+    },
+    "completed": {
+      "title": "暂无已完成预订",
+      "description": "您还没有完成任何预订。您的历史记录将显示在此处。",
+      "action": "查看服务"
+    },
+    "cancelled": {
+      "title": "暂无已取消预订",
+      "description": "您没有任何已取消的预订。保持良好的预约习惯！",
+      "action": "查看预订"
+    },
+    "no_filter_prefix": "没有",
+    "no_filter_suffix": "找到预订",
+    "help_text": "需要帮助？",
+    "contact_support": "联系支持"
+  },
+  "detail": {
+    "loading": "正在加载预订详情...",
+    "error_title": "错误",
+    "try_again": "重试",
+    "back_to_bookings": "返回预订",
+    "title": "预订详情",
+    "booking_id": "预订",
+    "service": "服务",
+    "consultant": "顾问",
+    "date": "日期",
+    "time": "时间",
+    "meeting_link": "会议链接",
+    "join_meeting": "加入会议",
+    "notes": "备注",
+    "booked_on": "预订日期",
+    "cancel_booking": "取消预订",
+    "cancelling": "取消中..."
+  },
+  "booking": {
+    "schedule": "日程安排",
+    "title": "预约",
+    "subtitle": "预约",
+    "description": "与我们的专家安排咨询",
+    "select_service": "选择服务",
+    "select_service_optional": "选择服务（可选）",
+    "select_consultant": "选择顾问",
+    "choose_consultant": "选择顾问",
+    "select_date": "选择日期",
+    "available_slots": "可用时间段",
+    "loading_slots": "正在加载可用时段...",
+    "no_slots": "此日期没有可用时段",
+    "no_slots_hint": "尝试选择其他日期",
+    "period": {
+      "morning": "上午",
+      "afternoon": "下午",
+      "evening": "晚上"
+    },
+    "additional_notes": "附加说明",
+    "notes_placeholder": "任何具体要求或问题...",
+    "confirm_booking": "确认预约",
+    "booking": "预约中...",
+    "select_slot_alert": "请选择时间段",
+    "success_message": "预约成功确认！",
+    "error_message": "预约出错。请重试。"
+  },
+  "mybookings": {
+    "loading": "正在加载您的预订...",
+    "error_title": "错误",
+    "try_again": "重试",
+    "title": "我的",
+    "subtitle": "预订",
+    "description": "管理您的预约",
+    "refresh": "刷新",
+    "new_booking": "新建预订",
+    "total": "总计",
+    "upcoming": "即将到来",
+    "search_placeholder": "搜索预订...",
+    "clear": "清除"
+  }
+}

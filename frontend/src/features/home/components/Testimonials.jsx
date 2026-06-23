@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useTranslation } from 'react-i18next' // ✅ Ongeza hii
 import { useTheme } from '../../../context/ThemeContext'
 import api from '../../../app/api'
 
 const TestimonialsPage = () => {
+  const { t } = useTranslation('home') // ✅ Ongeza hii
   const [testimonials, setTestimonials] = useState([])
   const [loading, setLoading] = useState(true)
   const [selectedRating, setSelectedRating] = useState('all')
@@ -34,7 +36,7 @@ const TestimonialsPage = () => {
     : 0
 
   const ratings = [
-    { value: 'all', label: 'All Reviews', star: false },
+    { value: 'all', label: t('reviews.all_reviews') || 'All Reviews', star: false },
     { value: '5', label: '5', star: true },
     { value: '4', label: '4', star: true },
     { value: '3', label: '3', star: true },
@@ -67,7 +69,9 @@ const TestimonialsPage = () => {
       <div className="min-h-screen flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div className="spinner spinner-lg" />
-          <p className="text-white/50 animate-pulse">Loading testimonials...</p>
+          <p className="text-white/50 animate-pulse">
+            {t('reviews.loading') || 'Loading testimonials...'}
+          </p>
         </div>
       </div>
     )
@@ -96,16 +100,18 @@ const TestimonialsPage = () => {
             <span className="text-lg">⭐</span>
             <span className="text-sm font-semibold text-white">{averageRating}</span>
             <span className="text-xs text-white/30">•</span>
-            <span className="text-xs text-white/50">{testimonials.length} Reviews</span>
+            <span className="text-xs text-white/50">
+              {testimonials.length} {t('reviews.reviews_label') || 'Reviews'}
+            </span>
           </motion.div>
 
           {/* Title */}
           <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white mb-4">
-            What Our{' '}
-            <span className="gradient-text">Clients</span> Say
+            {t('reviews.page_title') || 'What Our'}{' '}
+            <span className="gradient-text">{t('reviews.page_subtitle') || 'Clients'}</span> {t('reviews.say') || 'Say'}
           </h1>
           <p className="text-white/50 text-lg max-w-2xl mx-auto">
-            Don't just take our word for it. Read what our satisfied clients have to say about our services.
+            {t('reviews.page_description') || "Don't just take our word for it. Read what our satisfied clients have to say about our services."}
           </p>
         </motion.div>
 
@@ -216,14 +222,16 @@ const TestimonialsPage = () => {
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="empty-state"
+              className="glass-card p-12 text-center max-w-lg mx-auto"
             >
               <div className="text-5xl mb-4 opacity-40">💬</div>
-              <h3 className="text-xl font-bold text-white mb-2">No reviews yet</h3>
+              <h3 className="text-xl font-bold text-white mb-2">
+                {t('reviews.no_reviews_title') || 'No reviews yet'}
+              </h3>
               <p className="text-white/40 max-w-sm mx-auto">
                 {selectedRating !== 'all' 
-                  ? `No ${selectedRating}-star reviews found. Try another filter.`
-                  : 'Be the first to share your experience with us!'
+                  ? t('reviews.no_filtered_reviews', { rating: selectedRating }) || `No ${selectedRating}-star reviews found. Try another filter.`
+                  : t('reviews.no_reviews_message') || 'Be the first to share your experience with us!'
                 }
               </p>
             </motion.div>
@@ -241,10 +249,10 @@ const TestimonialsPage = () => {
           >
             <div className="text-3xl mb-4">✍️</div>
             <h2 className="text-xl font-bold text-white mb-2">
-              Share Your Experience
+              {t('reviews.share_title') || 'Share Your Experience'}
             </h2>
             <p className="text-white/40 mb-6 max-w-md mx-auto">
-              We'd love to hear about your experience with our services.
+              {t('reviews.share_description') || "We'd love to hear about your experience with our services."}
             </p>
             <Link 
               to="/submit-review" 
@@ -258,7 +266,7 @@ const TestimonialsPage = () => {
               <svg className="w-5 h-5 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
               </svg>
-              <span className="relative z-10">Write a Review</span>
+              <span className="relative z-10">{t('reviews.write_review') || 'Write a Review'}</span>
             </Link>
           </motion.div>
         )}

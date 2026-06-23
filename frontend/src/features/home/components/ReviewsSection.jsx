@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next' // ✅ Ongeza hii
 import api from '../../../app/api'
 
 const ReviewsSection = () => {
+  const { t } = useTranslation('home') // ✅ Ongeza hii
   const [reviews, setReviews] = useState([])
 
   useEffect(() => {
@@ -70,16 +72,18 @@ const ReviewsSection = () => {
               {averageRating}
             </span>
             <span className="text-xs text-white/40">•</span>
-            <span className="text-xs text-white/50">{reviews.length} Reviews</span>
+            <span className="text-xs text-white/50">
+              {reviews.length} {t('reviews.reviews_label') || 'Reviews'}
+            </span>
           </motion.div>
 
           {/* Title */}
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white mb-4">
-            What Our{' '}
-            <span className="gradient-text">Clients</span> Say
+            {t('reviews.title') || 'What Our'}{' '}
+            <span className="gradient-text">{t('reviews.subtitle') || 'Clients'}</span> {t('reviews.say') || 'Say'}
           </h2>
           <p className="text-white/60 text-lg max-w-xl mx-auto">
-            Hear from our satisfied clients about their experience working with us
+            {t('reviews.description') || 'Hear from our satisfied clients about their experience working with us'}
           </p>
         </motion.div>
 
@@ -125,10 +129,10 @@ const ReviewsSection = () => {
                     </div>
                     <div>
                       <h4 className="font-semibold text-white text-sm">
-                        {review.client_name || review.client?.username || 'Client'}
+                        {review.client_name || review.client?.username || t('reviews.client') || 'Client'}
                       </h4>
                       <p className="text-xs text-white/40">
-                        {review.client_role || 'Client'}
+                        {review.client_role || t('reviews.client_role') || 'Client'}
                       </p>
                     </div>
 
@@ -162,7 +166,7 @@ const ReviewsSection = () => {
               className="group relative inline-flex items-center gap-3 border-2 border-white/20 text-white px-8 py-4 rounded-full font-bold text-base hover:border-emerald-400/50 transition-all duration-300 overflow-hidden"
             >
               <span className="absolute inset-0 bg-emerald-500/0 group-hover:bg-emerald-500/5 transition-colors duration-300" />
-              <span className="relative z-10">Read All Reviews</span>
+              <span className="relative z-10">{t('reviews.view_all') || 'Read All Reviews'}</span>
               <motion.svg 
                 className="w-5 h-5 relative z-10" 
                 fill="none" stroke="currentColor" viewBox="0 0 24 24"

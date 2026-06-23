@@ -1,10 +1,14 @@
+// src/features/accounts/pages/VerifyEmailPage.jsx
+
 import React, { useState, useEffect } from 'react'
 import { useSearchParams, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 import { useTheme } from '../../../context/ThemeContext'
 import api from '../../../app/api'
 
 const VerifyEmailPage = () => {
+  const { t } = useTranslation('account')
   const [searchParams] = useSearchParams()
   const [status, setStatus] = useState('loading')
   const [message, setMessage] = useState('')
@@ -14,7 +18,7 @@ const VerifyEmailPage = () => {
     const token = searchParams.get('token')
     if (!token) {
       setStatus('error')
-      setMessage('No verification token provided.')
+      setMessage(t('verify.no_token'))
       return
     }
 
@@ -22,15 +26,15 @@ const VerifyEmailPage = () => {
       try {
         await api.post('/auth/verify-email/', { token })
         setStatus('success')
-        setMessage('Your email has been verified successfully!')
+        setMessage(t('verify.success'))
       } catch (error) {
         setStatus('error')
-        setMessage(error.response?.data?.error || 'Email verification failed. The token may be invalid or expired.')
+        setMessage(error.response?.data?.error || t('verify.error'))
       }
     }
 
     verifyEmail()
-  }, [searchParams])
+  }, [searchParams, t])
 
   return (
     <div className="min-h-screen flex items-center justify-center py-12 px-4">
@@ -41,7 +45,7 @@ const VerifyEmailPage = () => {
           transition={{ duration: 0.5 }}
           className="glass-card !p-8 text-center"
         >
-          {/* ============ LOADING STATE ============ */}
+          {/* Loading State */}
           {status === 'loading' && (
             <motion.div
               initial={{ opacity: 0 }}
@@ -59,16 +63,16 @@ const VerifyEmailPage = () => {
                 </div>
               </div>
               <h2 className="text-xl font-extrabold text-white mb-2">
-                Verifying your email...
+                {t('verify.verifying')}
               </h2>
               <p className="text-white/40 text-sm">
-                Please wait while we verify your email address.
+                {t('verify.verifying_message')}
               </p>
               <div className="h-0.5 bg-emerald-400/30 rounded-full w-24 mx-auto mt-6 animate-pulse" />
             </motion.div>
           )}
 
-          {/* ============ SUCCESS STATE ============ */}
+          {/* Success State */}
           {status === 'success' && (
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
@@ -103,10 +107,10 @@ const VerifyEmailPage = () => {
               </motion.div>
 
               <h2 className="text-2xl font-extrabold text-white mb-2">
-                Email <span className="gradient-text">Verified!</span>
+                {t('verify.success_title')}
               </h2>
               <p className="text-white/50 text-sm mb-8">
-                {message || 'Your email has been verified successfully!'}
+                {message}
               </p>
 
               <Link 
@@ -119,7 +123,7 @@ const VerifyEmailPage = () => {
                   transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
                 />
                 <span className="relative z-10 flex items-center justify-center gap-2">
-                  Sign In
+                  {t('verify.login')}
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                   </svg>
@@ -128,7 +132,7 @@ const VerifyEmailPage = () => {
             </motion.div>
           )}
 
-          {/* ============ ERROR STATE ============ */}
+          {/* Error State */}
           {status === 'error' && (
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
@@ -155,10 +159,10 @@ const VerifyEmailPage = () => {
               </motion.div>
 
               <h2 className="text-2xl font-extrabold text-white mb-2">
-                Verification Failed
+                {t('verify.error_title')}
               </h2>
               <p className="text-white/50 text-sm mb-8">
-                {message || 'Email verification failed. The token may be invalid or expired.'}
+                {message}
               </p>
 
               <div className="space-y-3">
@@ -167,7 +171,7 @@ const VerifyEmailPage = () => {
                   className="btn-primary btn-lg w-full group relative overflow-hidden"
                 >
                   <span className="relative z-10 flex items-center justify-center gap-2">
-                    Go to Login
+                    {t('verify.go_to_login')}
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                     </svg>
@@ -175,12 +179,12 @@ const VerifyEmailPage = () => {
                 </Link>
 
                 <p className="text-sm text-white/40 pt-2">
-                  Need a new verification link?{' '}
+                  {t('verify.need_new_link')}{' '}
                   <Link 
                     to="/resend-verification" 
                     className="font-semibold text-emerald-400 hover:text-emerald-300 transition-colors"
                   >
-                    Resend
+                    {t('verify.resend')}
                   </Link>
                 </p>
               </div>

@@ -1,0 +1,105 @@
+﻿{
+  "title": "Admin",
+  "dashboard_title": "Dashboard",
+  "subtitle": "System overview and management",
+  "loading": "Loading dashboard...",
+  "welcome_back": "Welcome back",
+  "total_users": "Total Users",
+  "pending_consultations": "Pending Consultations",
+  "pending_bookings": "Pending Bookings",
+  "total_revenue": "Total Revenue",
+  "recent_consultations": "Recent Consultations",
+  "recent_bookings": "Recent Bookings",
+  "no_consultations": "No consultations yet",
+  "no_bookings": "No bookings yet",
+  "view_all": "View all",
+  "quick_actions": "Quick Actions",
+  "manage_users": "Manage Users",
+  "manage_roles": "Manage Roles",
+  "site_settings": "Site Settings",
+  "project": {
+    "client": "Client",
+    "internal": "FeeVert Project",
+    "view": "View"
+  },
+  "booking": {
+    "status": {
+      "confirmed": "Confirmed",
+      "pending": "Pending",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    },
+    "date_tbd": "Date TBD",
+    "service": "Booking"
+  },
+  "consultation": {
+    "status": {
+      "confirmed": "Confirmed",
+      "pending": "Pending",
+      "in_progress": "In Progress",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    },
+    "date_tbd": "Date TBD",
+    "service": "Consultation"
+  },
+  "client": {
+    "loading": "Loading your dashboard...",
+    "welcome_back": "Welcome back",
+    "activity_overview": "Here's an overview of your activity",
+    "member_since": "Member since",
+    "pending_bookings": "Pending Bookings",
+    "pending_consultations": "Pending Consultations",
+    "completed_payments": "Completed Payments",
+    "recent_bookings": "Recent Bookings",
+    "recent_consultations": "Recent Consultations",
+    "your_projects": "Your Projects",
+    "quick_actions": "Quick Actions",
+    "no_bookings": "No bookings yet",
+    "no_consultations": "No consultations yet",
+    "no_projects": "No projects yet",
+    "book_appointment": "Book an appointment",
+    "request_consultation": "Request a consultation",
+    "update_profile": "Update Profile"
+  },
+  "consultant": {
+    "loading": "Loading your dashboard...",
+    "title": "Consultant",
+    "dashboard": "Dashboard",
+    "welcome_back": "Welcome back",
+    "pending": "pending",
+    "upcoming": "upcoming",
+    "assigned_consultations": "Assigned Consultations",
+    "upcoming_bookings": "Upcoming Bookings",
+    "active_projects": "Active Projects",
+    "no_consultations": "No consultations assigned yet",
+    "no_bookings": "No upcoming bookings"
+  },
+  "employee": {
+    "loading": "Loading your dashboard...",
+    "title": "Employee",
+    "dashboard": "Dashboard",
+    "welcome": "Welcome",
+    "projects": "projects",
+    "news": "news",
+    "teammates": "teammates",
+    "projects_title": "Projects",
+    "latest_news": "Latest News",
+    "team_members": "Team Members",
+    "no_projects": "No projects assigned yet",
+    "no_news": "No news articles yet",
+    "no_team": "No team members yet"
+  },
+  "news": {
+    "date_tbd": "Date TBD"
+  },
+  "team": {
+    "member": "Team Member"
+  },
+  "dashboard": {
+    "loading": "Loading your dashboard...",
+    "pending_title": "Account Pending",
+    "pending_message": "Your account is being set up. Please wait for admin approval or contact support.",
+    "contact_support": "Contact Support"
+  }
+}

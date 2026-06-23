@@ -1,14 +1,22 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useTranslation } from 'react-i18next' // ✅ Ongeza hii
 import { useTheme } from '../../../context/ThemeContext'
 import api from '../../../app/api'
 
 const JobDetail = () => {
   const { id } = useParams()
   const navigate = useNavigate()
+  const { t } = useTranslation('careers') // ✅ Ongeza hii
   const [job, setJob] = useState(null)
-  const [formData, setFormData] = useState({ full_name: '', email: '', phone: '', cover_letter: '', cv_file: null })
+  const [formData, setFormData] = useState({ 
+    full_name: '', 
+    email: '', 
+    phone: '', 
+    cover_letter: '', 
+    cv_file: null 
+  })
   const [fileName, setFileName] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
@@ -36,7 +44,7 @@ const JobDetail = () => {
     setError('')
     
     if (!formData.cv_file) {
-      setError('Please upload your CV')
+      setError(t('apply.cv_required')) // ✅ Translation
       return
     }
     
@@ -55,7 +63,7 @@ const JobDetail = () => {
       setFileName('')
     } catch (err) {
       console.error('Error submitting application:', err)
-      setError(err.response?.data?.error || 'Error submitting application. Please try again.')
+      setError(err.response?.data?.error || t('apply.error')) // ✅ Translation
     } finally {
       setSubmitting(false)
     }
@@ -66,6 +74,36 @@ const JobDetail = () => {
     ? Math.ceil((new Date(job.deadline) - new Date()) / (1000 * 60 * 60 * 24))
     : null
 
+  // Helper functions
+  const formatSalary = (amount) => {
+    if (!amount && amount !== 0) return ''
+    return new Intl.NumberFormat('en-US', {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(amount)
+  }
+
+  const getCurrencySymbol = (currency) => {
+    const symbols = {
+      'TZS': 'TSh',
+      'USD': '$',
+      'EUR': '€',
+      'KES': 'KSh',
+      'GBP': '£',
+      'UGX': 'USh'
+    }
+    return symbols[currency] || currency || 'TZS'
+  }
+
+  const formatDeadline = (date) => {
+    if (!date) return ''
+    return new Date(date).toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    })
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -74,7 +112,7 @@ const JobDetail = () => {
             <div className="absolute inset-0 bg-emerald-400/10 rounded-full blur-xl animate-pulse" />
             <div className="spinner spinner-lg relative" />
           </div>
-          <p className="text-white/50 animate-pulse">Loading job details...</p>
+          <p className="text-white/50 animate-pulse">{t('jobs.loading') || 'Loading job details...'}</p>
         </div>
       </div>
     )
@@ -99,7 +137,7 @@ const JobDetail = () => {
           <svg className="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
-          Back to Careers
+          {t('jobs.back_to_careers') || 'Back to Careers'}
         </motion.button>
 
         <div className="grid lg:grid-cols-3 gap-6">
@@ -120,12 +158,12 @@ const JobDetail = () => {
                 <div className="flex items-center gap-2">
                   {job.is_featured && (
                     <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold bg-amber-500/15 text-amber-400 border border-amber-500/20">
-                      ⭐ Featured
+                      ⭐ {t('job_card.featured')}
                     </span>
                   )}
                   {isExpired && (
                     <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold bg-red-500/15 text-red-400 border border-red-500/20">
-                      ❌ Expired
+                      ❌ {t('job_card.expired')}
                     </span>
                   )}
                 </div>
@@ -138,19 +176,19 @@ const JobDetail = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
-                  {job.location || 'Various'}
+                  {job.location || t('job_card.various')}
                 </span>
                 <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/20">
-                  {job.employment_type_display || job.employment_type}
+                  {job.employment_type_display || job.employment_type?.replace(/_/g, ' ') || t('job_card.not_specified')}
                 </span>
                 {job.experience_level && (
                   <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold bg-purple-500/15 text-purple-400 border border-purple-500/20">
-                    {job.experience_level_display || job.experience_level}
+                    {job.experience_level_display || job.experience_level.replace(/_/g, ' ')}
                   </span>
                 )}
                 {job.remote_option && (
                   <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold bg-blue-500/15 text-blue-400 border border-blue-500/20">
-                    {job.remote_option_display || job.remote_option}
+                    {job.remote_option_display || job.remote_option.replace(/_/g, ' ')}
                   </span>
                 )}
               </div>
@@ -160,7 +198,7 @@ const JobDetail = () => {
                 <div>
                   <h3 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
                     <span className="w-1.5 h-5 bg-emerald-400 rounded-full" />
-                    Job Description
+                    {t('jobs.description')}
                   </h3>
                   <div className="text-white/60 leading-relaxed text-sm whitespace-pre-line pl-4">
                     {job.description}
@@ -171,7 +209,7 @@ const JobDetail = () => {
                   <div>
                     <h3 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
                       <span className="w-1.5 h-5 bg-amber-400 rounded-full" />
-                      Requirements
+                      {t('jobs.requirements')}
                     </h3>
                     <div className="text-white/60 leading-relaxed text-sm whitespace-pre-line pl-4">
                       {job.requirements}
@@ -183,7 +221,7 @@ const JobDetail = () => {
                   <div>
                     <h3 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
                       <span className="w-1.5 h-5 bg-blue-400 rounded-full" />
-                      Responsibilities
+                      {t('jobs.responsibilities')}
                     </h3>
                     <div className="text-white/60 leading-relaxed text-sm whitespace-pre-line pl-4">
                       {job.responsibilities}
@@ -203,7 +241,7 @@ const JobDetail = () => {
             >
               <h2 className="text-xl font-extrabold text-white mb-6 flex items-center gap-2">
                 <span className="w-8 h-8 rounded-lg glass flex items-center justify-center text-sm">📝</span>
-                Apply for this position
+                {t('apply.title')}
               </h2>
 
               <AnimatePresence mode="wait">
@@ -228,8 +266,8 @@ const JobDetail = () => {
                         </svg>
                       </div>
                     </motion.div>
-                    <h3 className="text-lg font-bold text-white mb-2">Application Submitted!</h3>
-                    <p className="text-white/50 text-sm">We'll review your application and get back to you soon.</p>
+                    <h3 className="text-lg font-bold text-white mb-2">{t('apply.success_title')}</h3>
+                    <p className="text-white/50 text-sm">{t('apply.success_message')}</p>
                   </motion.div>
                 ) : (
                   <motion.form key="form" onSubmit={handleSubmit} className="space-y-4" exit={{ opacity: 0 }}>
@@ -244,52 +282,103 @@ const JobDetail = () => {
 
                     <div className="grid md:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-white/60 mb-2">Full Name <span className="text-red-400">*</span></label>
+                        <label className="block text-sm font-medium text-white/60 mb-2">
+                          {t('apply.full_name')} <span className="text-red-400">*</span>
+                        </label>
                         <div className="relative">
                           <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30">
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
                           </div>
-                          <input type="text" value={formData.full_name} onChange={(e) => setFormData({...formData, full_name: e.target.value})} required
-                            className="w-full pl-11 pr-4 py-3 glass text-white placeholder:text-white/25 rounded-xl border-0 outline-none focus:ring-2 focus:ring-emerald-400/40 transition-all text-sm" placeholder="Your full name" />
+                          <input 
+                            type="text" 
+                            value={formData.full_name} 
+                            onChange={(e) => setFormData({...formData, full_name: e.target.value})} 
+                            required
+                            className="w-full pl-11 pr-4 py-3 glass text-white placeholder:text-white/25 rounded-xl border-0 outline-none focus:ring-2 focus:ring-emerald-400/40 transition-all text-sm" 
+                            placeholder={t('apply.full_name_placeholder')} 
+                          />
                         </div>
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-white/60 mb-2">Email <span className="text-red-400">*</span></label>
+                        <label className="block text-sm font-medium text-white/60 mb-2">
+                          {t('apply.email')} <span className="text-red-400">*</span>
+                        </label>
                         <div className="relative">
                           <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30">
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
                           </div>
-                          <input type="email" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} required
-                            className="w-full pl-11 pr-4 py-3 glass text-white placeholder:text-white/25 rounded-xl border-0 outline-none focus:ring-2 focus:ring-emerald-400/40 transition-all text-sm" placeholder="Your email" />
+                          <input 
+                            type="email" 
+                            value={formData.email} 
+                            onChange={(e) => setFormData({...formData, email: e.target.value})} 
+                            required
+                            className="w-full pl-11 pr-4 py-3 glass text-white placeholder:text-white/25 rounded-xl border-0 outline-none focus:ring-2 focus:ring-emerald-400/40 transition-all text-sm" 
+                            placeholder={t('apply.email_placeholder')} 
+                          />
                         </div>
                       </div>
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-white/60 mb-2">Phone</label>
+                      <label className="block text-sm font-medium text-white/60 mb-2">
+                        {t('apply.phone')}
+                      </label>
                       <div className="relative">
                         <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30">
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
                         </div>
-                        <input type="tel" value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                          className="w-full pl-11 pr-4 py-3 glass text-white placeholder:text-white/25 rounded-xl border-0 outline-none focus:ring-2 focus:ring-emerald-400/40 transition-all text-sm" placeholder="Your phone number" />
+                        <input 
+                          type="tel" 
+                          value={formData.phone} 
+                          onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                          className="w-full pl-11 pr-4 py-3 glass text-white placeholder:text-white/25 rounded-xl border-0 outline-none focus:ring-2 focus:ring-emerald-400/40 transition-all text-sm" 
+                          placeholder={t('apply.phone_placeholder')} 
+                        />
                       </div>
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-white/60 mb-2">Cover Letter</label>
-                      <textarea value={formData.cover_letter} onChange={(e) => setFormData({...formData, cover_letter: e.target.value})} rows="4"
+                      <label className="block text-sm font-medium text-white/60 mb-2">
+                        {t('apply.cover_letter')}
+                      </label>
+                      <textarea 
+                        value={formData.cover_letter} 
+                        onChange={(e) => setFormData({...formData, cover_letter: e.target.value})} 
+                        rows="4"
                         className="w-full px-4 py-3 glass text-white placeholder:text-white/25 rounded-xl border-0 outline-none focus:ring-2 focus:ring-emerald-400/40 transition-all text-sm resize-none"
-                        placeholder="Tell us why you're a great fit for this role..." />
+                        placeholder={t('apply.cover_letter_placeholder')} 
+                      />
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-white/60 mb-2">CV / Resume <span className="text-red-400">*</span></label>
-                      <input type="file" id="cv-upload-detail" accept=".pdf,.doc,.docx" className="hidden"
+                      <label className="block text-sm font-medium text-white/60 mb-2">
+                        {t('apply.cv')} <span className="text-red-400">*</span>
+                      </label>
+                      <input 
+                        type="file" 
+                        id="cv-upload-detail" 
+                        accept=".pdf,.doc,.docx" 
+                        className="hidden"
                         onChange={(e) => {
                           const file = e.target.files[0]
-                          if (file) { setFormData({...formData, cv_file: file}); setFileName(file.name); setError('') }
-                        }} />
+                          if (file) { 
+                            // Validate file size
+                            if (file.size > 5 * 1024 * 1024) {
+                              setError(t('apply.file_size_error'))
+                              return
+                            }
+                            // Validate file type
+                            const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']
+                            if (!allowedTypes.includes(file.type)) {
+                              setError(t('apply.file_type_error'))
+                              return
+                            }
+                            setFormData({...formData, cv_file: file}); 
+                            setFileName(file.name); 
+                            setError('') 
+                          }
+                        }} 
+                      />
                       <label htmlFor="cv-upload-detail" className={`flex items-center justify-center gap-3 w-full p-4 glass rounded-xl cursor-pointer hover:border-emerald-400/30 transition-all duration-300 ${fileName ? 'border-emerald-400/30' : ''}`}>
                         {fileName ? (
                           <>
@@ -303,19 +392,30 @@ const JobDetail = () => {
                         ) : (
                           <>
                             <svg className="w-5 h-5 text-white/40 group-hover:text-emerald-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>
-                            <span className="text-white/40 text-sm">Upload CV</span>
+                            <span className="text-white/40 text-sm">{t('apply.upload_cv')}</span>
                           </>
                         )}
                       </label>
-                      <p className="text-[10px] text-white/25 mt-1.5">PDF, DOC, or DOCX (Max 5MB)</p>
+                      <p className="text-[10px] text-white/25 mt-1.5">{t('apply.file_hint')}</p>
                     </div>
                     
                     <button type="submit" disabled={submitting} className="btn-primary btn-lg w-full group relative overflow-hidden">
                       <motion.div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12" animate={submitting ? {} : { x: ['-200%', '200%'] }} transition={{ duration: 2, repeat: Infinity }} />
                       {submitting ? (
-                        <span className="relative z-10 flex items-center justify-center gap-2"><svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>Submitting...</span>
+                        <span className="relative z-10 flex items-center justify-center gap-2">
+                          <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                          </svg>
+                          {t('apply.submitting')}
+                        </span>
                       ) : (
-                        <span className="relative z-10 flex items-center justify-center gap-2"><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>Submit Application</span>
+                        <span className="relative z-10 flex items-center justify-center gap-2">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                          </svg>
+                          {t('apply.submit')}
+                        </span>
                       )}
                     </button>
                   </motion.form>
@@ -334,37 +434,43 @@ const JobDetail = () => {
             >
               <h3 className="text-lg font-bold text-white mb-5 flex items-center gap-2">
                 <span className="w-8 h-8 rounded-lg glass flex items-center justify-center text-sm">📋</span>
-                Job Overview
+                {t('jobs.overview') || 'Job Overview'}
               </h3>
               
               <div className="space-y-4">
                 {job.salary_range_min && job.salary_range_max && (
                   <div className="glass rounded-xl p-4">
-                    <p className="text-[10px] text-white/30 uppercase tracking-wider mb-1">Salary Range</p>
+                    <p className="text-[10px] text-white/30 uppercase tracking-wider mb-1">
+                      {t('jobs.salary')}
+                    </p>
                     <p className="font-bold text-white text-sm">
-                      {job.salary_currency || 'TZS'} {parseInt(job.salary_range_min).toLocaleString()} - {parseInt(job.salary_range_max).toLocaleString()}
+                      {getCurrencySymbol(job.salary_currency)} {formatSalary(job.salary_range_min)} - {formatSalary(job.salary_range_max)}
                     </p>
                   </div>
                 )}
                 
                 {job.vacancies_count && (
                   <div className="glass rounded-xl p-4">
-                    <p className="text-[10px] text-white/30 uppercase tracking-wider mb-1">Vacancies</p>
+                    <p className="text-[10px] text-white/30 uppercase tracking-wider mb-1">
+                      {t('jobs.vacancies') || 'Vacancies'}
+                    </p>
                     <p className="font-bold text-white text-sm">
-                      {job.vacancies_count} position{job.vacancies_count > 1 ? 's' : ''}
+                      {job.vacancies_count} {job.vacancies_count > 1 ? (t('jobs.positions') || 'positions') : (t('jobs.position') || 'position')}
                     </p>
                   </div>
                 )}
                 
                 {job.deadline && (
                   <div className="glass rounded-xl p-4">
-                    <p className="text-[10px] text-white/30 uppercase tracking-wider mb-1">Deadline</p>
+                    <p className="text-[10px] text-white/30 uppercase tracking-wider mb-1">
+                      {t('job_card.deadline')}
+                    </p>
                     <p className="font-bold text-white text-sm">
-                      {new Date(job.deadline).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                      {formatDeadline(job.deadline)}
                     </p>
                     {!isExpired && daysLeft !== null && daysLeft <= 14 && (
                       <p className={`text-[10px] mt-1 font-medium ${daysLeft <= 3 ? 'text-red-400' : 'text-amber-400'}`}>
-                        {daysLeft} day{daysLeft > 1 ? 's' : ''} remaining
+                        {daysLeft} {t('job_card.days_left')}
                       </p>
                     )}
                   </div>
@@ -378,7 +484,7 @@ const JobDetail = () => {
                 >
                   <motion.div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12" animate={{ x: ['-200%', '200%'] }} transition={{ duration: 2, repeat: Infinity }} />
                   <span className="relative z-10 flex items-center justify-center gap-2">
-                    Apply Now
+                    {t('job_card.apply_now')}
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
                   </span>
                 </button>

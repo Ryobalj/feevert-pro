@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next' // ✅ Ongeza hii
 import api from '../../../app/api'
 
 const JobsPage = () => {
+  const { t } = useTranslation('careers') // ✅ Ongeza hii
   const [jobs, setJobs] = useState([])
   const [loading, setLoading] = useState(true)
 
@@ -33,7 +35,7 @@ const JobsPage = () => {
             <div className="absolute inset-0 bg-emerald-400/10 rounded-full blur-xl animate-pulse" />
             <div className="spinner spinner-lg relative" />
           </div>
-          <p className="text-white/50 animate-pulse">Loading opportunities...</p>
+          <p className="text-white/50 animate-pulse">{t('jobs.loading') || 'Loading opportunities...'}</p>
         </div>
       </div>
     )
@@ -59,25 +61,26 @@ const JobsPage = () => {
               animate={{ scale: [1, 1.5, 1], opacity: [0.7, 1, 0.7] }}
               transition={{ duration: 2, repeat: Infinity }}
             />
-            <span className="text-sm font-medium text-white/80">💼 We're Hiring!</span>
+            <span className="text-sm font-medium text-white/80">💼 {t('jobs.hiring_badge') || "We're Hiring!"}</span>
           </motion.div>
 
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white mb-4">
-            Career <span className="gradient-text">Opportunities</span>
+            {t('jobs.career_title') || 'Career'} <span className="gradient-text">{t('jobs.opportunities') || 'Opportunities'}</span>
           </h1>
           <p className="text-lg text-white/50 max-w-2xl mx-auto">
-            Join our team of passionate professionals and make an impact
+            {t('jobs.join_description') || 'Join our team of passionate professionals and make an impact'}
           </p>
 
           {/* Stats */}
           {jobs.length > 0 && (
             <div className="flex flex-wrap justify-center gap-3 mt-8">
               <div className="glass px-4 py-2 rounded-full text-sm text-white/50">
-                <span className="text-white font-semibold">{jobs.length}</span> open position{jobs.length !== 1 ? 's' : ''}
+                <span className="text-white font-semibold">{jobs.length}</span> 
+                {' '}{jobs.length === 1 ? t('jobs.position') : t('jobs.positions')} {t('jobs.open') || 'open'}
               </div>
               {featuredJobs.length > 0 && (
                 <div className="glass px-4 py-2 rounded-full text-sm text-amber-400/70">
-                  <span className="text-amber-400 font-semibold">{featuredJobs.length}</span> featured
+                  <span className="text-amber-400 font-semibold">{featuredJobs.length}</span> {t('jobs.featured') || 'featured'}
                 </div>
               )}
             </div>
@@ -94,7 +97,7 @@ const JobsPage = () => {
           >
             <div className="flex items-center gap-2 mb-6">
               <span className="text-lg">⭐</span>
-              <h2 className="text-xl font-bold text-white">Featured Positions</h2>
+              <h2 className="text-xl font-bold text-white">{t('jobs.featured_positions') || 'Featured Positions'}</h2>
             </div>
             <div className="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto">
               {featuredJobs.map((job, index) => (
@@ -105,7 +108,7 @@ const JobsPage = () => {
             {regularJobs.length > 0 && (
               <div className="flex items-center gap-3 my-10">
                 <div className="flex-1 h-px bg-white/5" />
-                <span className="text-xs text-white/30 uppercase tracking-wider">More Opportunities</span>
+                <span className="text-xs text-white/30 uppercase tracking-wider">{t('jobs.more_opportunities') || 'More Opportunities'}</span>
                 <div className="flex-1 h-px bg-white/5" />
               </div>
             )}
@@ -127,13 +130,13 @@ const JobsPage = () => {
             className="glass-card p-12 text-center max-w-lg mx-auto mt-8"
           >
             <div className="text-5xl mb-4 opacity-40">📋</div>
-            <h3 className="text-xl font-bold text-white mb-2">No open positions</h3>
-            <p className="text-white/40">Check back later for new opportunities.</p>
+            <h3 className="text-xl font-bold text-white mb-2">{t('jobs.no_positions') || 'No open positions'}</h3>
+            <p className="text-white/40">{t('jobs.check_back') || 'Check back later for new opportunities.'}</p>
             <Link 
               to="/contact" 
               className="inline-flex items-center gap-2 mt-6 px-6 py-3 rounded-full border-2 border-white/20 text-white font-semibold hover:border-emerald-400/50 transition-all duration-300"
             >
-              Contact Us
+              {t('jobs.contact_us') || 'Contact Us'}
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
               </svg>
@@ -147,10 +150,21 @@ const JobsPage = () => {
 
 // ============ JOB CARD COMPONENT ============
 const JobCard = ({ job, index, featured = false }) => {
+  const { t } = useTranslation('careers') // ✅ Ongeza hii
+  
   const isExpired = job.deadline && new Date(job.deadline) < new Date()
   const daysLeft = job.deadline 
     ? Math.ceil((new Date(job.deadline) - new Date()) / (1000 * 60 * 60 * 24))
     : null
+
+  // Format deadline
+  const formatDeadline = (date) => {
+    if (!date) return ''
+    return new Date(date).toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric' 
+    })
+  }
 
   return (
     <motion.div
@@ -178,12 +192,12 @@ const JobCard = ({ job, index, featured = false }) => {
               </h3>
               {featured && !isExpired && (
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/15 text-amber-400 border border-amber-500/20 flex-shrink-0">
-                  ⭐ Featured
+                  ⭐ {t('job_card.featured')}
                 </span>
               )}
               {isExpired && (
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-red-500/15 text-red-400 border border-red-500/20 flex-shrink-0">
-                  ❌ Expired
+                  ❌ {t('job_card.expired')}
                 </span>
               )}
             </div>
@@ -195,14 +209,14 @@ const JobCard = ({ job, index, featured = false }) => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
-                {job.location || 'Various'}
+                {job.location || t('job_card.various')}
               </span>
               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/20">
-                {job.employment_type_display || job.employment_type?.replace(/_/g, ' ')}
+                {job.employment_type_display || job.employment_type?.replace(/_/g, ' ') || t('job_card.not_specified')}
               </span>
               {job.experience_level && (
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-purple-500/15 text-purple-400 border border-purple-500/20">
-                  {job.experience_level_display || job.experience_level}
+                  {job.experience_level_display || job.experience_level.replace(/_/g, ' ')}
                 </span>
               )}
             </div>
@@ -221,12 +235,12 @@ const JobCard = ({ job, index, featured = false }) => {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
                     {isExpired ? (
-                      <span className="text-red-400">Expired</span>
+                      <span className="text-red-400">{t('job_card.expired')}</span>
                     ) : (
                       <>
-                        {new Date(job.deadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                        {t('job_card.deadline')}: {formatDeadline(job.deadline)}
                         {daysLeft !== null && daysLeft <= 7 && (
-                          <span className="text-amber-400 font-medium">({daysLeft}d left)</span>
+                          <span className="text-amber-400 font-medium">({daysLeft} {t('job_card.days_left')})</span>
                         )}
                       </>
                     )}
@@ -234,7 +248,7 @@ const JobCard = ({ job, index, featured = false }) => {
                 )}
               </div>
               <span className="text-sm font-semibold text-emerald-400 flex items-center gap-1 group-hover:gap-2 transition-all">
-                Apply Now
+                {t('job_card.apply_now')}
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>

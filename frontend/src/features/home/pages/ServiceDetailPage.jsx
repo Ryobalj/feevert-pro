@@ -1,24 +1,12 @@
+// src/features/home/pages/ServiceDetailPage.jsx
+
 import React, { useState, useEffect } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTheme } from '../../../context/ThemeContext'
 import api from '../../../app/api'
 import Loader from '../../../components/ui/Loader'
-
-// ============ ICON CONVERTER ============
-const iconMap = {
-  ':bee:': '🐝', ':leaf:': '🌿', ':shield:': '🛡️',
-  ':home:': '🏠', ':tools:': '🛠️', ':honey:': '🍯',
-  ':books:': '📚', ':sunflower:': '🌻', ':clipboard:': '📋',
-  ':search:': '🔍', ':recycle:': '♻️', ':globe:': '🌍',
-  ':map:': '🗺️', ':scroll:': '📜', ':warning:': '⚠️',
-  ':chart:': '📊', ':graduate:': '🎓', ':detective:': '🔎',
-}
-
-const getIcon = (icon) => {
-  if (!icon) return '📌'
-  return iconMap[icon] || icon
-}
+import { Icon } from '../../../components/ui/Icon'
 
 // ============ HELPERS ============
 const getDisplayPrice = (service) => {
@@ -47,6 +35,55 @@ const getDuration = (minutes) => {
   if (hours > 0 && mins > 0) return `${hours}h ${mins}m`
   if (hours > 0) return `${hours}h`
   return `${mins}m`
+}
+
+// ============ SAFE RENDER HELPERS ============
+const renderStringArray = (items) => {
+  if (!items || !Array.isArray(items) || items.length === 0) return null
+  
+  return items.map((item, i) => {
+    let text = item
+    if (typeof item === 'object' && item !== null) {
+      text = item.text || item.title || item.name || JSON.stringify(item)
+    }
+    return (
+      <li key={i} className="flex items-start gap-3 text-white/60 text-sm group/item">
+        <div className="w-5 h-5 rounded-full bg-emerald-500/15 flex items-center justify-center flex-shrink-0 mt-0.5 group-hover/item:bg-emerald-500/30 transition-colors">
+          <svg className="w-3 h-3 text-emerald-400" fill="currentColor" viewBox="0 0 24 24">
+            <path fillRule="evenodd" d="M19.916 4.626a.75.75 0 01.208 1.04l-9 13.5a.75.75 0 01-1.154.114l-6-6a.75.75 0 011.06-1.06l5.353 5.353 8.493-12.739a.75.75 0 011.04-.208z" clipRule="evenodd" />
+          </svg>
+        </div>
+        <span className="group-hover/item:text-white/80 transition-colors">{text}</span>
+      </li>
+    )
+  })
+}
+
+const renderFaq = (items) => {
+  if (!items || !Array.isArray(items) || items.length === 0) return null
+  
+  return items.map((item, i) => {
+    let question = item.question || item
+    let answer = item.answer || ''
+    
+    if (typeof item === 'string') {
+      try {
+        const parsed = JSON.parse(item)
+        question = parsed.question || item
+        answer = parsed.answer || ''
+      } catch {
+        question = item
+        answer = ''
+      }
+    }
+    
+    return (
+      <div key={i} className="glass rounded-xl p-4 hover:border-emerald-400/20 transition-all duration-300">
+        <p className="font-semibold text-white text-sm mb-1.5">{question}</p>
+        {answer && <p className="text-xs text-white/50 leading-relaxed">{answer}</p>}
+      </div>
+    )
+  })
 }
 
 // ============ IMAGE HERO CAROUSEL ============
@@ -289,6 +326,13 @@ const ServiceDetailPage = () => {
   const hasDetails = (service.benefits && service.benefits.length > 0) ||
                      (service.deliverables && service.deliverables.length > 0)
 
+  // ✅ Check if service is quote type
+  const isQuote = service.price_type === 'quote' || !service.price || service.price === '0.00'
+  
+  // ✅ Determine booking link: if quote → go to contact, else → request consultation
+  const actionLink = isQuote ? '/contact' : '/request-consultation'
+  const actionLabel = isQuote ? 'Get Quote' : 'Request Service'
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -325,7 +369,7 @@ const ServiceDetailPage = () => {
               <div className="relative">
                 <div className="absolute inset-0 bg-emerald-400/10 rounded-2xl blur-xl" />
                 <div className="relative w-16 h-16 glass rounded-2xl flex items-center justify-center text-3xl group-hover:scale-110 group-hover:border-emerald-400/30 transition-all duration-300">
-                  {getIcon(service.icon)}
+                  <Icon name={service.icon} size="text-3xl" />
                 </div>
               </div>
             )}
@@ -342,11 +386,12 @@ const ServiceDetailPage = () => {
                   )}
                 </div>
 
+                {/* ✅ Action Button - Changes based on price_type */}
                 <Link
-                  to="/request-consultation"
+                  to={actionLink}
                   className="flex-shrink-0 inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-emerald-500 hover:bg-emerald-400 text-white text-sm font-semibold shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/40 transition-all duration-300 group/req"
                 >
-                  Request
+                  {isQuote ? '📋 Get Quote' : 'Request'}
                   <svg className="w-4 h-4 group-hover/req:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                   </svg>
@@ -363,7 +408,7 @@ const ServiceDetailPage = () => {
           <div className="flex flex-wrap gap-4">
             <div className="glass rounded-2xl px-6 py-4 group/price hover:border-emerald-400/30 transition-all duration-300">
               <p className="text-xs text-white/40 mb-1 uppercase tracking-wider font-medium">
-                {service.price_type === 'quote' ? 'Pricing' : 'Starting from'}
+                {isQuote ? 'Pricing' : 'Starting from'}
               </p>
               <p className="text-2xl md:text-3xl font-extrabold gradient-text">
                 {getDisplayPrice(service)}
@@ -450,16 +495,7 @@ const ServiceDetailPage = () => {
                   Benefits
                 </h3>
                 <ul className="space-y-3">
-                  {service.benefits.map((item, i) => (
-                    <li key={i} className="flex items-start gap-3 text-white/60 text-sm group/item">
-                      <div className="w-5 h-5 rounded-full bg-emerald-500/15 flex items-center justify-center flex-shrink-0 mt-0.5 group-hover/item:bg-emerald-500/30 transition-colors">
-                        <svg className="w-3 h-3 text-emerald-400" fill="currentColor" viewBox="0 0 24 24">
-                          <path fillRule="evenodd" d="M19.916 4.626a.75.75 0 01.208 1.04l-9 13.5a.75.75 0 01-1.154.114l-6-6a.75.75 0 011.06-1.06l5.353 5.353 8.493-12.739a.75.75 0 011.04-.208z" clipRule="evenodd" />
-                        </svg>
-                      </div>
-                      <span className="group-hover/item:text-white/80 transition-colors">{item}</span>
-                    </li>
-                  ))}
+                  {renderStringArray(service.benefits)}
                 </ul>
               </motion.div>
             )}
@@ -474,16 +510,7 @@ const ServiceDetailPage = () => {
                   Deliverables
                 </h3>
                 <ul className="space-y-3">
-                  {service.deliverables.map((item, i) => (
-                    <li key={i} className="flex items-start gap-3 text-white/60 text-sm group/item">
-                      <div className="w-5 h-5 rounded-full bg-amber-500/15 flex items-center justify-center flex-shrink-0 mt-0.5 group-hover/item:bg-amber-500/30 transition-colors">
-                        <svg className="w-3 h-3 text-amber-400" fill="currentColor" viewBox="0 0 24 24">
-                          <path fillRule="evenodd" d="M19.916 4.626a.75.75 0 01.208 1.04l-9 13.5a.75.75 0 01-1.154.114l-6-6a.75.75 0 011.06-1.06l5.353 5.353 8.493-12.739a.75.75 0 011.04-.208z" clipRule="evenodd" />
-                        </svg>
-                      </div>
-                      <span className="group-hover/item:text-white/80 transition-colors">{item}</span>
-                    </li>
-                  ))}
+                  {renderStringArray(service.deliverables)}
                 </ul>
               </motion.div>
             )}
@@ -502,12 +529,7 @@ const ServiceDetailPage = () => {
                 Frequently Asked
               </h3>
               <div className="space-y-3">
-                {service.faq.map((item, i) => (
-                  <div key={i} className="glass rounded-xl p-4 hover:border-emerald-400/20 transition-all duration-300">
-                    <p className="font-semibold text-white text-sm mb-1.5">{item.question}</p>
-                    <p className="text-xs text-white/50 leading-relaxed">{item.answer}</p>
-                  </div>
-                ))}
+                {renderFaq(service.faq)}
               </div>
             </motion.div>
           )}
@@ -522,20 +544,43 @@ const ServiceDetailPage = () => {
                 Prerequisites
               </h3>
               <ul className="space-y-3">
-                {service.prerequisites.map((item, i) => (
-                  <li key={i} className="flex items-start gap-3 text-white/60 text-sm group/item">
-                    <div className="w-5 h-5 rounded-full bg-emerald-500/15 flex items-center justify-center flex-shrink-0 mt-0.5 group-hover/item:bg-emerald-500/30 transition-colors">
-                      <svg className="w-3 h-3 text-emerald-400" fill="currentColor" viewBox="0 0 24 24">
-                        <path fillRule="evenodd" d="M19.916 4.626a.75.75 0 01.208 1.04l-9 13.5a.75.75 0 01-1.154.114l-6-6a.75.75 0 011.06-1.06l5.353 5.353 8.493-12.739a.75.75 0 011.04-.208z" clipRule="evenodd" />
-                      </svg>
-                    </div>
-                    <span className="group-hover/item:text-white/80 transition-colors">{item}</span>
-                  </li>
-                ))}
+                {renderStringArray(service.prerequisites)}
               </ul>
             </motion.div>
           )}
         </div>
+
+        {/* ============ BOTTOM CTA ============ */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="glass-card p-6 mt-8 text-center group hover:border-emerald-400/20 transition-all duration-300"
+        >
+          <div className="flex flex-col items-center gap-4">
+            <div className="flex items-center gap-3">
+              <span className="text-3xl">{isQuote ? '📋' : '💬'}</span>
+              <h3 className="text-xl font-bold text-white">
+                {isQuote ? 'Get a Quote' : 'Ready to Get Started?'}
+              </h3>
+            </div>
+            <p className="text-white/60 text-sm max-w-md">
+              {isQuote 
+                ? 'Contact us today for a free quote and let us help you achieve your goals.'
+                : 'Request this service and let us help you achieve your goals.'
+              }
+            </p>
+            <Link
+              to={actionLink}
+              className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-emerald-500 hover:bg-emerald-400 text-white font-semibold shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/40 transition-all duration-300"
+            >
+              {isQuote ? '📋 Get Quote' : 'Request Service'}
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
+            </Link>
+          </div>
+        </motion.div>
       </div>
 
       {/* ============ LIGHTBOX MODAL ============ */}
@@ -546,7 +591,6 @@ const ServiceDetailPage = () => {
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4"
             onClick={() => setSelectedImageIndex(null)}
           >
-            {/* Close Button */}
             <button
               onClick={() => setSelectedImageIndex(null)}
               className="absolute top-6 right-6 w-10 h-10 rounded-full glass flex items-center justify-center text-white/70 hover:text-white hover:border-red-400/50 transition-all duration-300 z-10"
@@ -556,42 +600,37 @@ const ServiceDetailPage = () => {
               </svg>
             </button>
 
-            {/* Counter */}
             <div className="absolute top-6 left-6 px-3 py-1.5 rounded-full bg-black/50 backdrop-blur-sm text-white text-sm font-medium z-10">
               {selectedImageIndex + 1} / {allGalleryImages.length}
             </div>
 
-            {/* Previous */}
             {allGalleryImages.length > 1 && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation()
-                  setSelectedImageIndex((prev) => (prev - 1 + allGalleryImages.length) % allGalleryImages.length)
-                }}
-                className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-black/50 backdrop-blur-sm text-white/80 flex items-center justify-center hover:bg-black/70 hover:text-white hover:scale-110 transition-all duration-300 z-10 border border-white/10"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-              </button>
+              <>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    setSelectedImageIndex((prev) => (prev - 1 + allGalleryImages.length) % allGalleryImages.length)
+                  }}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-black/50 backdrop-blur-sm text-white/80 flex items-center justify-center hover:bg-black/70 hover:text-white hover:scale-110 transition-all duration-300 z-10 border border-white/10"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    setSelectedImageIndex((prev) => (prev + 1) % allGalleryImages.length)
+                  }}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-black/50 backdrop-blur-sm text-white/80 flex items-center justify-center hover:bg-black/70 hover:text-white hover:scale-110 transition-all duration-300 z-10 border border-white/10"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              </>
             )}
 
-            {/* Next */}
-            {allGalleryImages.length > 1 && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation()
-                  setSelectedImageIndex((prev) => (prev + 1) % allGalleryImages.length)
-                }}
-                className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-black/50 backdrop-blur-sm text-white/80 flex items-center justify-center hover:bg-black/70 hover:text-white hover:scale-110 transition-all duration-300 z-10 border border-white/10"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
-            )}
-
-            {/* Image */}
             <motion.img
               initial={{ scale: 0.9 }} animate={{ scale: 1 }} exit={{ scale: 0.9 }}
               key={allGalleryImages[selectedImageIndex]}
@@ -601,7 +640,6 @@ const ServiceDetailPage = () => {
               onClick={(e) => e.stopPropagation()}
             />
 
-            {/* Dots */}
             {allGalleryImages.length > 1 && (
               <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
                 {allGalleryImages.map((_, index) => (

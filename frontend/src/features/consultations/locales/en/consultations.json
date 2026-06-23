@@ -1,0 +1,93 @@
+﻿{
+  "status": {
+    "all": "All",
+    "pending": "Pending",
+    "confirmed": "Confirmed",
+    "in_progress": "In Progress",
+    "completed": "Completed",
+    "cancelled": "Cancelled",
+    "unknown": "Unknown"
+  },
+  "date": {
+    "tbd": "Date TBD",
+    "today": "Today",
+    "tomorrow": "Tomorrow",
+    "past_due": "Past due",
+    "in_days": "In {{days}} days"
+  },
+  "priority": {
+    "urgent": "Urgent",
+    "high": "High",
+    "medium": "Medium",
+    "low": "Low"
+  },
+  "icons": {
+    "agriculture": "🌾",
+    "environment": "🌍",
+    "business": "💼",
+    "livestock": "🐄",
+    "default": "💬"
+  },
+  "consultation": {
+    "default_title": "Consultation",
+    "no_message": "No message provided",
+    "view": "View"
+  },
+  "detail": {
+    "loading": "Loading consultation details...",
+    "error_title": "Error",
+    "error_not_found": "Consultation not found",
+    "error_load_failed": "Failed to load consultation details",
+    "back_to_list": "Back to Consultations",
+    "title": "Consultation Details",
+    "request_id": "Request",
+    "service": "Service",
+    "assigned_to": "Assigned To",
+    "pending_assignment": "Pending assignment",
+    "preferred_date": "Preferred Date",
+    "budget_range": "Budget Range",
+    "message": "Message",
+    "response": "Response",
+    "requested_on": "Requested On"
+  },
+  "list": {
+    "my_consultations": "My",
+    "consultations": "Consultations",
+    "track_requests": "Track your consultation requests",
+    "new_request": "New Request",
+    "total": "total",
+    "search_placeholder": "Search consultations...",
+    "clear": "Clear",
+    "date_label": "Date",
+    "assigned_label": "Assigned",
+    "no_results": "No consultation requests found",
+    "no_results_message": "You haven't made any consultation requests yet.",
+    "no_filtered_results": "No {{status}} consultation requests found",
+    "no_filtered_message": "You don't have any {{status}} consultations yet.",
+    "request_now": "Request Consultation"
+  },
+  "request": {
+    "badge": "Get in Touch",
+    "title": "Request",
+    "subtitle": "Consultation",
+    "description": "Fill out the form and we'll get back to you shortly",
+    "loading_services": "Loading services...",
+    "select_service": "Select Service",
+    "select_service_error": "Please select a service",
+    "choose_service": "Choose a service",
+    "currency": "TZS",
+    "preferred_date": "Preferred Date & Time",
+    "select_date_error": "Please select a preferred date",
+    "budget_range": "Budget Range",
+    "optional": "optional",
+    "budget_placeholder": "e.g., 500,000 - 1,000,000 TZS",
+    "additional_message": "Additional Message",
+    "message_placeholder": "Tell us more about your needs, requirements, or any questions you have...",
+    "submit": "Submit Request",
+    "submitting": "Submitting...",
+    "submit_error": "Error submitting request. Please try again.",
+    "success_title": "Request Submitted!",
+    "success_message": "Thank you for your request. We'll contact you soon.",
+    "redirecting": "Redirecting to consultations..."
+  }
+}

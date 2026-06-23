@@ -1,4 +1,76 @@
+// frontend/src/context/ThemeContext.jsx
+
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react'
+
+// ============ THEME CONFIGURATION ============
+const THEMES = {
+  white: {
+    id: 'white',
+    name: 'White Clean',
+    icon: '⬜',
+    description: 'Clean white with green headers',
+    colors: {
+      background: '#ffffff',
+      surface: '#f8faf9',
+      card: 'rgba(0,0,0,0.04)',
+      text: '#1a1a2e',
+      textSecondary: 'rgba(26,26,46,0.7)',
+      textTertiary: 'rgba(26,26,46,0.4)',
+      border: 'rgba(0,0,0,0.08)',
+      primary: '#0d5c3e',
+      primaryHover: '#1a7a54',
+      accent: '#2d6a4f',
+      navbarBg: 'rgba(255,255,255,0.95)',
+      navbarText: '#0d5c3e',
+      navbarTextHover: '#1a7a54',
+    }
+  },
+  brand: {
+    id: 'brand',
+    name: 'Brand Green',
+    icon: '💚',
+    description: 'Rich brand green with gold accents',
+    colors: {
+      background: '#083a26',
+      surface: '#0d5c3e',
+      card: 'rgba(255,255,255,0.08)',
+      text: '#f5f0e8',
+      textSecondary: 'rgba(245,240,232,0.7)',
+      textTertiary: 'rgba(245,240,232,0.4)',
+      border: 'rgba(245,240,232,0.1)',
+      primary: '#d4a843',
+      primaryHover: '#e8c95a',
+      accent: '#2d6a4f',
+      navbarBg: 'rgba(8,58,38,0.9)',
+      navbarText: '#d4a843',
+      navbarTextHover: '#e8c95a',
+    }
+  },
+  dark: {
+    id: 'dark',
+    name: 'Dark Mode',
+    icon: '🌙',
+    description: 'Pure dark with emerald accents',
+    colors: {
+      background: '#000000',      // ✅ Pure black - inafanana na navbar
+      surface: '#0a0a0a',         // ✅ Dark gray
+      card: 'rgba(255,255,255,0.03)',
+      text: '#e8e8e8',            // ✅ Light gray for readability
+      textSecondary: 'rgba(232,232,232,0.7)',
+      textTertiary: 'rgba(232,232,232,0.4)',
+      border: 'rgba(255,255,255,0.05)',
+      primary: '#34d399',         // ✅ Emerald green for accents
+      primaryHover: '#6ee7b7',
+      accent: '#1a4a2e',
+      navbarBg: 'rgba(10,10,10,0.85)',
+      navbarText: '#34d399',
+      navbarTextHover: '#6ee7b7',
+    }
+  }
+}
+
+// Order of themes (for toggle) - White kwanza
+const THEME_ORDER = ['white', 'brand', 'dark']
 
 const ThemeContext = createContext()
 
@@ -11,39 +83,59 @@ export const useTheme = () => {
 }
 
 export const ThemeProvider = ({ children }) => {
-  // DEFAULT TO DARK MODE (matches dark green background)
+  // DEFAULT: White Theme
+  const [currentTheme, setCurrentTheme] = useState(() => {
+    const saved = localStorage.getItem('feevert-theme')
+    if (saved && THEMES[saved]) {
+      return saved
+    }
+    return 'white'
+  })
+
   const [darkMode, setDarkMode] = useState(() => {
     const saved = localStorage.getItem('darkMode')
-    if (saved !== null) {
-      return saved === 'true'
-    }
-    // Default to TRUE (dark) since background is dark green
-    return true
+    if (saved !== null) return saved === 'true'
+    return false
   })
 
   // Apply theme to DOM
   useEffect(() => {
     const root = document.documentElement
+    const theme = THEMES[currentTheme]
     
-    if (darkMode) {
+    if (!theme) return
+
+    root.setAttribute('data-theme', currentTheme)
+    
+    const colors = theme.colors
+    Object.entries(colors).forEach(([key, value]) => {
+      root.style.setProperty(`--g-${key}`, value)
+    })
+
+    root.style.backgroundColor = colors.background
+    root.style.color = colors.text
+
+    const isDark = currentTheme === 'dark' || currentTheme === 'brand'
+    if (isDark) {
       root.classList.add('dark')
-      root.setAttribute('data-theme', 'dark')
+      setDarkMode(true)
     } else {
       root.classList.remove('dark')
-      root.removeAttribute('data-theme')
+      setDarkMode(false)
     }
-    
-    localStorage.setItem('darkMode', String(darkMode))
-  }, [darkMode])
+
+    localStorage.setItem('feevert-theme', currentTheme)
+    localStorage.setItem('darkMode', String(isDark))
+  }, [currentTheme])
 
   // Listen for system theme changes
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
     
     const handleChange = (e) => {
-      const saved = localStorage.getItem('darkMode')
-      if (saved === null) {
-        setDarkMode(e.matches)
+      const saved = localStorage.getItem('feevert-theme')
+      if (!saved) {
+        setCurrentTheme(e.matches ? 'dark' : 'white')
       }
     }
     
@@ -51,20 +143,29 @@ export const ThemeProvider = ({ children }) => {
     return () => mediaQuery.removeEventListener('change', handleChange)
   }, [])
 
-  const toggleDarkMode = useCallback(() => {
-    setDarkMode(prev => !prev)
+  const toggleTheme = useCallback(() => {
+    const currentIndex = THEME_ORDER.indexOf(currentTheme)
+    const nextIndex = (currentIndex + 1) % THEME_ORDER.length
+    setCurrentTheme(THEME_ORDER[nextIndex])
+  }, [currentTheme])
+
+  const setTheme = useCallback((themeId) => {
+    if (THEMES[themeId]) {
+      setCurrentTheme(themeId)
+    }
   }, [])
 
-  const enableDarkMode = useCallback(() => setDarkMode(true), [])
-  const enableLightMode = useCallback(() => setDarkMode(false), [])
-
   const value = {
+    currentTheme,
+    theme: currentTheme,
+    themes: THEMES,
+    themeOrder: THEME_ORDER,
     darkMode,
-    toggleDarkMode,
-    enableDarkMode,
-    enableLightMode,
+    setTheme,
+    toggleTheme,
     isDark: darkMode,
     isLight: !darkMode,
+    colors: THEMES[currentTheme]?.colors || THEMES.white.colors,
   }
 
   return (

@@ -1,0 +1,105 @@
+﻿{
+  "title": "管理员",
+  "dashboard_title": "仪表板",
+  "subtitle": "系统概览和管理",
+  "loading": "正在加载仪表板...",
+  "welcome_back": "欢迎回来",
+  "total_users": "用户总数",
+  "pending_consultations": "待处理咨询",
+  "pending_bookings": "待处理预订",
+  "total_revenue": "总收入",
+  "recent_consultations": "最近咨询",
+  "recent_bookings": "最近预订",
+  "no_consultations": "暂无咨询",
+  "no_bookings": "暂无预订",
+  "view_all": "查看全部",
+  "quick_actions": "快速操作",
+  "manage_users": "管理用户",
+  "manage_roles": "管理角色",
+  "site_settings": "网站设置",
+  "project": {
+    "client": "客户",
+    "internal": "FeeVert 项目",
+    "view": "查看"
+  },
+  "booking": {
+    "status": {
+      "confirmed": "已确认",
+      "pending": "待处理",
+      "completed": "已完成",
+      "cancelled": "已取消"
+    },
+    "date_tbd": "日期待定",
+    "service": "预订"
+  },
+  "consultation": {
+    "status": {
+      "confirmed": "已确认",
+      "pending": "待处理",
+      "in_progress": "进行中",
+      "completed": "已完成",
+      "cancelled": "已取消"
+    },
+    "date_tbd": "日期待定",
+    "service": "咨询"
+  },
+  "client": {
+    "loading": "正在加载您的仪表板...",
+    "welcome_back": "欢迎回来",
+    "activity_overview": "以下是您的活动概览",
+    "member_since": "会员自",
+    "pending_bookings": "待处理预订",
+    "pending_consultations": "待处理咨询",
+    "completed_payments": "已完成付款",
+    "recent_bookings": "最近预订",
+    "recent_consultations": "最近咨询",
+    "your_projects": "您的项目",
+    "quick_actions": "快速操作",
+    "no_bookings": "暂无预订",
+    "no_consultations": "暂无咨询",
+    "no_projects": "暂无项目",
+    "book_appointment": "预约",
+    "request_consultation": "请求咨询",
+    "update_profile": "更新资料"
+  },
+  "consultant": {
+    "loading": "正在加载您的仪表板...",
+    "title": "顾问",
+    "dashboard": "仪表板",
+    "welcome_back": "欢迎回来",
+    "pending": "待处理",
+    "upcoming": "即将到来",
+    "assigned_consultations": "分配的咨询",
+    "upcoming_bookings": "即将到来的预订",
+    "active_projects": "活跃项目",
+    "no_consultations": "暂无分配的咨询",
+    "no_bookings": "暂无即将到来的预订"
+  },
+  "employee": {
+    "loading": "正在加载您的仪表板...",
+    "title": "员工",
+    "dashboard": "仪表板",
+    "welcome": "欢迎",
+    "projects": "项目",
+    "news": "新闻",
+    "teammates": "队友",
+    "projects_title": "项目",
+    "latest_news": "最新新闻",
+    "team_members": "团队成员",
+    "no_projects": "暂无分配的项目",
+    "no_news": "暂无新闻",
+    "no_team": "暂无团队成员"
+  },
+  "news": {
+    "date_tbd": "日期待定"
+  },
+  "team": {
+    "member": "团队成员"
+  },
+  "dashboard": {
+    "loading": "正在加载您的仪表板...",
+    "pending_title": "账户待处理",
+    "pending_message": "您的账户正在设置中。请等待管理员批准或联系支持。",
+    "contact_support": "联系支持"
+  }
+}

@@ -1,5 +1,7 @@
 // src/features/bookings/utils/bookingHelpers.js
 
+import i18n from 'i18next'
+
 /**
  * Format a date string to a readable format
  * @param {string} date - Date string
@@ -7,12 +9,16 @@
  * @returns {string} Formatted date
  */
 export const formatBookingDate = (date, format = 'full') => {
-  if (!date) return 'N/A'
+  if (!date) return i18n.t('booking.na', { ns: 'booking' }) || 'N/A'
   
   const dateObj = new Date(date)
-  if (isNaN(dateObj.getTime())) return 'N/A'
+  if (isNaN(dateObj.getTime())) return i18n.t('booking.na', { ns: 'booking' }) || 'N/A'
 
-  const options = {
+  // Get current language
+  const lang = i18n.language || 'en'
+  
+  // Format based on language
+  const formatMap = {
     full: {
       weekday: 'long',
       year: 'numeric',
@@ -34,7 +40,7 @@ export const formatBookingDate = (date, format = 'full') => {
     },
   }
 
-  return dateObj.toLocaleDateString('en-US', options[format] || options.full)
+  return dateObj.toLocaleDateString(lang, formatMap[format] || formatMap.full)
 }
 
 /**
@@ -43,7 +49,7 @@ export const formatBookingDate = (date, format = 'full') => {
  * @returns {string} Formatted time
  */
 export const formatBookingTime = (slot) => {
-  if (!slot?.start_time) return 'N/A'
+  if (!slot?.start_time) return i18n.t('booking.na', { ns: 'booking' }) || 'N/A'
   return slot.end_time ? `${slot.start_time} - ${slot.end_time}` : slot.start_time
 }
 
@@ -59,10 +65,13 @@ export const formatDuration = (slot) => {
   const [endH, endM] = slot.end_time.split(':').map(Number)
   const minutes = (endH * 60 + endM) - (startH * 60 + startM)
   
-  if (minutes < 60) return `${minutes} min`
+  const t = i18n.getFixedT(null, 'booking')
+  
+  if (minutes < 60) return `${minutes} ${t('time.min')}`
   const hours = Math.floor(minutes / 60)
   const mins = minutes % 60
-  return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`
+  if (mins > 0) return `${hours}${t('time.hr')} ${mins}${t('time.min')}`
+  return `${hours}${t('time.hr')}`
 }
 
 /**
@@ -128,12 +137,36 @@ export const getRelativeTime = (date) => {
   const diffMs = target - now
   const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24))
   const diffHours = Math.round(diffMs / (1000 * 60 * 60))
+  const diffMinutes = Math.round(diffMs / (1000 * 60))
   
-  if (diffDays > 0) return `in ${diffDays} day${diffDays > 1 ? 's' : ''}`
-  if (diffDays < 0) return `${Math.abs(diffDays)} day${Math.abs(diffDays) > 1 ? 's' : ''} ago`
-  if (diffHours > 0) return `in ${diffHours} hour${diffHours > 1 ? 's' : ''}`
-  if (diffHours < 0) return `${Math.abs(diffHours)} hour${Math.abs(diffHours) > 1 ? 's' : ''} ago`
-  return 'now'
+  const t = i18n.getFixedT(null, 'booking')
+  
+  // Future
+  if (diffDays > 0) {
+    return `${t('time.in')} ${diffDays} ${t('time.day')}${diffDays > 1 ? 's' : ''}`
+  }
+  // Past
+  if (diffDays < 0) {
+    const days = Math.abs(diffDays)
+    return `${days} ${t('time.day')}${days > 1 ? 's' : ''} ${t('time.ago')}`
+  }
+  // Hours
+  if (diffHours > 0) {
+    return `${t('time.in')} ${diffHours} ${t('time.hour')}${diffHours > 1 ? 's' : ''}`
+  }
+  if (diffHours < 0) {
+    const hours = Math.abs(diffHours)
+    return `${hours} ${t('time.hour')}${hours > 1 ? 's' : ''} ${t('time.ago')}`
+  }
+  // Minutes
+  if (diffMinutes > 0) {
+    return `${t('time.in')} ${diffMinutes} ${t('time.min')}`
+  }
+  if (diffMinutes < 0) {
+    const mins = Math.abs(diffMinutes)
+    return `${mins} ${t('time.min')} ${t('time.ago')}`
+  }
+  return t('time.now')
 }
 
 /**
@@ -142,16 +175,22 @@ export const getRelativeTime = (date) => {
  * @returns {object} { icon, label, color }
  */
 export const getStatusInfo = (status) => {
+  const t = i18n.getFixedT(null, 'booking')
+  
   const statusMap = {
-    pending: { icon: '⏳', label: 'Pending', color: 'amber' },
-    confirmed: { icon: '✅', label: 'Confirmed', color: 'emerald' },
-    completed: { icon: '✔️', label: 'Completed', color: 'blue' },
-    cancelled: { icon: '❌', label: 'Cancelled', color: 'red' },
-    in_progress: { icon: '🔄', label: 'In Progress', color: 'purple' },
-    approved: { icon: '✅', label: 'Approved', color: 'emerald' },
-    rejected: { icon: '🚫', label: 'Rejected', color: 'red' },
+    pending: { icon: '⏳', label: t('status.pending'), color: 'amber' },
+    confirmed: { icon: '✅', label: t('status.confirmed'), color: 'emerald' },
+    completed: { icon: '✔️', label: t('status.completed'), color: 'blue' },
+    cancelled: { icon: '❌', label: t('status.cancelled'), color: 'red' },
+    in_progress: { icon: '🔄', label: t('status.in_progress'), color: 'purple' },
+    approved: { icon: '✅', label: t('status.approved'), color: 'emerald' },
+    rejected: { icon: '🚫', label: t('status.rejected'), color: 'red' },
   }
-  return statusMap[status] || { icon: '📋', label: status?.replace('_', ' ') || 'Unknown', color: 'gray' }
+  return statusMap[status] || { 
+    icon: '📋', 
+    label: status?.replace('_', ' ') || t('status.unknown'), 
+    color: 'gray' 
+  }
 }
 
 /**

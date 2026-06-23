@@ -1,61 +1,148 @@
+// src/features/shop/pages/ShopPage.jsx
+
 import React, { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTheme } from '../../../context/ThemeContext'
 import api from '../../../app/api'
 import Loader from '../../../components/ui/Loader'
-
-// ============ ICON MAP ============
-const iconMap = {
-  ':bee:': '🐝', ':leaf:': '🌿', ':shield:': '🛡️',
-  ':honey:': '🍯', ':tools:': '🛠️', ':books:': '📚',
-  ':sunflower:': '🌻', ':home:': '🏠', ':clipboard:': '📋',
-  ':search:': '🔍', ':recycle:': '♻️', ':globe:': '🌍',
-  ':map:': '🗺️', ':scroll:': '📜', ':warning:': '⚠️',
-  ':chart:': '📊', ':graduate:': '🎓', ':detective:': '🔎',
-}
-
-const getIcon = (icon) => {
-  if (!icon) return '📦'
-  return iconMap[icon] || icon
-}
+import Icon from '../../../components/ui/Icon'
+import { getIcon } from '../../../components/utils/iconMap'
 
 // ============ PRODUCT CARD COMPONENT ============
 const ProductCard = ({ product }) => {
+  const [currentImage, setCurrentImage] = useState(0)
   const [imgError, setImgError] = useState(false)
 
+  // ✅ Collect all images - SUPPORTS ALL FORMATS
+  const images = React.useMemo(() => {
+    const imgs = []
+    
+    if (!product) return imgs
+    
+    // 1. Primary image
+    if (product?.primary_image_url) {
+      imgs.push(product.primary_image_url)
+    }
+    
+    // 2. Main image (image_url)
+    if (product?.image_url) {
+      imgs.push(product.image_url)
+    }
+    
+    // 3. All images (from all_images property)
+    if (product?.all_images && Array.isArray(product.all_images)) {
+      product.all_images.forEach(img => {
+        const imgUrl = img?.url || img?.image_url
+        if (imgUrl && !imgs.includes(imgUrl)) {
+          imgs.push(imgUrl)
+        }
+      })
+    }
+    
+    // 4. Gallery images (from gallery field)
+    if (product?.gallery && Array.isArray(product.gallery)) {
+      product.gallery.forEach(img => {
+        const imgUrl = img?.image_url || img?.url
+        if (imgUrl && !imgs.includes(imgUrl)) {
+          imgs.push(imgUrl)
+        }
+      })
+    }
+    
+    // 5. Direct image field
+    if (product?.image && typeof product.image === 'string') {
+      imgs.push(product.image)
+    }
+    
+    return imgs
+  }, [product])
+
+  const hasMultipleImages = images.length > 1
+
+  // ✅ Auto-slide - INAENDESHA AUTOMATICALLY (BILA HOVER)
+  React.useEffect(() => {
+    if (!hasMultipleImages) return
+    const interval = setInterval(() => {
+      setCurrentImage((prev) => (prev + 1) % images.length)
+    }, 4000)
+    return () => clearInterval(interval)
+  }, [hasMultipleImages, images.length])
+
+  // ✅ Reset image when product changes
+  React.useEffect(() => {
+    setCurrentImage(0)
+    setImgError(false)
+  }, [product?.id])
+
   return (
-    <Link to={`/shop/products/${product.slug}`} className="block group h-full">
+    <Link to={`/shop/products/${product?.slug}`} className="block group h-full">
       <div className="glass-card h-full flex flex-col overflow-hidden hover:border-emerald-400/30 hover:shadow-lg hover:shadow-emerald-500/5 transition-all duration-500 p-0">
         
-        {/* Product Image */}
-        <div className="relative h-48 overflow-hidden">
-          {product.primary_image_url && !imgError ? (
-            <img
-              src={product.primary_image_url}
-              alt={product.name}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-              onError={() => setImgError(true)}
-            />
+        {/* Image Carousel */}
+        <div className="relative h-48 overflow-hidden bg-[#0a2a19]">
+          {images.length > 0 && !imgError ? (
+            <div className="relative w-full h-full">
+              {images.map((img, index) => (
+                <div
+                  key={index}
+                  className={`absolute inset-0 transition-all duration-1000 ease-in-out ${
+                    index === currentImage 
+                      ? 'opacity-100 scale-100' 
+                      : 'opacity-0 scale-105'
+                  }`}
+                >
+                  <img
+                    src={img}
+                    alt={product?.name || 'Product'}
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                    onError={() => setImgError(true)}
+                  />
+                </div>
+              ))}
+            </div>
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-emerald-500/20 via-green-500/10 to-teal-500/20 flex items-center justify-center">
-              <span className="text-5xl">{getIcon(product.icon)}</span>
+              <span className="text-5xl opacity-60 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300">
+                {getIcon(product?.icon) || '🍯'}
+              </span>
             </div>
           )}
           
-          {/* Overlay gradient */}
+          {/* Gradient overlay */}
           <div className="absolute inset-0 bg-gradient-to-t from-[#0d3320]/60 to-transparent pointer-events-none" />
           
+          {/* Top accent line */}
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-emerald-400/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          
+          {/* Dots indicator */}
+          {hasMultipleImages && images.length > 1 && (
+            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
+              {images.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); setCurrentImage(i) }}
+                  className={`rounded-full transition-all duration-500 ${
+                    i === currentImage 
+                      ? 'bg-emerald-400 w-4 h-2' 
+                      : 'bg-white/50 w-2 h-2 hover:bg-white/80'
+                  }`}
+                />
+              ))}
+            </div>
+          )}
+          
           {/* Sale badge */}
-          {product.is_on_sale && (
-            <span className="absolute top-2 left-2 px-2 py-1 rounded-full bg-red-500/90 text-white text-[10px] font-bold">
+          {product?.is_on_sale && (
+            <span className="absolute top-2 left-2 px-2 py-1 rounded-full bg-red-500/90 backdrop-blur-sm text-white text-[10px] font-bold shadow-lg">
               -{product.discount_percentage}%
             </span>
           )}
           
           {/* Stock badge */}
-          {!product.in_stock && (
-            <span className="absolute top-2 right-2 px-2 py-1 rounded-full bg-amber-500/90 text-white text-[10px] font-bold">
+          {!product?.in_stock && (
+            <span className="absolute top-2 right-2 px-2 py-1 rounded-full bg-amber-500/90 backdrop-blur-sm text-white text-[10px] font-bold shadow-lg">
               Out of Stock
             </span>
           )}
@@ -64,26 +151,27 @@ const ProductCard = ({ product }) => {
         {/* Content */}
         <div className="p-4 flex flex-col h-full">
           {/* Category */}
-          {product.category_name && (
-            <span className="text-[10px] text-emerald-400/70 uppercase tracking-wider mb-1">
+          {product?.category_name && (
+            <span className="text-[10px] text-emerald-400/70 uppercase tracking-wider mb-1 flex items-center gap-1">
+              {product.category_icon && <Icon name={product.category_icon} size="text-xs" />}
               {product.category_name}
             </span>
           )}
           
           {/* Name */}
           <h3 className="text-sm font-bold text-white mb-2 group-hover:text-emerald-400 transition-colors line-clamp-2">
-            {product.name}
+            {product?.name}
           </h3>
           
           {/* Description */}
           <p className="text-xs text-white/40 mb-3 line-clamp-2 leading-relaxed flex-1">
-            {product.short_description || product.description}
+            {product?.short_description || product?.description}
           </p>
 
           {/* Price */}
-          <div className="flex items-center justify-between pt-3 border-t border-white/5">
+          <div className="flex items-center justify-between pt-3 border-t border-white/5 mt-auto">
             <div>
-              {product.is_on_sale ? (
+              {product?.is_on_sale ? (
                 <div className="flex items-center gap-2">
                   <span className="text-xs text-white/30 line-through">
                     TZS {product.price?.toLocaleString()}
@@ -93,11 +181,20 @@ const ProductCard = ({ product }) => {
                   </span>
                 </div>
               ) : (
-                <span className="text-sm font-bold text-emerald-400">
-                  TZS {product.current_price?.toLocaleString()}
+                <span className="text-sm font-bold gradient-text">
+                  TZS {product?.current_price?.toLocaleString()}
                 </span>
               )}
             </div>
+            
+            {product?.in_stock && (
+              <span className="text-emerald-400 text-xs font-semibold flex items-center gap-1 group-hover:gap-2 transition-all">
+                View
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </span>
+            )}
           </div>
         </div>
       </div>
@@ -117,13 +214,11 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
       return Array.from({ length: totalPages }, (_, i) => i + 1)
     }
 
-    // Always show first page
     pages.push(1)
 
     let start = Math.max(2, currentPage - 1)
     let end = Math.min(totalPages - 1, currentPage + 1)
 
-    // Adjust range for edges
     if (currentPage <= 2) {
       end = Math.min(4, totalPages - 1)
     }
@@ -138,8 +233,6 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
     }
 
     if (end < totalPages - 1) pages.push('...')
-
-    // Always show last page
     if (totalPages > 1) pages.push(totalPages)
 
     return pages
@@ -147,7 +240,6 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
 
   return (
     <div className="flex justify-center items-center gap-2 mt-10">
-      {/* Previous Button */}
       <button
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
@@ -163,7 +255,6 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
         Prev
       </button>
 
-      {/* Page Numbers */}
       <div className="flex items-center gap-1.5">
         {getPageNumbers().map((page, idx) =>
           page === '...' ? (
@@ -189,7 +280,6 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
         )}
       </div>
 
-      {/* Next Button */}
       <button
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
@@ -244,14 +334,12 @@ const ShopPage = () => {
           api.get('/shop/categories/')
         ])
 
-        // Handle paginated response
         const data = productsRes.data
         if (data.results) {
           setProducts(data.results)
           setTotalCount(data.count || 0)
           setTotalPages(Math.ceil((data.count || 0) / pageSize))
         } else if (Array.isArray(data)) {
-          // Fallback for non-paginated response
           setProducts(data)
           setTotalCount(data.length)
           setTotalPages(Math.ceil(data.length / pageSize))
@@ -390,7 +478,7 @@ const ShopPage = () => {
                 <option value="all">📂 All Categories</option>
                 {categories.map(cat => (
                   <option key={cat.id} value={cat.id}>
-                    {cat.icon || '📦'} {cat.name}
+                    {cat.icon ? <Icon name={cat.icon} size="text-sm" /> : '📦'} {cat.name}
                   </option>
                 ))}
               </select>
@@ -512,7 +600,9 @@ const ShopPage = () => {
           ) : (
             /* Empty State */
             <div className="glass-card p-12 text-center">
-              <span className="text-5xl mb-4 block opacity-40">📦</span>
+              <span className="text-5xl mb-4 block opacity-40">
+                {getIcon(':package:') || '📦'}
+              </span>
               <h3 className="text-xl font-bold text-white mb-2">No products found</h3>
               <p className="text-white/40 mb-6">
                 Try adjusting your search filters or browse all categories

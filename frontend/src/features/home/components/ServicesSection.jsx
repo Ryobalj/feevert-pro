@@ -1,6 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next' // ✅ Ongeza hii
 
 // ============ 🆕 SERVICE CARD IMAGE CAROUSEL (RANDOM TRANSITIONS) ============
 const ServiceCardImage = ({ service }) => {
@@ -207,6 +208,8 @@ const ServiceCardImage = ({ service }) => {
 
 // ============ MAIN SERVICES SECTION ============
 const ServicesSection = ({ data }) => {
+  const { t } = useTranslation('home') // ✅ Ongeza hii
+
   if (!data || data.length === 0) return null
 
   const displayedServices = data.slice(0, 6)
@@ -237,16 +240,18 @@ const ServicesSection = ({ data }) => {
               animate={{ scale: [1, 1.5, 1], opacity: [0.7, 1, 0.7] }}
               transition={{ duration: 2, repeat: Infinity }}
             />
-            <span className="text-sm font-medium text-white/80">🛠️ What We Offer</span>
+            <span className="text-sm font-medium text-white/80">
+              {t('services.badge') || '🛠️ What We Offer'}
+            </span>
           </motion.div>
 
           {/* Title */}
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white mb-4">
-            Our Core{' '}
-            <span className="gradient-text">Services</span>
+            {t('services.title') || 'Our Core'}{' '}
+            <span className="gradient-text">{t('services.subtitle') || 'Services'}</span>
           </h2>
           <p className="text-white/60 text-lg max-w-xl mx-auto">
-            Comprehensive solutions tailored to your needs
+            {t('services.description') || 'Comprehensive solutions tailored to your needs'}
           </p>
         </motion.div>
 
@@ -293,14 +298,16 @@ const ServicesSection = ({ data }) => {
                     <div className="flex items-center justify-between pt-4 border-t border-white/5">
                       {service.price && parseFloat(service.price) > 0 ? (
                         <span className="text-emerald-400 font-bold text-sm">
-                          From TZS {parseInt(service.price).toLocaleString()}
+                          {t('services.from') || 'From'} {t('services.currency') || 'TZS'} {parseInt(service.price).toLocaleString()}
                         </span>
                       ) : (
-                        <span className="text-white/30 text-xs">Contact for pricing</span>
+                        <span className="text-white/30 text-xs">
+                          {t('services.contact_pricing') || 'Contact for pricing'}
+                        </span>
                       )}
 
                       <span className="flex items-center gap-1 text-sm font-semibold text-emerald-400 group-hover:gap-2 transition-all ml-auto">
-                        Learn more
+                        {t('services.learn_more') || 'Learn more'}
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                         </svg>
@@ -327,7 +334,7 @@ const ServicesSection = ({ data }) => {
               className="group relative inline-flex items-center gap-3 border-2 border-white/20 text-white px-8 py-4 rounded-full font-bold text-base hover:border-emerald-400/50 transition-all duration-300 overflow-hidden"
             >
               <span className="absolute inset-0 bg-emerald-500/0 group-hover:bg-emerald-500/5 transition-colors duration-300" />
-              <span className="relative z-10">View All Services</span>
+              <span className="relative z-10">{t('services.view_all') || 'View All Services'}</span>
               <motion.svg 
                 className="w-5 h-5 relative z-10" 
                 fill="none" stroke="currentColor" viewBox="0 0 24 24"

@@ -1,0 +1,93 @@
+﻿{
+  "status": {
+    "all": "全部",
+    "pending": "待处理",
+    "confirmed": "已确认",
+    "in_progress": "进行中",
+    "completed": "已完成",
+    "cancelled": "已取消",
+    "unknown": "未知"
+  },
+  "date": {
+    "tbd": "日期待定",
+    "today": "今天",
+    "tomorrow": "明天",
+    "past_due": "已过期",
+    "in_days": "{{days}}天后"
+  },
+  "priority": {
+    "urgent": "紧急",
+    "high": "高",
+    "medium": "中",
+    "low": "低"
+  },
+  "icons": {
+    "agriculture": "🌾",
+    "environment": "🌍",
+    "business": "💼",
+    "livestock": "🐄",
+    "default": "💬"
+  },
+  "consultation": {
+    "default_title": "咨询",
+    "no_message": "未提供消息",
+    "view": "查看"
+  },
+  "detail": {
+    "loading": "正在加载咨询详情...",
+    "error_title": "错误",
+    "error_not_found": "未找到咨询",
+    "error_load_failed": "加载咨询详情失败",
+    "back_to_list": "返回咨询列表",
+    "title": "咨询详情",
+    "request_id": "请求",
+    "service": "服务",
+    "assigned_to": "分配给",
+    "pending_assignment": "等待分配",
+    "preferred_date": "首选日期",
+    "budget_range": "预算范围",
+    "message": "消息",
+    "response": "回复",
+    "requested_on": "请求日期"
+  },
+  "list": {
+    "my_consultations": "我的",
+    "consultations": "咨询",
+    "track_requests": "跟踪您的咨询请求",
+    "new_request": "新请求",
+    "total": "总计",
+    "search_placeholder": "搜索咨询...",
+    "clear": "清除",
+    "date_label": "日期",
+    "assigned_label": "分配",
+    "no_results": "未找到咨询请求",
+    "no_results_message": "您尚未提出任何咨询请求。",
+    "no_filtered_results": "未找到{{status}}咨询请求",
+    "no_filtered_message": "您还没有任何{{status}}咨询。",
+    "request_now": "请求咨询"
+  },
+  "request": {
+    "badge": "联系我们",
+    "title": "请求",
+    "subtitle": "咨询",
+    "description": "填写表格，我们将尽快回复您",
+    "loading_services": "正在加载服务...",
+    "select_service": "选择服务",
+    "select_service_error": "请选择服务",
+    "choose_service": "选择服务",
+    "currency": "TZS",
+    "preferred_date": "首选日期和时间",
+    "select_date_error": "请选择首选日期",
+    "budget_range": "预算范围",
+    "optional": "可选",
+    "budget_placeholder": "例如：500,000 - 1,000,000 TZS",
+    "additional_message": "附加信息",
+    "message_placeholder": "告诉我们更多关于您的需求、要求或任何问题...",
+    "submit": "提交请求",
+    "submitting": "提交中...",
+    "submit_error": "提交请求出错。请重试。",
+    "success_title": "请求已提交！",
+    "success_message": "感谢您的请求。我们将尽快与您联系。",
+    "redirecting": "正在跳转到咨询列表..."
+  }
+}

@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next' // ✅ Ongeza hii
 
 const StatsSection = ({ services, projects, testimonials, siteSettings }) => {
+  const { t } = useTranslation('home') // ✅ Ongeza hii
   const [counters, setCounters] = useState({ projects: 0, clients: 0, services: 0, years: 0 })
   const [hasAnimated, setHasAnimated] = useState(false)
   const sectionRef = useRef(null)
@@ -63,15 +65,43 @@ const StatsSection = ({ services, projects, testimonials, siteSettings }) => {
   if (!hasStats) return null
 
   const stats = [
-    { value: counters.projects, suffix: '+', label: 'Projects Completed', icon: '📁', color: 'emerald' },
-    { value: counters.clients, suffix: '+', label: 'Happy Clients', icon: '😊', color: 'green' },
-    { value: counters.services, suffix: '+', label: 'Services Offered', icon: '🛠️', color: 'teal' },
-    { value: counters.years, suffix: '+', label: 'Years Experience', icon: '📅', color: 'emerald' },
+    { 
+      value: counters.projects, 
+      suffix: '+', 
+      label: t('stats.projects') || 'Projects Completed', 
+      icon: '📁', 
+      color: 'emerald',
+      key: 'projects'
+    },
+    { 
+      value: counters.clients, 
+      suffix: '+', 
+      label: t('stats.clients') || 'Happy Clients', 
+      icon: '😊', 
+      color: 'green',
+      key: 'clients'
+    },
+    { 
+      value: counters.services, 
+      suffix: '+', 
+      label: t('stats.services') || 'Services Offered', 
+      icon: '🛠️', 
+      color: 'teal',
+      key: 'services'
+    },
+    { 
+      value: counters.years, 
+      suffix: '+', 
+      label: t('stats.years') || 'Years Experience', 
+      icon: '📅', 
+      color: 'emerald',
+      key: 'years'
+    },
   ].filter(stat => {
-    if (stat.label === 'Projects Completed') return targetProjects > 0
-    if (stat.label === 'Happy Clients') return targetClients > 0
-    if (stat.label === 'Services Offered') return targetServices > 0
-    if (stat.label === 'Years Experience') return targetYears > 0
+    if (stat.key === 'projects') return targetProjects > 0
+    if (stat.key === 'clients') return targetClients > 0
+    if (stat.key === 'services') return targetServices > 0
+    if (stat.key === 'years') return targetYears > 0
     return true
   })
 

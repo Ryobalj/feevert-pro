@@ -1,26 +1,12 @@
+// pages/services/ServicesPage.jsx
+
 import React, { useState, useEffect } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTheme } from '../../../context/ThemeContext'
 import api from '../../../app/api'
 import Loader from '../../../components/ui/Loader'
-
-// ============ ICON CONVERTER ============
-const iconMap = {
-  ':bee:': '🐝', ':leaf:': '🌿', ':shield:': '🛡️',
-  ':home:': '🏠', ':tools:': '🛠️', ':honey:': '🍯',
-  ':books:': '📚', ':sunflower:': '🌻', ':clipboard:': '📋',
-  ':search:': '🔍', ':recycle:': '♻️', ':globe:': '🌍',
-  ':map:': '🗺️', ':scroll:': '📜', ':warning:': '⚠️',
-  ':chart:': '📊', ':graduate:': '🎓', ':detective:': '🔎',
-  ':beehive:': '🐝', ':flower:': '🌻', ':earth:': '🌍',
-  ':magnifier:': '🔍', ':document:': '📋', ':mortar:': '🎓',
-}
-
-const getIcon = (icon) => {
-  if (!icon) return '📌'
-  return iconMap[icon] || icon
-}
+import { Icon } from '../../../components/ui/Icon'
 
 // ============ HELPER FUNCTIONS ============
 const getDisplayPrice = (service) => {
@@ -138,7 +124,7 @@ const CardImage = ({ item, type = 'service' }) => {
 
   return (
     <div
-      className="relative h-44 overflow-hidden"
+      className="relative h-44 overflow-hidden rounded-t-2xl"
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
     >
@@ -206,13 +192,11 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
       return Array.from({ length: totalPages }, (_, i) => i + 1)
     }
 
-    // Always show first page
     pages.push(1)
 
     let start = Math.max(2, currentPage - 1)
     let end = Math.min(totalPages - 1, currentPage + 1)
 
-    // Adjust range for edges
     if (currentPage <= 2) {
       end = Math.min(4, totalPages - 1)
     }
@@ -227,8 +211,6 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
     }
 
     if (end < totalPages - 1) pages.push('...')
-
-    // Always show last page
     if (totalPages > 1) pages.push(totalPages)
 
     return pages
@@ -236,7 +218,6 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
 
   return (
     <div className="flex justify-center items-center gap-2 mt-12">
-      {/* Previous Button */}
       <button
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
@@ -252,14 +233,10 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
         Prev
       </button>
 
-      {/* Page Numbers */}
       <div className="flex items-center gap-1.5">
         {getPageNumbers().map((page, idx) =>
           page === '...' ? (
-            <span
-              key={`dots-${idx}`}
-              className="w-10 h-10 flex items-center justify-center text-white/30 text-sm"
-            >
+            <span key={`dots-${idx}`} className="w-10 h-10 flex items-center justify-center text-white/30 text-sm">
               ...
             </span>
           ) : (
@@ -278,7 +255,6 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
         )}
       </div>
 
-      {/* Next Button */}
       <button
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
@@ -305,7 +281,6 @@ const ServicesPage = () => {
   const [loading, setLoading] = useState(true)
   const [dropdownOpen, setDropdownOpen] = useState(false)
 
-  // Pagination
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [totalCount, setTotalCount] = useState(0)
@@ -316,7 +291,6 @@ const ServicesPage = () => {
   const navigate = useNavigate()
   const dropdownRef = React.useRef(null)
 
-  // Close dropdown on outside click
   React.useEffect(() => {
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -327,44 +301,55 @@ const ServicesPage = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  // Fetch data
+  // ✅ Load data with proper filters
   useEffect(() => {
     const loadData = async () => {
       try {
         setLoading(true)
+        
         const [servicesRes, categoriesRes] = await Promise.all([
           api.get('/consultation-services/', {
             params: {
               page: currentPage,
               page_size: pageSize,
               category: selectedCategory !== 'all' ? selectedCategory : undefined,
+              is_active: true,  // ✅ Ensure only active services
             }
           }),
-          api.get('/consultation-categories/')
+          api.get('/consultation-categories/', {
+            params: {
+              is_active: true,  // ✅ Ensure only active categories
+            }
+          })
         ])
 
+        // ✅ Process services
         const data = servicesRes.data
         if (data.results) {
-          // Paginated response
-          setServices(data.results)
+          // Double-check active status
+          const activeServices = data.results.filter(s => s.is_active !== false)
+          setServices(activeServices)
           setTotalCount(data.count || 0)
           setTotalPages(Math.ceil((data.count || 0) / pageSize))
         } else if (Array.isArray(data)) {
-          // Non-paginated fallback
-          setServices(data)
-          setTotalCount(data.length)
-          setTotalPages(Math.ceil(data.length / pageSize))
+          const activeServices = data.filter(s => s.is_active !== false)
+          setServices(activeServices)
+          setTotalCount(activeServices.length)
+          setTotalPages(Math.ceil(activeServices.length / pageSize))
         } else {
           setServices([])
           setTotalCount(0)
           setTotalPages(1)
         }
 
-        setCategories(
-          Array.isArray(categoriesRes.data?.results)
-            ? categoriesRes.data.results
-            : categoriesRes.data || []
-        )
+        // ✅ Process categories - only active ones
+        const categoriesData = Array.isArray(categoriesRes.data?.results)
+          ? categoriesRes.data.results
+          : categoriesRes.data || []
+        
+        const activeCategories = categoriesData.filter(c => c.is_active !== false)
+        setCategories(activeCategories)
+        
       } catch (error) {
         console.error('Error loading services:', error)
       } finally {
@@ -374,7 +359,7 @@ const ServicesPage = () => {
     loadData()
   }, [currentPage, selectedCategory])
 
-  // Sync selected category from URL
+  // ✅ Sync selected category from URL
   useEffect(() => {
     if (categories.length === 0) return
     const params = new URLSearchParams(location.search)
@@ -383,11 +368,14 @@ const ServicesPage = () => {
       const matchedCategory = categories.find(
         cat => cat.slug === categoryParam || cat.id.toString() === categoryParam
       )
-      setSelectedCategory(matchedCategory ? matchedCategory.id : 'all')
+      if (matchedCategory) {
+        setSelectedCategory(matchedCategory.id)
+      } else {
+        setSelectedCategory('all')
+      }
     }
   }, [location.search, categories])
 
-  // Handlers
   const handleCategoryChange = (categoryId) => {
     setSelectedCategory(categoryId)
     setCurrentPage(1)
@@ -407,7 +395,6 @@ const ServicesPage = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
-  // ============ LOADING STATE ============
   if (loading && services.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -416,14 +403,16 @@ const ServicesPage = () => {
     )
   }
 
-  // Derived values
   const currentCategoryName = selectedCategory === 'all'
     ? 'All Services'
     : categories.find(c => c.id == selectedCategory)?.name || 'Services'
 
   const currentCategoryIcon = selectedCategory !== 'all'
-    ? getIcon(categories.find(c => c.id == selectedCategory)?.icon)
+    ? categories.find(c => c.id == selectedCategory)?.icon
     : '🛠️'
+
+  // ✅ Get categories that actually have services
+  const categoriesWithServices = categories.filter(cat => cat.service_count > 0)
 
   return (
     <motion.div
@@ -438,7 +427,6 @@ const ServicesPage = () => {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-12"
         >
-          {/* Glass Badge */}
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -451,7 +439,7 @@ const ServicesPage = () => {
               transition={{ duration: 2, repeat: Infinity }}
             />
             <span className="text-sm font-medium text-white/80">
-              {currentCategoryIcon} {selectedCategory === 'all' ? 'Comprehensive Solutions' : currentCategoryName}
+              <Icon name={currentCategoryIcon} /> {selectedCategory === 'all' ? 'Comprehensive Solutions' : currentCategoryName}
             </span>
           </motion.div>
 
@@ -478,7 +466,6 @@ const ServicesPage = () => {
             transition={{ delay: 0.15 }}
             className="flex flex-wrap justify-center items-center gap-4 mb-12"
           >
-            {/* Custom Dropdown */}
             <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => setDropdownOpen(!dropdownOpen)}
@@ -487,7 +474,7 @@ const ServicesPage = () => {
                 <span className="text-lg">
                   {selectedCategory === 'all'
                     ? '🛠️'
-                    : getIcon(categories.find(c => c.id == selectedCategory)?.icon)
+                    : <Icon name={categories.find(c => c.id == selectedCategory)?.icon} size="text-lg" />
                   }
                 </span>
                 <span className="text-white font-semibold text-sm flex-1">
@@ -505,7 +492,6 @@ const ServicesPage = () => {
                 </svg>
               </button>
 
-              {/* Dropdown Menu */}
               <AnimatePresence>
                 {dropdownOpen && (
                   <motion.div
@@ -515,7 +501,7 @@ const ServicesPage = () => {
                     transition={{ duration: 0.2 }}
                     className="absolute top-full left-0 mt-2 w-full min-w-[280px] glass-card rounded-2xl p-2 z-30 shadow-xl shadow-black/30 max-h-[400px] overflow-y-auto border border-white/10"
                   >
-                    {/* All Services Option */}
+                    {/* All Services */}
                     <button
                       onClick={() => handleCategoryChange('all')}
                       className={`w-full text-left px-4 py-3 rounded-xl text-sm font-semibold transition-all flex items-center gap-3 ${
@@ -529,38 +515,40 @@ const ServicesPage = () => {
                     </button>
                     <div className="h-px bg-white/5 my-1" />
 
-                    {/* Category Options */}
-                    {categories.map(cat => (
-                      <button
-                        key={cat.id}
-                        onClick={() => handleCategoryChange(cat.id)}
-                        className={`w-full text-left px-4 py-3 rounded-xl text-sm font-semibold transition-all flex items-center gap-3 ${
-                          selectedCategory == cat.id
-                            ? 'bg-emerald-500/20 text-emerald-400'
-                            : 'text-white/70 hover:text-white hover:bg-white/5'
-                        }`}
-                      >
-                        <span>{getIcon(cat.icon)}</span>
-                        {cat.name}
-                        {cat.service_count > 0 && (
+                    {/* ✅ Only show categories that have active services */}
+                    {categoriesWithServices.length > 0 ? (
+                      categoriesWithServices.map(cat => (
+                        <button
+                          key={cat.id}
+                          onClick={() => handleCategoryChange(cat.id)}
+                          className={`w-full text-left px-4 py-3 rounded-xl text-sm font-semibold transition-all flex items-center gap-3 ${
+                            selectedCategory == cat.id
+                              ? 'bg-emerald-500/20 text-emerald-400'
+                              : 'text-white/70 hover:text-white hover:bg-white/5'
+                          }`}
+                        >
+                          <Icon name={cat.icon} size="text-base" />
+                          {cat.name}
                           <span className="ml-auto text-xs text-white/30">
                             {cat.service_count}
                           </span>
-                        )}
-                      </button>
-                    ))}
+                        </button>
+                      ))
+                    ) : (
+                      <div className="px-4 py-6 text-center text-white/40 text-sm">
+                        No categories with services available
+                      </div>
+                    )}
                   </motion.div>
                 )}
               </AnimatePresence>
             </div>
 
-            {/* Results Info */}
             <span className="text-sm text-white/30 flex items-center gap-2">
               <span className="w-1 h-1 bg-emerald-400 rounded-full" />
               {totalCount} service{totalCount !== 1 ? 's' : ''} found
             </span>
 
-            {/* Clear Filter */}
             {selectedCategory !== 'all' && (
               <button
                 onClick={() => handleCategoryChange('all')}
@@ -596,21 +584,17 @@ const ServicesPage = () => {
                   >
                     <Link to={`/services/${service.id}`} className="block group h-full">
                       <div className="glass-card h-full flex flex-col relative overflow-hidden hover:border-emerald-400/30 hover:shadow-lg hover:shadow-emerald-500/5 transition-all duration-500 p-0">
-                        {/* Image Carousel */}
                         <CardImage item={service} type="service" />
 
-                        {/* Top Accent Line */}
                         <div className="h-1 bg-gradient-to-r from-emerald-400/0 via-emerald-400/0 to-emerald-400/0 group-hover:from-emerald-400/20 group-hover:via-emerald-400/40 group-hover:to-emerald-400/20 transition-all duration-500" />
 
-                        {/* Content */}
                         <div className="p-6 flex flex-col h-full">
-                          {/* Icon + Title */}
                           <div className="flex items-start gap-3 mb-4">
                             {service.icon && (
                               <div className="relative">
                                 <div className="absolute inset-0 bg-emerald-400/0 group-hover:bg-emerald-400/10 rounded-xl blur-lg transition-all duration-500" />
                                 <span className="relative text-2xl w-12 h-12 glass rounded-xl flex items-center justify-center group-hover:scale-110 group-hover:border-emerald-400/30 transition-all duration-300">
-                                  {getIcon(service.icon)}
+                                  <Icon name={service.icon} size="text-2xl" />
                                 </span>
                               </div>
                             )}
@@ -626,12 +610,10 @@ const ServicesPage = () => {
                             </div>
                           </div>
 
-                          {/* Description */}
                           <p className="text-sm text-white/40 mb-5 flex-1 line-clamp-3 leading-relaxed">
                             {service.description}
                           </p>
 
-                          {/* Footer */}
                           <div className="flex items-center justify-between pt-4 border-t border-white/5">
                             <span className="text-emerald-400 font-bold text-sm">
                               {getDisplayPrice(service)}
@@ -650,14 +632,12 @@ const ServicesPage = () => {
                 ))}
               </motion.div>
 
-              {/* Pagination */}
               <Pagination
                 currentPage={currentPage}
                 totalPages={totalPages}
                 onPageChange={handlePageChange}
               />
 
-              {/* Page Info */}
               {totalPages > 1 && (
                 <p className="text-center text-white/20 text-xs mt-4">
                   Page {currentPage} of {totalPages} · {totalCount} total services
@@ -665,7 +645,6 @@ const ServicesPage = () => {
               )}
             </>
           ) : (
-            /* Empty State */
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}

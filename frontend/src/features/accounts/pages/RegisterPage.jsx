@@ -1,6 +1,9 @@
+// src/features/accounts/pages/RegisterPage.jsx
+
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 import { useTheme } from '../../../context/ThemeContext'
 import api from '../../../app/api'
 
@@ -16,6 +19,10 @@ const COUNTRY_CODES = [
 ]
 
 const RegisterPage = () => {
+  const { t } = useTranslation('account')
+  const { darkMode } = useTheme()
+  const navigate = useNavigate()
+
   const [formData, setFormData] = useState({
     username: '', email: '', phone: '', password: '', password_confirm: ''
   })
@@ -25,8 +32,6 @@ const RegisterPage = () => {
   const [success, setSuccess] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
-  const navigate = useNavigate()
-  const { darkMode } = useTheme()
 
   const formatPhoneNumber = (phone, code) => {
     if (!phone || phone.trim() === '') return ''
@@ -36,13 +41,12 @@ const RegisterPage = () => {
   }
 
   const validatePassword = (password) => {
-    if (password.length < 8) return 'Password must be at least 8 characters long'
-    if (!/[A-Za-z]/.test(password)) return 'Password must contain at least one letter'
-    if (!/[0-9]/.test(password)) return 'Password must contain at least one number'
+    if (password.length < 8) return t('errors.password_min')
+    if (!/[A-Za-z]/.test(password)) return t('errors.password_letter')
+    if (!/[0-9]/.test(password)) return t('errors.password_number')
     return null
   }
 
-  // Password strength indicator
   const getPasswordStrength = (pwd) => {
     let score = 0
     if (pwd.length >= 8) score++
@@ -53,7 +57,7 @@ const RegisterPage = () => {
   }
 
   const passwordStrength = getPasswordStrength(formData.password)
-  const strengthLabels = ['', 'Weak', 'Fair', 'Good', 'Strong']
+  const strengthLabels = ['', t('register.weak'), t('register.fair'), t('register.good'), t('register.strong')]
   const strengthColors = ['', 'bg-red-400', 'bg-amber-400', 'bg-emerald-400', 'bg-emerald-500']
   const strengthWidths = ['', 'w-1/4', 'w-2/4', 'w-3/4', 'w-full']
 
@@ -63,7 +67,7 @@ const RegisterPage = () => {
     setSuccess('')
     
     if (formData.password !== formData.password_confirm) {
-      setError('Passwords do not match')
+      setError(t('errors.password_match'))
       return
     }
     
@@ -86,7 +90,7 @@ const RegisterPage = () => {
         password_confirm: formData.password_confirm
       })
       
-      setSuccess('Account created successfully! Redirecting to login...')
+      setSuccess(t('success.register'))
       setFormData({ username: '', email: '', phone: '', password: '', password_confirm: '' })
       setTimeout(() => navigate('/login'), 2000)
       
@@ -100,7 +104,7 @@ const RegisterPage = () => {
       } else if (err.response?.data?.error) {
         setError(err.response.data.error)
       } else {
-        setError('Registration failed. Please check your information and try again.')
+        setError(t('errors.register_failed'))
       }
     } finally {
       setLoading(false)
@@ -116,7 +120,7 @@ const RegisterPage = () => {
           transition={{ duration: 0.5 }}
           className="glass-card !p-8"
         >
-          {/* ============ HEADER ============ */}
+          {/* Header */}
           <div className="text-center mb-8">
             <motion.div
               initial={{ opacity: 0, scale: 0.5 }}
@@ -135,14 +139,11 @@ const RegisterPage = () => {
             </motion.div>
 
             <h1 className="text-2xl md:text-3xl font-extrabold text-white mb-2">
-              Create <span className="gradient-text">Account</span>
+              {t('register.title')} <span className="gradient-text">{t('register.subtitle')}</span>
             </h1>
-            <p className="text-white/50 text-sm">
-              Join FeeVert today and get started
-            </p>
           </div>
 
-          {/* ============ ERROR ============ */}
+          {/* Error Message */}
           {error && (
             <motion.div
               initial={{ opacity: 0, y: -10 }}
@@ -156,7 +157,7 @@ const RegisterPage = () => {
             </motion.div>
           )}
 
-          {/* ============ SUCCESS ============ */}
+          {/* Success State */}
           {success ? (
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
@@ -172,17 +173,16 @@ const RegisterPage = () => {
               >
                 ✅
               </motion.div>
-              <h2 className="text-xl font-bold text-white mb-2">Account Created!</h2>
+              <h2 className="text-xl font-bold text-white mb-2">{t('register.success_title')}</h2>
               <p className="text-white/50 text-sm mb-4">{success}</p>
               <div className="h-0.5 bg-emerald-400/30 rounded-full w-16 mx-auto animate-pulse" />
             </motion.div>
           ) : (
-            /* ============ FORM ============ */
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Username */}
               <div>
                 <label className="block text-sm font-medium text-white/60 mb-2">
-                  Username <span className="text-red-400">*</span>
+                  {t('register.username')} <span className="text-red-400">*</span>
                 </label>
                 <div className="relative">
                   <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40">
@@ -197,7 +197,7 @@ const RegisterPage = () => {
                     required
                     autoComplete="username"
                     className="w-full pl-12 pr-5 py-3.5 glass text-white placeholder:text-white/30 rounded-2xl border-0 outline-none focus:ring-2 focus:ring-emerald-400/50 transition-all text-sm"
-                    placeholder="Choose a username"
+                    placeholder={t('register.username_placeholder')}
                   />
                 </div>
               </div>
@@ -205,7 +205,7 @@ const RegisterPage = () => {
               {/* Email */}
               <div>
                 <label className="block text-sm font-medium text-white/60 mb-2">
-                  Email <span className="text-red-400">*</span>
+                  {t('register.email')} <span className="text-red-400">*</span>
                 </label>
                 <div className="relative">
                   <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40">
@@ -220,7 +220,7 @@ const RegisterPage = () => {
                     required
                     autoComplete="email"
                     className="w-full pl-12 pr-5 py-3.5 glass text-white placeholder:text-white/30 rounded-2xl border-0 outline-none focus:ring-2 focus:ring-emerald-400/50 transition-all text-sm"
-                    placeholder="Enter your email"
+                    placeholder={t('register.email_placeholder')}
                   />
                 </div>
               </div>
@@ -228,7 +228,7 @@ const RegisterPage = () => {
               {/* Phone */}
               <div>
                 <label className="block text-sm font-medium text-white/60 mb-2">
-                  Phone <span className="text-white/30">(optional)</span>
+                  {t('register.phone')} <span className="text-white/30">({t('register.optional')})</span>
                 </label>
                 <div className="flex gap-2">
                   <select
@@ -254,7 +254,7 @@ const RegisterPage = () => {
                       onChange={(e) => { setFormData({...formData, phone: e.target.value}); setError('') }}
                       autoComplete="tel"
                       className="w-full pl-11 pr-4 py-3.5 glass text-white placeholder:text-white/30 rounded-2xl border-0 outline-none focus:ring-2 focus:ring-emerald-400/50 transition-all text-sm"
-                      placeholder="712 345 678"
+                      placeholder={t('register.phone_placeholder')}
                     />
                   </div>
                 </div>
@@ -263,7 +263,7 @@ const RegisterPage = () => {
               {/* Password */}
               <div>
                 <label className="block text-sm font-medium text-white/60 mb-2">
-                  Password <span className="text-red-400">*</span>
+                  {t('register.password')} <span className="text-red-400">*</span>
                 </label>
                 <div className="relative">
                   <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40">
@@ -279,7 +279,7 @@ const RegisterPage = () => {
                     minLength="8"
                     autoComplete="new-password"
                     className="w-full pl-12 pr-12 py-3.5 glass text-white placeholder:text-white/30 rounded-2xl border-0 outline-none focus:ring-2 focus:ring-emerald-400/50 transition-all text-sm"
-                    placeholder="Create a password"
+                    placeholder={t('register.password_placeholder')}
                   />
                   <button
                     type="button"
@@ -299,7 +299,8 @@ const RegisterPage = () => {
                     )}
                   </button>
                 </div>
-                {/* Password Strength Bar */}
+
+                {/* Password Strength */}
                 {formData.password && (
                   <div className="mt-2">
                     <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
@@ -320,14 +321,14 @@ const RegisterPage = () => {
                   </div>
                 )}
                 <p className="text-[10px] text-white/30 mt-1">
-                  Min. 8 characters with at least one letter and one number
+                  {t('register.password_hint')}
                 </p>
               </div>
 
               {/* Confirm Password */}
               <div>
                 <label className="block text-sm font-medium text-white/60 mb-2">
-                  Confirm Password <span className="text-red-400">*</span>
+                  {t('register.confirm_password')} <span className="text-red-400">*</span>
                 </label>
                 <div className="relative">
                   <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40">
@@ -342,7 +343,7 @@ const RegisterPage = () => {
                     required
                     autoComplete="new-password"
                     className="w-full pl-12 pr-12 py-3.5 glass text-white placeholder:text-white/30 rounded-2xl border-0 outline-none focus:ring-2 focus:ring-emerald-400/50 transition-all text-sm"
-                    placeholder="Confirm your password"
+                    placeholder={t('register.confirm_placeholder')}
                   />
                   <button
                     type="button"
@@ -362,7 +363,8 @@ const RegisterPage = () => {
                     )}
                   </button>
                 </div>
-                {/* Match indicator */}
+
+                {/* Match Indicator */}
                 {formData.password_confirm && (
                   <p className={`text-[10px] mt-1 ${
                     formData.password === formData.password_confirm 
@@ -370,13 +372,13 @@ const RegisterPage = () => {
                       : 'text-red-400'
                   }`}>
                     {formData.password === formData.password_confirm 
-                      ? '✓ Passwords match' 
-                      : '✗ Passwords do not match'}
+                      ? `✓ ${t('register.password_match')}` 
+                      : `✗ ${t('register.password_no_match')}`}
                   </p>
                 )}
               </div>
 
-              {/* Submit */}
+              {/* Submit Button */}
               <button
                 type="submit"
                 disabled={loading}
@@ -393,11 +395,11 @@ const RegisterPage = () => {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                     </svg>
-                    Creating Account...
+                    {t('buttons.creating_account')}
                   </span>
                 ) : (
                   <span className="relative z-10 flex items-center justify-center gap-2">
-                    Sign Up
+                    {t('register.submit')}
                     <svg className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                     </svg>
@@ -407,7 +409,7 @@ const RegisterPage = () => {
             </form>
           )}
 
-          {/* ============ FOOTER ============ */}
+          {/* Footer */}
           {!success && (
             <>
               <div className="flex items-center gap-4 my-6">
@@ -416,12 +418,12 @@ const RegisterPage = () => {
                 <div className="flex-1 h-px bg-white/5" />
               </div>
               <p className="text-center text-sm text-white/40">
-                Already have an account?{' '}
+                {t('register.have_account')}{' '}
                 <Link 
                   to="/login" 
                   className="font-semibold text-emerald-400 hover:text-emerald-300 transition-colors"
                 >
-                  Sign in
+                  {t('register.login')}
                 </Link>
               </p>
             </>

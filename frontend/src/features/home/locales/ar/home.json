@@ -1,0 +1,118 @@
+﻿{
+  "cta": {
+    "badge": "دعونا نعمل معاً",
+    "title": "هل أنت مستعد للبدء؟",
+    "subtitle": "تواصل معنا اليوم للحصول على استشارة مجانية ودعنا نساعدك في تحقيق أهدافك.",
+    "contact_now": "تواصل معنا الآن",
+    "view_services": "عرض الخدمات",
+    "trust": {
+      "free_consultation": "استشارة مجانية",
+      "quick_response": "رد سريع",
+      "confidential": "سري"
+    }
+  },
+  "faq": {
+    "title": "الأسئلة",
+    "subtitle": "الشائعة",
+    "description": "لديك أسئلة؟ لدينا إجابات",
+    "still_have_questions": "لا تزال لديك أسئلة؟",
+    "contact_support": "اتصل بفريق الدعم لدينا"
+  },
+  "hero": {
+    "badge": "الاستشارات الموثوقة في تنزانيا",
+    "title_part1": "استشارات",
+    "title_part2": "خبيرة",
+    "title_part3": "لمستقبل مستدام",
+    "subtitle": "خدمات احترافية في الزراعة والبيئة والصحة والسلامة المهنية",
+    "cta_primary": "ابدأ الآن",
+    "cta_secondary": "اعرف المزيد",
+    "trust": {
+      "iso_certified": "معتمدة ISO",
+      "experience": "خبرة 5+ سنوات",
+      "clients": "50+ عميل سعيد"
+    }
+  },
+  "newsletter": {
+    "title": "اشترك في",
+    "title_highlight": "نشرتنا الإخبارية",
+    "description": "احصل على آخر التحديثات والأخبار والعروض الحصرية مباشرة إلى بريدك الوارد.",
+    "input_placeholder": "أدخل بريدك الإلكتروني",
+    "subscribe_button": "اشترك",
+    "subscribing": "جاري الاشتراك...",
+    "success_message": "تم الاشتراك بنجاح!",
+    "error_invalid_email": "يرجى إدخال عنوان بريد إلكتروني صحيح",
+    "error_subscribe": "فشل الاشتراك. يرجى المحاولة مرة أخرى.",
+    "privacy_note": "نحن نحترم خصوصيتك. يمكنك إلغاء الاشتراك في أي وقت."
+  },
+  "projects": {
+    "badge": "📁 محفظتنا",
+    "title": "مشاريع",
+    "subtitle": "مميزة",
+    "description": "بعض مشاريعنا الناجحة التي تعرض خبرتنا",
+    "view_all": "عرض جميع المشاريع"
+  },
+  "reviews": {
+    "badge": "⭐ شهادات العملاء",
+    "title": "ماذا يقول",
+    "subtitle": "عملاؤنا",
+    "say": "",
+    "description": "لا تأخذ كلمتنا فقط — استمع إلى عملائنا الراضين",
+    "client": "عميل",
+    "view_all": "قراءة جميع التقييمات",
+    "reviews_label": "التقييمات",
+    "loading": "جاري تحميل التقييمات...",
+    "page_title": "ماذا يقول",
+    "page_subtitle": "عملاؤنا",
+    "page_description": "لا تأخذ كلمتنا فقط. اقرأ ما يقوله عملاؤنا الراضون عن خدماتنا.",
+    "no_reviews_title": "لا توجد تقييمات بعد",
+    "no_filtered_reviews": "لم يتم العثور على تقييمات {{rating}} نجوم. جرب فلتراً آخر.",
+    "no_reviews_message": "كن أول من يشارك تجربته معنا!",
+    "share_title": "شارك تجربتك",
+    "share_description": "نحن نحب أن نسمع عن تجربتك مع خدماتنا.",
+    "write_review": "اكتب تقييماً"
+  },
+  "services": {
+    "badge": "🛠️ ما نقدمه",
+    "title": "خدماتنا",
+    "subtitle": "الأساسية",
+    "description": "حلول شاملة مصممة خصيصاً لتلبية احتياجاتك",
+    "from": "بدءاً من",
+    "currency": "TZS",
+    "contact_pricing": "اتصل بنا للتسعير",
+    "learn_more": "اعرف المزيد",
+    "view_all": "عرض جميع الخدمات"
+  },
+  "stats": {
+    "projects": "مشاريع مكتملة",
+    "clients": "عملاء سعداء",
+    "services": "خدمات مقدمة",
+    "years": "سنوات من الخبرة"
+  },
+  "team": {
+    "badge": "👥 خبراؤنا",
+    "title": "تعرف على",
+    "subtitle": "فريقنا",
+    "description": "المحترفون المتحمسون وراء FeeVert، المكرسون لنجاحك",
+    "view_all": "تعرف على جميع أعضاء الفريق",
+    "member": "عضو الفريق",
+    "email": "البريد الإلكتروني",
+    "linkedin": "لينكدإن",
+    "twitter": "تويتر"
+  },
+  "about": {
+    "badge": "قصتنا",
+    "title": "حول",
+    "company": "FeeVert",
+    "loading": "جاري التحميل",
+    "error_title": "تعذر تحميل المحتوى",
+    "error_message": "يرجى التحقق من اتصالك والمحاولة مرة أخرى.",
+    "retry": "إعادة المحاولة",
+    "mission": "مهمتنا",
+    "vision": "رؤيتنا",
+    "core_values_title": "قيمنا",
+    "core_values_subtitle": "الأساسية",
+    "impact_title": "تأثيرنا بالأرقام",
+    "why_choose_title": "لماذا تختار",
+    "why_choose_subtitle": "FeeVert"
+  }
+}

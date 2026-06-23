@@ -1,8 +1,13 @@
+// src/features/accounts/components/dashboard/StatsCard.jsx
+
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 
 const StatsCard = ({ label, value, icon, link, color }) => {
+  const { t } = useTranslation('admin')
+
   const colorMap = {
     blue: 'from-blue-400 to-cyan-600',
     green: 'from-emerald-400 to-green-600',

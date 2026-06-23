@@ -1,9 +1,12 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next' // ✅ Ongeza hii
 import TeamCard from './TeamCard'
 
 const TeamSection = ({ data }) => {
+  const { t } = useTranslation('home') // ✅ Ongeza hii
+
   if (!data || data.length === 0) return null
 
   const featuredTeam = data.filter(m => m.is_featured).slice(0, 4)
@@ -35,16 +38,18 @@ const TeamSection = ({ data }) => {
               animate={{ scale: [1, 1.5, 1], opacity: [0.7, 1, 0.7] }}
               transition={{ duration: 2, repeat: Infinity }}
             />
-            <span className="text-sm font-medium text-white/80">👥 Our Experts</span>
+            <span className="text-sm font-medium text-white/80">
+              {t('team.badge') || '👥 Our Experts'}
+            </span>
           </motion.div>
 
           {/* Title */}
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white mb-4">
-            Meet Our{' '}
-            <span className="gradient-text">Team</span>
+            {t('team.title') || 'Meet Our'}{' '}
+            <span className="gradient-text">{t('team.subtitle') || 'Team'}</span>
           </h2>
           <p className="text-white/60 text-lg max-w-xl mx-auto">
-            The passionate professionals behind FeeVert, dedicated to your success
+            {t('team.description') || 'The passionate professionals behind FeeVert, dedicated to your success'}
           </p>
         </motion.div>
 
@@ -77,7 +82,7 @@ const TeamSection = ({ data }) => {
             className="group relative inline-flex items-center gap-3 border-2 border-white/20 text-white px-8 py-4 rounded-full font-bold text-base hover:border-emerald-400/50 transition-all duration-300 overflow-hidden"
           >
             <span className="absolute inset-0 bg-emerald-500/0 group-hover:bg-emerald-500/5 transition-colors duration-300" />
-            <span className="relative z-10">Meet All Team Members</span>
+            <span className="relative z-10">{t('team.view_all') || 'Meet All Team Members'}</span>
             <motion.svg 
               className="w-5 h-5 relative z-10" 
               fill="none" stroke="currentColor" viewBox="0 0 24 24"

@@ -1,0 +1,93 @@
+﻿{
+  "status": {
+    "all": "الكل",
+    "pending": "قيد الانتظار",
+    "confirmed": "تم التأكيد",
+    "in_progress": "قيد التنفيذ",
+    "completed": "مكتمل",
+    "cancelled": "ملغي",
+    "unknown": "غير معروف"
+  },
+  "date": {
+    "tbd": "التاريخ غير محدد",
+    "today": "اليوم",
+    "tomorrow": "غداً",
+    "past_due": "منتهي الصلاحية",
+    "in_days": "خلال {{days}} أيام"
+  },
+  "priority": {
+    "urgent": "عاجل",
+    "high": "مرتفع",
+    "medium": "متوسط",
+    "low": "منخفض"
+  },
+  "icons": {
+    "agriculture": "🌾",
+    "environment": "🌍",
+    "business": "💼",
+    "livestock": "🐄",
+    "default": "💬"
+  },
+  "consultation": {
+    "default_title": "استشارة",
+    "no_message": "لم يتم تقديم رسالة",
+    "view": "عرض"
+  },
+  "detail": {
+    "loading": "جاري تحميل تفاصيل الاستشارة...",
+    "error_title": "خطأ",
+    "error_not_found": "لم يتم العثور على الاستشارة",
+    "error_load_failed": "فشل تحميل تفاصيل الاستشارة",
+    "back_to_list": "العودة إلى الاستشارات",
+    "title": "تفاصيل الاستشارة",
+    "request_id": "طلب",
+    "service": "الخدمة",
+    "assigned_to": "مخصص لـ",
+    "pending_assignment": "في انتظار التخصيص",
+    "preferred_date": "التاريخ المفضل",
+    "budget_range": "نطاق الميزانية",
+    "message": "الرسالة",
+    "response": "الرد",
+    "requested_on": "تم الطلب في"
+  },
+  "list": {
+    "my_consultations": "استشاراتي",
+    "consultations": "الاستشارات",
+    "track_requests": "تتبع طلبات الاستشارة الخاصة بك",
+    "new_request": "طلب جديد",
+    "total": "الإجمالي",
+    "search_placeholder": "بحث في الاستشارات...",
+    "clear": "مسح",
+    "date_label": "التاريخ",
+    "assigned_label": "مخصص",
+    "no_results": "لم يتم العثور على طلبات استشارة",
+    "no_results_message": "لم تقم بأي طلبات استشارة حتى الآن.",
+    "no_filtered_results": "لم يتم العثور على طلبات استشارة {{status}}",
+    "no_filtered_message": "ليس لديك أي استشارات {{status}} حتى الآن.",
+    "request_now": "طلب استشارة"
+  },
+  "request": {
+    "badge": "تواصل معنا",
+    "title": "طلب",
+    "subtitle": "استشارة",
+    "description": "املأ النموذج وسنرد عليك قريباً",
+    "loading_services": "جاري تحميل الخدمات...",
+    "select_service": "اختر الخدمة",
+    "select_service_error": "يرجى اختيار الخدمة",
+    "choose_service": "اختر خدمة",
+    "currency": "TZS",
+    "preferred_date": "التاريخ والوقت المفضل",
+    "select_date_error": "يرجى اختيار التاريخ المفضل",
+    "budget_range": "نطاق الميزانية",
+    "optional": "اختياري",
+    "budget_placeholder": "مثال: 500,000 - 1,000,000 TZS",
+    "additional_message": "رسالة إضافية",
+    "message_placeholder": "أخبرنا المزيد عن احتياجاتك ومتطلباتك أو أي أسئلة لديك...",
+    "submit": "إرسال الطلب",
+    "submitting": "جاري الإرسال...",
+    "submit_error": "خطأ في إرسال الطلب. يرجى المحاولة مرة أخرى.",
+    "success_title": "تم إرسال الطلب!",
+    "success_message": "شكراً لطلبك. سنتواصل معك قريباً.",
+    "redirecting": "جاري التوجيه إلى الاستشارات..."
+  }
+}

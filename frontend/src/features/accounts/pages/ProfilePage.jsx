@@ -1,10 +1,14 @@
+// src/features/accounts/pages/ProfilePage.jsx
+
 import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 import { useTheme } from '../../../context/ThemeContext'
 import { useAuth } from '../hooks/useAuth'
 import api from '../../../app/api'
 
 const ProfilePage = () => {
+  const { t } = useTranslation('account')
   const [profile, setProfile] = useState(null)
   const [formData, setFormData] = useState({ full_name: '', email: '', phone: '', bio: '', address: '' })
   const [loading, setLoading] = useState(true)
@@ -43,14 +47,12 @@ const ProfilePage = () => {
     
     try {
       await api.patch('/profiles/', formData)
-      setMessage('Profile updated successfully!')
+      setMessage(t('success.profile_updated'))
       setMessageType('success')
-      // Update local user state
       updateUser?.({ full_name: formData.full_name })
-      // Auto-dismiss message
       setTimeout(() => setMessage(''), 4000)
     } catch (error) {
-      setMessage('Error updating profile. Please try again.')
+      setMessage(t('errors.profile_update_failed'))
       setMessageType('error')
     } finally {
       setSaving(false)
@@ -62,7 +64,7 @@ const ProfilePage = () => {
       <div className="min-h-screen flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div className="spinner spinner-lg" />
-          <p className="text-white/50 animate-pulse">Loading profile...</p>
+          <p className="text-white/50 animate-pulse">{t('profile.loading')}</p>
         </div>
       </div>
     )
@@ -82,9 +84,9 @@ const ProfilePage = () => {
           className="mb-10"
         >
           <h1 className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-white">
-            Your <span className="gradient-text">Profile</span>
+            {t('profile.title')} <span className="gradient-text">{t('profile.subtitle')}</span>
           </h1>
-          <p className="mt-2 text-white/40 text-sm">Manage your personal information</p>
+          <p className="mt-2 text-white/40 text-sm">{t('profile.description')}</p>
         </motion.div>
 
         {/* ============ MESSAGE ============ */}
@@ -140,13 +142,13 @@ const ProfilePage = () => {
                 {profile?.full_name || user?.username}
               </h3>
               <p className="text-xs font-semibold text-emerald-400/80 uppercase tracking-wider mb-4">
-                {user?.role_name || user?.role?.name || 'Client'}
+                {user?.role_name || user?.role?.name || t('profile.client')}
               </p>
 
               <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent mb-4" />
 
               <div>
-                <p className="text-xs text-white/30 uppercase tracking-wider mb-1">Member since</p>
+                <p className="text-xs text-white/30 uppercase tracking-wider mb-1">{t('profile.member_since')}</p>
                 <p className="text-sm font-semibold text-white/70">
                   {new Date(user?.date_joined || Date.now()).toLocaleDateString('en-US', {
                     year: 'numeric',
@@ -159,11 +161,11 @@ const ProfilePage = () => {
               <div className="grid grid-cols-2 gap-3 mt-5 pt-5 border-t border-white/5">
                 <div className="text-center">
                   <div className="text-lg font-bold text-white">0</div>
-                  <div className="text-[10px] text-white/30 uppercase tracking-wider">Bookings</div>
+                  <div className="text-[10px] text-white/30 uppercase tracking-wider">{t('profile.bookings')}</div>
                 </div>
                 <div className="text-center">
                   <div className="text-lg font-bold text-white">0</div>
-                  <div className="text-[10px] text-white/30 uppercase tracking-wider">Consultations</div>
+                  <div className="text-[10px] text-white/30 uppercase tracking-wider">{t('profile.consultations')}</div>
                 </div>
               </div>
             </div>
@@ -179,14 +181,14 @@ const ProfilePage = () => {
             <div className="glass-card p-6 md:p-8 group hover:border-emerald-400/20 transition-all duration-300">
               <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
                 <span className="w-8 h-8 rounded-lg glass flex items-center justify-center text-sm">✏️</span>
-                Edit Profile
+                {t('profile.edit_title')}
               </h2>
 
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div className="grid sm:grid-cols-2 gap-5">
                   <div>
                     <label className="block text-sm font-medium text-white/60 mb-2">
-                      Full Name
+                      {t('profile.full_name')}
                     </label>
                     <div className="relative">
                       <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30">
@@ -199,13 +201,13 @@ const ProfilePage = () => {
                         value={formData.full_name}
                         onChange={(e) => setFormData({...formData, full_name: e.target.value})}
                         className="w-full pl-11 pr-4 py-3 glass text-white placeholder:text-white/20 rounded-xl border-0 outline-none focus:ring-2 focus:ring-emerald-400/40 transition-all text-sm"
-                        placeholder="Your full name"
+                        placeholder={t('profile.full_name_placeholder')}
                       />
                     </div>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-white/60 mb-2">
-                      Email
+                      {t('profile.email')}
                     </label>
                     <div className="relative">
                       <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30">
@@ -218,7 +220,7 @@ const ProfilePage = () => {
                         value={formData.email}
                         onChange={(e) => setFormData({...formData, email: e.target.value})}
                         className="w-full pl-11 pr-4 py-3 glass text-white placeholder:text-white/20 rounded-xl border-0 outline-none focus:ring-2 focus:ring-emerald-400/40 transition-all text-sm"
-                        placeholder="Your email"
+                        placeholder={t('profile.email_placeholder')}
                       />
                     </div>
                   </div>
@@ -226,7 +228,7 @@ const ProfilePage = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-white/60 mb-2">
-                    Phone
+                    {t('profile.phone')}
                   </label>
                   <div className="relative">
                     <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30">
@@ -239,27 +241,27 @@ const ProfilePage = () => {
                       value={formData.phone}
                       onChange={(e) => setFormData({...formData, phone: e.target.value})}
                       className="w-full pl-11 pr-4 py-3 glass text-white placeholder:text-white/20 rounded-xl border-0 outline-none focus:ring-2 focus:ring-emerald-400/40 transition-all text-sm"
-                      placeholder="Your phone number"
+                      placeholder={t('profile.phone_placeholder')}
                     />
                   </div>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-white/60 mb-2">
-                    Bio
+                    {t('profile.bio')}
                   </label>
                   <textarea
                     value={formData.bio}
                     onChange={(e) => setFormData({...formData, bio: e.target.value})}
                     rows="3"
                     className="w-full px-4 py-3 glass text-white placeholder:text-white/20 rounded-xl border-0 outline-none focus:ring-2 focus:ring-emerald-400/40 transition-all text-sm resize-none"
-                    placeholder="Tell us about yourself..."
+                    placeholder={t('profile.bio_placeholder')}
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-white/60 mb-2">
-                    Address
+                    {t('profile.address')}
                   </label>
                   <div className="relative">
                     <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30">
@@ -273,7 +275,7 @@ const ProfilePage = () => {
                       value={formData.address}
                       onChange={(e) => setFormData({...formData, address: e.target.value})}
                       className="w-full pl-11 pr-4 py-3 glass text-white placeholder:text-white/20 rounded-xl border-0 outline-none focus:ring-2 focus:ring-emerald-400/40 transition-all text-sm"
-                      placeholder="Your address"
+                      placeholder={t('profile.address_placeholder')}
                     />
                   </div>
                 </div>
@@ -296,14 +298,14 @@ const ProfilePage = () => {
                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                         </svg>
-                        Saving...
+                        {t('buttons.saving')}
                       </span>
                     ) : (
                       <span className="relative z-10 flex items-center gap-2">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
                         </svg>
-                        Save Changes
+                        {t('buttons.save_changes')}
                       </span>
                     )}
                   </button>

@@ -1,9 +1,13 @@
+// src/features/careers/components/ApplyForm.jsx
+
 import React, { useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 import api from '../../../app/api'
 import { useAuth } from '../../accounts/hooks/useAuth'
 
 const ApplyForm = ({ jobId, onClose, jobTitle }) => {
+  const { t } = useTranslation('careers')
   const { isAuthenticated, user } = useAuth()
   const [loading, setLoading] = useState(false)
   const [submitted, setSubmitted] = useState(false)
@@ -29,13 +33,13 @@ const ApplyForm = ({ jobId, onClose, jobTitle }) => {
     if (file) {
       // Validate file size (5MB max)
       if (file.size > 5 * 1024 * 1024) {
-        setError('File size must be less than 5MB')
+        setError(t('apply.file_size_error'))
         return
       }
       // Validate file type
       const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']
       if (!allowedTypes.includes(file.type)) {
-        setError('Please upload a PDF, DOC, or DOCX file')
+        setError(t('apply.file_type_error'))
         return
       }
       setFormData({ ...formData, cv_file: file })
@@ -49,11 +53,11 @@ const ApplyForm = ({ jobId, onClose, jobTitle }) => {
     setError('')
     
     if (!isAuthenticated) {
-      setError('Please login to apply for this position')
+      setError(t('apply.login_required'))
       return
     }
     if (!formData.cv_file) {
-      setError('Please upload your CV')
+      setError(t('apply.cv_required'))
       return
     }
 
@@ -77,7 +81,7 @@ const ApplyForm = ({ jobId, onClose, jobTitle }) => {
       }, 3000)
     } catch (err) {
       console.error('Error applying:', err)
-      setError(err.response?.data?.error || 'Error submitting application. Please try again.')
+      setError(err.response?.data?.error || t('apply.error'))
     } finally {
       setLoading(false)
     }
@@ -129,14 +133,14 @@ const ApplyForm = ({ jobId, onClose, jobTitle }) => {
               </motion.div>
 
               <h2 className="text-xl font-extrabold text-white mb-2">
-                Application Submitted!
+                {t('apply.success_title')}
               </h2>
               <p className="text-white/50 text-sm mb-2">
-                We'll review your application and get back to you soon.
+                {t('apply.success_message')}
               </p>
               {jobTitle && (
                 <p className="text-emerald-400 text-xs font-medium mb-6">
-                  for {jobTitle}
+                  {t('apply.for')} {jobTitle}
                 </p>
               )}
               <div className="h-0.5 bg-emerald-400/30 rounded-full w-16 mx-auto mb-6 animate-pulse" />
@@ -145,7 +149,7 @@ const ApplyForm = ({ jobId, onClose, jobTitle }) => {
                 onClick={onClose} 
                 className="btn-primary btn-lg w-full"
               >
-                Close
+                {t('apply.close')}
               </button>
             </motion.div>
           ) : (
@@ -155,7 +159,7 @@ const ApplyForm = ({ jobId, onClose, jobTitle }) => {
               <div className="flex justify-between items-center p-6 pb-0">
                 <div>
                   <h2 className="text-xl font-extrabold text-white">
-                    Apply for Position
+                    {t('apply.title')}
                   </h2>
                   {jobTitle && (
                     <p className="text-emerald-400 text-sm font-medium mt-0.5">{jobTitle}</p>
@@ -189,7 +193,7 @@ const ApplyForm = ({ jobId, onClose, jobTitle }) => {
                 {/* Name */}
                 <div>
                   <label className="block text-sm font-medium text-white/60 mb-2">
-                    Full Name <span className="text-red-400">*</span>
+                    {t('apply.full_name')} <span className="text-red-400">*</span>
                   </label>
                   <div className="relative">
                     <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30">
@@ -204,7 +208,7 @@ const ApplyForm = ({ jobId, onClose, jobTitle }) => {
                       onChange={handleChange}
                       required
                       className="w-full pl-11 pr-4 py-3 glass text-white placeholder:text-white/25 rounded-xl border-0 outline-none focus:ring-2 focus:ring-emerald-400/40 transition-all text-sm"
-                      placeholder="Your full name"
+                      placeholder={t('apply.full_name_placeholder')}
                     />
                   </div>
                 </div>
@@ -212,7 +216,7 @@ const ApplyForm = ({ jobId, onClose, jobTitle }) => {
                 {/* Email */}
                 <div>
                   <label className="block text-sm font-medium text-white/60 mb-2">
-                    Email <span className="text-red-400">*</span>
+                    {t('apply.email')} <span className="text-red-400">*</span>
                   </label>
                   <div className="relative">
                     <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30">
@@ -227,7 +231,7 @@ const ApplyForm = ({ jobId, onClose, jobTitle }) => {
                       onChange={handleChange}
                       required
                       className="w-full pl-11 pr-4 py-3 glass text-white placeholder:text-white/25 rounded-xl border-0 outline-none focus:ring-2 focus:ring-emerald-400/40 transition-all text-sm"
-                      placeholder="Your email address"
+                      placeholder={t('apply.email_placeholder')}
                     />
                   </div>
                 </div>
@@ -235,7 +239,7 @@ const ApplyForm = ({ jobId, onClose, jobTitle }) => {
                 {/* Phone */}
                 <div>
                   <label className="block text-sm font-medium text-white/60 mb-2">
-                    Phone Number <span className="text-red-400">*</span>
+                    {t('apply.phone')} <span className="text-red-400">*</span>
                   </label>
                   <div className="relative">
                     <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30">
@@ -250,7 +254,7 @@ const ApplyForm = ({ jobId, onClose, jobTitle }) => {
                       onChange={handleChange}
                       required
                       className="w-full pl-11 pr-4 py-3 glass text-white placeholder:text-white/25 rounded-xl border-0 outline-none focus:ring-2 focus:ring-emerald-400/40 transition-all text-sm"
-                      placeholder="Your phone number"
+                      placeholder={t('apply.phone_placeholder')}
                     />
                   </div>
                 </div>
@@ -258,7 +262,7 @@ const ApplyForm = ({ jobId, onClose, jobTitle }) => {
                 {/* Cover Letter */}
                 <div>
                   <label className="block text-sm font-medium text-white/60 mb-2">
-                    Cover Letter
+                    {t('apply.cover_letter')}
                   </label>
                   <textarea
                     name="cover_letter"
@@ -266,14 +270,14 @@ const ApplyForm = ({ jobId, onClose, jobTitle }) => {
                     value={formData.cover_letter}
                     onChange={handleChange}
                     className="w-full px-4 py-3 glass text-white placeholder:text-white/25 rounded-xl border-0 outline-none focus:ring-2 focus:ring-emerald-400/40 transition-all text-sm resize-none"
-                    placeholder="Tell us why you're a good fit..."
+                    placeholder={t('apply.cover_letter_placeholder')}
                   />
                 </div>
 
                 {/* CV Upload */}
                 <div>
                   <label className="block text-sm font-medium text-white/60 mb-2">
-                    CV/Resume <span className="text-red-400">*</span>
+                    {t('apply.cv')} <span className="text-red-400">*</span>
                   </label>
                   <input
                     type="file"
@@ -314,11 +318,11 @@ const ApplyForm = ({ jobId, onClose, jobTitle }) => {
                         <svg className="w-5 h-5 text-white/40 group-hover:text-emerald-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                         </svg>
-                        <span className="text-white/40 group-hover:text-white/70 transition-colors text-sm">Upload CV</span>
+                        <span className="text-white/40 group-hover:text-white/70 transition-colors text-sm">{t('apply.upload_cv')}</span>
                       </>
                     )}
                   </label>
-                  <p className="text-[10px] text-white/25 mt-1.5">PDF, DOC, or DOCX (Max 5MB)</p>
+                  <p className="text-[10px] text-white/25 mt-1.5">{t('apply.file_hint')}</p>
                 </div>
 
                 {/* Submit */}
@@ -338,14 +342,14 @@ const ApplyForm = ({ jobId, onClose, jobTitle }) => {
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                       </svg>
-                      Submitting...
+                      {t('apply.submitting')}
                     </span>
                   ) : (
                     <span className="relative z-10 flex items-center justify-center gap-2">
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                       </svg>
-                      Submit Application
+                      {t('apply.submit')}
                     </span>
                   )}
                 </button>

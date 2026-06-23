@@ -3,42 +3,54 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 
 const EmptyBookingState = ({ filter, darkMode }) => {
-  const filterMessages = {
-    all: {
-      icon: '📋',
-      title: 'No bookings yet',
-      description: "You haven't made any bookings yet. Start by booking an appointment with our experts.",
-      action: 'Book an Appointment',
-    },
-    pending: {
-      icon: '⏳',
-      title: 'No pending bookings',
-      description: "You don't have any pending bookings. All caught up!",
-      action: 'Browse Services',
-    },
-    confirmed: {
-      icon: '✅',
-      title: 'No confirmed bookings',
-      description: "You don't have any confirmed bookings yet. Book a service to get started.",
-      action: 'Book Now',
-    },
-    completed: {
-      icon: '✔️',
-      title: 'No completed bookings',
-      description: "You haven't completed any bookings yet. Your history will appear here.",
-      action: 'View Services',
-    },
-    cancelled: {
-      icon: '❌',
-      title: 'No cancelled bookings',
-      description: "You don't have any cancelled bookings. Great job keeping your appointments!",
-      action: 'View Bookings',
-    },
+  const { t } = useTranslation('booking')
+
+  // Translation keys for each filter
+  const getFilterMessages = (filter) => {
+    const messages = {
+      all: {
+        icon: '📋',
+        title: t('empty.all.title'),
+        description: t('empty.all.description'),
+        action: t('empty.all.action'),
+        actionLink: '/book-appointment'
+      },
+      pending: {
+        icon: '⏳',
+        title: t('empty.pending.title'),
+        description: t('empty.pending.description'),
+        action: t('empty.pending.action'),
+        actionLink: '/services'
+      },
+      confirmed: {
+        icon: '✅',
+        title: t('empty.confirmed.title'),
+        description: t('empty.confirmed.description'),
+        action: t('empty.confirmed.action'),
+        actionLink: '/book-appointment'
+      },
+      completed: {
+        icon: '✔️',
+        title: t('empty.completed.title'),
+        description: t('empty.completed.description'),
+        action: t('empty.completed.action'),
+        actionLink: '/services'
+      },
+      cancelled: {
+        icon: '❌',
+        title: t('empty.cancelled.title'),
+        description: t('empty.cancelled.description'),
+        action: t('empty.cancelled.action'),
+        actionLink: '/bookings'
+      }
+    }
+    return messages[filter] || messages.all
   }
 
-  const config = filterMessages[filter] || filterMessages.all
+  const config = getFilterMessages(filter)
 
   return (
     <motion.div
@@ -67,7 +79,9 @@ const EmptyBookingState = ({ filter, darkMode }) => {
       {/* Title */}
       <h3 className="text-xl font-extrabold text-white mb-2">
         {filter !== 'all' ? (
-          <>No <span className="text-white/50">{filter}</span> bookings found</>
+          <>
+            {t('empty.no_filter_prefix')} <span className="text-white/50">{t(`status.${filter}`)}</span> {t('empty.no_filter_suffix')}
+          </>
         ) : (
           config.title
         )}
@@ -80,7 +94,7 @@ const EmptyBookingState = ({ filter, darkMode }) => {
 
       {/* CTA Button */}
       <Link 
-        to={filter === 'all' || filter === 'pending' || filter === 'confirmed' ? '/book-appointment' : '/services'}
+        to={config.actionLink}
         className="group relative inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-white px-8 py-4 rounded-full font-bold text-base shadow-lg shadow-emerald-500/20 transition-all overflow-hidden"
       >
         <motion.div
@@ -97,7 +111,10 @@ const EmptyBookingState = ({ filter, darkMode }) => {
       {/* Bottom suggestion */}
       {filter === 'all' && (
         <p className="text-white/20 text-xs mt-6">
-          Need help? <Link to="/contact" className="text-emerald-400/50 hover:text-emerald-400 transition-colors underline underline-offset-2">Contact support</Link>
+          {t('empty.help_text')}{' '}
+          <Link to="/contact" className="text-emerald-400/50 hover:text-emerald-400 transition-colors underline underline-offset-2">
+            {t('empty.contact_support')}
+          </Link>
         </p>
       )}
     </motion.div>
