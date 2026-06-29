@@ -1,6 +1,5 @@
 ﻿{
     "projects":  {
-                     "title":  "Miradi Yetu",
                      "subtitle":  "Hadithi za mafanikio kutoka kwa wateja wetu",
                      "description":  "Gundua baadhi ya miradi yetu iliyofanikiwa inayoonyesha utaalamu wetu",
                      "featured":  "Miradi Iliyoangaziwa",
@@ -32,6 +31,7 @@
                      "previous":  "Iliyotangulia",
                      "next":  "Inayofuata",
                      "no_matching":  "Hakuna miradi inayolingana na",
-                     "no_projects_message":  "Hakuna miradi inayopatikana katika"
+                     "no_projects_message":  "Hakuna miradi inayopatikana katika",
+                     "title":  "Miradi Yetu"
                  }
 }

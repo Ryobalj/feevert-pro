@@ -1,6 +1,5 @@
 ﻿{
     "projects":  {
-                     "title":  "我们的项目",
                      "subtitle":  "客户的成功故事",
                      "description":  "探索我们一些成功的项目，展示我们的专业能力",
                      "featured":  "精选项目",
@@ -32,6 +31,7 @@
                      "previous":  "上一页",
                      "next":  "下一页",
                      "no_matching":  "没有匹配的项目",
-                     "no_projects_message":  "在"
+                     "no_projects_message":  "在",
+                     "title":  "我们的项目"
                  }
 }

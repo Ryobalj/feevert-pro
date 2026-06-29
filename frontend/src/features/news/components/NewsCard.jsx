@@ -1,7 +1,10 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next' // ✅ Ongeza hii
 
 const NewsCard = ({ article }) => {
+  const { t } = useTranslation('news') // ✅ Ongeza hii
+
   const gradients = [
     'from-emerald-400 via-green-500 to-teal-600',
     'from-green-400 via-emerald-500 to-cyan-600',
@@ -17,6 +20,17 @@ const NewsCard = ({ article }) => {
         year: 'numeric', month: 'short', day: 'numeric'
       })
     : ''
+
+  // Calculate reading time
+  const getReadingTime = (content) => {
+    if (!content) return ''
+    const wordsPerMinute = 200
+    const wordCount = content.split(' ').length
+    const minutes = Math.ceil(wordCount / wordsPerMinute)
+    return minutes === 1 
+      ? t('news.reading_time_singular') || '1 min read'
+      : t('news.reading_time_plural', { count: minutes }) || `${minutes} min read`
+  }
 
   return (
     <Link to={`/news/${article.id}`} className="block group h-full">
@@ -51,7 +65,7 @@ const NewsCard = ({ article }) => {
         {/* Content */}
         <div className="p-5 flex-1 flex flex-col">
           {/* Meta Info */}
-          <div className="flex items-center gap-2 text-xs mb-3">
+          <div className="flex flex-wrap items-center gap-2 text-xs mb-3">
             <span className="flex items-center gap-1.5 text-white/40">
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -92,9 +106,9 @@ const NewsCard = ({ article }) => {
           </p>
 
           {/* Footer */}
-          <div className="flex items-center justify-between pt-4 border-t border-white/5 mt-auto">
+          <div className="flex flex-wrap items-center justify-between pt-4 border-t border-white/5 mt-auto gap-2">
             <span className="text-emerald-400 font-semibold text-sm flex items-center gap-1 group-hover:gap-2 transition-all">
-              Read More
+              {t('news.read_more') || 'Read More'}
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
               </svg>
@@ -104,7 +118,7 @@ const NewsCard = ({ article }) => {
               {/* Reading time estimate */}
               {article.content && (
                 <span className="text-white/25 text-xs">
-                  {Math.ceil(article.content.split(' ').length / 200)} min read
+                  {getReadingTime(article.content)}
                 </span>
               )}
               {/* Views */}

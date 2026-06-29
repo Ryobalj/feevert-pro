@@ -6,7 +6,7 @@ import { useTheme } from '../../../context/ThemeContext'
 import api from '../../../app/api'
 
 const FaqPage = () => {
-  const { t } = useTranslation('common') // ✅ Ongeza hii
+  const { t } = useTranslation('home') // ✅ Ongeza hii
   const [faqs, setFaqs] = useState([])
   const [categories, setCategories] = useState([])
   const [selectedCategory, setSelectedCategory] = useState('all')

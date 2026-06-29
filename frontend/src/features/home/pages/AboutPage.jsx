@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { useTranslation } from 'react-i18next' // ✅ Ongeza hii
+import { useTranslation } from 'react-i18next'
 import { useTheme } from '../../../context/ThemeContext'
 import api from '../../../app/api'
 import Loader from '../../../components/ui/Loader'
@@ -166,7 +166,7 @@ const AnimatedCounter = ({ target, label, icon }) => {
 
 // ============ MAIN ABOUT PAGE ============
 const AboutPage = () => {
-  const { t } = useTranslation('home') // ✅ Ongeza hii
+  const { t } = useTranslation('home')
   const [about, setAbout] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
@@ -268,9 +268,7 @@ const AboutPage = () => {
             {t('about.title') || 'About'}{' '}
             <span className="gradient-text">{t('about.company') || 'FeeVert'}</span>
           </h1>
-          {about.title && (
-            <p className="text-lg text-white/50 max-w-2xl mx-auto">{about.title}</p>
-          )}
+          {/* ✅ NIMEONDOA MSTARI HUU: {about.title && (<p>...</p>)} */}
         </motion.div>
 
         {/* ============ FEATURED IMAGE ============ */}

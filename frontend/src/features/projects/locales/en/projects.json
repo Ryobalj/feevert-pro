@@ -1,6 +1,5 @@
 ﻿{
     "projects":  {
-                     "title":  "Our Projects",
                      "subtitle":  "Success stories from our clients",
                      "description":  "Explore some of our successful projects that showcase our expertise",
                      "featured":  "Featured Projects",
@@ -32,6 +31,7 @@
                      "previous":  "Previous",
                      "next":  "Next",
                      "no_matching":  "No projects matching",
-                     "no_projects_message":  "No projects available in"
+                     "no_projects_message":  "No projects available in",
+                     "title":  "Our Projects"
                  }
 }

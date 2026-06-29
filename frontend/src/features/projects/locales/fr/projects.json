@@ -1,6 +1,5 @@
 ﻿{
     "projects":  {
-                     "title":  "Nos Projets",
                      "subtitle":  "Histoires de réussite de nos clients",
                      "description":  "Découvrez quelques-uns de nos projets réussis qui démontrent notre expertise",
                      "featured":  "Projets En Vedette",
@@ -32,6 +31,7 @@
                      "previous":  "Précédent",
                      "next":  "Suivant",
                      "no_matching":  "Aucun projet correspondant à",
-                     "no_projects_message":  "Aucun projet disponible dans"
+                     "no_projects_message":  "Aucun projet disponible dans",
+                     "title":  "Nos Projets"
                  }
 }

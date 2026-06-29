@@ -6,7 +6,7 @@ import { useTheme } from '../../../context/ThemeContext'
 import api from '../../../app/api'
 
 const PartnersPage = () => {
-  const { t } = useTranslation('home') // ✅ Ongeza hii
+  const { t } = useTranslation('home', 'common') // ✅ Ongeza hii
   const [partners, setPartners] = useState([])
   const [loading, setLoading] = useState(true)
   const { darkMode } = useTheme()

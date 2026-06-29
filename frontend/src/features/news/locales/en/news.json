@@ -1,0 +1,36 @@
+﻿{
+    "news":  {
+                 "read_more":  "Read More",
+                 "reading_time_singular":  "1 min read",
+                 "reading_time_plural":  "{{count}} min read",
+                 "badge":  "📰 Stay Updated",
+                 "title":  "Latest",
+                 "subtitle":  "News",
+                 "description":  "Stay updated with our latest announcements, insights, and company news",
+                 "articles":  "articles",
+                 "featured":  "featured",
+                 "more_articles":  "More Articles",
+                 "no_news":  "No news yet",
+                 "no_news_message":  "Check back soon for the latest updates and announcements.",
+                 "loading":  "Loading news...",
+                 "featured_stories":  "Featured Stories",
+                 "search":  "Search articles by title or content...",
+                 "all":  "All News",
+                 "clear":  "Clear",
+                 "clear_filters":  "Clear all filters",
+                 "no_matching":  "No articles matching",
+                 "read_article":  "Read Article",
+                 "back_to_news":  "Back to News",
+                 "by":  "By",
+                 "views":  "views",
+                 "tags":  "Tags:",
+                 "share":  "Share:",
+                 "copy_link":  "Copy link",
+                 "copied":  "Link copied!",
+                 "related_articles":  "Related Articles",
+                 "view_all_news":  "View all news"
+             },
+    "newsletter":  {
+
+                   }
+}

@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useTranslation } from 'react-i18next' // ✅ Ongeza hii
 import { useTheme } from '../../../context/ThemeContext'
 import api from '../../../app/api'
 
 const NewsList = () => {
+  const { t } = useTranslation('news') // ✅ Ongeza hii
   const [news, setNews] = useState([])
   const [categories, setCategories] = useState([])
   const [selectedCategory, setSelectedCategory] = useState('all')
@@ -41,6 +43,25 @@ const NewsList = () => {
   const regularNews = filteredNews.filter(n => !n.is_featured)
   const activeCategoryName = selectedCategory === 'all' ? null : categories.find(c => c.id === selectedCategory)?.name
 
+  // Helper function for date formatting
+  const formatDate = (dateString) => {
+    if (!dateString) return ''
+    return new Date(dateString).toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric' 
+    })
+  }
+
+  const formatDateShort = (dateString) => {
+    if (!dateString) return ''
+    return new Date(dateString).toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric', 
+      year: 'numeric' 
+    })
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -49,7 +70,7 @@ const NewsList = () => {
             <div className="absolute inset-0 bg-emerald-400/10 rounded-full blur-xl animate-pulse" />
             <div className="spinner spinner-lg relative" />
           </div>
-          <p className="text-white/50 animate-pulse">Loading news...</p>
+          <p className="text-white/50 animate-pulse">{t('news.loading') || 'Loading news...'}</p>
         </div>
       </div>
     )
@@ -63,24 +84,26 @@ const NewsList = () => {
           <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.1, type: "spring" }}
             className="inline-flex items-center gap-2 px-5 py-2 rounded-full glass mb-6">
             <motion.span className="w-2 h-2 bg-emerald-400 rounded-full" animate={{ scale: [1, 1.5, 1], opacity: [0.7, 1, 0.7] }} transition={{ duration: 2, repeat: Infinity }} />
-            <span className="text-sm font-medium text-white/80">📰 Stay Informed</span>
+            <span className="text-sm font-medium text-white/80">
+              {t('news.badge') || '📰 Stay Informed'}
+            </span>
           </motion.div>
           <h1 className="text-3xl md:text-4xl lg:text-6xl font-extrabold text-white mb-4">
-            News & <span className="gradient-text">Updates</span>
+            {t('news.title') || 'News'} & <span className="gradient-text">{t('news.subtitle') || 'Updates'}</span>
           </h1>
           <p className="text-lg text-white/50 max-w-2xl mx-auto">
-            Stay informed with the latest news and insights from FeeVert
+            {t('news.description') || 'Stay informed with the latest news and insights from FeeVert'}
           </p>
           
           {/* Stats */}
           {news.length > 0 && (
             <div className="flex flex-wrap justify-center gap-3 mt-6">
               <div className="glass px-4 py-2 rounded-full text-sm text-white/50">
-                <span className="text-white font-semibold">{filteredNews.length}</span> article{filteredNews.length !== 1 ? 's' : ''}
+                <span className="text-white font-semibold">{filteredNews.length}</span> {t('news.articles') || 'article'}{filteredNews.length !== 1 ? 's' : ''}
               </div>
               {featuredNews.length > 0 && (
                 <div className="glass px-4 py-2 rounded-full text-sm text-amber-400/70">
-                  <span className="text-amber-400 font-semibold">{featuredNews.length}</span> featured
+                  <span className="text-amber-400 font-semibold">{featuredNews.length}</span> {t('news.featured') || 'featured'}
                 </div>
               )}
             </div>
@@ -98,7 +121,7 @@ const NewsList = () => {
               </svg>
             </div>
             <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search articles by title or content..."
+              placeholder={t('news.search') || 'Search articles by title or content...'}
               className="w-full pl-12 pr-4 py-3.5 glass text-white placeholder:text-white/30 rounded-2xl border-0 outline-none focus:ring-2 focus:ring-emerald-400/50 transition-all text-sm" />
           </div>
 
@@ -109,7 +132,7 @@ const NewsList = () => {
                 className={`px-4 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 ${
                   selectedCategory === 'all' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20 scale-105' : 'glass text-white/60 hover:text-white hover:border-white/30'
                 }`} whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}>
-                📋 All News
+                📋 {t('news.all') || 'All News'}
               </motion.button>
               {categories.map(cat => (
                 <motion.button key={cat.id} onClick={() => setSelectedCategory(cat.id)}
@@ -123,7 +146,7 @@ const NewsList = () => {
                 <button onClick={() => { setSelectedCategory('all'); setSearchQuery('') }}
                   className="text-xs text-white/40 hover:text-white/70 transition-colors flex items-center gap-1 px-2">
                   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-                  Clear
+                  {t('news.clear') || 'Clear'}
                 </button>
               )}
             </div>
@@ -135,17 +158,17 @@ const NewsList = () => {
           <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="mb-12">
             <div className="flex items-center gap-2 mb-6">
               <span className="text-lg">⭐</span>
-              <h2 className="text-xl font-bold text-white">Featured Stories</h2>
+              <h2 className="text-xl font-bold text-white">{t('news.featured_stories') || 'Featured Stories'}</h2>
             </div>
             <div className="grid md:grid-cols-2 gap-6">
               {featuredNews.slice(0, 2).map((item) => (
-                <FeaturedCard key={item.id} item={item} />
+                <FeaturedCard key={item.id} item={item} t={t} formatDate={formatDate} />
               ))}
             </div>
             {regularNews.length > 0 && (
               <div className="flex items-center gap-3 my-10">
                 <div className="flex-1 h-px bg-white/5" />
-                <span className="text-xs text-white/30 uppercase tracking-wider">More Articles</span>
+                <span className="text-xs text-white/30 uppercase tracking-wider">{t('news.more_articles') || 'More Articles'}</span>
                 <div className="flex-1 h-px bg-white/5" />
               </div>
             )}
@@ -157,7 +180,7 @@ const NewsList = () => {
           <motion.div key={selectedCategory + searchQuery} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {(featuredNews.length > 0 && selectedCategory === 'all' && !searchQuery ? regularNews : filteredNews).map((item, index) => (
-              <NewsGridCard key={item.id} item={item} index={index} />
+              <NewsGridCard key={item.id} item={item} index={index} t={t} formatDateShort={formatDateShort} />
             ))}
           </motion.div>
         </AnimatePresence>
@@ -167,14 +190,17 @@ const NewsList = () => {
           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
             className="glass-card p-12 text-center max-w-lg mx-auto">
             <div className="text-5xl mb-4 opacity-40">📰</div>
-            <h3 className="text-xl font-bold text-white mb-2">No articles found</h3>
+            <h3 className="text-xl font-bold text-white mb-2">{t('news.no_news') || 'No articles found'}</h3>
             <p className="text-white/40">
-              {searchQuery ? `No articles matching "${searchQuery}".` : 'No news articles available in this category yet.'}
+              {searchQuery 
+                ? `${t('news.no_matching') || 'No articles matching'} "${searchQuery}".`
+                : t('news.no_news_message') || 'No news articles available in this category yet.'
+              }
             </p>
             {(searchQuery || selectedCategory !== 'all') && (
               <button onClick={() => { setSelectedCategory('all'); setSearchQuery('') }}
                 className="mt-6 px-6 py-3 rounded-full border-2 border-white/20 text-white font-semibold hover:border-emerald-400/50 transition-all duration-300">
-                Clear all filters
+                {t('news.clear_filters') || 'Clear all filters'}
               </button>
             )}
           </motion.div>
@@ -185,7 +211,7 @@ const NewsList = () => {
 }
 
 // ============ FEATURED CARD ============
-const FeaturedCard = ({ item }) => (
+const FeaturedCard = ({ item, t, formatDate }) => (
   <Link to={`/news/${item.id}`} className="block group h-full">
     <div className="glass-card p-0 overflow-hidden h-full hover:border-emerald-400/30 hover:shadow-lg hover:shadow-emerald-500/5 transition-all duration-500">
       {item.featured_image || item.image ? (
@@ -203,18 +229,28 @@ const FeaturedCard = ({ item }) => (
       <div className="p-5">
         <div className="flex items-center gap-2 mb-3">
           <span className="text-xs text-white/40 flex items-center gap-1">
-            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-            {new Date(item.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            {formatDate(item.created_at)}
           </span>
           {item.category_name && (
-            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/20">{item.category_name}</span>
+            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/20">
+              {item.category_name}
+            </span>
           )}
         </div>
-        <h3 className="text-lg font-bold text-white mb-2 group-hover:text-emerald-400 transition-colors line-clamp-2">{item.title}</h3>
-        <p className="text-sm text-white/40 line-clamp-2 mb-4 leading-relaxed">{item.summary || item.content?.substring(0, 150)}...</p>
+        <h3 className="text-lg font-bold text-white mb-2 group-hover:text-emerald-400 transition-colors line-clamp-2">
+          {item.title}
+        </h3>
+        <p className="text-sm text-white/40 line-clamp-2 mb-4 leading-relaxed">
+          {item.summary || item.content?.substring(0, 150)}...
+        </p>
         <div className="flex items-center gap-1 text-sm font-semibold text-emerald-400 group-hover:gap-2 transition-all">
-          Read Article
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+          {t('news.read_article') || 'Read Article'}
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+          </svg>
         </div>
       </div>
     </div>
@@ -222,7 +258,7 @@ const FeaturedCard = ({ item }) => (
 )
 
 // ============ NEWS GRID CARD ============
-const NewsGridCard = ({ item, index }) => (
+const NewsGridCard = ({ item, index, t, formatDateShort }) => (
   <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.04, duration: 0.4 }}
     whileHover={{ y: -4 }}>
     <Link to={`/news/${item.id}`} className="block group h-full">
@@ -243,18 +279,28 @@ const NewsGridCard = ({ item, index }) => (
         <div className="p-5 flex-1 flex flex-col">
           <div className="flex items-center gap-2 mb-3">
             <span className="text-xs text-white/40 flex items-center gap-1">
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-              {new Date(item.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              {formatDateShort(item.created_at)}
             </span>
             {item.category_name && (
-              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/20">{item.category_name}</span>
+              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/20">
+                {item.category_name}
+              </span>
             )}
           </div>
-          <h3 className="font-bold text-white mb-2 group-hover:text-emerald-400 transition-colors line-clamp-2">{item.title}</h3>
-          <p className="text-sm text-white/40 line-clamp-2 mb-4 flex-1 leading-relaxed">{item.summary || item.content?.substring(0, 120)}...</p>
+          <h3 className="font-bold text-white mb-2 group-hover:text-emerald-400 transition-colors line-clamp-2">
+            {item.title}
+          </h3>
+          <p className="text-sm text-white/40 line-clamp-2 mb-4 flex-1 leading-relaxed">
+            {item.summary || item.content?.substring(0, 120)}...
+          </p>
           <div className="flex items-center gap-1 text-sm font-semibold text-emerald-400 group-hover:gap-2 transition-all mt-auto">
-            Read More
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+            {t('news.read_more') || 'Read More'}
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+            </svg>
           </div>
         </div>
       </div>

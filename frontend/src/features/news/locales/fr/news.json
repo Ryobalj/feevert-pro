@@ -1,0 +1,36 @@
+﻿{
+    "news":  {
+                 "read_more":  "Lire la suite",
+                 "reading_time_singular":  "1 min de lecture",
+                 "reading_time_plural":  "{{count}} min de lecture",
+                 "badge":  "📰 Restez informé",
+                 "title":  "Dernières",
+                 "subtitle":  "Actualités",
+                 "description":  "Restez informé de nos dernières annonces, perspectives et actualités de l\u0027entreprise",
+                 "articles":  "articles",
+                 "featured":  "en vedette",
+                 "more_articles":  "Plus d\u0027articles",
+                 "no_news":  "Pas encore d\u0027actualités",
+                 "no_news_message":  "Revenez bientôt pour les dernières mises à jour et annonces.",
+                 "loading":  "Chargement des actualités...",
+                 "featured_stories":  "Histoires en vedette",
+                 "search":  "Rechercher des articles par titre ou contenu...",
+                 "all":  "Toutes les actualités",
+                 "clear":  "Effacer",
+                 "clear_filters":  "Effacer tous les filtres",
+                 "no_matching":  "Aucun article correspondant à",
+                 "read_article":  "Lire l\u0027article",
+                 "back_to_news":  "Retour aux actualités",
+                 "by":  "Par",
+                 "views":  "vues",
+                 "tags":  "Tags :",
+                 "share":  "Partager :",
+                 "copy_link":  "Copier le lien",
+                 "copied":  "Lien copié !",
+                 "related_articles":  "Articles connexes",
+                 "view_all_news":  "Voir toutes les actualités"
+             },
+    "newsletter":  {
+
+                   }
+}

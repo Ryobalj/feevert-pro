@@ -68,6 +68,14 @@ import frProjects from '../features/projects/locales/fr/projects.json'
 import ruProjects from '../features/projects/locales/ru/projects.json'
 import arProjects from '../features/projects/locales/ar/projects.json'
 
+// ============ NEWS NAMESPACE ============
+import enNews from '../features/news/locales/en/news.json'
+import swNews from '../features/news/locales/sw/news.json'
+import zhNews from '../features/news/locales/zh/news.json'
+import frNews from '../features/news/locales/fr/news.json'
+import ruNews from '../features/news/locales/ru/news.json'
+import arNews from '../features/news/locales/ar/news.json'
+
 const resources = {
   en: {
     common: enCommon,
@@ -77,7 +85,8 @@ const resources = {
     careers: enCareers,
     consultations: enConsultations,
     home: enHome,
-    projects: enProjects // ✅ Ongeza hii
+    projects: enProjects,
+    news: enNews // ✅ Ongeza hii
   },
   sw: {
     common: swCommon,
@@ -87,7 +96,8 @@ const resources = {
     careers: swCareers,
     consultations: swConsultations,
     home: swHome,
-    projects: swProjects // ✅ Ongeza hii
+    projects: swProjects,
+    news: swNews // ✅ Ongeza hii
   },
   zh: {
     common: zhCommon,
@@ -97,7 +107,8 @@ const resources = {
     careers: zhCareers,
     consultations: zhConsultations,
     home: zhHome,
-    projects: zhProjects // ✅ Ongeza hii
+    projects: zhProjects,
+    news: zhNews // ✅ Ongeza hii
   },
   fr: {
     common: frCommon,
@@ -107,7 +118,8 @@ const resources = {
     careers: frCareers,
     consultations: frConsultations,
     home: frHome,
-    projects: frProjects // ✅ Ongeza hii
+    projects: frProjects,
+    news: frNews // ✅ Ongeza hii
   },
   ru: {
     common: ruCommon,
@@ -117,7 +129,8 @@ const resources = {
     careers: ruCareers,
     consultations: ruConsultations,
     home: ruHome,
-    projects: ruProjects // ✅ Ongeza hii
+    projects: ruProjects,
+    news: ruNews // ✅ Ongeza hii
   },
   ar: {
     common: arCommon,
@@ -127,7 +140,8 @@ const resources = {
     careers: arCareers,
     consultations: arConsultations,
     home: arHome,
-    projects: arProjects // ✅ Ongeza hii
+    projects: arProjects,
+    news: arNews // ✅ Ongeza hii
   }
 }
 
@@ -145,7 +159,7 @@ i18n
       lookupLocalStorage: 'language',
       cookieMinutes: 10080,
     },
-    ns: ['common', 'account', 'admin', 'booking', 'careers', 'consultations', 'home', 'projects'], // ✅ Ongeza 'projects'
+    ns: ['common', 'account', 'admin', 'booking', 'careers', 'consultations', 'home', 'projects', 'news'], // ✅ Ongeza 'news'
     defaultNS: 'common',
     interpolation: {
       escapeValue: false,

@@ -1,8 +1,10 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 import api from '../../../app/api'
 
 const NewsletterSubscribe = () => {
+  const { t } = useTranslation('news') // ✅ Badilisha kutoka 'home' hadi 'news'
   const [email, setEmail] = useState('')
   const [subscribed, setSubscribed] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -13,13 +15,13 @@ const NewsletterSubscribe = () => {
     setError('')
     
     if (!email) {
-      setError('Please enter your email address')
+      setError(t('newsletter.error_invalid_email') || 'Please enter your email address')
       return
     }
     
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRegex.test(email)) {
-      setError('Please enter a valid email address')
+      setError(t('newsletter.error_invalid_email') || 'Please enter a valid email address')
       return
     }
     
@@ -31,7 +33,7 @@ const NewsletterSubscribe = () => {
       setEmail('')
       setTimeout(() => setSubscribed(false), 5000)
     } catch (err) {
-      setError('Failed to subscribe. Please try again.')
+      setError(t('newsletter.error_subscribe') || 'Failed to subscribe. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -106,8 +108,8 @@ const NewsletterSubscribe = () => {
             transition={{ delay: 0.3 }}
             className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white mb-4"
           >
-            Subscribe to Our{' '}
-            <span className="gradient-text">Newsletter</span>
+            {t('newsletter.title') || 'Subscribe to Our'}{' '}
+            <span className="gradient-text">{t('newsletter.title_highlight') || 'Newsletter'}</span>
           </motion.h2>
           
           <motion.p
@@ -117,7 +119,7 @@ const NewsletterSubscribe = () => {
             transition={{ delay: 0.35 }}
             className="text-lg text-white/50 mb-10"
           >
-            Get the latest updates, news, and exclusive offers directly to your inbox.
+            {t('newsletter.description') || 'Get the latest updates, news, and exclusive offers directly to your inbox.'}
           </motion.p>
 
           {/* Success Message */}
@@ -137,7 +139,7 @@ const NewsletterSubscribe = () => {
                 >
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </motion.svg>
-                <span className="font-semibold">Successfully subscribed!</span>
+                <span className="font-semibold">{t('newsletter.success_message') || 'Successfully subscribed!'}</span>
               </motion.div>
             )}
           </AnimatePresence>
@@ -181,7 +183,7 @@ const NewsletterSubscribe = () => {
                   type="email"
                   value={email}
                   onChange={(e) => { setEmail(e.target.value); setError('') }}
-                  placeholder="Enter your email address"
+                  placeholder={t('newsletter.input_placeholder') || 'Enter your email address'}
                   className="w-full pl-14 pr-5 py-4 glass text-white placeholder:text-white/30 rounded-2xl border-0 outline-none focus:ring-2 focus:ring-emerald-400/50 transition-all text-base"
                   required
                 />
@@ -207,11 +209,11 @@ const NewsletterSubscribe = () => {
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                       </svg>
-                      Subscribing...
+                      {t('newsletter.subscribing') || 'Subscribing...'}
                     </>
                   ) : (
                     <>
-                      Subscribe
+                      {t('newsletter.subscribe_button') || 'Subscribe'}
                       <motion.svg 
                         className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                         animate={{ x: [0, 3, 0] }}
@@ -237,7 +239,7 @@ const NewsletterSubscribe = () => {
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
             </svg>
-            We respect your privacy. Unsubscribe anytime.
+            {t('newsletter.privacy_note') || 'We respect your privacy. Unsubscribe anytime.'}
           </motion.p>
         </motion.div>
       </div>

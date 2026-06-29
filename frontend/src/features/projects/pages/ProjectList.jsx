@@ -3,12 +3,12 @@
 import React, { useState, useEffect } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useTranslation } from 'react-i18next' // ✅ Ongeza hii
+import { useTranslation } from 'react-i18next'
 import { useTheme } from '../../../context/ThemeContext'
 import api from '../../../app/api'
 
 const ProjectList = () => {
-  const { t } = useTranslation('projects') // ✅ Ongeza hii
+  const { t } = useTranslation('projects')
   const [projects, setProjects] = useState([])
   const [categories, setCategories] = useState([])
   const [selectedCategory, setSelectedCategory] = useState('all')
@@ -118,13 +118,16 @@ const ProjectList = () => {
               📁 {selectedCategory === 'all' ? t('projects.featured') || 'Our Portfolio' : currentCategoryName}
             </span>
           </motion.div>
+          
+          {/* ✅ FIXED: Title - No duplication */}
           <h1 className="text-3xl md:text-4xl lg:text-6xl font-extrabold text-white mb-4">
             {selectedCategory === 'all' ? (
-              <>{t('projects.title') || 'Our'} <span className="gradient-text">{t('projects.projects') || 'Projects'}</span></>
+              <span className="gradient-text">{t('projects.title')}</span>
             ) : (
               <><span className="gradient-text">{currentCategoryName}</span> {t('projects.projects') || 'Projects'}</>
             )}
           </h1>
+          
           <p className="text-lg text-white/50 max-w-2xl mx-auto">
             {selectedCategory === 'all' 
               ? t('projects.description') || 'Success stories that demonstrate our expertise and commitment'
@@ -255,9 +258,8 @@ const ProjectList = () => {
 
 // ============ PROJECT GRID CARD ============
 const ProjectGridCard = ({ project, index }) => {
-  const { t } = useTranslation('projects') // ✅ Ongeza hii
+  const { t } = useTranslation('projects')
 
-  // Get status label
   const getStatusLabel = (status) => {
     if (status === 'completed') return t('projects.completed')
     if (status === 'in_progress') return t('projects.in_progress')
@@ -265,7 +267,6 @@ const ProjectGridCard = ({ project, index }) => {
     return status?.replace('_', ' ') || ''
   }
 
-  // Get status color
   const getStatusColor = (status) => {
     if (status === 'completed') return 'bg-emerald-500'
     if (status === 'in_progress') return 'bg-blue-500'
@@ -279,7 +280,6 @@ const ProjectGridCard = ({ project, index }) => {
       <Link to={`/projects/${project.id}`} className="block group h-full">
         <div className="glass-card p-0 overflow-hidden h-full flex flex-col hover:border-emerald-400/30 hover:shadow-lg hover:shadow-emerald-500/5 transition-all duration-500">
           
-          {/* ✅ IMAGE - Using cover_image_url */}
           {project.cover_image_url ? (
             <div className="aspect-[16/10] overflow-hidden relative">
               <img 

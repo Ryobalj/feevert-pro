@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { useTranslation } from 'react-i18next' // ✅ Ongeza hii
+import { useTranslation } from 'react-i18next'
 import api from '../../../app/api'
 import Loader from '../../../components/ui/Loader'
 import Icon from '../../../components/ui/Icon'
@@ -162,7 +162,7 @@ const CardImage = ({ item, type = 'service' }) => {
 
 // ============ MAIN HOME PAGE ============
 const HomePage = () => {
-  const { t } = useTranslation('home') // ✅ Ongeza hii
+  const { t } = useTranslation('home') // ✅ Inatumia 'home' namespace
   const [loading, setLoading] = useState(true)
   const [siteSettings, setSiteSettings] = useState(null)
   const [services, setServices] = useState([])
@@ -236,7 +236,7 @@ const HomePage = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader variant="morph" size="lg" text={t('home.loading') || 'Loading homepage'} />
+        <Loader variant="morph" size="lg" text={t('loading') || 'Loading homepage'} />
       </div>
     )
   }
@@ -597,9 +597,9 @@ const HomePage = () => {
             </motion.div>
 
             <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-              {testimonials.slice(0, 3).map((t, i) => (
+              {testimonials.slice(0, 3).map((testimonial, i) => (
                 <motion.div
-                  key={t.id}
+                  key={testimonial.id}
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
@@ -612,7 +612,7 @@ const HomePage = () => {
                         {[...Array(5)].map((_, i) => (
                           <svg
                             key={i}
-                            className={`w-4 h-4 ${i < (t.rating || 5) ? 'text-amber-400' : 'text-white/10'}`}
+                            className={`w-4 h-4 ${i < (testimonial.rating || 5) ? 'text-amber-400' : 'text-white/10'}`}
                             fill="currentColor"
                             viewBox="0 0 24 24"
                           >
@@ -621,18 +621,20 @@ const HomePage = () => {
                         ))}
                       </div>
                       <p className="text-white/60 text-sm italic mb-5 flex-1 leading-relaxed">
-                        "{t.content?.substring(0, 150)}{t.content?.length > 150 ? '...' : ''}"
+                        "{testimonial.content?.substring(0, 150)}{testimonial.content?.length > 150 ? '...' : ''}"
                       </p>
                       <div className="h-px bg-gradient-to-r from-white/5 via-white/10 to-transparent mb-4" />
                       <div className="flex items-center gap-3">
                         <div className="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-400 to-green-600 flex items-center justify-center text-white font-bold text-xs ring-2 ring-white/10 group-hover:ring-emerald-400/30 transition-all">
-                          {t.client_name?.charAt(0) || 'C'}
+                          {testimonial.client_name?.charAt(0) || 'C'}
                         </div>
                         <div>
                           <h4 className="font-semibold text-white text-sm group-hover:text-emerald-400 transition-colors">
-                            {t.client_name}
+                            {testimonial.client_name}
                           </h4>
-                          <p className="text-xs text-white/40">{t.client_role || t('reviews.client') || 'Client'}</p>
+                          <p className="text-xs text-white/40">
+                            {testimonial.client_role || t('reviews.client') || 'Client'}
+                          </p>
                         </div>
                       </div>
                     </div>

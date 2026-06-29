@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next' // ✅ Ongeza hii
 import { useTheme } from '../../../context/ThemeContext'
 import api from '../../../app/api'
 
 const NewsDetail = () => {
   const { id } = useParams()
   const navigate = useNavigate()
+  const { t } = useTranslation('news') // ✅ Ongeza hii
   const [news, setNews] = useState(null)
   const [relatedNews, setRelatedNews] = useState([])
   const [loading, setLoading] = useState(true)
@@ -32,10 +34,29 @@ const NewsDetail = () => {
     loadNews()
   }, [id, navigate])
 
+  // Helper functions
+  const formatDate = (dateString) => {
+    if (!dateString) return ''
+    return new Date(dateString).toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    })
+  }
+
+  const formatDateShort = (dateString) => {
+    if (!dateString) return ''
+    return new Date(dateString).toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric', 
+      year: 'numeric' 
+    })
+  }
+
   // Copy link handler
   const handleCopyLink = () => {
     navigator.clipboard.writeText(window.location.href)
-    alert('Link copied!')
+    alert(t('news.copied') || 'Link copied!')
   }
 
   // Share handlers
@@ -53,7 +74,7 @@ const NewsDetail = () => {
       <div className="min-h-screen flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div className="spinner spinner-lg" />
-          <p className="text-white/50 animate-pulse">Loading article...</p>
+          <p className="text-white/50 animate-pulse">{t('news.loading') || 'Loading article...'}</p>
         </div>
       </div>
     )
@@ -74,7 +95,7 @@ const NewsDetail = () => {
           <svg className="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
-          Back to News
+          {t('news.back_to_news') || 'Back to News'}
         </motion.button>
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
@@ -104,7 +125,7 @@ const NewsDetail = () => {
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
-              {new Date(news.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+              {formatDate(news.created_at)}
             </span>
             {news.category_name && (
               <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/20">
@@ -116,18 +137,23 @@ const NewsDetail = () => {
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
-                By <span className="text-white/70 font-medium ml-1">{news.author_name}</span>
+                {t('news.by') || 'By'} <span className="text-white/70 font-medium ml-1">{news.author_name}</span>
               </span>
             )}
             <span className="text-white/30 text-sm">•</span>
-            <span className="text-white/40 text-sm">{readingTime} min read</span>
+            <span className="text-white/40 text-sm">
+              {readingTime === 1 
+                ? t('news.reading_time_singular') || '1 min read'
+                : t('news.reading_time_plural', { count: readingTime }) || `${readingTime} min read`
+              }
+            </span>
             {news.views !== undefined && (
               <span className="flex items-center gap-1.5 text-sm text-white/40 ml-auto">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                 </svg>
-                {news.views} views
+                {news.views} {t('news.views') || 'views'}
               </span>
             )}
           </div>
@@ -157,7 +183,7 @@ const NewsDetail = () => {
           {/* Tags */}
           {news.tags && Array.isArray(news.tags) && news.tags.length > 0 && (
             <div className="flex flex-wrap items-center gap-2 mb-8">
-              <span className="text-xs text-white/30 mr-1">Tags:</span>
+              <span className="text-xs text-white/30 mr-1">{t('news.tags') || 'Tags:'}</span>
               {news.tags.map((tag, i) => (
                 <span key={i} className="glass px-3 py-1.5 rounded-full text-xs text-white/50 hover:text-emerald-400 hover:border-emerald-400/30 cursor-pointer transition-all duration-300">
                   #{typeof tag === 'string' ? tag : tag.name || tag}
@@ -168,8 +194,8 @@ const NewsDetail = () => {
 
           {/* Share Section */}
           <div className="flex items-center gap-4 py-6 border-t border-white/5">
-            <span className="text-sm text-white/30">Share:</span>
-            <button onClick={handleCopyLink} className="w-9 h-9 rounded-full glass flex items-center justify-center text-white/40 hover:text-emerald-400 hover:border-emerald-400/30 transition-all duration-300" title="Copy link">
+            <span className="text-sm text-white/30">{t('news.share') || 'Share:'}</span>
+            <button onClick={handleCopyLink} className="w-9 h-9 rounded-full glass flex items-center justify-center text-white/40 hover:text-emerald-400 hover:border-emerald-400/30 transition-all duration-300" title={t('news.copy_link') || 'Copy link'}>
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
               </svg>
@@ -192,7 +218,7 @@ const NewsDetail = () => {
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="mt-12">
             <h2 className="text-xl font-extrabold text-white mb-6 flex items-center gap-2">
               <span className="w-8 h-8 rounded-lg glass flex items-center justify-center text-sm">📰</span>
-              Related Articles
+              {t('news.related_articles') || 'Related Articles'}
             </h2>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {relatedNews.map((item) => (
@@ -208,7 +234,7 @@ const NewsDetail = () => {
                       {item.excerpt || item.summary || item.content?.substring(0, 80)}...
                     </p>
                     <span className="text-xs text-white/30">
-                      {new Date(item.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                      {formatDateShort(item.created_at)}
                     </span>
                   </div>
                 </Link>
@@ -223,7 +249,7 @@ const NewsDetail = () => {
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
-            View all news
+            {t('news.view_all_news') || 'View all news'}
           </Link>
         </motion.div>
       </div>

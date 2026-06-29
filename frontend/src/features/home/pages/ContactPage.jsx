@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { useTranslation } from 'react-i18next' // ✅ Ongeza hii
+import { useTranslation } from 'react-i18next'
 import { useTheme } from '../../../context/ThemeContext'
 import api from '../../../app/api'
 
 const ContactPage = () => {
-  const { t } = useTranslation('common') // ✅ Ongeza hii
+  const { t } = useTranslation('home') // ✅ Inatumia 'home'
   const [formData, setFormData] = useState({ name: '', email: '', phone: '', subject: '', message: '' })
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)

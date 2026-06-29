@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next' // ✅ Ongeza hii
 import api from '../../../app/api'
 
 const NewsPage = () => {
+  const { t } = useTranslation('news') // ✅ Ongeza hii
   const [news, setNews] = useState([])
   const [loading, setLoading] = useState(true)
 
@@ -19,6 +21,25 @@ const NewsPage = () => {
     loadNews()
   }, [])
 
+  // Helper functions
+  const formatDate = (dateString) => {
+    if (!dateString) return ''
+    return new Date(dateString).toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    })
+  }
+
+  const formatDateShort = (dateString) => {
+    if (!dateString) return ''
+    return new Date(dateString).toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric', 
+      year: 'numeric' 
+    })
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -27,7 +48,7 @@ const NewsPage = () => {
             <div className="absolute inset-0 bg-emerald-400/10 rounded-full blur-xl animate-pulse" />
             <div className="spinner spinner-lg relative" />
           </div>
-          <p className="text-white/50 animate-pulse">Loading news...</p>
+          <p className="text-white/50 animate-pulse">{t('news.loading') || 'Loading news...'}</p>
         </div>
       </div>
     )
@@ -52,22 +73,24 @@ const NewsPage = () => {
           <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.1, type: "spring" }}
             className="inline-flex items-center gap-2 px-5 py-2 rounded-full glass mb-6">
             <motion.span className="w-2 h-2 bg-emerald-400 rounded-full" animate={{ scale: [1, 1.5, 1], opacity: [0.7, 1, 0.7] }} transition={{ duration: 2, repeat: Infinity }} />
-            <span className="text-sm font-medium text-white/80">📰 Stay Updated</span>
+            <span className="text-sm font-medium text-white/80">
+              {t('news.badge') || '📰 Stay Updated'}
+            </span>
           </motion.div>
           <h1 className="text-3xl md:text-4xl lg:text-6xl font-extrabold text-white mb-4">
-            Latest <span className="gradient-text">News</span>
+            {t('news.title') || 'Latest'} <span className="gradient-text">{t('news.subtitle') || 'News'}</span>
           </h1>
           <p className="text-lg text-white/50 max-w-2xl mx-auto">
-            Stay updated with our latest announcements, insights, and company news
+            {t('news.description') || 'Stay updated with our latest announcements, insights, and company news'}
           </p>
           {news.length > 0 && (
             <div className="flex flex-wrap justify-center gap-3 mt-6">
               <div className="glass px-4 py-2 rounded-full text-sm text-white/50">
-                <span className="text-white font-semibold">{news.length}</span> articles
+                <span className="text-white font-semibold">{news.length}</span> {t('news.articles') || 'articles'}
               </div>
               {featuredArticles.length > 0 && (
                 <div className="glass px-4 py-2 rounded-full text-sm text-amber-400/70">
-                  <span className="text-amber-400 font-semibold">{news.filter(a => a.is_featured).length}</span> featured
+                  <span className="text-amber-400 font-semibold">{news.filter(a => a.is_featured).length}</span> {t('news.featured') || 'featured'}
                 </div>
               )}
             </div>
@@ -99,7 +122,7 @@ const NewsPage = () => {
                     <div className="p-6 md:p-8 flex flex-col justify-center">
                       <div className="flex items-center gap-2 mb-3">
                         <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold bg-amber-500/15 text-amber-400 border border-amber-500/20">
-                          ⭐ Featured
+                          ⭐ {t('news.featured') || 'Featured'}
                         </span>
                         {article.category_name && (
                           <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/20">
@@ -115,19 +138,25 @@ const NewsPage = () => {
                       </p>
                       <div className="flex items-center gap-4 text-sm text-white/40">
                         <span className="flex items-center gap-1">
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                          {new Date(article.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                          {formatDate(article.created_at)}
                         </span>
                         {article.author_name && (
                           <span className="flex items-center gap-1">
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
                             {article.author_name}
                           </span>
                         )}
                       </div>
                       <div className="flex items-center gap-2 mt-6 text-emerald-400 font-semibold group-hover:gap-3 transition-all text-sm">
-                        Read Full Article
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+                        {t('news.read_more') || 'Read Full Article'}
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                        </svg>
                       </div>
                     </div>
                   </div>
@@ -141,7 +170,9 @@ const NewsPage = () => {
         {regularArticles.length > 0 && featuredArticles.length > 0 && (
           <div className="flex items-center gap-3 mb-8">
             <div className="flex-1 h-px bg-white/5" />
-            <span className="text-sm text-white/40 flex items-center gap-2">📝 More Articles</span>
+            <span className="text-sm text-white/40 flex items-center gap-2">
+              📝 {t('news.more_articles') || 'More Articles'}
+            </span>
             <div className="flex-1 h-px bg-white/5" />
           </div>
         )}
@@ -175,18 +206,28 @@ const NewsPage = () => {
                       <div className="p-5 flex-1 flex flex-col">
                         <div className="flex items-center gap-2 mb-3">
                           <span className="text-xs text-white/40 flex items-center gap-1">
-                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                            {new Date(article.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            {formatDateShort(article.created_at)}
                           </span>
                           {article.category_name && (
-                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/20">{article.category_name}</span>
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/20">
+                              {article.category_name}
+                            </span>
                           )}
                         </div>
-                        <h3 className="font-bold text-white mb-2 group-hover:text-emerald-400 transition-colors line-clamp-2">{article.title}</h3>
-                        <p className="text-sm text-white/40 mb-4 flex-1 leading-relaxed line-clamp-2">{article.excerpt || article.summary || article.content?.substring(0, 120)}...</p>
+                        <h3 className="font-bold text-white mb-2 group-hover:text-emerald-400 transition-colors line-clamp-2">
+                          {article.title}
+                        </h3>
+                        <p className="text-sm text-white/40 mb-4 flex-1 leading-relaxed line-clamp-2">
+                          {article.excerpt || article.summary || article.content?.substring(0, 120)}...
+                        </p>
                         <div className="flex items-center gap-1 text-sm font-semibold text-emerald-400 group-hover:gap-2 transition-all mt-auto">
-                          Read More
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+                          {t('news.read_more') || 'Read More'}
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                          </svg>
                         </div>
                       </div>
                     </div>
@@ -202,8 +243,8 @@ const NewsPage = () => {
           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
             className="glass-card p-12 text-center max-w-lg mx-auto">
             <div className="text-5xl mb-4 opacity-40">📰</div>
-            <h3 className="text-xl font-bold text-white mb-2">No news yet</h3>
-            <p className="text-white/40">Check back soon for the latest updates and announcements.</p>
+            <h3 className="text-xl font-bold text-white mb-2">{t('news.no_news') || 'No news yet'}</h3>
+            <p className="text-white/40">{t('news.no_news_message') || 'Check back soon for the latest updates and announcements.'}</p>
           </motion.div>
         )}
       </div>
