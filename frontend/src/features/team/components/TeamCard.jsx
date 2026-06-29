@@ -1,7 +1,12 @@
+// src/features/team/components/TeamCard.jsx
+
 import React from 'react'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next' // ✅ Ongeza hii
 
 const TeamCard = ({ member }) => {
+  const { t } = useTranslation('team') // ✅ Ongeza hii
+
   const gradients = [
     'from-emerald-400 via-green-500 to-teal-600',
     'from-green-400 via-emerald-500 to-cyan-600',
@@ -14,9 +19,21 @@ const TeamCard = ({ member }) => {
 
   // Social links
   const socialLinks = []
-  if (member.email) socialLinks.push({ icon: '✉️', href: `mailto:${member.email}`, label: 'Email' })
-  if (member.linkedin) socialLinks.push({ icon: '🔗', href: member.linkedin, label: 'LinkedIn' })
-  if (member.twitter) socialLinks.push({ icon: '🐦', href: member.twitter, label: 'Twitter' })
+  if (member.email) socialLinks.push({ 
+    icon: '✉️', 
+    href: `mailto:${member.email}`, 
+    label: t('member.email') || 'Email' 
+  })
+  if (member.linkedin) socialLinks.push({ 
+    icon: '🔗', 
+    href: member.linkedin, 
+    label: t('member.linkedin') || 'LinkedIn' 
+  })
+  if (member.twitter) socialLinks.push({ 
+    icon: '🐦', 
+    href: member.twitter, 
+    label: t('member.twitter') || 'Twitter' 
+  })
 
   return (
     <Link to={`/team/${member.id}`} className="block group h-full">
@@ -70,7 +87,7 @@ const TeamCard = ({ member }) => {
 
           {/* Role */}
           <p className="text-xs font-semibold text-emerald-400/80 mb-2 uppercase tracking-wider">
-            {member.role || member.position || 'Team Member'}
+            {member.role || member.position || t('member.default_role') || 'Team Member'}
           </p>
 
           {/* Department */}

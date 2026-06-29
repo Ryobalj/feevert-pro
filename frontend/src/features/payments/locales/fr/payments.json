@@ -1,0 +1,97 @@
+﻿{
+    "status":  {
+                   "paid":  "Payé",
+                   "overdue":  "En retard",
+                   "cancelled":  "Annulé",
+                   "partial":  "Partiel",
+                   "draft":  "Brouillon",
+                   "sent":  "Envoyé",
+                   "expired":  "Expiré",
+                   "accepted":  "Accepté",
+                   "converted":  "Converti"
+               },
+    "types":  {
+                  "proforma":  "Proforma",
+                  "invoice":  "Facture"
+              },
+    "actions":  {
+                    "confirm_pay":  "Confirmer et payer",
+                    "view_invoice":  "Voir la facture",
+                    "view_details":  "Voir les détails",
+                    "pay_now":  "Payer maintenant",
+                    "download_pdf":  "Télécharger PDF"
+                },
+    "dates":  {
+                  "valid_until":  "Valable jusqu\u0027au",
+                  "due_date":  "Date d\u0027échéance",
+                  "issued":  "Émis"
+              },
+    "labels":  {
+                   "estimated_total":  "Total estimé",
+                   "total_amount":  "Montant total",
+                   "deposit":  "Acompte"
+               },
+    "defaults":  {
+                     "invoice":  "Facture"
+                 },
+    "form":  {
+                 "booking_payment":  "Paiement de réservation",
+                 "success_message":  "Vérifiez votre téléphone pour finaliser la transaction.",
+                 "transaction_id":  "ID de transaction",
+                 "title":  "Paiement",
+                 "payment_failed":  "Le paiement a échoué. Veuillez réessayer.",
+                 "redirecting":  "Redirection...",
+                 "phone_placeholder":  "ex. +255 712 345 678",
+                 "phone_hint":  "Vous recevrez une invite de paiement sur ce numéro",
+                 "pay_now":  "Payer maintenant",
+                 "complete_payment":  "Compléter le paiement",
+                 "processing":  "Traitement en cours...",
+                 "phone_required":  "Le numéro de téléphone est requis",
+                 "amount":  "Montant",
+                 "consultation_payment":  "Paiement de consultation",
+                 "phone_label":  "Numéro de téléphone",
+                 "success_title":  "Paiement initié !",
+                 "redirect_message":  "Paiement initié ! Vérifiez votre téléphone.",
+                 "initiation_failed":  "Échec de l\u0027initiation du paiement"
+             },
+    "history":  {
+                    "transactions":  "Transactions",
+                    "subtitle":  "Historique",
+                    "invoices":  "Factures",
+                    "no_transactions":  "Aucune transaction trouvée",
+                    "no_invoices_message":  "Vos factures apparaîtront ici.",
+                    "title":  "Paiement",
+                    "description":  "Consultez vos transactions et factures",
+                    "due":  "Échéance",
+                    "no_transactions_message":  "Vos transactions de paiement apparaîtront ici.",
+                    "loading":  "Chargement de l\u0027historique des paiements...",
+                    "no_invoices":  "Aucune facture trouvée",
+                    "gateway":  "Passerelle",
+                    "issued":  "Émis"
+                },
+    "page":  {
+                 "phone_label":  "Numéro de téléphone",
+                 "description":  "Paiement sécurisé via PawaPay",
+                 "transaction_id":  "ID de transaction",
+                 "success_message":  "Vérifiez votre téléphone pour finaliser la transaction.",
+                 "view_history":  "Voir l\u0027historique des paiements",
+                 "phone_required":  "Le numéro de téléphone est requis pour le paiement",
+                 "processing":  "Traitement en cours...",
+                 "email_placeholder":  "Votre email",
+                 "name_placeholder":  "Votre nom complet",
+                 "open_payment":  "Ouvrir la fenêtre de paiement",
+                 "title":  "Effectuer un",
+                 "badge":  "💳 Paiement Sécurisé",
+                 "success_title":  "Paiement initié !",
+                 "phone_placeholder":  "ex. +255 712 345 678",
+                 "payment_failed":  "Le paiement a échoué. Veuillez réessayer.",
+                 "name_label":  "Nom Complet",
+                 "phone_hint":  "Vous recevrez une invite de paiement sur ce numéro",
+                 "subtitle":  "Paiement",
+                 "pay_now":  "Payer maintenant",
+                 "amount_placeholder":  "Entrez le montant",
+                 "amount_label":  "Montant (TZS)",
+                 "initiation_failed":  "Échec de l\u0027initiation du paiement",
+                 "email_label":  "Email"
+             }
+}

@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next' // ✅ Ongeza hii
 import api from '../../../app/api'
 import { useAuth } from '../../accounts/hooks/useAuth'
 
@@ -13,6 +14,7 @@ const PaymentForm = ({
   buttonText = 'Pay Now',
   onSuccess 
 }) => {
+  const { t } = useTranslation('payments') // ✅ Ongeza hii
   const { user } = useAuth()
   const navigate = useNavigate()
   const [phoneNumber, setPhoneNumber] = useState(user?.phone || '')
@@ -23,7 +25,7 @@ const PaymentForm = ({
 
   const handlePayment = async () => {
     if (!phoneNumber) {
-      setError('Phone number is required')
+      setError(t('form.phone_required') || 'Phone number is required')
       return
     }
 
@@ -51,16 +53,16 @@ const PaymentForm = ({
         } else {
           setTimeout(() => {
             navigate('/payment-history', { 
-              state: { message: 'Payment initiated! Check your phone for payment prompt.' } 
+              state: { message: t('form.redirect_message') || 'Payment initiated! Check your phone for payment prompt.' } 
             })
           }, 2500)
         }
       } else {
-        setError(res.data.error || 'Payment initiation failed')
+        setError(res.data.error || t('form.initiation_failed') || 'Payment initiation failed')
       }
     } catch (err) {
       console.error('Payment error:', err)
-      setError(err.response?.data?.error || 'Payment failed. Please try again.')
+      setError(err.response?.data?.error || t('form.payment_failed') || 'Payment failed. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -88,17 +90,23 @@ const PaymentForm = ({
               </svg>
             </div>
           </motion.div>
-          <h2 className="text-xl font-extrabold text-white mb-2">Payment Initiated!</h2>
+          <h2 className="text-xl font-extrabold text-white mb-2">
+            {t('form.success_title') || 'Payment Initiated!'}
+          </h2>
           <p className="text-white/50 text-sm mb-4">
-            Check your phone for a payment prompt to complete the transaction.
+            {t('form.success_message') || 'Check your phone for a payment prompt to complete the transaction.'}
           </p>
           {transaction && (
             <div className="glass rounded-2xl p-4 mb-4 inline-block">
-              <p className="text-white/40 text-xs mb-1">Transaction ID</p>
+              <p className="text-white/40 text-xs mb-1">
+                {t('form.transaction_id') || 'Transaction ID'}
+              </p>
               <p className="text-white font-bold">{transaction.transaction_id}</p>
             </div>
           )}
-          <p className="text-white/30 text-xs">Redirecting...</p>
+          <p className="text-white/30 text-xs">
+            {t('form.redirecting') || 'Redirecting...'}
+          </p>
         </motion.div>
       ) : (
         /* ============ FORM ============ */
@@ -107,16 +115,21 @@ const PaymentForm = ({
             <div className="w-14 h-14 mx-auto mb-4 rounded-2xl glass flex items-center justify-center text-2xl">
               💳
             </div>
-            <h2 className="text-xl font-extrabold text-white mb-1">{description || 'Payment'}</h2>
+            <h2 className="text-xl font-extrabold text-white mb-1">
+              {description || t('form.title') || 'Payment'}
+            </h2>
             <p className="text-white/40 text-sm">
-              {itemType === 'consultation' ? 'Consultation Payment' : 
-               itemType === 'booking' ? 'Booking Payment' : 'Complete Payment'}
+              {itemType === 'consultation' ? t('form.consultation_payment') || 'Consultation Payment' : 
+               itemType === 'booking' ? t('form.booking_payment') || 'Booking Payment' : 
+               t('form.complete_payment') || 'Complete Payment'}
             </p>
           </div>
 
           {/* Amount Display */}
           <div className="glass rounded-2xl p-5 mb-6 text-center">
-            <p className="text-white/40 text-xs uppercase tracking-wider mb-1">Amount</p>
+            <p className="text-white/40 text-xs uppercase tracking-wider mb-1">
+              {t('form.amount') || 'Amount'}
+            </p>
             <p className="text-3xl font-extrabold text-white">
               {amount?.toLocaleString()} <span className="text-white/50 text-xl">{currency}</span>
             </p>
@@ -125,7 +138,7 @@ const PaymentForm = ({
           {/* Phone Number */}
           <div className="mb-4">
             <label className="block text-sm font-medium text-white/60 mb-2">
-              Phone Number <span className="text-red-400">*</span>
+              {t('form.phone_label') || 'Phone Number'} <span className="text-red-400">*</span>
             </label>
             <div className="relative">
               <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40">📱</div>
@@ -133,13 +146,13 @@ const PaymentForm = ({
                 type="tel"
                 value={phoneNumber}
                 onChange={(e) => { setPhoneNumber(e.target.value); setError('') }}
-                placeholder="e.g. +255 712 345 678"
+                placeholder={t('form.phone_placeholder') || 'e.g. +255 712 345 678'}
                 className="w-full pl-11 pr-4 py-3.5 glass text-white placeholder:text-white/25 rounded-2xl border-0 outline-none focus:ring-2 focus:ring-emerald-400/50 transition-all text-sm"
                 required
               />
             </div>
             <p className="text-[10px] text-white/30 mt-1.5">
-              You will receive a payment prompt on this number
+              {t('form.phone_hint') || 'You will receive a payment prompt on this number'}
             </p>
           </div>
 
@@ -171,11 +184,11 @@ const PaymentForm = ({
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                 </svg>
-                Processing...
+                {t('form.processing') || 'Processing...'}
               </span>
             ) : (
               <span className="relative z-10 flex items-center justify-center gap-2">
-                {buttonText}
+                {buttonText || t('form.pay_now') || 'Pay Now'}
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>

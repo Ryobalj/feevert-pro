@@ -1,0 +1,26 @@
+﻿{
+    "chat":  {
+                 "support":  "Msaada",
+                 "online":  "Mtandaoni",
+                 "connecting":  "Inaunganisha...",
+                 "close":  "Funga mazungumzo",
+                 "no_messages":  "Hakuna ujumbe bado",
+                 "start_chat":  "Tuma ujumbe kuanza mazungumzo",
+                 "typing":  "Inaandika...",
+                 "message_placeholder":  "Andika ujumbe...",
+                 "messages":  "Ujumbe",
+                 "chats":  "Mazungumzo",
+                 "new_chat":  "Mazungumzo Mapya",
+                 "search_users":  "Tafuta watumiaji...",
+                 "loading":  "Inapakia...",
+                 "just_now":  "Sasa hivi",
+                 "minutes_ago":  "Dakika {{count}} zilizopita",
+                 "hours_ago":  "Saa {{count}} zilizopita",
+                 "no_conversations":  "Hakuna mazungumzo bado",
+                 "start_chatting":  "Anza mazungumzo na mtu!",
+                 "start_new_chat":  "Anza mazungumzo mapya",
+                 "tap_to_chat":  "Bonyeza kuzungumza",
+                 "no_users_found":  "Hakuna watumiaji waliopatikana",
+                 "no_users_available":  "Hakuna watumiaji waliopo"
+             }
+}

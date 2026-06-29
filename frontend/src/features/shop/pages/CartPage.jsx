@@ -1,10 +1,12 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next' // ✅ Ongeza hii
 import { useTheme } from '../../../context/ThemeContext'
 import { useCart } from '../context/CartContext'
 
 const CartPage = () => {
+  const { t } = useTranslation('shop') // ✅ Ongeza hii
   const { cart, loading, updateQuantity, removeFromCart, clearCart, cartCount, cartTotal } = useCart()
   const [updatingItem, setUpdatingItem] = useState(null)
   const { darkMode } = useTheme()
@@ -31,7 +33,9 @@ const CartPage = () => {
       <div className="min-h-screen flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div className="spinner spinner-lg" />
-          <p className="text-white/50 animate-pulse">Loading cart...</p>
+          <p className="text-white/50 animate-pulse">
+            {t('cart.loading') || 'Loading cart...'}
+          </p>
         </div>
       </div>
     )
@@ -43,13 +47,17 @@ const CartPage = () => {
         <div className="container-main max-w-2xl">
           <div className="glass-card p-12 text-center">
             <span className="text-6xl mb-6 block opacity-40">🛒</span>
-            <h2 className="text-2xl font-bold text-white mb-3">Your cart is empty</h2>
-            <p className="text-white/40 mb-8">Looks like you haven't added anything to your cart yet.</p>
+            <h2 className="text-2xl font-bold text-white mb-3">
+              {t('cart.empty') || 'Your cart is empty'}
+            </h2>
+            <p className="text-white/40 mb-8">
+              {t('cart.empty_message') || "Looks like you haven't added anything to your cart yet."}
+            </p>
             <Link to="/shop" className="btn-primary btn-lg">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
-              Continue Shopping
+              {t('cart.continue_shopping') || 'Continue Shopping'}
             </Link>
           </div>
         </div>
@@ -64,9 +72,11 @@ const CartPage = () => {
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
           <h1 className="text-2xl md:text-3xl font-extrabold text-white mb-2">
-            Shopping <span className="gradient-text">Cart</span>
+            {t('cart.page_title') || 'Shopping'} <span className="gradient-text">{t('cart.page_subtitle') || 'Cart'}</span>
           </h1>
-          <p className="text-white/40">{cartCount} item{cartCount !== 1 ? 's' : ''} in your cart</p>
+          <p className="text-white/40">
+            {cartCount} {t('cart.items') || 'item'}{cartCount !== 1 ? 's' : ''} {t('cart.in_cart') || 'in your cart'}
+          </p>
         </motion.div>
 
         {/* Cart Items */}
@@ -99,7 +109,7 @@ const CartPage = () => {
                   </h3>
                 </Link>
                 <p className="text-sm text-white/40 mt-0.5">
-                  TZS {item.product?.current_price?.toLocaleString()} each
+                  {t('cart.currency') || 'TZS'} {item.product?.current_price?.toLocaleString()} {t('cart.each') || 'each'}
                 </p>
                 
                 {/* Quantity Controls */}
@@ -126,12 +136,14 @@ const CartPage = () => {
               
               {/* Subtotal + Remove */}
               <div className="text-right flex-shrink-0">
-                <p className="font-bold gradient-text text-sm">TZS {item.subtotal?.toLocaleString()}</p>
+                <p className="font-bold gradient-text text-sm">
+                  {t('cart.currency') || 'TZS'} {item.subtotal?.toLocaleString()}
+                </p>
                 <button
                   onClick={() => handleRemoveItem(item.id)}
                   className="text-xs text-red-400/60 hover:text-red-400 transition-colors mt-2"
                 >
-                  Remove
+                  {t('cart.remove') || 'Remove'}
                 </button>
               </div>
               
@@ -148,21 +160,29 @@ const CartPage = () => {
         {/* Cart Summary */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
           className="glass-card p-6">
-          <h3 className="text-lg font-bold text-white mb-4">Order Summary</h3>
+          <h3 className="text-lg font-bold text-white mb-4">
+            {t('cart.order_summary') || 'Order Summary'}
+          </h3>
           
           <div className="space-y-3 mb-6">
             <div className="flex justify-between text-sm">
-              <span className="text-white/50">Subtotal ({cartCount} items)</span>
-              <span className="text-white font-medium">TZS {cart.subtotal?.toLocaleString()}</span>
+              <span className="text-white/50">
+                {t('cart.subtotal') || 'Subtotal'} ({cartCount} {t('cart.items') || 'items'})
+              </span>
+              <span className="text-white font-medium">
+                {t('cart.currency') || 'TZS'} {cart.subtotal?.toLocaleString()}
+              </span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-white/50">Shipping</span>
-              <span className="text-white/30">Calculated at checkout</span>
+              <span className="text-white/50">{t('cart.shipping') || 'Shipping'}</span>
+              <span className="text-white/30">{t('cart.shipping_calculated') || 'Calculated at checkout'}</span>
             </div>
             <div className="h-px bg-white/5" />
             <div className="flex justify-between text-lg font-bold">
-              <span className="text-white">Total</span>
-              <span className="gradient-text">TZS {cartTotal?.toLocaleString()}</span>
+              <span className="text-white">{t('cart.total') || 'Total'}</span>
+              <span className="gradient-text">
+                {t('cart.currency') || 'TZS'} {cartTotal?.toLocaleString()}
+              </span>
             </div>
           </div>
           
@@ -171,14 +191,14 @@ const CartPage = () => {
               onClick={() => clearCart()}
               className="px-4 py-2.5 rounded-full text-sm text-white/40 hover:text-red-400 transition-colors"
             >
-              Clear Cart
+              {t('cart.clear_cart') || 'Clear Cart'}
             </button>
             
             <Link
               to="/shop/checkout"
               className="flex-1 btn-primary btn-lg justify-center"
             >
-              Proceed to Checkout
+              {t('cart.proceed_checkout') || 'Proceed to Checkout'}
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
               </svg>
@@ -189,7 +209,7 @@ const CartPage = () => {
         {/* Continue Shopping */}
         <div className="text-center mt-8">
           <Link to="/shop" className="text-sm text-white/40 hover:text-emerald-400 transition-colors">
-            ← Continue Shopping
+            ← {t('cart.continue_shopping') || 'Continue Shopping'}
           </Link>
         </div>
       </div>

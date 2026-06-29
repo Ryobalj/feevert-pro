@@ -1,0 +1,33 @@
+﻿{
+    "member":  {
+                   "default_role":  "Membre de l\u0027Équipe",
+                   "email":  "Email",
+                   "linkedin":  "LinkedIn",
+                   "twitter":  "Twitter"
+               },
+    "list":  {
+                 "badge":  "👥 Notre Équipe",
+                 "all_team":  "Toute l\u0027équipe",
+                 "subtitle":  "Équipe",
+                 "no_members":  "Aucun membre de l\u0027équipe trouvé",
+                 "showing":  "Affichage",
+                 "title":  "Rencontrez Notre",
+                 "clear":  "Effacer",
+                 "of":  "sur",
+                 "description":  "Des professionnels passionnés dédiés à votre succès",
+                 "members":  "membres de l\u0027équipe",
+                 "clear_filters":  "Effacer tous les filtres",
+                 "loading":  "Chargement de l\u0027équipe...",
+                 "search_placeholder":  "Rechercher par nom, rôle ou département...",
+                 "no_members_department":  "Aucun membre de l\u0027équipe dans ce département.",
+                 "no_matching":  "Aucun membre de l\u0027équipe correspondant à"
+             },
+    "detail":  {
+                   "back_to_team":  "Retour à l\u0027équipe",
+                   "expertise":  "Expertise",
+                   "contact":  "Contact",
+                   "loading":  "Chargement du profil...",
+                   "phone":  "Appeler",
+                   "about":  "À propos"
+               }
+}

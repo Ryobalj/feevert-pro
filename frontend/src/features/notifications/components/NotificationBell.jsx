@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useTranslation } from 'react-i18next' // ✅ Ongeza hii
 import api from '../../../app/api'
 import { useAuth } from '../../accounts/hooks/useAuth'
 import { useWebSocket } from '../../realtime/hooks/useWebSocket'
 
 const NotificationBell = () => {
+  const { t } = useTranslation('notifications') // ✅ Badilisha kutoka 'common' hadi 'notifications'
   const { isAuthenticated } = useAuth()
   const [notifications, setNotifications] = useState([])
   const [unreadCount, setUnreadCount] = useState(0)
@@ -85,7 +87,7 @@ const NotificationBell = () => {
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="relative w-10 h-10 rounded-full glass flex items-center justify-center hover:border-emerald-400/30 transition-all duration-300"
-        aria-label="Notifications"
+        aria-label={t('notifications.bell_label') || 'Notifications'}
       >
         <motion.svg 
           className="w-5 h-5 text-white/70" 
@@ -125,14 +127,14 @@ const NotificationBell = () => {
             <div className="p-4 border-b border-white/5 flex justify-between items-center">
               <h3 className="font-bold text-white text-sm flex items-center gap-2">
                 <span className="w-7 h-7 rounded-lg glass flex items-center justify-center text-xs">🔔</span>
-                Notifications
+                {t('notifications.title') || 'Notifications'}
               </h3>
               {unreadCount > 0 && (
                 <button
                   onClick={markAllAsRead}
                   className="text-xs text-emerald-400 hover:text-emerald-300 font-medium transition-colors"
                 >
-                  Mark all read
+                  {t('notifications.mark_all_read') || 'Mark all read'}
                 </button>
               )}
             </div>
@@ -142,7 +144,9 @@ const NotificationBell = () => {
               {notifications.length === 0 ? (
                 <div className="p-8 text-center">
                   <div className="text-4xl mb-3 opacity-30">🔕</div>
-                  <p className="text-white/40 text-sm">No notifications yet</p>
+                  <p className="text-white/40 text-sm">
+                    {t('notifications.empty') || 'No notifications yet'}
+                  </p>
                 </div>
               ) : (
                 notifications.map((notif) => {
@@ -191,7 +195,7 @@ const NotificationBell = () => {
                 className="text-xs text-emerald-400 hover:text-emerald-300 font-medium transition-colors flex items-center justify-center gap-1"
                 onClick={() => setIsOpen(false)}
               >
-                View all notifications
+                {t('notifications.view_all') || 'View all notifications'}
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>

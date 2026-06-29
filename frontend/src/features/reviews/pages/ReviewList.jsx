@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next' // ✅ Ongeza hii
 import { useTheme } from '../../../context/ThemeContext'
 import api from '../../../app/api'
 import RatingStars from '../../reviews/components/RatingStars'
 
 const ReviewList = () => {
+  const { t } = useTranslation('reviews') // ✅ Ongeza hii
   const [reviews, setReviews] = useState([])
   const [stats, setStats] = useState({ average: 0, total: 0, distribution: {} })
   const [loading, setLoading] = useState(true)
@@ -45,10 +47,18 @@ const ReviewList = () => {
             <div className="absolute inset-0 bg-emerald-400/10 rounded-full blur-xl animate-pulse" />
             <div className="spinner spinner-lg relative" />
           </div>
-          <p className="text-white/50 animate-pulse">Loading reviews...</p>
+          <p className="text-white/50 animate-pulse">
+            {t('list.loading') || 'Loading reviews...'}
+          </p>
         </div>
       </div>
     )
+  }
+
+  // Get rating label for filter buttons
+  const getRatingLabel = (rating) => {
+    if (rating === 'all') return t('list.all_reviews') || 'All Reviews'
+    return rating
   }
 
   return (
@@ -61,13 +71,15 @@ const ReviewList = () => {
             <span className="text-lg">⭐</span>
             <span className="text-sm font-semibold text-white">{stats.average}</span>
             <span className="text-xs text-white/30">•</span>
-            <span className="text-xs text-white/50">{stats.total} Reviews</span>
+            <span className="text-xs text-white/50">
+              {stats.total} {t('list.reviews_label') || 'Reviews'}
+            </span>
           </motion.div>
           <h1 className="text-3xl md:text-4xl lg:text-6xl font-extrabold text-white mb-4">
-            Client <span className="gradient-text">Reviews</span>
+            {t('list.title') || 'Client'} <span className="gradient-text">{t('list.subtitle') || 'Reviews'}</span>
           </h1>
           <p className="text-lg text-white/50 max-w-2xl mx-auto">
-            See what our clients say about working with us
+            {t('list.description') || 'See what our clients say about working with us'}
           </p>
         </motion.div>
 
@@ -88,7 +100,9 @@ const ReviewList = () => {
                 <div className="flex justify-center mb-1">
                   <RatingStars rating={Math.round(stats.average)} readonly size="small" />
                 </div>
-                <p className="text-white/40 text-sm">Based on {stats.total} review{stats.total !== 1 ? 's' : ''}</p>
+                <p className="text-white/40 text-sm">
+                  {t('list.based_on') || 'Based on'} {stats.total} {t('list.review') || 'review'}{stats.total !== 1 ? 's' : ''}
+                </p>
               </div>
               
               {/* Distribution Bars */}
@@ -126,7 +140,9 @@ const ReviewList = () => {
               className={`px-4 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 flex items-center gap-1.5 ${
                 selectedRating === rating ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20 scale-105' : 'glass text-white/60 hover:text-white hover:border-white/30'
               }`} whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}>
-              {rating === 'all' ? 'All Reviews' : (
+              {rating === 'all' ? (
+                t('list.all_reviews') || 'All Reviews'
+              ) : (
                 <>{rating} <svg className="w-3.5 h-3.5 text-amber-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg></>
               )}
             </motion.button>
@@ -192,14 +208,18 @@ const ReviewList = () => {
           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
             className="glass-card p-12 text-center">
             <div className="text-5xl mb-4 opacity-40">⭐</div>
-            <h3 className="text-xl font-bold text-white mb-2">No reviews yet</h3>
+            <h3 className="text-xl font-bold text-white mb-2">
+              {t('list.no_reviews') || 'No reviews yet'}
+            </h3>
             <p className="text-white/40 max-w-sm mx-auto">
-              {selectedRating !== 'all' ? `No ${selectedRating}-star reviews found.` : 'Be the first to share your experience!'}
+              {selectedRating !== 'all' 
+                ? t('list.no_filtered_reviews', { rating: selectedRating }) || `No ${selectedRating}-star reviews found.`
+                : t('list.no_reviews_message') || 'Be the first to share your experience!'}
             </p>
             {selectedRating !== 'all' && (
               <button onClick={() => setSelectedRating('all')}
                 className="mt-6 px-6 py-3 rounded-full border-2 border-white/20 text-white font-semibold hover:border-emerald-400/50 transition-all duration-300">
-                View all reviews
+                {t('list.view_all') || 'View all reviews'}
               </button>
             )}
           </motion.div>
@@ -209,12 +229,18 @@ const ReviewList = () => {
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
           transition={{ delay: 0.3 }} className="glass-card p-8 mt-12 text-center group hover:border-emerald-400/20 transition-all duration-300">
           <div className="text-4xl mb-4">✍️</div>
-          <h2 className="text-xl font-bold text-white mb-2">Share Your Experience</h2>
-          <p className="text-white/40 mb-6 max-w-md mx-auto">We'd love to hear about your experience with our services.</p>
+          <h2 className="text-xl font-bold text-white mb-2">
+            {t('list.share_title') || 'Share Your Experience'}
+          </h2>
+          <p className="text-white/40 mb-6 max-w-md mx-auto">
+            {t('list.share_description') || "We'd love to hear about your experience with our services."}
+          </p>
           <Link to="/submit-review" className="group relative inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-white px-8 py-4 rounded-full font-bold shadow-lg shadow-emerald-500/20 transition-all overflow-hidden">
             <motion.div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12" animate={{ x: ['-200%', '200%'] }} transition={{ duration: 2, repeat: Infinity }} />
             <svg className="w-5 h-5 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
-            <span className="relative z-10">Write a Review</span>
+            <span className="relative z-10">
+              {t('list.write_review') || 'Write a Review'}
+            </span>
           </Link>
         </motion.div>
       </div>

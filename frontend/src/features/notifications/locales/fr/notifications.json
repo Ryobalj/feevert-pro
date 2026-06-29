@@ -1,0 +1,26 @@
+﻿{
+    "notifications":  {
+                          "bell_label":  "Notifications",
+                          "title":  "Notifications",
+                          "mark_all_read":  "Tout marquer comme lu",
+                          "empty":  "Aucune notification",
+                          "view_all":  "Voir toutes les notifications",
+                          "list":  {
+                                       "all":  "Tous",
+                                       "just_now":  "À l\u0027instant",
+                                       "no_notifications":  "Aucune notification",
+                                       "no_notifications_message":  "Vous n\u0027avez pas encore de notifications.",
+                                       "no_read_message":  "Vous n\u0027avez pas de notifications lues.",
+                                       "new":  "Nouveau",
+                                       "unread":  "Non lus",
+                                       "all_caught_up":  "Tout est lu ! 🎉",
+                                       "mark_all_read":  "Tout marquer comme lu",
+                                       "unread_count":  "notifications non lues",
+                                       "no_unread_message":  "Vous n\u0027avez pas de notifications non lues.",
+                                       "loading":  "Chargement des notifications...",
+                                       "read":  "Lus",
+                                       "no_read":  "Aucune notification lue",
+                                       "notification":  "Notification"
+                                   }
+                      }
+}

@@ -1,7 +1,11 @@
+// src/features/reviews/components/RatingStars.jsx
+
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next' // ✅ Ongeza hii
 
 const RatingStars = ({ rating = 0, onRatingChange, readonly = false, size = 'default' }) => {
+  const { t } = useTranslation('reviews') // ✅ Ongeza hii
   const stars = [1, 2, 3, 4, 5]
   const [hoveredStar, setHoveredStar] = useState(0)
 
@@ -64,7 +68,7 @@ const RatingStars = ({ rating = 0, onRatingChange, readonly = false, size = 'def
           onMouseEnter={() => setHoveredStar(star)}
           onMouseLeave={() => setHoveredStar(0)}
           className="focus:outline-none"
-          aria-label={`Rate ${star} star${star > 1 ? 's' : ''}`}
+          aria-label={t('rating.label', { star: star, count: star > 1 ? 's' : '' }) || `Rate ${star} star${star > 1 ? 's' : ''}`}
         >
           <StarIcon star={star} filled={star <= displayRating} interactive />
         </button>
@@ -77,7 +81,7 @@ const RatingStars = ({ rating = 0, onRatingChange, readonly = false, size = 'def
           animate={{ opacity: 1, x: 0 }}
           className="text-xs text-white/50 ml-2 font-medium self-center"
         >
-          {displayRating} / 5
+          {t('rating.out_of', { rating: displayRating, total: 5 }) || `${displayRating} / 5`}
         </motion.span>
       )}
     </div>

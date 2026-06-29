@@ -1,0 +1,51 @@
+﻿{
+    "rating":  {
+                   "label":  "Rate {{star}} star{{count}}",
+                   "out_of":  "{{rating}} / {{total}}",
+                   "excellent":  "Excellent!",
+                   "very_good":  "Very Good!",
+                   "good":  "Good",
+                   "fair":  "Fair",
+                   "poor":  "Poor"
+               },
+    "form":  {
+                 "comment_required":  "Please write a review",
+                 "default_title":  "Review",
+                 "submitting":  "Submitting...",
+                 "comment_label":  "Your Review",
+                 "title_placeholder":  "Summarize your experience",
+                 "title_label":  "Review Title",
+                 "submit":  "Submit Review",
+                 "comment_placeholder":  "Share your experience with our service...",
+                 "cancel":  "Cancel",
+                 "submit_error":  "Error submitting review. Please try again.",
+                 "rating_label":  "Your Rating"
+             },
+    "section":  {
+                    "subtitle":  "Clients",
+                    "view_all":  "Read All Reviews",
+                    "say":  "Say",
+                    "title":  "What Our",
+                    "description":  "Hear from our satisfied clients about their experience working with us",
+                    "client":  "Client",
+                    "client_role":  "Client",
+                    "reviews_count":  "Reviews"
+                },
+    "list":  {
+                 "view_all":  "View all reviews",
+                 "share_title":  "Share Your Experience",
+                 "subtitle":  "Reviews",
+                 "based_on":  "Based on",
+                 "write_review":  "Write a Review",
+                 "title":  "Client",
+                 "all_reviews":  "All Reviews",
+                 "reviews_label":  "Reviews",
+                 "review":  "review",
+                 "description":  "See what our clients say about working with us",
+                 "no_reviews_message":  "Be the first to share your experience!",
+                 "no_reviews":  "No reviews yet",
+                 "loading":  "Loading reviews...",
+                 "share_description":  "We\u0027d love to hear about your experience with our services.",
+                 "no_filtered_reviews":  "No {{rating}}-star reviews found."
+             }
+}

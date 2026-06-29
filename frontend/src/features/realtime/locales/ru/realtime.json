@@ -1,0 +1,26 @@
+﻿{
+    "chat":  {
+                 "support":  "Поддержка",
+                 "online":  "В сети",
+                 "connecting":  "Подключение...",
+                 "close":  "Закрыть чат",
+                 "no_messages":  "Нет сообщений",
+                 "start_chat":  "Отправьте сообщение, чтобы начать общение",
+                 "typing":  "Печатает...",
+                 "message_placeholder":  "Введите сообщение...",
+                 "messages":  "Сообщения",
+                 "chats":  "Чаты",
+                 "new_chat":  "Новый чат",
+                 "search_users":  "Поиск пользователей...",
+                 "loading":  "Загрузка...",
+                 "just_now":  "Только что",
+                 "minutes_ago":  "{{count}} мин назад",
+                 "hours_ago":  "{{count}} ч назад",
+                 "no_conversations":  "Нет чатов",
+                 "start_chatting":  "Начните общение с кем-нибудь!",
+                 "start_new_chat":  "Начать новый чат",
+                 "tap_to_chat":  "Нажмите для чата",
+                 "no_users_found":  "Пользователи не найдены",
+                 "no_users_available":  "Нет доступных пользователей"
+             }
+}

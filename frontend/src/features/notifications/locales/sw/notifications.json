@@ -1,0 +1,26 @@
+﻿{
+    "notifications":  {
+                          "bell_label":  "Arifa",
+                          "title":  "Arifa",
+                          "mark_all_read":  "Soma zote",
+                          "empty":  "Hakuna arifa bado",
+                          "view_all":  "Tazama arifa zote",
+                          "list":  {
+                                       "all":  "Zote",
+                                       "just_now":  "Sasa hivi",
+                                       "no_notifications":  "Hakuna arifa",
+                                       "no_notifications_message":  "Bado huna arifa zozote.",
+                                       "no_read_message":  "Huna arifa zilizosomwa.",
+                                       "new":  "Mpya",
+                                       "unread":  "Zisizosomwa",
+                                       "all_caught_up":  "Umesoma zote! 🎉",
+                                       "mark_all_read":  "Soma zote",
+                                       "unread_count":  "arifa zisizosomwa",
+                                       "no_unread_message":  "Huna arifa zisizosomwa.",
+                                       "loading":  "Inapakia arifa...",
+                                       "read":  "Zilizosomwa",
+                                       "no_read":  "Hakuna arifa zilizosomwa",
+                                       "notification":  "Arifa"
+                                   }
+                      }
+}

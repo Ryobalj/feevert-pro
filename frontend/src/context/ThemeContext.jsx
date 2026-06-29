@@ -23,6 +23,10 @@ const THEMES = {
       navbarBg: 'rgba(255,255,255,0.95)',
       navbarText: '#0d5c3e',
       navbarTextHover: '#1a7a54',
+      // ✅ Add landing page specific colors - FORCE WHITE TEXT
+      landingText: '#ffffff',
+      landingTextSecondary: 'rgba(255,255,255,0.7)',
+      landingTextTertiary: 'rgba(255,255,255,0.4)',
     }
   },
   brand: {
@@ -44,6 +48,10 @@ const THEMES = {
       navbarBg: 'rgba(8,58,38,0.9)',
       navbarText: '#d4a843',
       navbarTextHover: '#e8c95a',
+      // ✅ Add landing page specific colors - FORCE WHITE TEXT
+      landingText: '#ffffff',
+      landingTextSecondary: 'rgba(255,255,255,0.7)',
+      landingTextTertiary: 'rgba(255,255,255,0.4)',
     }
   },
   dark: {
@@ -52,19 +60,23 @@ const THEMES = {
     icon: '🌙',
     description: 'Pure dark with emerald accents',
     colors: {
-      background: '#000000',      // ✅ Pure black - inafanana na navbar
-      surface: '#0a0a0a',         // ✅ Dark gray
+      background: '#000000',
+      surface: '#0a0a0a',
       card: 'rgba(255,255,255,0.03)',
-      text: '#e8e8e8',            // ✅ Light gray for readability
+      text: '#e8e8e8',
       textSecondary: 'rgba(232,232,232,0.7)',
       textTertiary: 'rgba(232,232,232,0.4)',
       border: 'rgba(255,255,255,0.05)',
-      primary: '#34d399',         // ✅ Emerald green for accents
+      primary: '#34d399',
       primaryHover: '#6ee7b7',
       accent: '#1a4a2e',
       navbarBg: 'rgba(10,10,10,0.85)',
       navbarText: '#34d399',
       navbarTextHover: '#6ee7b7',
+      // ✅ Add landing page specific colors - FORCE WHITE TEXT
+      landingText: '#ffffff',
+      landingTextSecondary: 'rgba(255,255,255,0.7)',
+      landingTextTertiary: 'rgba(255,255,255,0.4)',
     }
   }
 }
@@ -155,6 +167,16 @@ export const ThemeProvider = ({ children }) => {
     }
   }, [])
 
+  // ✅ Get landing page specific colors (always white text)
+  const getLandingColors = useCallback(() => {
+    const theme = THEMES[currentTheme]
+    return {
+      text: theme.colors.landingText || '#ffffff',
+      textSecondary: theme.colors.landingTextSecondary || 'rgba(255,255,255,0.7)',
+      textTertiary: theme.colors.landingTextTertiary || 'rgba(255,255,255,0.4)',
+    }
+  }, [currentTheme])
+
   const value = {
     currentTheme,
     theme: currentTheme,
@@ -166,6 +188,8 @@ export const ThemeProvider = ({ children }) => {
     isDark: darkMode,
     isLight: !darkMode,
     colors: THEMES[currentTheme]?.colors || THEMES.white.colors,
+    // ✅ Add landing page colors (always white)
+    landingColors: getLandingColors(),
   }
 
   return (

@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useTranslation } from 'react-i18next' // ✅ Ongeza hii
 import { useTheme } from '../../../context/ThemeContext'
 import api from '../../../app/api'
 
 const PaymentHistory = () => {
+  const { t } = useTranslation('payments') // ✅ Ongeza hii
   const [transactions, setTransactions] = useState([])
   const [invoices, setInvoices] = useState([])
   const [loading, setLoading] = useState(true)
@@ -43,9 +45,27 @@ const PaymentHistory = () => {
   }
 
   const tabs = [
-    { value: 'transactions', label: 'Transactions', icon: '💳', count: transactions.length },
-    { value: 'invoices', label: 'Invoices', icon: '🧾', count: invoices.length },
+    { value: 'transactions', label: t('history.transactions') || 'Transactions', icon: '💳', count: transactions.length },
+    { value: 'invoices', label: t('history.invoices') || 'Invoices', icon: '🧾', count: invoices.length },
   ]
+
+  // Helper to format date
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A'
+    return new Date(dateString).toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric', 
+      year: 'numeric' 
+    })
+  }
+
+  // Helper to get status label
+  const getStatusLabel = (status, isInvoice = false) => {
+    const config = isInvoice ? invoiceStatusConfig : statusConfig
+    const statusObj = config[status]
+    if (statusObj) return status
+    return status || (isInvoice ? 'draft' : 'pending')
+  }
 
   if (loading) {
     return (
@@ -55,7 +75,9 @@ const PaymentHistory = () => {
             <div className="absolute inset-0 bg-emerald-400/10 rounded-full blur-xl animate-pulse" />
             <div className="spinner spinner-lg relative" />
           </div>
-          <p className="text-white/50 animate-pulse">Loading payment history...</p>
+          <p className="text-white/50 animate-pulse">
+            {t('history.loading') || 'Loading payment history...'}
+          </p>
         </div>
       </div>
     )
@@ -67,9 +89,11 @@ const PaymentHistory = () => {
         {/* ============ HEADER ============ */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
           <h1 className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-white mb-2">
-            Payment <span className="gradient-text">History</span>
+            {t('history.title') || 'Payment'} <span className="gradient-text">{t('history.subtitle') || 'History'}</span>
           </h1>
-          <p className="text-white/40 text-sm">View your transactions and invoices</p>
+          <p className="text-white/40 text-sm">
+            {t('history.description') || 'View your transactions and invoices'}
+          </p>
         </motion.div>
 
         {/* ============ TABS ============ */}
@@ -100,6 +124,7 @@ const PaymentHistory = () => {
               {transactions.length > 0 ? (
                 transactions.map((tx, index) => {
                   const status = statusConfig[tx.status] || statusConfig.pending
+                  const statusLabel = getStatusLabel(tx.status)
                   return (
                     <motion.div key={tx.id} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.03 }} whileHover={{ x: 2 }}>
@@ -111,7 +136,7 @@ const PaymentHistory = () => {
                               <span className="font-mono text-sm text-white/70">{tx.transaction_id}</span>
                               <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold border ${status.badge}`}>
                                 <span>{status.icon}</span>
-                                {tx.status}
+                                {statusLabel}
                               </span>
                             </div>
                             
@@ -126,7 +151,9 @@ const PaymentHistory = () => {
                                 </span>
                               </div>
                               <div className="flex items-center gap-2">
-                                <span className="text-white/30 text-xs">Gateway:</span>
+                                <span className="text-white/30 text-xs">
+                                  {t('history.gateway') || 'Gateway'}:
+                                </span>
                                 <span className="text-white/50 text-xs capitalize">{tx.gateway}</span>
                               </div>
                               <div className="flex items-center gap-2">
@@ -134,7 +161,7 @@ const PaymentHistory = () => {
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                 </svg>
                                 <span className="text-white/50 text-xs">
-                                  {tx.created_at ? new Date(tx.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A'}
+                                  {formatDate(tx.created_at)}
                                 </span>
                               </div>
                             </div>
@@ -153,8 +180,12 @@ const PaymentHistory = () => {
                 <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
                   className="glass-card p-12 text-center">
                   <div className="text-5xl mb-4 opacity-40">💳</div>
-                  <h3 className="text-xl font-bold text-white mb-2">No transactions found</h3>
-                  <p className="text-white/40">Your payment transactions will appear here.</p>
+                  <h3 className="text-xl font-bold text-white mb-2">
+                    {t('history.no_transactions') || 'No transactions found'}
+                  </h3>
+                  <p className="text-white/40">
+                    {t('history.no_transactions_message') || 'Your payment transactions will appear here.'}
+                  </p>
                 </motion.div>
               )}
             </motion.div>
@@ -167,6 +198,7 @@ const PaymentHistory = () => {
               {invoices.length > 0 ? (
                 invoices.map((invoice, index) => {
                   const status = invoiceStatusConfig[invoice.status] || invoiceStatusConfig.draft
+                  const statusLabel = getStatusLabel(invoice.status, true)
                   return (
                     <motion.div key={invoice.id} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.03 }} whileHover={{ x: 2 }}>
@@ -178,7 +210,7 @@ const PaymentHistory = () => {
                               <span className="font-mono text-sm font-bold text-white">{invoice.invoice_number}</span>
                               <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold border ${status.badge}`}>
                                 <span>{status.icon}</span>
-                                {invoice.status}
+                                {statusLabel}
                               </span>
                             </div>
                             
@@ -196,11 +228,15 @@ const PaymentHistory = () => {
                                 </span>
                               </div>
                               <div className="flex items-center gap-2">
-                                <span className="text-white/30 text-xs">Issued:</span>
+                                <span className="text-white/30 text-xs">
+                                  {t('history.issued') || 'Issued'}:
+                                </span>
                                 <span className="text-white/50 text-xs">{invoice.issue_date}</span>
                               </div>
                               <div className="flex items-center gap-2">
-                                <span className="text-white/30 text-xs">Due:</span>
+                                <span className="text-white/30 text-xs">
+                                  {t('history.due') || 'Due'}:
+                                </span>
                                 <span className={`text-xs font-medium ${invoice.status === 'overdue' ? 'text-red-400' : 'text-white/50'}`}>
                                   {invoice.due_date}
                                 </span>
@@ -216,8 +252,12 @@ const PaymentHistory = () => {
                 <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
                   className="glass-card p-12 text-center">
                   <div className="text-5xl mb-4 opacity-40">🧾</div>
-                  <h3 className="text-xl font-bold text-white mb-2">No invoices found</h3>
-                  <p className="text-white/40">Your invoices will appear here.</p>
+                  <h3 className="text-xl font-bold text-white mb-2">
+                    {t('history.no_invoices') || 'No invoices found'}
+                  </h3>
+                  <p className="text-white/40">
+                    {t('history.no_invoices_message') || 'Your invoices will appear here.'}
+                  </p>
                 </motion.div>
               )}
             </motion.div>

@@ -2,11 +2,13 @@
 
 import React, { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useTranslation } from 'react-i18next' // ✅ Ongeza hii
 import api from '../../../app/api'
 import { useAuth } from '../../accounts/hooks/useAuth'
 import ChatBox from './ChatBox'
 
 const UserChatList = ({ isModal, onClose }) => {
+  const { t } = useTranslation('realtime') // ✅ Ongeza hii
   const { user } = useAuth()
   const [conversations, setConversations] = useState([])
   const [allUsers, setAllUsers] = useState([])
@@ -104,10 +106,10 @@ const UserChatList = ({ isModal, onClose }) => {
   const formatLastSeen = (ts) => {
     if (!ts) return ''
     const mins = Math.floor((new Date() - new Date(ts)) / 60000)
-    if (mins < 1) return 'Just now'
-    if (mins < 60) return `${mins}m ago`
+    if (mins < 1) return t('chat.just_now') || 'Just now'
+    if (mins < 60) return t('chat.minutes_ago', { count: mins }) || `${mins}m ago`
     const hrs = Math.floor(mins / 60)
-    if (hrs < 24) return `${hrs}h ago`
+    if (hrs < 24) return t('chat.hours_ago', { count: hrs }) || `${hrs}h ago`
     return new Date(ts).toLocaleDateString()
   }
 
@@ -126,11 +128,13 @@ const UserChatList = ({ isModal, onClose }) => {
           <div className="flex items-center justify-between mb-3">
             <h3 className="font-bold text-white text-sm flex items-center gap-2">
               <span className="w-7 h-7 rounded-lg glass flex items-center justify-center text-xs">💬</span>
-              Messages
+              {t('chat.messages') || 'Messages'}
             </h3>
             {onClose && (
               <button onClick={onClose} className="w-7 h-7 rounded-full glass flex items-center justify-center hover:border-red-400/50 hover:text-red-400 transition-all duration-300">
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
               </button>
             )}
           </div>
@@ -139,14 +143,20 @@ const UserChatList = ({ isModal, onClose }) => {
           <div className="flex gap-1 p-1 glass rounded-xl">
             <button onClick={() => handleTabChange('conversations')}
               className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-all duration-300 flex items-center justify-center gap-1 ${
-                view === 'conversations' ? 'bg-emerald-500 text-white shadow-md' : 'text-white/50 hover:text-white/80' }`}>
-              💬 Chats
-              {totalUnread > 0 && <span className="bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full">{totalUnread > 9 ? '9+' : totalUnread}</span>}
+                view === 'conversations' ? 'bg-emerald-500 text-white shadow-md' : 'text-white/50 hover:text-white/80'
+              }`}>
+              💬 {t('chat.chats') || 'Chats'}
+              {totalUnread > 0 && (
+                <span className="bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full">
+                  {totalUnread > 9 ? '9+' : totalUnread}
+                </span>
+              )}
             </button>
             <button onClick={() => handleTabChange('users')}
               className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-all duration-300 flex items-center justify-center gap-1 ${
-                view === 'users' ? 'bg-emerald-500 text-white shadow-md' : 'text-white/50 hover:text-white/80' }`}>
-              👤 New Chat
+                view === 'users' ? 'bg-emerald-500 text-white shadow-md' : 'text-white/50 hover:text-white/80'
+              }`}>
+              👤 {t('chat.new_chat') || 'New Chat'}
             </button>
           </div>
         </div>
@@ -156,13 +166,19 @@ const UserChatList = ({ isModal, onClose }) => {
           <div className="p-3 border-b border-white/5">
             <div className="relative">
               <div className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
               </div>
-              <input ref={searchInputRef} type="text" placeholder="Search users..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
+              <input ref={searchInputRef} type="text" 
+                placeholder={t('chat.search_users') || 'Search users...'} 
+                value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-10 pr-8 py-2.5 glass text-white placeholder:text-white/25 rounded-xl border-0 outline-none focus:ring-2 focus:ring-emerald-400/40 transition-all text-sm" />
               {searchQuery && (
                 <button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60">
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
                 </button>
               )}
             </div>
@@ -174,30 +190,50 @@ const UserChatList = ({ isModal, onClose }) => {
           {loading ? (
             <div className="p-8 text-center">
               <div className="spinner mx-auto mb-3" />
-              <p className="text-white/40 text-sm">Loading...</p>
+              <p className="text-white/40 text-sm">{t('chat.loading') || 'Loading...'}</p>
             </div>
           ) : view === 'conversations' ? (
             conversations.length === 0 ? (
-              <EmptyState icon="💬" title="No conversations yet" subtitle="Start chatting with someone!" action="Start a new chat" onClick={() => handleTabChange('users')} />
+              <EmptyState 
+                icon="💬" 
+                title={t('chat.no_conversations') || 'No conversations yet'} 
+                subtitle={t('chat.start_chatting') || 'Start chatting with someone!'} 
+                action={t('chat.start_new_chat') || 'Start a new chat'} 
+                onClick={() => handleTabChange('users')} 
+                t={t}
+              />
             ) : (
               conversations.map((conv) => (
                 <button key={conv.user_id} onClick={() => startChat(conv)}
                   className="w-full p-3 flex items-center gap-3 hover:bg-white/[0.02] transition-colors text-left">
                   <div className="relative flex-shrink-0">
                     <div className="w-11 h-11 rounded-full bg-gradient-to-br from-emerald-400 to-green-600 flex items-center justify-center text-white font-bold text-sm">
-                      {conv.profile_picture ? <img src={conv.profile_picture} alt="" className="w-full h-full rounded-full object-cover" /> : getInitials(conv.full_name || conv.username)}
+                      {conv.profile_picture ? 
+                        <img src={conv.profile_picture} alt="" className="w-full h-full rounded-full object-cover" /> 
+                        : getInitials(conv.full_name || conv.username)
+                      }
                     </div>
-                    {conv.is_online && <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-400 rounded-full ring-2 ring-[#0d3320]" />}
+                    {conv.is_online && (
+                      <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-400 rounded-full ring-2 ring-[#0d3320]" />
+                    )}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between">
-                      <span className="font-semibold text-white text-sm truncate">{conv.full_name || conv.username}</span>
-                      <span className="text-[10px] text-white/30">{formatLastSeen(conv.last_message_time)}</span>
+                      <span className="font-semibold text-white text-sm truncate">
+                        {conv.full_name || conv.username}
+                      </span>
+                      <span className="text-[10px] text-white/30">
+                        {formatLastSeen(conv.last_message_time)}
+                      </span>
                     </div>
                     <div className="flex items-center justify-between mt-0.5">
-                      <p className="text-xs text-white/40 truncate">{conv.last_message || 'Tap to chat'}</p>
+                      <p className="text-xs text-white/40 truncate">
+                        {conv.last_message || t('chat.tap_to_chat') || 'Tap to chat'}
+                      </p>
                       {conv.unread_count > 0 && (
-                        <span className="bg-emerald-500 text-white text-[10px] font-bold rounded-full min-w-[18px] h-4 px-1 flex items-center justify-center">{conv.unread_count > 99 ? '99+' : conv.unread_count}</span>
+                        <span className="bg-emerald-500 text-white text-[10px] font-bold rounded-full min-w-[18px] h-4 px-1 flex items-center justify-center">
+                          {conv.unread_count > 99 ? '99+' : conv.unread_count}
+                        </span>
                       )}
                     </div>
                   </div>
@@ -206,19 +242,30 @@ const UserChatList = ({ isModal, onClose }) => {
             )
           ) : (
             filteredUsers.length === 0 ? (
-              <EmptyState icon="👤" title={searchQuery ? 'No users found' : 'No users available'} />
+              <EmptyState 
+                icon="👤" 
+                title={searchQuery ? t('chat.no_users_found') || 'No users found' : t('chat.no_users_available') || 'No users available'} 
+                t={t}
+              />
             ) : (
               filteredUsers.map((u) => (
                 <button key={u.id} onClick={() => startChat(u)}
                   className="w-full p-3 flex items-center gap-3 hover:bg-white/[0.02] transition-colors text-left">
                   <div className="w-11 h-11 rounded-full bg-gradient-to-br from-emerald-400 to-green-600 flex items-center justify-center text-white font-bold text-sm">
-                    {u.profile_picture ? <img src={u.profile_picture} alt="" className="w-full h-full rounded-full object-cover" /> : getInitials(u.full_name || u.username)}
+                    {u.profile_picture ? 
+                      <img src={u.profile_picture} alt="" className="w-full h-full rounded-full object-cover" /> 
+                      : getInitials(u.full_name || u.username)
+                    }
                   </div>
                   <div className="flex-1 min-w-0">
-                    <span className="font-semibold text-white text-sm block truncate">{u.full_name || u.username}</span>
+                    <span className="font-semibold text-white text-sm block truncate">
+                      {u.full_name || u.username}
+                    </span>
                     {u.role_name && <span className="text-[10px] text-white/30">{u.role_name}</span>}
                   </div>
-                  <svg className="w-5 h-5 text-emerald-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
+                  <svg className="w-5 h-5 text-emerald-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                  </svg>
                 </button>
               ))
             )
@@ -243,7 +290,7 @@ const UserChatList = ({ isModal, onClose }) => {
 }
 
 // ============ EMPTY STATE ============
-const EmptyState = ({ icon, title, subtitle, action, onClick }) => (
+const EmptyState = ({ icon, title, subtitle, action, onClick, t }) => (
   <div className="p-8 text-center">
     <div className="w-16 h-16 mx-auto mb-3 rounded-2xl glass flex items-center justify-center text-2xl">{icon}</div>
     <p className="text-white/50 text-sm font-medium">{title}</p>

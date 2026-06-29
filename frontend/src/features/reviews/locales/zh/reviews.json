@@ -1,0 +1,51 @@
+﻿{
+    "rating":  {
+                   "label":  "评{{star}}星",
+                   "out_of":  "{{rating}} / {{total}}",
+                   "excellent":  "优秀！",
+                   "very_good":  "非常好！",
+                   "good":  "好",
+                   "fair":  "一般",
+                   "poor":  "差"
+               },
+    "form":  {
+                 "comment_required":  "请写评论",
+                 "default_title":  "评论",
+                 "submitting":  "提交中...",
+                 "comment_label":  "您的评论",
+                 "title_placeholder":  "总结您的体验",
+                 "title_label":  "评论标题",
+                 "submit":  "提交评论",
+                 "comment_placeholder":  "分享您对我们服务的体验...",
+                 "cancel":  "取消",
+                 "submit_error":  "提交评论出错。请重试。",
+                 "rating_label":  "您的评分"
+             },
+    "section":  {
+                    "subtitle":  "客户",
+                    "view_all":  "阅读所有评价",
+                    "say":  "评价",
+                    "title":  "我们的",
+                    "description":  "听听我们满意的客户讲述他们与我们合作的体验",
+                    "client":  "客户",
+                    "client_role":  "客户",
+                    "reviews_count":  "评价"
+                },
+    "list":  {
+                 "view_all":  "查看所有评价",
+                 "share_title":  "分享您的体验",
+                 "subtitle":  "评价",
+                 "based_on":  "基于",
+                 "write_review":  "写评价",
+                 "title":  "客户",
+                 "all_reviews":  "所有评价",
+                 "reviews_label":  "评价",
+                 "review":  "个评价",
+                 "description":  "看看我们的客户对我们工作的评价",
+                 "no_reviews_message":  "成为第一个分享您体验的人！",
+                 "no_reviews":  "暂无评价",
+                 "loading":  "加载评价中...",
+                 "share_description":  "我们很乐意听取您对我们服务的体验。",
+                 "no_filtered_reviews":  "未找到{{rating}}星评价。"
+             }
+}

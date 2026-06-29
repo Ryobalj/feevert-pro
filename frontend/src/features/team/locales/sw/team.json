@@ -1,0 +1,33 @@
+﻿{
+    "member":  {
+                   "default_role":  "Mwanachama wa Timu",
+                   "email":  "Barua Pepe",
+                   "linkedin":  "LinkedIn",
+                   "twitter":  "Twitter"
+               },
+    "list":  {
+                 "badge":  "👥 Timu Yetu",
+                 "all_team":  "Timu Yote",
+                 "subtitle":  "Timu Yetu",
+                 "no_members":  "Hakuna wanachama wa timu waliopatikana",
+                 "showing":  "Inaonyesha",
+                 "title":  "Wajue",
+                 "clear":  "Futa",
+                 "of":  "kati ya",
+                 "description":  "Wataalamu wenye shauku waliojitolea kwa mafanikio yako",
+                 "members":  "wanachama wa timu",
+                 "clear_filters":  "Futa vichujio vyote",
+                 "loading":  "Inapakia timu...",
+                 "search_placeholder":  "Tafuta kwa jina, nafasi, au idara...",
+                 "no_members_department":  "Hakuna wanachama wa timu katika idara hii.",
+                 "no_matching":  "Hakuna wanachama wa timu wanaolingana na"
+             },
+    "detail":  {
+                   "back_to_team":  "Rudi kwenye Timu",
+                   "expertise":  "Utaalamu",
+                   "contact":  "Wasiliana",
+                   "loading":  "Inapakia wasifu...",
+                   "phone":  "Piga Simu",
+                   "about":  "Kuhusu"
+               }
+}

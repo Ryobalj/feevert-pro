@@ -1,0 +1,33 @@
+﻿{
+    "member":  {
+                   "default_role":  "团队成员",
+                   "email":  "电子邮箱",
+                   "linkedin":  "领英",
+                   "twitter":  "推特"
+               },
+    "list":  {
+                 "badge":  "👥 我们的团队",
+                 "all_team":  "所有团队",
+                 "subtitle":  "团队",
+                 "no_members":  "未找到团队成员",
+                 "showing":  "显示",
+                 "title":  "认识我们的",
+                 "clear":  "清除",
+                 "of":  "，共",
+                 "description":  "充满热情的专业人士，致力于您的成功",
+                 "members":  "名团队成员",
+                 "clear_filters":  "清除所有筛选",
+                 "loading":  "加载团队中...",
+                 "search_placeholder":  "按姓名、职位或部门搜索...",
+                 "no_members_department":  "此部门中没有团队成员。",
+                 "no_matching":  "没有匹配的团队成员"
+             },
+    "detail":  {
+                   "back_to_team":  "返回团队",
+                   "expertise":  "专长",
+                   "contact":  "联系",
+                   "loading":  "加载个人资料中...",
+                   "phone":  "电话",
+                   "about":  "关于"
+               }
+}

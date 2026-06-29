@@ -1,12 +1,14 @@
 import React, { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next' // ✅ Ongeza hii
 import { useTheme } from '../../../context/ThemeContext'
 import { useCart } from '../context/CartContext'
 import { useAuth } from '../../../features/accounts/hooks/useAuth'
 import api from '../../../app/api'
 
 const CheckoutPage = () => {
+  const { t } = useTranslation('shop') // ✅ Ongeza hii
   const { cart, cartCount, cartTotal, clearCart } = useCart()
   const { user } = useAuth()
   const { darkMode } = useTheme()
@@ -44,11 +46,11 @@ const CheckoutPage = () => {
         setPaymentLink(res.data.payment_link)
         await clearCart()
       } else {
-        setError(res.data.error || 'Failed to create order')
+        setError(res.data.error || t('checkout.error_create_order') || 'Failed to create order')
       }
     } catch (err) {
       console.error('Checkout error:', err)
-      setError(err.response?.data?.error || 'Something went wrong. Please try again.')
+      setError(err.response?.data?.error || t('checkout.error_general') || 'Something went wrong. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -67,9 +69,15 @@ const CheckoutPage = () => {
               </svg>
             </motion.div>
             
-            <h2 className="text-2xl font-bold text-white mb-3">Order Created!</h2>
-            <p className="text-white/50 mb-2">Order #{orderNumber}</p>
-            <p className="text-white/40 text-sm mb-8">Complete payment to process your order</p>
+            <h2 className="text-2xl font-bold text-white mb-3">
+              {t('checkout.order_created') || 'Order Created!'}
+            </h2>
+            <p className="text-white/50 mb-2">
+              {t('checkout.order_number') || 'Order'} #{orderNumber}
+            </p>
+            <p className="text-white/40 text-sm mb-8">
+              {t('checkout.complete_payment') || 'Complete payment to process your order'}
+            </p>
             
             {paymentLink && (
               <a
@@ -78,7 +86,7 @@ const CheckoutPage = () => {
                 rel="noopener noreferrer"
                 className="btn-primary btn-lg w-full justify-center mb-4"
               >
-                Pay Now (PawaPay)
+                {t('checkout.pay_now') || 'Pay Now'} (PawaPay)
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                 </svg>
@@ -86,7 +94,7 @@ const CheckoutPage = () => {
             )}
             
             <Link to="/shop/orders" className="text-sm text-emerald-400 hover:text-emerald-300 transition-colors">
-              View Order History →
+              {t('checkout.view_orders') || 'View Order History →'}
             </Link>
           </div>
         </div>
@@ -101,9 +109,15 @@ const CheckoutPage = () => {
         <div className="container-main max-w-lg">
           <div className="glass-card p-12 text-center">
             <span className="text-6xl mb-6 block opacity-40">🛒</span>
-            <h2 className="text-xl font-bold text-white mb-3">Your cart is empty</h2>
-            <p className="text-white/40 mb-8">Add some products before checking out.</p>
-            <Link to="/shop" className="btn-primary btn-lg">Continue Shopping</Link>
+            <h2 className="text-xl font-bold text-white mb-3">
+              {t('cart.empty') || 'Your cart is empty'}
+            </h2>
+            <p className="text-white/40 mb-8">
+              {t('checkout.empty_message') || 'Add some products before checking out.'}
+            </p>
+            <Link to="/shop" className="btn-primary btn-lg">
+              {t('cart.continue_shopping') || 'Continue Shopping'}
+            </Link>
           </div>
         </div>
       </motion.div>
@@ -121,12 +135,14 @@ const CheckoutPage = () => {
             <svg className="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
-            Back to Cart
+            {t('checkout.back_to_cart') || 'Back to Cart'}
           </button>
           <h1 className="text-2xl md:text-3xl font-extrabold text-white mb-2">
-            Checkout
+            {t('checkout.title') || 'Checkout'}
           </h1>
-          <p className="text-white/40">Complete your order</p>
+          <p className="text-white/40">
+            {t('checkout.subtitle') || 'Complete your order'}
+          </p>
         </motion.div>
 
         {/* Order Summary */}
@@ -134,7 +150,7 @@ const CheckoutPage = () => {
           className="glass-card p-6 mb-6">
           <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
             <span className="w-8 h-8 rounded-lg glass flex items-center justify-center text-sm">📋</span>
-            Order Summary
+            {t('cart.order_summary') || 'Order Summary'}
           </h3>
           <div className="space-y-2 mb-4">
             {cart.items.map(item => (
@@ -142,14 +158,18 @@ const CheckoutPage = () => {
                 <span className="text-white/60 truncate flex-1 mr-4">
                   {item.product?.name} × {item.quantity}
                 </span>
-                <span className="text-white font-medium">TZS {item.subtotal?.toLocaleString()}</span>
+                <span className="text-white font-medium">
+                  {t('cart.currency') || 'TZS'} {item.subtotal?.toLocaleString()}
+                </span>
               </div>
             ))}
           </div>
           <div className="h-px bg-white/5 mb-4" />
           <div className="flex justify-between text-lg font-bold">
-            <span className="text-white">Total</span>
-            <span className="gradient-text">TZS {cartTotal?.toLocaleString()}</span>
+            <span className="text-white">{t('cart.total') || 'Total'}</span>
+            <span className="gradient-text">
+              {t('cart.currency') || 'TZS'} {cartTotal?.toLocaleString()}
+            </span>
           </div>
         </motion.div>
 
@@ -159,83 +179,97 @@ const CheckoutPage = () => {
             <div className="glass-card p-6 space-y-5">
               <h3 className="text-lg font-bold text-white mb-2 flex items-center gap-2">
                 <span className="w-8 h-8 rounded-lg glass flex items-center justify-center text-sm">🚚</span>
-                Shipping Information
+                {t('checkout.shipping_info') || 'Shipping Information'}
               </h3>
               
               {/* Full Name */}
               <div>
-                <label className="block text-sm text-white/60 mb-1.5">Full Name *</label>
+                <label className="block text-sm text-white/60 mb-1.5">
+                  {t('checkout.full_name') || 'Full Name'} *
+                </label>
                 <input
                   type="text" name="full_name" value={formData.full_name}
                   onChange={handleChange} required
                   className="w-full px-4 py-3 rounded-xl glass text-white placeholder:text-white/20 border-0 outline-none focus:ring-2 focus:ring-emerald-400/40 transition-all"
-                  placeholder="Your full name"
+                  placeholder={t('checkout.full_name_placeholder') || 'Your full name'}
                 />
               </div>
 
               {/* Email + Phone */}
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm text-white/60 mb-1.5">Email *</label>
+                  <label className="block text-sm text-white/60 mb-1.5">
+                    {t('checkout.email') || 'Email'} *
+                  </label>
                   <input
                     type="email" name="email" value={formData.email}
                     onChange={handleChange} required
                     className="w-full px-4 py-3 rounded-xl glass text-white placeholder:text-white/20 border-0 outline-none focus:ring-2 focus:ring-emerald-400/40 transition-all"
-                    placeholder="your@email.com"
+                    placeholder={t('checkout.email_placeholder') || 'your@email.com'}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm text-white/60 mb-1.5">Phone (for payment) *</label>
+                  <label className="block text-sm text-white/60 mb-1.5">
+                    {t('checkout.phone') || 'Phone (for payment)'} *
+                  </label>
                   <input
                     type="tel" name="phone" value={formData.phone}
                     onChange={handleChange} required
                     className="w-full px-4 py-3 rounded-xl glass text-white placeholder:text-white/20 border-0 outline-none focus:ring-2 focus:ring-emerald-400/40 transition-all"
-                    placeholder="+255 712 345 678"
+                    placeholder={t('checkout.phone_placeholder') || '+255 712 345 678'}
                   />
                 </div>
               </div>
 
               {/* Address */}
               <div>
-                <label className="block text-sm text-white/60 mb-1.5">Shipping Address *</label>
+                <label className="block text-sm text-white/60 mb-1.5">
+                  {t('checkout.shipping_address') || 'Shipping Address'} *
+                </label>
                 <textarea
                   name="shipping_address" value={formData.shipping_address}
                   onChange={handleChange} required rows={2}
                   className="w-full px-4 py-3 rounded-xl glass text-white placeholder:text-white/20 border-0 outline-none focus:ring-2 focus:ring-emerald-400/40 transition-all resize-none"
-                  placeholder="Street address, building, etc."
+                  placeholder={t('checkout.address_placeholder') || 'Street address, building, etc.'}
                 />
               </div>
 
               {/* City + Region */}
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm text-white/60 mb-1.5">City *</label>
+                  <label className="block text-sm text-white/60 mb-1.5">
+                    {t('checkout.city') || 'City'} *
+                  </label>
                   <input
                     type="text" name="city" value={formData.city}
                     onChange={handleChange} required
                     className="w-full px-4 py-3 rounded-xl glass text-white placeholder:text-white/20 border-0 outline-none focus:ring-2 focus:ring-emerald-400/40 transition-all"
-                    placeholder="Dar es Salaam"
+                    placeholder={t('checkout.city_placeholder') || 'Dar es Salaam'}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm text-white/60 mb-1.5">Region *</label>
+                  <label className="block text-sm text-white/60 mb-1.5">
+                    {t('checkout.region') || 'Region'} *
+                  </label>
                   <input
                     type="text" name="region" value={formData.region}
                     onChange={handleChange} required
                     className="w-full px-4 py-3 rounded-xl glass text-white placeholder:text-white/20 border-0 outline-none focus:ring-2 focus:ring-emerald-400/40 transition-all"
-                    placeholder="Dar es Salaam"
+                    placeholder={t('checkout.region_placeholder') || 'Dar es Salaam'}
                   />
                 </div>
               </div>
 
               {/* Notes */}
               <div>
-                <label className="block text-sm text-white/60 mb-1.5">Order Notes (optional)</label>
+                <label className="block text-sm text-white/60 mb-1.5">
+                  {t('checkout.order_notes') || 'Order Notes (optional)'}
+                </label>
                 <textarea
                   name="notes" value={formData.notes}
                   onChange={handleChange} rows={2}
                   className="w-full px-4 py-3 rounded-xl glass text-white placeholder:text-white/20 border-0 outline-none focus:ring-2 focus:ring-emerald-400/40 transition-all resize-none"
-                  placeholder="Any special instructions..."
+                  placeholder={t('checkout.notes_placeholder') || 'Any special instructions...'}
                 />
               </div>
 
@@ -255,11 +289,11 @@ const CheckoutPage = () => {
                 {loading ? (
                   <>
                     <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    Processing...
+                    {t('checkout.processing') || 'Processing...'}
                   </>
                 ) : (
                   <>
-                    Place Order & Pay
+                    {t('checkout.place_order') || 'Place Order & Pay'}
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                     </svg>

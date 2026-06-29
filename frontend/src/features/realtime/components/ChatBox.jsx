@@ -2,11 +2,13 @@
 
 import React, { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useTranslation } from 'react-i18next' // ✅ Ongeza hii
 import api from '../../../app/api'
 import { useAuth } from '../../accounts/hooks/useAuth'
 import { useWebSocket } from '../hooks/useWebSocket'
 
 const ChatBox = ({ recipientId, recipientName, onClose, onNewMessage }) => {
+  const { t } = useTranslation('realtime') // ✅ Ongeza hii
   const { user } = useAuth()
   const { isConnected, lastMessage, sendMessage } = useWebSocket()
   const [messages, setMessages] = useState([])
@@ -66,9 +68,13 @@ const ChatBox = ({ recipientId, recipientName, onClose, onNewMessage }) => {
     setInputMessage('')
     
     const tempMessage = {
-      id: `temp-${Date.now()}`, sender: user.id, recipient: recipientId,
-      message: messageText, created_at: new Date().toISOString(),
-      is_sender: true, is_temp: true
+      id: `temp-${Date.now()}`,
+      sender: user.id,
+      recipient: recipientId,
+      message: messageText,
+      created_at: new Date().toISOString(),
+      is_sender: true,
+      is_temp: true
     }
     setMessages(prev => [...prev, tempMessage])
     
@@ -78,7 +84,13 @@ const ChatBox = ({ recipientId, recipientName, onClose, onNewMessage }) => {
         msg.id === tempMessage.id ? { ...res.data, is_sender: true } : msg
       ))
       if (isConnected) {
-        sendMessage({ type: 'chat', recipient_id: recipientId, message: messageText, sender_id: user.id, sender_name: user.username })
+        sendMessage({ 
+          type: 'chat', 
+          recipient_id: recipientId, 
+          message: messageText, 
+          sender_id: user.id, 
+          sender_name: user.username 
+        })
       }
     } catch (error) {
       console.error('Error sending message:', error)
@@ -142,16 +154,16 @@ const ChatBox = ({ recipientId, recipientName, onClose, onNewMessage }) => {
             )}
           </div>
           <div>
-            <h3 className="font-bold text-white text-sm">{recipientName || 'Support'}</h3>
+            <h3 className="font-bold text-white text-sm">{recipientName || t('chat.support') || 'Support'}</h3>
             <p className="text-[10px] text-white/50">
-              {isConnected ? 'Online' : 'Connecting...'}
+              {isConnected ? t('chat.online') || 'Online' : t('chat.connecting') || 'Connecting...'}
             </p>
           </div>
         </div>
         <button 
           onClick={onClose}
           className="w-7 h-7 rounded-full glass flex items-center justify-center hover:border-red-400/50 hover:text-red-400 transition-all duration-300"
-          aria-label="Close chat"
+          aria-label={t('chat.close') || 'Close chat'}
         >
           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -168,8 +180,8 @@ const ChatBox = ({ recipientId, recipientName, onClose, onNewMessage }) => {
         ) : messages.length === 0 ? (
           <div className="text-center py-12">
             <div className="w-16 h-16 mx-auto mb-4 rounded-2xl glass flex items-center justify-center text-2xl">💬</div>
-            <p className="text-white/50 text-sm">No messages yet</p>
-            <p className="text-white/30 text-xs mt-1">Send a message to start chatting</p>
+            <p className="text-white/50 text-sm">{t('chat.no_messages') || 'No messages yet'}</p>
+            <p className="text-white/30 text-xs mt-1">{t('chat.start_chat') || 'Send a message to start chatting'}</p>
           </div>
         ) : (
           Object.entries(messageGroups).map(([date, msgs]) => (
@@ -231,7 +243,7 @@ const ChatBox = ({ recipientId, recipientName, onClose, onNewMessage }) => {
                 <span className="w-1 h-1 bg-emerald-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
                 <span className="w-1 h-1 bg-emerald-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
               </span>
-              Typing...
+              {t('chat.typing') || 'Typing...'}
             </p>
           </motion.div>
         )}
@@ -246,7 +258,7 @@ const ChatBox = ({ recipientId, recipientName, onClose, onNewMessage }) => {
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
             onKeyDown={handleTyping}
-            placeholder="Type a message..."
+            placeholder={t('chat.message_placeholder') || 'Type a message...'}
             className="flex-1 px-4 py-2.5 glass text-white placeholder:text-white/25 rounded-full border-0 outline-none focus:ring-2 focus:ring-emerald-400/40 transition-all text-sm"
             disabled={!isConnected}
           />

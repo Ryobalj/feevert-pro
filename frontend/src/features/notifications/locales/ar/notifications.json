@@ -1,0 +1,26 @@
+﻿{
+    "notifications":  {
+                          "bell_label":  "الإشعارات",
+                          "title":  "الإشعارات",
+                          "mark_all_read":  "تحديد الكل كمقروء",
+                          "empty":  "لا توجد إشعارات بعد",
+                          "view_all":  "عرض جميع الإشعارات",
+                          "list":  {
+                                       "all":  "الكل",
+                                       "just_now":  "الآن",
+                                       "no_notifications":  "لا توجد إشعارات",
+                                       "no_notifications_message":  "ليس لديك أي إشعارات حتى الآن.",
+                                       "no_read_message":  "ليس لديك إشعارات مقروءة.",
+                                       "new":  "جديد",
+                                       "unread":  "غير مقروء",
+                                       "all_caught_up":  "كل شيء مقروء! 🎉",
+                                       "mark_all_read":  "تحديد الكل كمقروء",
+                                       "unread_count":  "إشعارات غير مقروءة",
+                                       "no_unread_message":  "ليس لديك إشعارات غير مقروءة.",
+                                       "loading":  "جاري تحميل الإشعارات...",
+                                       "read":  "مقروء",
+                                       "no_read":  "لا توجد إشعارات مقروءة",
+                                       "notification":  "إشعار"
+                                   }
+                      }
+}

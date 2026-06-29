@@ -1,0 +1,51 @@
+﻿{
+    "rating":  {
+                   "label":  "Kadiria nyota {{star}}",
+                   "out_of":  "{{rating}} / {{total}}",
+                   "excellent":  "Bora sana!",
+                   "very_good":  "Nzuri sana!",
+                   "good":  "Nzuri",
+                   "fair":  "Wastani",
+                   "poor":  "Dhaifu"
+               },
+    "form":  {
+                 "comment_required":  "Tafadhali andika maoni",
+                 "default_title":  "Maoni",
+                 "submitting":  "Inatuma...",
+                 "comment_label":  "Maoni Yako",
+                 "title_placeholder":  "Fupisha uzoefu wako",
+                 "title_label":  "Kichwa cha Maoni",
+                 "submit":  "Tuma Maoni",
+                 "comment_placeholder":  "Shiriki uzoefu wako na huduma yetu...",
+                 "cancel":  "Ghairi",
+                 "submit_error":  "Hitilafu ya kutuma maoni. Tafadhali jaribu tena.",
+                 "rating_label":  "Kiwango Chako"
+             },
+    "section":  {
+                    "subtitle":  "Wanasema",
+                    "view_all":  "Soma Maoni Yote",
+                    "say":  "Nini?",
+                    "title":  "Wateja",
+                    "description":  "Sikia kutoka kwa wateja wetu walioridhika kuhusu uzoefu wao wa kufanya kazi nasi",
+                    "client":  "Mteja",
+                    "client_role":  "Mteja",
+                    "reviews_count":  "Maoni"
+                },
+    "list":  {
+                 "view_all":  "Tazama maoni yote",
+                 "share_title":  "Shiriki Uzoefu Wako",
+                 "subtitle":  "Maoni",
+                 "based_on":  "Kulingana na",
+                 "write_review":  "Andika Maoni",
+                 "title":  "Wateja",
+                 "all_reviews":  "Maoni Yote",
+                 "reviews_label":  "Maoni",
+                 "review":  "maoni",
+                 "description":  "Angalia kile wateja wetu wanasema kuhusu kufanya kazi nasi",
+                 "no_reviews_message":  "Kuwa wa kwanza kushiriki uzoefu wako!",
+                 "no_reviews":  "Hakuna maoni bado",
+                 "loading":  "Inapakia maoni...",
+                 "share_description":  "Tunapenda kusikia kuhusu uzoefu wako na huduma zetu.",
+                 "no_filtered_reviews":  "Hakuna maoni ya nyota {{rating}} yaliyopatikana."
+             }
+}

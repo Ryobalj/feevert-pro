@@ -1,0 +1,51 @@
+﻿{
+    "rating":  {
+                   "label":  "Noter {{star}} étoile{{count}}",
+                   "out_of":  "{{rating}} / {{total}}",
+                   "excellent":  "Excellent !",
+                   "very_good":  "Très bien !",
+                   "good":  "Bien",
+                   "fair":  "Moyen",
+                   "poor":  "Mauvais"
+               },
+    "form":  {
+                 "comment_required":  "Veuillez rédiger un avis",
+                 "default_title":  "Avis",
+                 "submitting":  "Envoi en cours...",
+                 "comment_label":  "Votre avis",
+                 "title_placeholder":  "Résumez votre expérience",
+                 "title_label":  "Titre de l\u0027avis",
+                 "submit":  "Soumettre l\u0027avis",
+                 "comment_placeholder":  "Partagez votre expérience avec notre service...",
+                 "cancel":  "Annuler",
+                 "submit_error":  "Erreur lors de la soumission. Veuillez réessayer.",
+                 "rating_label":  "Votre note"
+             },
+    "section":  {
+                    "subtitle":  "Clients",
+                    "view_all":  "Lire tous les avis",
+                    "say":  "Disent",
+                    "title":  "Ce que Nos",
+                    "description":  "Écoutez nos clients satisfaits parler de leur expérience de travail avec nous",
+                    "client":  "Client",
+                    "client_role":  "Client",
+                    "reviews_count":  "Avis"
+                },
+    "list":  {
+                 "view_all":  "Voir tous les avis",
+                 "share_title":  "Partagez Votre Expérience",
+                 "subtitle":  "Avis",
+                 "based_on":  "Basé sur",
+                 "write_review":  "Écrire un avis",
+                 "title":  "Clients",
+                 "all_reviews":  "Tous les avis",
+                 "reviews_label":  "Avis",
+                 "review":  "avis",
+                 "description":  "Voir ce que nos clients disent de leur expérience avec nous",
+                 "no_reviews_message":  "Soyez le premier à partager votre expérience !",
+                 "no_reviews":  "Pas encore d\u0027avis",
+                 "loading":  "Chargement des avis...",
+                 "share_description":  "Nous aimerions connaître votre expérience avec nos services.",
+                 "no_filtered_reviews":  "Aucun avis {{rating}} étoiles trouvé."
+             }
+}

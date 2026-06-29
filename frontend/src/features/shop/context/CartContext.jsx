@@ -1,6 +1,7 @@
 // src/features/shop/context/CartContext.jsx
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react'
+import { useTranslation } from 'react-i18next' // ✅ Ongeza hii
 import api from '../../../app/api'
 import { useAuth } from '../../accounts/hooks/useAuth'
 
@@ -15,6 +16,7 @@ export const useCart = () => {
 }
 
 export const CartProvider = ({ children }) => {
+  const { t } = useTranslation('shop') // ✅ Ongeza hii
   const [cart, setCart] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
@@ -29,11 +31,11 @@ export const CartProvider = ({ children }) => {
       setError(null)
     } catch (err) {
       console.error('Error fetching cart:', err)
-      setError('Failed to load cart')
+      setError(t('cart.error.load_failed') || 'Failed to load cart')
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [t])
 
   // Fetch cart on mount and when auth changes
   useEffect(() => {
@@ -53,7 +55,7 @@ export const CartProvider = ({ children }) => {
       return { success: true }
     } catch (err) {
       console.error('Error adding to cart:', err)
-      const message = err.response?.data?.error || 'Failed to add to cart'
+      const message = err.response?.data?.error || t('cart.error.add_failed') || 'Failed to add to cart'
       setError(message)
       return { success: false, error: message }
     } finally {
@@ -73,7 +75,7 @@ export const CartProvider = ({ children }) => {
       setError(null)
     } catch (err) {
       console.error('Error updating quantity:', err)
-      setError('Failed to update quantity')
+      setError(t('cart.error.update_failed') || 'Failed to update quantity')
     } finally {
       setLoading(false)
     }
@@ -90,7 +92,7 @@ export const CartProvider = ({ children }) => {
       setError(null)
     } catch (err) {
       console.error('Error removing from cart:', err)
-      setError('Failed to remove item')
+      setError(t('cart.error.remove_failed') || 'Failed to remove item')
     } finally {
       setLoading(false)
     }
@@ -105,7 +107,7 @@ export const CartProvider = ({ children }) => {
       setError(null)
     } catch (err) {
       console.error('Error clearing cart:', err)
-      setError('Failed to clear cart')
+      setError(t('cart.error.clear_failed') || 'Failed to clear cart')
     } finally {
       setLoading(false)
     }

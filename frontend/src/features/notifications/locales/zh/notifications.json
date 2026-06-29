@@ -1,0 +1,26 @@
+﻿{
+    "notifications":  {
+                          "bell_label":  "通知",
+                          "title":  "通知",
+                          "mark_all_read":  "全部标为已读",
+                          "empty":  "暂无通知",
+                          "view_all":  "查看所有通知",
+                          "list":  {
+                                       "all":  "全部",
+                                       "just_now":  "刚刚",
+                                       "no_notifications":  "暂无通知",
+                                       "no_notifications_message":  "您还没有任何通知。",
+                                       "no_read_message":  "您没有已读通知。",
+                                       "new":  "新",
+                                       "unread":  "未读",
+                                       "all_caught_up":  "全部已读！🎉",
+                                       "mark_all_read":  "全部标为已读",
+                                       "unread_count":  "条未读通知",
+                                       "no_unread_message":  "您没有未读通知。",
+                                       "loading":  "加载通知中...",
+                                       "read":  "已读",
+                                       "no_read":  "暂无已读通知",
+                                       "notification":  "通知"
+                                   }
+                      }
+}

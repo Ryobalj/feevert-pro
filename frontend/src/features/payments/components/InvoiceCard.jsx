@@ -1,25 +1,30 @@
+// src/features/payments/components/InvoiceCard.jsx
+
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next' // ✅ Ongeza hii
 
 const InvoiceCard = ({ invoice }) => {
+  const { t } = useTranslation('payments') // ✅ Ongeza hii
+
   // Detect if it's a proforma
   const isProforma = invoice.type === 'proforma' || invoice.invoice_number?.startsWith('PRO')
   const invoiceType = isProforma ? 'proforma' : 'invoice'
   
   const statusConfig = {
     // Invoice statuses
-    paid: { badge: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/20', icon: '✅', label: 'Paid' },
-    overdue: { badge: 'bg-red-500/15 text-red-400 border-red-500/20', icon: '⚠️', label: 'Overdue' },
-    cancelled: { badge: 'bg-white/10 text-white/40 border-white/10', icon: '❌', label: 'Cancelled' },
-    partial: { badge: 'bg-amber-500/15 text-amber-400 border-amber-500/20', icon: '📋', label: 'Partial' },
+    paid: { badge: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/20', icon: '✅', label: t('status.paid') || 'Paid' },
+    overdue: { badge: 'bg-red-500/15 text-red-400 border-red-500/20', icon: '⚠️', label: t('status.overdue') || 'Overdue' },
+    cancelled: { badge: 'bg-white/10 text-white/40 border-white/10', icon: '❌', label: t('status.cancelled') || 'Cancelled' },
+    partial: { badge: 'bg-amber-500/15 text-amber-400 border-amber-500/20', icon: '📋', label: t('status.partial') || 'Partial' },
     
     // Proforma statuses
-    draft: { badge: 'bg-white/10 text-white/50 border-white/10', icon: '📝', label: 'Draft' },
-    sent: { badge: 'bg-blue-500/15 text-blue-400 border-blue-500/20', icon: '📤', label: 'Sent' },
-    expired: { badge: 'bg-red-500/10 text-red-400/60 border-red-500/10', icon: '⏰', label: 'Expired' },
-    accepted: { badge: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/20', icon: '👍', label: 'Accepted' },
-    converted: { badge: 'bg-purple-500/15 text-purple-400 border-purple-500/20', icon: '🔄', label: 'Converted' },
+    draft: { badge: 'bg-white/10 text-white/50 border-white/10', icon: '📝', label: t('status.draft') || 'Draft' },
+    sent: { badge: 'bg-blue-500/15 text-blue-400 border-blue-500/20', icon: '📤', label: t('status.sent') || 'Sent' },
+    expired: { badge: 'bg-red-500/10 text-red-400/60 border-red-500/10', icon: '⏰', label: t('status.expired') || 'Expired' },
+    accepted: { badge: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/20', icon: '👍', label: t('status.accepted') || 'Accepted' },
+    converted: { badge: 'bg-purple-500/15 text-purple-400 border-purple-500/20', icon: '🔄', label: t('status.converted') || 'Converted' },
   }
 
   const status = statusConfig[invoice.status] || statusConfig.draft
@@ -28,25 +33,43 @@ const InvoiceCard = ({ invoice }) => {
   const getActionButton = () => {
     if (isProforma) {
       if (invoice.status === 'draft' || invoice.status === 'sent') {
-        return { label: 'Confirm & Pay', link: `/payment?proforma=${invoice.id}`, primary: true }
+        return { label: t('actions.confirm_pay') || 'Confirm & Pay', link: `/payment?proforma=${invoice.id}`, primary: true }
       }
       if (invoice.status === 'converted') {
-        return { label: 'View Invoice', link: `/invoices/${invoice.converted_invoice_id}`, primary: false }
+        return { label: t('actions.view_invoice') || 'View Invoice', link: `/invoices/${invoice.converted_invoice_id}`, primary: false }
       }
-      return { label: 'View Details', link: `/proformas/${invoice.id}`, primary: false }
+      return { label: t('actions.view_details') || 'View Details', link: `/proformas/${invoice.id}`, primary: false }
     }
     
     // Commercial invoice
     if (invoice.status === 'sent' || invoice.status === 'partial') {
-      return { label: 'Pay Now', link: `/payment?invoice=${invoice.id}`, primary: true }
+      return { label: t('actions.pay_now') || 'Pay Now', link: `/payment?invoice=${invoice.id}`, primary: true }
     }
     if (invoice.status === 'paid') {
-      return { label: 'Download PDF', link: `/invoices/${invoice.id}/download`, primary: false }
+      return { label: t('actions.download_pdf') || 'Download PDF', link: `/invoices/${invoice.id}/download`, primary: false }
     }
-    return { label: 'View Details', link: `/invoices/${invoice.id}`, primary: false }
+    return { label: t('actions.view_details') || 'View Details', link: `/invoices/${invoice.id}`, primary: false }
   }
 
   const action = getActionButton()
+
+  // Helper to format date
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A'
+    return new Date(dateString).toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric', 
+      year: 'numeric' 
+    })
+  }
+
+  const formatDateShort = (dateString) => {
+    if (!dateString) return 'N/A'
+    return new Date(dateString).toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric' 
+    })
+  }
 
   return (
     <div className="glass-card group hover:border-emerald-400/30 hover:shadow-lg hover:shadow-emerald-500/5 transition-all duration-500">
@@ -67,7 +90,7 @@ const InvoiceCard = ({ invoice }) => {
                 ? 'bg-blue-500/10 text-blue-400 border-blue-500/20' 
                 : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
             }`}>
-              {isProforma ? '📄 Proforma' : '🧾 Invoice'}
+              {isProforma ? `📄 ${t('types.proforma') || 'Proforma'}` : `🧾 ${t('types.invoice') || 'Invoice'}`}
             </span>
           </div>
           <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold border ${status.badge} flex-shrink-0`}>
@@ -79,7 +102,7 @@ const InvoiceCard = ({ invoice }) => {
         {/* Title + Number */}
         <div className="mb-4">
           <h3 className="text-lg font-bold text-white truncate group-hover:text-emerald-400 transition-colors duration-300">
-            {invoice.title || 'Invoice'}
+            {invoice.title || t('defaults.invoice') || 'Invoice'}
           </h3>
           <p className="text-sm text-white/40 mt-0.5">
             {invoice.invoice_number}
@@ -95,10 +118,10 @@ const InvoiceCard = ({ invoice }) => {
               </svg>
               <div>
                 <p className="text-[10px] text-white/30 uppercase tracking-wider">
-                  {isProforma ? 'Valid Until' : 'Due Date'}
+                  {isProforma ? t('dates.valid_until') || 'Valid Until' : t('dates.due_date') || 'Due Date'}
                 </p>
                 <p className="text-white/70 font-medium text-xs">
-                  {new Date(invoice.due_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                  {formatDate(invoice.due_date)}
                 </p>
               </div>
             </div>
@@ -108,9 +131,9 @@ const InvoiceCard = ({ invoice }) => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <div>
-              <p className="text-[10px] text-white/30 uppercase tracking-wider">Issued</p>
+              <p className="text-[10px] text-white/30 uppercase tracking-wider">{t('dates.issued') || 'Issued'}</p>
               <p className="text-white/70 font-medium text-xs">
-                {invoice.created_at ? new Date(invoice.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'N/A'}
+                {formatDateShort(invoice.created_at)}
               </p>
             </div>
           </div>
@@ -123,7 +146,7 @@ const InvoiceCard = ({ invoice }) => {
         <div className="flex items-end justify-between">
           <div>
             <p className="text-[10px] text-white/30 uppercase tracking-wider mb-0.5">
-              {isProforma ? 'Estimated Total' : 'Total Amount'}
+              {isProforma ? t('labels.estimated_total') || 'Estimated Total' : t('labels.total_amount') || 'Total Amount'}
             </p>
             <p className="text-2xl font-extrabold text-white">
               {invoice.total_amount?.toLocaleString()} 
@@ -132,7 +155,7 @@ const InvoiceCard = ({ invoice }) => {
             {/* Show deposit for proforma */}
             {isProforma && invoice.deposit_amount > 0 && (
               <p className="text-xs text-amber-400/70 mt-1">
-                Deposit: {invoice.deposit_amount?.toLocaleString()} {invoice.currency || 'TZS'}
+                {t('labels.deposit') || 'Deposit'}: {invoice.deposit_amount?.toLocaleString()} {invoice.currency || 'TZS'}
               </p>
             )}
           </div>

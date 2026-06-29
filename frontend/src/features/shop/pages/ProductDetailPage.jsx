@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next' // ✅ Ongeza hii
 import { useTheme } from '../../../context/ThemeContext'
 import { useCart } from '../context/CartContext'
 import api from '../../../app/api'
@@ -8,6 +9,7 @@ import api from '../../../app/api'
 const ProductDetailPage = () => {
   const { slug } = useParams()
   const navigate = useNavigate()
+  const { t } = useTranslation('shop') // ✅ Ongeza hii
   const [product, setProduct] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -25,13 +27,13 @@ const ProductDetailPage = () => {
         setProduct(res.data)
       } catch (err) {
         console.error('Error loading product:', err)
-        setError('Product not found')
+        setError(t('product.not_found') || 'Product not found')
       } finally {
         setLoading(false)
       }
     }
     loadProduct()
-  }, [slug])
+  }, [slug, t])
 
   const allImages = React.useMemo(() => {
     if (!product) return []
@@ -71,6 +73,12 @@ const ProductDetailPage = () => {
     }
   }
 
+  // Helper to format price
+  const formatPrice = (price) => {
+    if (!price) return ''
+    return `${t('product.currency') || 'TZS'} ${price.toLocaleString()}`
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -79,7 +87,9 @@ const ProductDetailPage = () => {
             <div className="absolute inset-0 bg-emerald-400/10 rounded-full blur-xl animate-pulse" />
             <div className="spinner spinner-lg relative" />
           </div>
-          <p className="text-white/50 animate-pulse">Loading product...</p>
+          <p className="text-white/50 animate-pulse">
+            {t('product.loading') || 'Loading product...'}
+          </p>
         </div>
       </div>
     )
@@ -90,10 +100,14 @@ const ProductDetailPage = () => {
       <div className="min-h-screen flex items-center justify-center">
         <div className="glass-card p-10 text-center max-w-md">
           <div className="text-5xl mb-4">📦</div>
-          <h2 className="text-xl font-bold text-white mb-2">Product not found</h2>
-          <p className="text-white/50 mb-6">The product you're looking for doesn't exist.</p>
+          <h2 className="text-xl font-bold text-white mb-2">
+            {t('product.not_found_title') || 'Product not found'}
+          </h2>
+          <p className="text-white/50 mb-6">
+            {t('product.not_found_message') || "The product you're looking for doesn't exist."}
+          </p>
           <button onClick={() => navigate('/shop')} className="btn-primary">
-            Back to Shop
+            {t('product.back_to_shop') || 'Back to Shop'}
           </button>
         </div>
       </div>
@@ -116,7 +130,7 @@ const ProductDetailPage = () => {
           <svg className="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
-          Back to Shop
+          {t('product.back_to_shop') || 'Back to Shop'}
         </motion.button>
 
         {/* Product Detail */}
@@ -191,7 +205,7 @@ const ProductDetailPage = () => {
               {/* Sale badge */}
               {product.is_on_sale && (
                 <span className="absolute top-4 left-4 px-3 py-1.5 rounded-full bg-red-500/90 backdrop-blur-sm text-white text-sm font-bold">
-                  -{product.discount_percentage}% OFF
+                  -{product.discount_percentage}% {t('product.off') || 'OFF'}
                 </span>
               )}
             </div>
@@ -220,7 +234,9 @@ const ProductDetailPage = () => {
                       </svg>
                     ))}
                   </div>
-                  <span className="text-sm text-white/40">({product.review_count || 0} reviews)</span>
+                  <span className="text-sm text-white/40">
+                    ({product.review_count || 0} {t('product.reviews') || 'reviews'})
+                  </span>
                 </div>
               )}
               
@@ -228,11 +244,11 @@ const ProductDetailPage = () => {
               <div className="mb-6">
                 {product.is_on_sale ? (
                   <div className="flex items-center gap-3">
-                    <span className="text-lg text-white/30 line-through">TZS {product.price?.toLocaleString()}</span>
-                    <span className="text-3xl font-extrabold gradient-text">TZS {product.current_price?.toLocaleString()}</span>
+                    <span className="text-lg text-white/30 line-through">{formatPrice(product.price)}</span>
+                    <span className="text-3xl font-extrabold gradient-text">{formatPrice(product.current_price)}</span>
                   </div>
                 ) : (
-                  <span className="text-3xl font-extrabold gradient-text">TZS {product.current_price?.toLocaleString()}</span>
+                  <span className="text-3xl font-extrabold gradient-text">{formatPrice(product.current_price)}</span>
                 )}
               </div>
 
@@ -241,12 +257,12 @@ const ProductDetailPage = () => {
                 {product.in_stock ? (
                   <span className="flex items-center gap-2 text-emerald-400">
                     <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
-                    In Stock ({product.stock} available)
+                    {t('product.in_stock') || 'In Stock'} ({product.stock} {t('product.available') || 'available'})
                   </span>
                 ) : (
                   <span className="flex items-center gap-2 text-red-400">
                     <span className="w-2 h-2 bg-red-400 rounded-full" />
-                    Out of Stock
+                    {t('product.out_of_stock') || 'Out of Stock'}
                   </span>
                 )}
               </div>
@@ -287,7 +303,12 @@ const ProductDetailPage = () => {
                         : 'bg-emerald-500 hover:bg-emerald-400 text-white shadow-lg shadow-emerald-500/20'
                     }`}
                   >
-                    {addingToCart ? 'Adding...' : inCart ? '✓ Added to Cart - Add More' : 'Add to Cart'}
+                    {addingToCart 
+                      ? t('product.adding') || 'Adding...' 
+                      : inCart 
+                        ? t('product.added_to_cart') || '✓ Added to Cart - Add More' 
+                        : t('product.add_to_cart') || 'Add to Cart'
+                    }
                   </button>
                 </div>
               )}
@@ -301,24 +322,30 @@ const ProductDetailPage = () => {
             className="glass-card p-6 mb-6">
             <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
               <span className="w-8 h-8 rounded-lg glass flex items-center justify-center text-sm">📋</span>
-              Specifications
+              {t('product.specifications') || 'Specifications'}
             </h3>
             <div className="grid sm:grid-cols-2 gap-4">
               {product.weight && (
                 <div>
-                  <span className="text-xs text-white/40 uppercase tracking-wider">Weight</span>
+                  <span className="text-xs text-white/40 uppercase tracking-wider">
+                    {t('product.weight') || 'Weight'}
+                  </span>
                   <p className="text-white/70 mt-1">{product.weight}</p>
                 </div>
               )}
               {product.dimensions && (
                 <div>
-                  <span className="text-xs text-white/40 uppercase tracking-wider">Dimensions</span>
+                  <span className="text-xs text-white/40 uppercase tracking-wider">
+                    {t('product.dimensions') || 'Dimensions'}
+                  </span>
                   <p className="text-white/70 mt-1">{product.dimensions}</p>
                 </div>
               )}
               {product.ingredients && (
                 <div className="sm:col-span-2">
-                  <span className="text-xs text-white/40 uppercase tracking-wider">Ingredients</span>
+                  <span className="text-xs text-white/40 uppercase tracking-wider">
+                    {t('product.ingredients') || 'Ingredients'}
+                  </span>
                   <p className="text-white/70 mt-1">{product.ingredients}</p>
                 </div>
               )}
@@ -332,7 +359,7 @@ const ProductDetailPage = () => {
             className="glass-card p-6">
             <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
               <span className="w-8 h-8 rounded-lg bg-emerald-500/15 flex items-center justify-center text-sm">✨</span>
-              Benefits
+              {t('product.benefits') || 'Benefits'}
             </h3>
             <ul className="space-y-3">
               {product.benefits.map((benefit, i) => (

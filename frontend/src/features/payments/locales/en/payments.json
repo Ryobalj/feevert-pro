@@ -1,0 +1,97 @@
+﻿{
+    "status":  {
+                   "paid":  "Paid",
+                   "overdue":  "Overdue",
+                   "cancelled":  "Cancelled",
+                   "partial":  "Partial",
+                   "draft":  "Draft",
+                   "sent":  "Sent",
+                   "expired":  "Expired",
+                   "accepted":  "Accepted",
+                   "converted":  "Converted"
+               },
+    "types":  {
+                  "proforma":  "Proforma",
+                  "invoice":  "Invoice"
+              },
+    "actions":  {
+                    "confirm_pay":  "Confirm \u0026 Pay",
+                    "view_invoice":  "View Invoice",
+                    "view_details":  "View Details",
+                    "pay_now":  "Pay Now",
+                    "download_pdf":  "Download PDF"
+                },
+    "dates":  {
+                  "valid_until":  "Valid Until",
+                  "due_date":  "Due Date",
+                  "issued":  "Issued"
+              },
+    "labels":  {
+                   "estimated_total":  "Estimated Total",
+                   "total_amount":  "Total Amount",
+                   "deposit":  "Deposit"
+               },
+    "defaults":  {
+                     "invoice":  "Invoice"
+                 },
+    "form":  {
+                 "booking_payment":  "Booking Payment",
+                 "success_message":  "Check your phone for a payment prompt to complete the transaction.",
+                 "transaction_id":  "Transaction ID",
+                 "title":  "Payment",
+                 "payment_failed":  "Payment failed. Please try again.",
+                 "redirecting":  "Redirecting...",
+                 "phone_placeholder":  "e.g. +255 712 345 678",
+                 "phone_hint":  "You will receive a payment prompt on this number",
+                 "pay_now":  "Pay Now",
+                 "complete_payment":  "Complete Payment",
+                 "processing":  "Processing...",
+                 "phone_required":  "Phone number is required",
+                 "amount":  "Amount",
+                 "consultation_payment":  "Consultation Payment",
+                 "phone_label":  "Phone Number",
+                 "success_title":  "Payment Initiated!",
+                 "redirect_message":  "Payment initiated! Check your phone for payment prompt.",
+                 "initiation_failed":  "Payment initiation failed"
+             },
+    "history":  {
+                    "transactions":  "Transactions",
+                    "subtitle":  "History",
+                    "invoices":  "Invoices",
+                    "no_transactions":  "No transactions found",
+                    "no_invoices_message":  "Your invoices will appear here.",
+                    "title":  "Payment",
+                    "description":  "View your transactions and invoices",
+                    "due":  "Due",
+                    "no_transactions_message":  "Your payment transactions will appear here.",
+                    "loading":  "Loading payment history...",
+                    "no_invoices":  "No invoices found",
+                    "gateway":  "Gateway",
+                    "issued":  "Issued"
+                },
+    "page":  {
+                 "phone_label":  "Phone Number",
+                 "description":  "Secure payment via PawaPay",
+                 "transaction_id":  "Transaction ID",
+                 "success_message":  "Check your phone for a payment prompt to complete the transaction.",
+                 "view_history":  "View Payment History",
+                 "phone_required":  "Phone number is required for payment",
+                 "processing":  "Processing...",
+                 "email_placeholder":  "Your email",
+                 "name_placeholder":  "Your full name",
+                 "open_payment":  "Open Payment Window",
+                 "title":  "Make a",
+                 "badge":  "💳 Secure Payment",
+                 "success_title":  "Payment Initiated!",
+                 "phone_placeholder":  "e.g., +255 712 345 678",
+                 "payment_failed":  "Payment failed. Please try again.",
+                 "name_label":  "Full Name",
+                 "phone_hint":  "You will receive a payment prompt on this number",
+                 "subtitle":  "Payment",
+                 "pay_now":  "Pay Now",
+                 "amount_placeholder":  "Enter amount",
+                 "amount_label":  "Amount (TZS)",
+                 "initiation_failed":  "Payment initiation failed",
+                 "email_label":  "Email"
+             }
+}

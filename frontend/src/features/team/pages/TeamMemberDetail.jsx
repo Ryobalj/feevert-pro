@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next' // ✅ Ongeza hii
 import { useTheme } from '../../../context/ThemeContext'
 import api from '../../../app/api'
 import Loader from '../../../components/ui/Loader'
@@ -8,6 +9,7 @@ import Loader from '../../../components/ui/Loader'
 const TeamMemberDetail = () => {
   const { id } = useParams()
   const navigate = useNavigate()
+  const { t } = useTranslation('team') // ✅ Ongeza hii
   const [member, setMember] = useState(null)
   const [loading, setLoading] = useState(true)
   const { darkMode } = useTheme()
@@ -31,7 +33,7 @@ const TeamMemberDetail = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader size="lg" text="Loading profile..." />
+        <Loader size="lg" text={t('detail.loading') || 'Loading profile...'} />
       </div>
     )
   }
@@ -39,10 +41,30 @@ const TeamMemberDetail = () => {
   if (!member) return null
 
   const socialLinks = []
-  if (member.email) socialLinks.push({ icon: '✉️', label: 'Email', href: `mailto:${member.email}`, color: 'emerald' })
-  if (member.phone) socialLinks.push({ icon: '📞', label: 'Call', href: `tel:${member.phone}`, color: 'green' })
-  if (member.linkedin) socialLinks.push({ icon: '💼', label: 'LinkedIn', href: member.linkedin, color: 'blue' })
-  if (member.twitter) socialLinks.push({ icon: '🐦', label: 'Twitter', href: member.twitter, color: 'cyan' })
+  if (member.email) socialLinks.push({ 
+    icon: '✉️', 
+    label: t('member.email') || 'Email', 
+    href: `mailto:${member.email}`, 
+    color: 'emerald' 
+  })
+  if (member.phone) socialLinks.push({ 
+    icon: '📞', 
+    label: t('detail.phone') || 'Call', 
+    href: `tel:${member.phone}`, 
+    color: 'green' 
+  })
+  if (member.linkedin) socialLinks.push({ 
+    icon: '💼', 
+    label: t('member.linkedin') || 'LinkedIn', 
+    href: member.linkedin, 
+    color: 'blue' 
+  })
+  if (member.twitter) socialLinks.push({ 
+    icon: '🐦', 
+    label: t('member.twitter') || 'Twitter', 
+    href: member.twitter, 
+    color: 'cyan' 
+  })
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="min-h-screen py-10 md:py-16">
@@ -55,7 +77,7 @@ const TeamMemberDetail = () => {
           <svg className="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
-          Back to Team
+          {t('detail.back_to_team') || 'Back to Team'}
         </motion.button>
 
         {/* ============ PROFILE HEADER ============ */}
@@ -105,7 +127,7 @@ const TeamMemberDetail = () => {
                 {member.full_name}
               </h1>
               <p className="text-emerald-400 font-semibold text-lg mb-1">
-                {member.role || member.position || 'Team Member'}
+                {member.role || member.position || t('member.default_role') || 'Team Member'}
               </p>
               {member.department_name && (
                 <p className="text-white/40 text-sm flex items-center justify-center md:justify-start gap-2">
@@ -137,7 +159,7 @@ const TeamMemberDetail = () => {
             className="glass-card p-6 mb-6 group hover:border-emerald-400/20 transition-all duration-300">
             <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
               <span className="w-8 h-8 rounded-lg glass flex items-center justify-center text-sm">📝</span>
-              About
+              {t('detail.about') || 'About'}
             </h2>
             <div className="text-white/60 leading-relaxed text-sm pl-10">
               {member.bio}
@@ -151,7 +173,7 @@ const TeamMemberDetail = () => {
             className="glass-card p-6 mb-6 group hover:border-emerald-400/20 transition-all duration-300">
             <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
               <span className="w-8 h-8 rounded-lg glass flex items-center justify-center text-sm">🎯</span>
-              Expertise
+              {t('detail.expertise') || 'Expertise'}
             </h2>
             <div className="flex flex-wrap gap-2 pl-10">
               {member.expertise_areas.map((skill, i) => (
@@ -169,7 +191,7 @@ const TeamMemberDetail = () => {
             className="glass-card p-6 group hover:border-emerald-400/20 transition-all duration-300">
             <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
               <span className="w-8 h-8 rounded-lg glass flex items-center justify-center text-sm">📬</span>
-              Contact
+              {t('detail.contact') || 'Contact'}
             </h2>
             <div className="space-y-3 pl-10">
               {member.email && (

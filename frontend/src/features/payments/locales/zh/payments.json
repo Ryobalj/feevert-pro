@@ -1,0 +1,97 @@
+﻿{
+    "status":  {
+                   "paid":  "已支付",
+                   "overdue":  "逾期",
+                   "cancelled":  "已取消",
+                   "partial":  "部分支付",
+                   "draft":  "草稿",
+                   "sent":  "已发送",
+                   "expired":  "已过期",
+                   "accepted":  "已接受",
+                   "converted":  "已转换"
+               },
+    "types":  {
+                  "proforma":  "形式发票",
+                  "invoice":  "发票"
+              },
+    "actions":  {
+                    "confirm_pay":  "确认并支付",
+                    "view_invoice":  "查看发票",
+                    "view_details":  "查看详情",
+                    "pay_now":  "立即支付",
+                    "download_pdf":  "下载PDF"
+                },
+    "dates":  {
+                  "valid_until":  "有效期至",
+                  "due_date":  "截止日期",
+                  "issued":  "签发日期"
+              },
+    "labels":  {
+                   "estimated_total":  "预估总额",
+                   "total_amount":  "总金额",
+                   "deposit":  "定金"
+               },
+    "defaults":  {
+                     "invoice":  "发票"
+                 },
+    "form":  {
+                 "booking_payment":  "预约支付",
+                 "success_message":  "请查看您的手机以完成交易。",
+                 "transaction_id":  "交易ID",
+                 "title":  "支付",
+                 "payment_failed":  "支付失败。请重试。",
+                 "redirecting":  "跳转中...",
+                 "phone_placeholder":  "例如 +255 712 345 678",
+                 "phone_hint":  "您将在此号码上收到支付提示",
+                 "pay_now":  "立即支付",
+                 "complete_payment":  "完成支付",
+                 "processing":  "处理中...",
+                 "phone_required":  "手机号码为必填项",
+                 "amount":  "金额",
+                 "consultation_payment":  "咨询支付",
+                 "phone_label":  "手机号码",
+                 "success_title":  "支付已发起！",
+                 "redirect_message":  "支付已发起！请查看您的手机以获取支付提示。",
+                 "initiation_failed":  "支付发起失败"
+             },
+    "history":  {
+                    "transactions":  "交易",
+                    "subtitle":  "历史记录",
+                    "invoices":  "发票",
+                    "no_transactions":  "未找到交易",
+                    "no_invoices_message":  "您的发票将显示在这里。",
+                    "title":  "支付",
+                    "description":  "查看您的交易和发票",
+                    "due":  "到期日期",
+                    "no_transactions_message":  "您的支付交易将显示在这里。",
+                    "loading":  "加载支付历史记录...",
+                    "no_invoices":  "未找到发票",
+                    "gateway":  "网关",
+                    "issued":  "签发日期"
+                },
+    "page":  {
+                 "phone_label":  "手机号码",
+                 "description":  "通过PawaPay安全支付",
+                 "transaction_id":  "交易ID",
+                 "success_message":  "请查看您的手机以完成交易。",
+                 "view_history":  "查看支付历史",
+                 "phone_required":  "支付需要手机号码",
+                 "processing":  "处理中...",
+                 "email_placeholder":  "您的电子邮箱",
+                 "name_placeholder":  "您的全名",
+                 "open_payment":  "打开支付窗口",
+                 "title":  "进行",
+                 "badge":  "💳 安全支付",
+                 "success_title":  "支付已发起！",
+                 "phone_placeholder":  "例如，+255 712 345 678",
+                 "payment_failed":  "支付失败。请重试。",
+                 "name_label":  "全名",
+                 "phone_hint":  "您将在此号码上收到支付提示",
+                 "subtitle":  "支付",
+                 "pay_now":  "立即支付",
+                 "amount_placeholder":  "输入金额",
+                 "amount_label":  "金额 (TZS)",
+                 "initiation_failed":  "支付发起失败",
+                 "email_label":  "电子邮箱"
+             }
+}

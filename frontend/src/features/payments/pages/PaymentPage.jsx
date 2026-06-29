@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next' // ✅ Ongeza hii
 import { useTheme } from '../../../context/ThemeContext'
 import { useAuth } from '../../accounts/hooks/useAuth'
 import api from '../../../app/api'
 
 const PaymentPage = () => {
+  const { t } = useTranslation('payments') // ✅ Ongeza hii
   const location = useLocation()
   const navigate = useNavigate()
   const { user } = useAuth()
@@ -34,7 +36,7 @@ const PaymentPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (!formData.customer_phone) {
-      setError('Phone number is required for payment')
+      setError(t('page.phone_required') || 'Phone number is required for payment')
       return
     }
     
@@ -51,10 +53,10 @@ const PaymentPage = () => {
           window.open(res.data.payment_link, '_blank')
         }
       } else {
-        setError(res.data.error || 'Payment initiation failed')
+        setError(res.data.error || t('page.initiation_failed') || 'Payment initiation failed')
       }
     } catch (err) {
-      setError(err.response?.data?.error || 'Payment failed. Please try again.')
+      setError(err.response?.data?.error || t('page.payment_failed') || 'Payment failed. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -87,14 +89,18 @@ const PaymentPage = () => {
             </div>
           </motion.div>
 
-          <h2 className="text-2xl font-extrabold text-white mb-2">Payment Initiated!</h2>
+          <h2 className="text-2xl font-extrabold text-white mb-2">
+            {t('page.success_title') || 'Payment Initiated!'}
+          </h2>
           <p className="text-white/50 text-sm mb-2">
-            Check your phone for a payment prompt to complete the transaction.
+            {t('page.success_message') || 'Check your phone for a payment prompt to complete the transaction.'}
           </p>
 
           {paymentResult.transaction_id && (
             <div className="glass rounded-2xl p-4 my-6">
-              <p className="text-white/30 text-xs uppercase tracking-wider mb-1">Transaction ID</p>
+              <p className="text-white/30 text-xs uppercase tracking-wider mb-1">
+                {t('page.transaction_id') || 'Transaction ID'}
+              </p>
               <p className="text-white font-bold font-mono">{paymentResult.transaction_id}</p>
             </div>
           )}
@@ -103,19 +109,19 @@ const PaymentPage = () => {
             {paymentResult.payment_link && (
               <button
                 onClick={() => window.open(paymentResult.payment_link, '_blank')}
-                className="btn-primary btn-lg w-full"
+                className="btn-primary btn-lg w-full inline-flex items-center justify-center gap-2"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                 </svg>
-                Open Payment Window
+                {t('page.open_payment') || 'Open Payment Window'}
               </button>
             )}
             <button
               onClick={() => navigate('/payment-history')}
               className="glass px-6 py-4 rounded-full text-white font-semibold w-full hover:border-emerald-400/30 transition-all"
             >
-              View Payment History
+              {t('page.view_history') || 'View Payment History'}
             </button>
           </div>
         </motion.div>
@@ -140,12 +146,16 @@ const PaymentPage = () => {
               animate={{ scale: [1, 1.5, 1], opacity: [0.7, 1, 0.7] }}
               transition={{ duration: 2, repeat: Infinity }}
             />
-            <span className="text-sm font-medium text-white/80">💳 Secure Payment</span>
+            <span className="text-sm font-medium text-white/80">
+              {t('page.badge') || '💳 Secure Payment'}
+            </span>
           </motion.div>
           <h1 className="text-3xl md:text-4xl font-extrabold text-white mb-2">
-            Make a <span className="gradient-text">Payment</span>
+            {t('page.title') || 'Make a'} <span className="gradient-text">{t('page.subtitle') || 'Payment'}</span>
           </h1>
-          <p className="text-white/50 text-sm">Secure payment via PawaPay</p>
+          <p className="text-white/50 text-sm">
+            {t('page.description') || 'Secure payment via PawaPay'}
+          </p>
         </motion.div>
 
         {/* Error */}
@@ -177,7 +187,7 @@ const PaymentPage = () => {
                 <svg className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                Amount (TZS) <span className="text-red-400">*</span>
+                {t('page.amount_label') || 'Amount (TZS)'} <span className="text-red-400">*</span>
               </label>
               <div className="relative">
                 <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30">💰</div>
@@ -188,7 +198,7 @@ const PaymentPage = () => {
                   required
                   min="1"
                   className="w-full pl-11 pr-4 py-3.5 glass text-white placeholder:text-white/25 rounded-2xl border-0 outline-none focus:ring-2 focus:ring-emerald-400/50 transition-all text-sm"
-                  placeholder="Enter amount"
+                  placeholder={t('page.amount_placeholder') || 'Enter amount'}
                 />
               </div>
             </div>
@@ -199,7 +209,7 @@ const PaymentPage = () => {
                 <svg className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
-                Full Name <span className="text-red-400">*</span>
+                {t('page.name_label') || 'Full Name'} <span className="text-red-400">*</span>
               </label>
               <input
                 type="text"
@@ -207,7 +217,7 @@ const PaymentPage = () => {
                 onChange={(e) => { setFormData({...formData, customer_name: e.target.value}); setError('') }}
                 required
                 className="w-full px-4 py-3.5 glass text-white placeholder:text-white/25 rounded-2xl border-0 outline-none focus:ring-2 focus:ring-emerald-400/50 transition-all text-sm"
-                placeholder="Your full name"
+                placeholder={t('page.name_placeholder') || 'Your full name'}
               />
             </div>
 
@@ -217,7 +227,7 @@ const PaymentPage = () => {
                 <svg className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
-                Email <span className="text-red-400">*</span>
+                {t('page.email_label') || 'Email'} <span className="text-red-400">*</span>
               </label>
               <input
                 type="email"
@@ -225,7 +235,7 @@ const PaymentPage = () => {
                 onChange={(e) => { setFormData({...formData, customer_email: e.target.value}); setError('') }}
                 required
                 className="w-full px-4 py-3.5 glass text-white placeholder:text-white/25 rounded-2xl border-0 outline-none focus:ring-2 focus:ring-emerald-400/50 transition-all text-sm"
-                placeholder="Your email"
+                placeholder={t('page.email_placeholder') || 'Your email'}
               />
             </div>
 
@@ -235,7 +245,7 @@ const PaymentPage = () => {
                 <svg className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                 </svg>
-                Phone Number <span className="text-red-400">*</span>
+                {t('page.phone_label') || 'Phone Number'} <span className="text-red-400">*</span>
               </label>
               <div className="relative">
                 <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30">📱</div>
@@ -245,10 +255,12 @@ const PaymentPage = () => {
                   onChange={(e) => { setFormData({...formData, customer_phone: e.target.value}); setError('') }}
                   required
                   className="w-full pl-11 pr-4 py-3.5 glass text-white placeholder:text-white/25 rounded-2xl border-0 outline-none focus:ring-2 focus:ring-emerald-400/50 transition-all text-sm"
-                  placeholder="e.g., +255 712 345 678"
+                  placeholder={t('page.phone_placeholder') || 'e.g., +255 712 345 678'}
                 />
               </div>
-              <p className="text-[10px] text-white/25 mt-1.5">You will receive a payment prompt on this number</p>
+              <p className="text-[10px] text-white/25 mt-1.5">
+                {t('page.phone_hint') || 'You will receive a payment prompt on this number'}
+              </p>
             </div>
 
             {/* Submit */}
@@ -268,14 +280,14 @@ const PaymentPage = () => {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                   </svg>
-                  Processing...
+                  {t('page.processing') || 'Processing...'}
                 </span>
               ) : (
                 <span className="relative z-10 flex items-center justify-center gap-2">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                   </svg>
-                  Pay Now
+                  {t('page.pay_now') || 'Pay Now'}
                 </span>
               )}
             </button>

@@ -1,0 +1,33 @@
+﻿{
+    "member":  {
+                   "default_role":  "Team Member",
+                   "email":  "Email",
+                   "linkedin":  "LinkedIn",
+                   "twitter":  "Twitter"
+               },
+    "list":  {
+                 "badge":  "👥 Our Team",
+                 "all_team":  "All Team",
+                 "subtitle":  "Team",
+                 "no_members":  "No team members found",
+                 "showing":  "Showing",
+                 "title":  "Meet Our",
+                 "clear":  "Clear",
+                 "of":  "of",
+                 "description":  "Passionate professionals dedicated to your success",
+                 "members":  "team members",
+                 "clear_filters":  "Clear all filters",
+                 "loading":  "Loading team...",
+                 "search_placeholder":  "Search by name, role, or department...",
+                 "no_members_department":  "No team members in this department.",
+                 "no_matching":  "No team members matching"
+             },
+    "detail":  {
+                   "back_to_team":  "Back to Team",
+                   "expertise":  "Expertise",
+                   "contact":  "Contact",
+                   "loading":  "Loading profile...",
+                   "phone":  "Call",
+                   "about":  "About"
+               }
+}

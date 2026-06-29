@@ -2,10 +2,12 @@
 
 import React, { useState, useMemo, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next' // ✅ Ongeza hii
 import Icon from '../../../components/ui/Icon'
 import { getIcon } from '../../../components/utils/iconMap'
 
 const ProductCard = ({ product }) => {
+  const { t } = useTranslation('shop') // ✅ Ongeza hii
   const [currentImage, setCurrentImage] = useState(0)
   const [imgError, setImgError] = useState(false)
 
@@ -29,7 +31,7 @@ const ProductCard = ({ product }) => {
 
   const hasMultipleImages = images.length > 1
 
-  // ✅ Auto-slide - KAMA ProductDetailPage (HAITEgemei hover)
+  // ✅ Auto-slide - KAMA ProductDetailPage (HAITEgembei hover)
   useEffect(() => {
     if (!hasMultipleImages) return
     const interval = setInterval(() => {
@@ -109,7 +111,7 @@ const ProductCard = ({ product }) => {
           {/* Stock badge */}
           {!product?.in_stock && (
             <span className="absolute top-2 right-2 px-2 py-1 rounded-full bg-amber-500/90 backdrop-blur-sm text-white text-[10px] font-bold shadow-lg">
-              Out of Stock
+              {t('product.out_of_stock') || 'Out of Stock'}
             </span>
           )}
         </div>
@@ -140,22 +142,22 @@ const ProductCard = ({ product }) => {
               {product?.is_on_sale ? (
                 <div className="flex items-center gap-2">
                   <span className="text-xs text-white/30 line-through">
-                    TZS {product.price?.toLocaleString()}
+                    {t('product.currency') || 'TZS'} {product.price?.toLocaleString()}
                   </span>
                   <span className="text-sm font-bold text-red-400">
-                    TZS {product.current_price?.toLocaleString()}
+                    {t('product.currency') || 'TZS'} {product.current_price?.toLocaleString()}
                   </span>
                 </div>
               ) : (
                 <span className="text-sm font-bold gradient-text">
-                  TZS {product?.current_price?.toLocaleString()}
+                  {t('product.currency') || 'TZS'} {product?.current_price?.toLocaleString()}
                 </span>
               )}
             </div>
             
             {product?.in_stock && (
               <span className="text-emerald-400 text-xs font-semibold flex items-center gap-1 group-hover:gap-2 transition-all">
-                View
+                {t('product.view') || 'View'}
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>

@@ -1,0 +1,51 @@
+﻿{
+    "rating":  {
+                   "label":  "قيم {{star}} نجوم",
+                   "out_of":  "{{rating}} / {{total}}",
+                   "excellent":  "ممتاز!",
+                   "very_good":  "جيد جداً!",
+                   "good":  "جيد",
+                   "fair":  "متوسط",
+                   "poor":  "ضعيف"
+               },
+    "form":  {
+                 "comment_required":  "يرجى كتابة مراجعة",
+                 "default_title":  "مراجعة",
+                 "submitting":  "جاري الإرسال...",
+                 "comment_label":  "مراجعتك",
+                 "title_placeholder":  "لخص تجربتك",
+                 "title_label":  "عنوان المراجعة",
+                 "submit":  "إرسال المراجعة",
+                 "comment_placeholder":  "شارك تجربتك مع خدمتنا...",
+                 "cancel":  "إلغاء",
+                 "submit_error":  "خطأ في إرسال المراجعة. يرجى المحاولة مرة أخرى.",
+                 "rating_label":  "تقييمك"
+             },
+    "section":  {
+                    "subtitle":  "عملاؤنا",
+                    "view_all":  "قراءة جميع التقييمات",
+                    "say":  "",
+                    "title":  "ماذا يقول",
+                    "description":  "استمع إلى عملائنا الراضين عن تجربتهم في العمل معنا",
+                    "client":  "عميل",
+                    "client_role":  "عميل",
+                    "reviews_count":  "التقييمات"
+                },
+    "list":  {
+                 "view_all":  "عرض جميع التقييمات",
+                 "share_title":  "شارك تجربتك",
+                 "subtitle":  "التقييمات",
+                 "based_on":  "بناءً على",
+                 "write_review":  "اكتب تقييماً",
+                 "title":  "العملاء",
+                 "all_reviews":  "جميع التقييمات",
+                 "reviews_label":  "التقييمات",
+                 "review":  "تقييم",
+                 "description":  "انظر ماذا يقول عملاؤنا عن العمل معنا",
+                 "no_reviews_message":  "كن أول من يشارك تجربته!",
+                 "no_reviews":  "لا توجد تقييمات بعد",
+                 "loading":  "جاري تحميل التقييمات...",
+                 "share_description":  "نحن نحب أن نسمع عن تجربتك مع خدماتنا.",
+                 "no_filtered_reviews":  "لم يتم العثور على تقييمات {{rating}} نجوم."
+             }
+}

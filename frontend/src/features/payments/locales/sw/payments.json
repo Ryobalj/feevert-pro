@@ -1,0 +1,97 @@
+﻿{
+    "status":  {
+                   "paid":  "Imelipwa",
+                   "overdue":  "Imechelewa",
+                   "cancelled":  "Imefutwa",
+                   "partial":  "Sehemu",
+                   "draft":  "Rasimu",
+                   "sent":  "Imetumwa",
+                   "expired":  "Imeisha",
+                   "accepted":  "Imekubaliwa",
+                   "converted":  "Imebadilishwa"
+               },
+    "types":  {
+                  "proforma":  "Proforma",
+                  "invoice":  "Ankara"
+              },
+    "actions":  {
+                    "confirm_pay":  "Thibitisha na Lipa",
+                    "view_invoice":  "Tazama Ankara",
+                    "view_details":  "Tazama Maelezo",
+                    "pay_now":  "Lipa Sasa",
+                    "download_pdf":  "Pakua PDF"
+                },
+    "dates":  {
+                  "valid_until":  "Inatumika Hadi",
+                  "due_date":  "Tarehe ya Mwisho",
+                  "issued":  "Imetolewa"
+              },
+    "labels":  {
+                   "estimated_total":  "Jumla ya Makadirio",
+                   "total_amount":  "Jumla",
+                   "deposit":  "Malipo ya Awali"
+               },
+    "defaults":  {
+                     "invoice":  "Ankara"
+                 },
+    "form":  {
+                 "booking_payment":  "Malipo ya Miadi",
+                 "success_message":  "Angalia simu yako kwa taarifa ya kukamilisha malipo.",
+                 "transaction_id":  "Kitambulisho cha Muamala",
+                 "title":  "Malipo",
+                 "payment_failed":  "Malipo yameshindwa. Tafadhali jaribu tena.",
+                 "redirecting":  "Inaelekeza...",
+                 "phone_placeholder":  "mfano +255 712 345 678",
+                 "phone_hint":  "Utapokea taarifa ya malipo kwenye namba hii",
+                 "pay_now":  "Lipa Sasa",
+                 "complete_payment":  "Kamilisha Malipo",
+                 "processing":  "Inachakata...",
+                 "phone_required":  "Namba ya simu inahitajika",
+                 "amount":  "Kiasi",
+                 "consultation_payment":  "Malipo ya Ushauri",
+                 "phone_label":  "Namba ya Simu",
+                 "success_title":  "Malipo Yameanzishwa!",
+                 "redirect_message":  "Malipo yameanzishwa! Angalia simu yako kwa taarifa.",
+                 "initiation_failed":  "Kuanzisha malipo kumeshindwa"
+             },
+    "history":  {
+                    "transactions":  "Shughuli",
+                    "subtitle":  "Historia",
+                    "invoices":  "Ankara",
+                    "no_transactions":  "Hakuna shughuli zilizopatikana",
+                    "no_invoices_message":  "Ankara zako zitaonekana hapa.",
+                    "title":  "Malipo",
+                    "description":  "Tazama shughuli zako na ankara",
+                    "due":  "Inatarajiwa",
+                    "no_transactions_message":  "Shughuli zako za malipo zitaonekana hapa.",
+                    "loading":  "Inapakia historia ya malipo...",
+                    "no_invoices":  "Hakuna ankara zilizopatikana",
+                    "gateway":  "Njia",
+                    "issued":  "Imetolewa"
+                },
+    "page":  {
+                 "phone_label":  "Namba ya Simu",
+                 "description":  "Malipo salama kupitia PawaPay",
+                 "transaction_id":  "Kitambulisho cha Muamala",
+                 "success_message":  "Angalia simu yako kwa taarifa ya kukamilisha malipo.",
+                 "view_history":  "Tazama Historia ya Malipo",
+                 "phone_required":  "Namba ya simu inahitajika kwa malipo",
+                 "processing":  "Inachakata...",
+                 "email_placeholder":  "Barua pepe yako",
+                 "name_placeholder":  "Jina lako kamili",
+                 "open_payment":  "Fungua Dirisha la Malipo",
+                 "title":  "Fanya",
+                 "badge":  "💳 Malipo Salama",
+                 "success_title":  "Malipo Yameanzishwa!",
+                 "phone_placeholder":  "mfano, +255 712 345 678",
+                 "payment_failed":  "Malipo yameshindwa. Tafadhali jaribu tena.",
+                 "name_label":  "Jina Kamili",
+                 "phone_hint":  "Utapokea taarifa ya malipo kwenye namba hii",
+                 "subtitle":  "Malipo",
+                 "pay_now":  "Lipa Sasa",
+                 "amount_placeholder":  "Ingiza kiasi",
+                 "amount_label":  "Kiasi (TZS)",
+                 "initiation_failed":  "Kuanzisha malipo kumeshindwa",
+                 "email_label":  "Barua Pepe"
+             }
+}

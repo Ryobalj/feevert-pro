@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next' // ✅ Ongeza hii
 import api from '../../../app/api'
 import RatingStars from '../../reviews/components/RatingStars'
 
 const ReviewsSection = () => {
+  const { t } = useTranslation('reviews') // ✅ Ongeza hii
   const [reviews, setReviews] = useState([])
   const [loading, setLoading] = useState(true)
 
@@ -52,15 +54,17 @@ const ReviewsSection = () => {
             <span className="text-lg">⭐</span>
             <span className="text-sm font-semibold text-white">{averageRating}</span>
             <span className="text-xs text-white/30">•</span>
-            <span className="text-xs text-white/50">{reviews.length} Reviews</span>
+            <span className="text-xs text-white/50">
+              {reviews.length} {t('section.reviews_count') || 'Reviews'}
+            </span>
           </motion.div>
 
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white mb-4">
-            What Our{' '}
-            <span className="gradient-text">Clients</span> Say
+            {t('section.title') || 'What Our'}{' '}
+            <span className="gradient-text">{t('section.subtitle') || 'Clients'}</span> {t('section.say') || 'Say'}
           </h2>
           <p className="text-white/50 text-lg max-w-xl mx-auto">
-            Hear from our satisfied clients about their experience working with us
+            {t('section.description') || 'Hear from our satisfied clients about their experience working with us'}
           </p>
         </motion.div>
 
@@ -105,10 +109,10 @@ const ReviewsSection = () => {
                     </div>
                     <div>
                       <h4 className="font-semibold text-white text-sm group-hover:text-emerald-400 transition-colors duration-300">
-                        {review.client_name || review.client?.username || 'Client'}
+                        {review.client_name || review.client?.username || t('section.client') || 'Client'}
                       </h4>
                       <p className="text-xs text-white/40">
-                        {review.client_role || 'Client'}
+                        {review.client_role || t('section.client_role') || 'Client'}
                       </p>
                     </div>
                   </div>
@@ -130,7 +134,7 @@ const ReviewsSection = () => {
               to="/reviews" 
               className="group relative inline-flex items-center gap-3 border-2 border-white/20 text-white px-8 py-4 rounded-full font-bold hover:border-emerald-400/50 transition-all duration-300"
             >
-              Read All Reviews
+              {t('section.view_all') || 'Read All Reviews'}
               <motion.svg 
                 className="w-5 h-5" 
                 fill="none" stroke="currentColor" viewBox="0 0 24 24"

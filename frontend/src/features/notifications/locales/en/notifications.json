@@ -1,0 +1,26 @@
+﻿{
+    "notifications":  {
+                          "bell_label":  "Notifications",
+                          "title":  "Notifications",
+                          "mark_all_read":  "Mark all read",
+                          "empty":  "No notifications yet",
+                          "view_all":  "View all notifications",
+                          "list":  {
+                                       "all":  "All",
+                                       "just_now":  "Just now",
+                                       "no_notifications":  "No notifications",
+                                       "no_notifications_message":  "You have no notifications yet.",
+                                       "no_read_message":  "You have no read notifications.",
+                                       "new":  "New",
+                                       "unread":  "Unread",
+                                       "all_caught_up":  "All caught up! 🎉",
+                                       "mark_all_read":  "Mark all read",
+                                       "unread_count":  "unread notifications",
+                                       "no_unread_message":  "You have no unread notifications.",
+                                       "loading":  "Loading notifications...",
+                                       "read":  "Read",
+                                       "no_read":  "No read notifications",
+                                       "notification":  "Notification"
+                                   }
+                      }
+}

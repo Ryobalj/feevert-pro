@@ -1,0 +1,97 @@
+﻿{
+    "status":  {
+                   "paid":  "Оплачено",
+                   "overdue":  "Просрочено",
+                   "cancelled":  "Отменено",
+                   "partial":  "Частично",
+                   "draft":  "Черновик",
+                   "sent":  "Отправлено",
+                   "expired":  "Истекло",
+                   "accepted":  "Принято",
+                   "converted":  "Конвертировано"
+               },
+    "types":  {
+                  "proforma":  "Проформа",
+                  "invoice":  "Счёт"
+              },
+    "actions":  {
+                    "confirm_pay":  "Подтвердить и оплатить",
+                    "view_invoice":  "Просмотреть счёт",
+                    "view_details":  "Подробнее",
+                    "pay_now":  "Оплатить сейчас",
+                    "download_pdf":  "Скачать PDF"
+                },
+    "dates":  {
+                  "valid_until":  "Действительно до",
+                  "due_date":  "Срок оплаты",
+                  "issued":  "Выдан"
+              },
+    "labels":  {
+                   "estimated_total":  "Предполагаемая сумма",
+                   "total_amount":  "Общая сумма",
+                   "deposit":  "Депозит"
+               },
+    "defaults":  {
+                     "invoice":  "Счёт"
+                 },
+    "form":  {
+                 "booking_payment":  "Оплата бронирования",
+                 "success_message":  "Проверьте телефон для завершения транзакции.",
+                 "transaction_id":  "ID транзакции",
+                 "title":  "Оплата",
+                 "payment_failed":  "Платёж не удался. Пожалуйста, попробуйте снова.",
+                 "redirecting":  "Перенаправление...",
+                 "phone_placeholder":  "например +255 712 345 678",
+                 "phone_hint":  "Вы получите запрос на оплату на этот номер",
+                 "pay_now":  "Оплатить сейчас",
+                 "complete_payment":  "Завершить оплату",
+                 "processing":  "Обработка...",
+                 "phone_required":  "Требуется номер телефона",
+                 "amount":  "Сумма",
+                 "consultation_payment":  "Оплата консультации",
+                 "phone_label":  "Номер телефона",
+                 "success_title":  "Платёж инициирован!",
+                 "redirect_message":  "Платёж инициирован! Проверьте телефон.",
+                 "initiation_failed":  "Не удалось инициировать платёж"
+             },
+    "history":  {
+                    "transactions":  "Транзакции",
+                    "subtitle":  "История",
+                    "invoices":  "Счета",
+                    "no_transactions":  "Транзакции не найдены",
+                    "no_invoices_message":  "Ваши счета появятся здесь.",
+                    "title":  "Платёж",
+                    "description":  "Просмотр ваших транзакций и счетов",
+                    "due":  "Срок",
+                    "no_transactions_message":  "Ваши платёжные транзакции появятся здесь.",
+                    "loading":  "Загрузка истории платежей...",
+                    "no_invoices":  "Счета не найдены",
+                    "gateway":  "Шлюз",
+                    "issued":  "Выдан"
+                },
+    "page":  {
+                 "phone_label":  "Номер телефона",
+                 "description":  "Безопасный платёж через PawaPay",
+                 "transaction_id":  "ID транзакции",
+                 "success_message":  "Проверьте телефон для завершения транзакции.",
+                 "view_history":  "Посмотреть историю платежей",
+                 "phone_required":  "Для оплаты требуется номер телефона",
+                 "processing":  "Обработка...",
+                 "email_placeholder":  "Ваш email",
+                 "name_placeholder":  "Ваше полное имя",
+                 "open_payment":  "Открыть окно оплаты",
+                 "title":  "Совершить",
+                 "badge":  "💳 Безопасный Платёж",
+                 "success_title":  "Платёж инициирован!",
+                 "phone_placeholder":  "например, +255 712 345 678",
+                 "payment_failed":  "Платёж не удался. Пожалуйста, попробуйте снова.",
+                 "name_label":  "Полное имя",
+                 "phone_hint":  "Вы получите запрос на оплату на этот номер",
+                 "subtitle":  "Платёж",
+                 "pay_now":  "Оплатить сейчас",
+                 "amount_placeholder":  "Введите сумму",
+                 "amount_label":  "Сумма (TZS)",
+                 "initiation_failed":  "Не удалось инициировать платёж",
+                 "email_label":  "Email"
+             }
+}

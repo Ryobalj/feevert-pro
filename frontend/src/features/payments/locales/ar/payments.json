@@ -1,0 +1,97 @@
+﻿{
+    "status":  {
+                   "paid":  "مدفوع",
+                   "overdue":  "متأخر",
+                   "cancelled":  "ملغي",
+                   "partial":  "جزئي",
+                   "draft":  "مسودة",
+                   "sent":  "مرسل",
+                   "expired":  "منتهي الصلاحية",
+                   "accepted":  "مقبول",
+                   "converted":  "محول"
+               },
+    "types":  {
+                  "proforma":  "بروفورما",
+                  "invoice":  "فاتورة"
+              },
+    "actions":  {
+                    "confirm_pay":  "تأكيد والدفع",
+                    "view_invoice":  "عرض الفاتورة",
+                    "view_details":  "عرض التفاصيل",
+                    "pay_now":  "ادفع الآن",
+                    "download_pdf":  "تحميل PDF"
+                },
+    "dates":  {
+                  "valid_until":  "صالحة حتى",
+                  "due_date":  "تاريخ الاستحقاق",
+                  "issued":  "تاريخ الإصدار"
+              },
+    "labels":  {
+                   "estimated_total":  "المجموع التقديري",
+                   "total_amount":  "المبلغ الإجمالي",
+                   "deposit":  "دفعة مقدمة"
+               },
+    "defaults":  {
+                     "invoice":  "فاتورة"
+                 },
+    "form":  {
+                 "booking_payment":  "دفع الحجز",
+                 "success_message":  "تحقق من هاتفك لإكمال المعاملة.",
+                 "transaction_id":  "معرف المعاملة",
+                 "title":  "الدفع",
+                 "payment_failed":  "فشل الدفع. يرجى المحاولة مرة أخرى.",
+                 "redirecting":  "جاري التوجيه...",
+                 "phone_placeholder":  "مثال +255 712 345 678",
+                 "phone_hint":  "ستتلقى طلب دفع على هذا الرقم",
+                 "pay_now":  "ادفع الآن",
+                 "complete_payment":  "إكمال الدفع",
+                 "processing":  "جاري المعالجة...",
+                 "phone_required":  "رقم الهاتف مطلوب",
+                 "amount":  "المبلغ",
+                 "consultation_payment":  "دفع الاستشارة",
+                 "phone_label":  "رقم الهاتف",
+                 "success_title":  "تم بدء الدفع!",
+                 "redirect_message":  "تم بدء الدفع! تحقق من هاتفك.",
+                 "initiation_failed":  "فشل بدء الدفع"
+             },
+    "history":  {
+                    "transactions":  "المعاملات",
+                    "subtitle":  "السجل",
+                    "invoices":  "الفواتير",
+                    "no_transactions":  "لم يتم العثور على معاملات",
+                    "no_invoices_message":  "ستظهر فواتيرك هنا.",
+                    "title":  "الدفع",
+                    "description":  "عرض معاملاتك وفواتيرك",
+                    "due":  "تاريخ الاستحقاق",
+                    "no_transactions_message":  "ستظهر معاملات الدفع الخاصة بك هنا.",
+                    "loading":  "جاري تحميل سجل الدفع...",
+                    "no_invoices":  "لم يتم العثور على فواتير",
+                    "gateway":  "البوابة",
+                    "issued":  "تاريخ الإصدار"
+                },
+    "page":  {
+                 "phone_label":  "رقم الهاتف",
+                 "description":  "دفع آمن عبر PawaPay",
+                 "transaction_id":  "معرف المعاملة",
+                 "success_message":  "تحقق من هاتفك لإكمال المعاملة.",
+                 "view_history":  "عرض سجل الدفع",
+                 "phone_required":  "رقم الهاتف مطلوب للدفع",
+                 "processing":  "جاري المعالجة...",
+                 "email_placeholder":  "بريدك الإلكتروني",
+                 "name_placeholder":  "اسمك الكامل",
+                 "open_payment":  "فتح نافذة الدفع",
+                 "title":  "قم بـ",
+                 "badge":  "💳 دفع آمن",
+                 "success_title":  "تم بدء الدفع!",
+                 "phone_placeholder":  "مثال، +255 712 345 678",
+                 "payment_failed":  "فشل الدفع. يرجى المحاولة مرة أخرى.",
+                 "name_label":  "الاسم الكامل",
+                 "phone_hint":  "ستتلقى طلب دفع على هذا الرقم",
+                 "subtitle":  "الدفع",
+                 "pay_now":  "ادفع الآن",
+                 "amount_placeholder":  "أدخل المبلغ",
+                 "amount_label":  "المبلغ (TZS)",
+                 "initiation_failed":  "فشل بدء الدفع",
+                 "email_label":  "البريد الإلكتروني"
+             }
+}

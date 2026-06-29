@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useTranslation } from 'react-i18next' // ✅ Ongeza hii
 import { useTheme } from '../../../context/ThemeContext'
 import api from '../../../app/api'
 
 const NotificationList = () => {
+  const { t } = useTranslation('notifications') // ✅ Ongeza hii
   const [notifications, setNotifications] = useState([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState('all')
@@ -52,9 +54,9 @@ const NotificationList = () => {
   }
 
   const filters = [
-    { value: 'all', label: 'All', icon: '📋' },
-    { value: 'unread', label: 'Unread', icon: '🔵' },
-    { value: 'read', label: 'Read', icon: '✅' },
+    { value: 'all', label: t('list.all') || 'All', icon: '📋' },
+    { value: 'unread', label: t('list.unread') || 'Unread', icon: '🔵' },
+    { value: 'read', label: t('list.read') || 'Read', icon: '✅' },
   ]
 
   if (loading) {
@@ -65,7 +67,9 @@ const NotificationList = () => {
             <div className="absolute inset-0 bg-emerald-400/10 rounded-full blur-xl animate-pulse" />
             <div className="spinner spinner-lg relative" />
           </div>
-          <p className="text-white/50 animate-pulse">Loading notifications...</p>
+          <p className="text-white/50 animate-pulse">
+            {t('list.loading') || 'Loading notifications...'}
+          </p>
         </div>
       </div>
     )
@@ -78,12 +82,12 @@ const NotificationList = () => {
         <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
             <h1 className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-white mb-1">
-              <span className="gradient-text">Notifications</span>
+              <span className="gradient-text">{t('list.title') || 'Notifications'}</span>
             </h1>
             <p className="text-white/40 text-sm">
               {unreadCount > 0 
-                ? <><span className="text-emerald-400 font-semibold">{unreadCount}</span> unread notifications</>
-                : 'All caught up! 🎉'}
+                ? <><span className="text-emerald-400 font-semibold">{unreadCount}</span> {t('list.unread_count') || 'unread notifications'}</>
+                : t('list.all_caught_up') || 'All caught up! 🎉'}
             </p>
           </motion.div>
           
@@ -97,7 +101,7 @@ const NotificationList = () => {
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
                 </svg>
-                Mark all read
+                {t('list.mark_all_read') || 'Mark all read'}
               </span>
             </motion.button>
           )}
@@ -151,7 +155,7 @@ const NotificationList = () => {
                         <div className="flex items-start justify-between gap-3">
                           <div className="flex items-center gap-2 min-w-0">
                             <h4 className="font-bold text-white text-sm truncate">
-                              {notification.title || 'Notification'}
+                              {notification.title || t('list.notification') || 'Notification'}
                             </h4>
                             {isUnread && (
                               <span className="w-2 h-2 rounded-full bg-emerald-400 flex-shrink-0 animate-pulse" />
@@ -162,7 +166,7 @@ const NotificationList = () => {
                               ? new Date(notification.created_at).toLocaleString('en-US', {
                                   month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
                                 })
-                              : 'Just now'}
+                              : t('list.just_now') || 'Just now'}
                           </span>
                         </div>
                         
@@ -176,7 +180,9 @@ const NotificationList = () => {
                             {type.icon} {notification.notification_type || notification.type || 'system'}
                           </span>
                           {isUnread && (
-                            <span className="text-[10px] text-emerald-400 font-medium">New</span>
+                            <span className="text-[10px] text-emerald-400 font-medium">
+                              {t('list.new') || 'New'}
+                            </span>
                           )}
                         </div>
                       </div>
@@ -192,12 +198,18 @@ const NotificationList = () => {
                 {filter === 'unread' ? '✅' : filter === 'read' ? '📭' : '🔔'}
               </div>
               <h3 className="text-xl font-bold text-white mb-2">
-                {filter === 'unread' ? 'All caught up!' : 'No notifications'}
+                {filter === 'unread' 
+                  ? t('list.all_caught_up') || 'All caught up!' 
+                  : filter === 'read' 
+                    ? t('list.no_read') || 'No read notifications' 
+                    : t('list.no_notifications') || 'No notifications'}
               </h3>
               <p className="text-white/40">
-                {filter === 'all' ? 'You have no notifications yet.' :
-                 filter === 'unread' ? 'You have no unread notifications.' :
-                 'You have no read notifications.'}
+                {filter === 'all' 
+                  ? t('list.no_notifications_message') || 'You have no notifications yet.'
+                  : filter === 'unread' 
+                    ? t('list.no_unread_message') || 'You have no unread notifications.'
+                    : t('list.no_read_message') || 'You have no read notifications.'}
               </p>
             </motion.div>
           )}

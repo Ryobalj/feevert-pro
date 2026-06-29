@@ -3,9 +3,11 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useTranslation } from 'react-i18next' // ✅ Ongeza hii
 import { useCart } from '../context/CartContext'
 
 const CartDrawer = ({ isOpen, onClose }) => {
+  const { t } = useTranslation('shop') // ✅ Ongeza hii
   const { cart, loading, updateQuantity, removeFromCart, cartCount, cartTotal } = useCart()
 
   const handleUpdateQuantity = async (itemId, newQuantity) => {
@@ -43,9 +45,11 @@ const CartDrawer = ({ isOpen, onClose }) => {
                 <div className="flex items-center gap-3">
                   <span className="text-xl">🛒</span>
                   <h3 className="text-lg font-bold text-white">
-                    Your Cart
+                    {t('cart.title') || 'Your Cart'}
                     {cartCount > 0 && (
-                      <span className="ml-2 text-sm font-normal text-white/40">({cartCount} items)</span>
+                      <span className="ml-2 text-sm font-normal text-white/40">
+                        ({cartCount} {t('cart.items') || 'items'})
+                      </span>
                     )}
                   </h3>
                 </div>
@@ -68,12 +72,12 @@ const CartDrawer = ({ isOpen, onClose }) => {
                 ) : !cart || !cart.items || cart.items.length === 0 ? (
                   <div className="flex flex-col items-center justify-center h-60 text-center">
                     <span className="text-5xl mb-4 opacity-40">🛒</span>
-                    <p className="text-white/50 mb-2">Your cart is empty</p>
+                    <p className="text-white/50 mb-2">{t('cart.empty') || 'Your cart is empty'}</p>
                     <button
                       onClick={onClose}
                       className="text-sm text-emerald-400 hover:text-emerald-300 transition-colors"
                     >
-                      Continue Shopping →
+                      {t('cart.continue_shopping') || 'Continue Shopping →'}
                     </button>
                   </div>
                 ) : (
@@ -111,7 +115,7 @@ const CartDrawer = ({ isOpen, onClose }) => {
                           {item.product?.name}
                         </Link>
                         <p className="text-xs text-white/40 mt-0.5">
-                          TZS {item.product?.current_price?.toLocaleString()}
+                          {t('cart.currency') || 'TZS'} {item.product?.current_price?.toLocaleString()}
                         </p>
 
                         {/* Quantity Controls */}
@@ -138,7 +142,7 @@ const CartDrawer = ({ isOpen, onClose }) => {
                             onClick={() => removeFromCart(item.id)}
                             className="ml-auto text-xs text-red-400/60 hover:text-red-400 transition-colors"
                           >
-                            Remove
+                            {t('cart.remove') || 'Remove'}
                           </button>
                         </div>
                       </div>
@@ -146,7 +150,7 @@ const CartDrawer = ({ isOpen, onClose }) => {
                       {/* Subtotal */}
                       <div className="text-right flex-shrink-0">
                         <p className="text-sm font-bold gradient-text">
-                          TZS {item.subtotal?.toLocaleString()}
+                          {t('cart.currency') || 'TZS'} {item.subtotal?.toLocaleString()}
                         </p>
                       </div>
                     </div>
@@ -159,9 +163,9 @@ const CartDrawer = ({ isOpen, onClose }) => {
                 <div className="p-5 border-t border-white/5 space-y-4">
                   {/* Total */}
                   <div className="flex items-center justify-between">
-                    <span className="text-white/60 text-sm">Total</span>
+                    <span className="text-white/60 text-sm">{t('cart.total') || 'Total'}</span>
                     <span className="text-lg font-bold gradient-text">
-                      TZS {cartTotal?.toLocaleString()}
+                      {t('cart.currency') || 'TZS'} {cartTotal?.toLocaleString()}
                     </span>
                   </div>
 
@@ -172,14 +176,14 @@ const CartDrawer = ({ isOpen, onClose }) => {
                       onClick={onClose}
                       className="flex-1 py-2.5 rounded-full glass text-center text-sm text-white/70 hover:text-white hover:border-white/20 transition-all"
                     >
-                      View Cart
+                      {t('cart.view_cart') || 'View Cart'}
                     </Link>
                     <Link
                       to="/shop/checkout"
                       onClick={onClose}
                       className="flex-1 py-2.5 rounded-full bg-emerald-500 hover:bg-emerald-400 text-white text-center text-sm font-semibold transition-all"
                     >
-                      Checkout
+                      {t('cart.checkout') || 'Checkout'}
                     </Link>
                   </div>
                 </div>

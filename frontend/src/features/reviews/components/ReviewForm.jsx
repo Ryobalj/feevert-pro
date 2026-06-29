@@ -1,11 +1,13 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next' // ✅ Ongeza hii
 import api from '../../../app/api'
 import { useAuth } from '../../accounts/hooks/useAuth'
 import RatingStars from './RatingStars'
 
 const ReviewForm = ({ consultationId, bookingId, serviceId, onSuccess, onCancel }) => {
+  const { t } = useTranslation('reviews') // ✅ Ongeza hii
   const navigate = useNavigate()
   const { isAuthenticated, user } = useAuth()
   const [rating, setRating] = useState(5)
@@ -31,7 +33,7 @@ const ReviewForm = ({ consultationId, bookingId, serviceId, onSuccess, onCancel 
     }
 
     if (!formData.comment.trim()) {
-      setError('Please write a review')
+      setError(t('form.comment_required') || 'Please write a review')
       return
     }
 
@@ -39,7 +41,7 @@ const ReviewForm = ({ consultationId, bookingId, serviceId, onSuccess, onCancel 
     try {
       const payload = {
         rating,
-        title: formData.title || 'Review',
+        title: formData.title || t('form.default_title') || 'Review',
         comment: formData.comment,
         ...(consultationId && { consultation: consultationId }),
         ...(bookingId && { booking: bookingId }),
@@ -51,10 +53,22 @@ const ReviewForm = ({ consultationId, bookingId, serviceId, onSuccess, onCancel 
       if (onSuccess) onSuccess()
     } catch (err) {
       console.error('Error submitting review:', err)
-      setError(err.response?.data?.error || 'Error submitting review. Please try again.')
+      setError(err.response?.data?.error || t('form.submit_error') || 'Error submitting review. Please try again.')
     } finally {
       setLoading(false)
     }
+  }
+
+  // Rating labels
+  const getRatingLabel = (rating) => {
+    const labels = {
+      5: t('rating.excellent') || 'Excellent!',
+      4: t('rating.very_good') || 'Very Good!',
+      3: t('rating.good') || 'Good',
+      2: t('rating.fair') || 'Fair',
+      1: t('rating.poor') || 'Poor'
+    }
+    return labels[rating] || ''
   }
 
   return (
@@ -67,27 +81,27 @@ const ReviewForm = ({ consultationId, bookingId, serviceId, onSuccess, onCancel 
       {/* Rating */}
       <div className="text-center">
         <label className="block text-sm font-medium text-white/60 mb-3">
-          Your Rating
+          {t('form.rating_label') || 'Your Rating'}
         </label>
         <div className="flex justify-center">
           <RatingStars rating={rating} onRatingChange={setRating} size="large" />
         </div>
         <p className="text-xs text-white/30 mt-2">
-          {rating === 5 ? 'Excellent!' : rating === 4 ? 'Very Good!' : rating === 3 ? 'Good' : rating === 2 ? 'Fair' : 'Poor'}
+          {getRatingLabel(rating)}
         </p>
       </div>
 
       {/* Title */}
       <div>
         <label className="block text-sm font-medium text-white/60 mb-2">
-          Review Title
+          {t('form.title_label') || 'Review Title'}
         </label>
         <input
           type="text"
           name="title"
           value={formData.title}
           onChange={handleChange}
-          placeholder="Summarize your experience"
+          placeholder={t('form.title_placeholder') || 'Summarize your experience'}
           className="w-full px-4 py-3.5 glass text-white placeholder:text-white/25 rounded-2xl border-0 outline-none focus:ring-2 focus:ring-emerald-400/50 transition-all text-sm"
         />
       </div>
@@ -95,14 +109,14 @@ const ReviewForm = ({ consultationId, bookingId, serviceId, onSuccess, onCancel 
       {/* Comment */}
       <div>
         <label className="block text-sm font-medium text-white/60 mb-2">
-          Your Review <span className="text-red-400">*</span>
+          {t('form.comment_label') || 'Your Review'} <span className="text-red-400">*</span>
         </label>
         <textarea
           name="comment"
           rows="5"
           value={formData.comment}
           onChange={handleChange}
-          placeholder="Share your experience with our service..."
+          placeholder={t('form.comment_placeholder') || 'Share your experience with our service...'}
           className="w-full px-4 py-3.5 glass text-white placeholder:text-white/25 rounded-2xl border-0 outline-none focus:ring-2 focus:ring-emerald-400/50 transition-all text-sm resize-none"
           required
         />
@@ -137,14 +151,14 @@ const ReviewForm = ({ consultationId, bookingId, serviceId, onSuccess, onCancel 
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
               </svg>
-              Submitting...
+              {t('form.submitting') || 'Submitting...'}
             </span>
           ) : (
             <span className="relative z-10 flex items-center justify-center gap-2">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
               </svg>
-              Submit Review
+              {t('form.submit') || 'Submit Review'}
             </span>
           )}
         </button>
@@ -154,7 +168,7 @@ const ReviewForm = ({ consultationId, bookingId, serviceId, onSuccess, onCancel 
             onClick={onCancel}
             className="glass px-6 py-3 rounded-full text-white font-semibold text-sm hover:border-white/30 transition-all"
           >
-            Cancel
+            {t('form.cancel') || 'Cancel'}
           </button>
         )}
       </div>

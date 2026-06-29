@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useTranslation } from 'react-i18next' // ✅ Ongeza hii
 import { useTheme } from '../../../context/ThemeContext'
 import api from '../../../app/api'
 import Loader from '../../../components/ui/Loader'
@@ -11,6 +12,7 @@ import { getIcon } from '../../../components/utils/iconMap'
 
 // ============ PRODUCT CARD COMPONENT ============
 const ProductCard = ({ product }) => {
+  const { t } = useTranslation('shop') // ✅ Ongeza hii
   const [currentImage, setCurrentImage] = useState(0)
   const [imgError, setImgError] = useState(false)
 
@@ -143,7 +145,7 @@ const ProductCard = ({ product }) => {
           {/* Stock badge */}
           {!product?.in_stock && (
             <span className="absolute top-2 right-2 px-2 py-1 rounded-full bg-amber-500/90 backdrop-blur-sm text-white text-[10px] font-bold shadow-lg">
-              Out of Stock
+              {t('product.out_of_stock') || 'Out of Stock'}
             </span>
           )}
         </div>
@@ -174,22 +176,22 @@ const ProductCard = ({ product }) => {
               {product?.is_on_sale ? (
                 <div className="flex items-center gap-2">
                   <span className="text-xs text-white/30 line-through">
-                    TZS {product.price?.toLocaleString()}
+                    {t('product.currency') || 'TZS'} {product.price?.toLocaleString()}
                   </span>
                   <span className="text-sm font-bold text-red-400">
-                    TZS {product.current_price?.toLocaleString()}
+                    {t('product.currency') || 'TZS'} {product.current_price?.toLocaleString()}
                   </span>
                 </div>
               ) : (
                 <span className="text-sm font-bold gradient-text">
-                  TZS {product?.current_price?.toLocaleString()}
+                  {t('product.currency') || 'TZS'} {product?.current_price?.toLocaleString()}
                 </span>
               )}
             </div>
             
             {product?.in_stock && (
               <span className="text-emerald-400 text-xs font-semibold flex items-center gap-1 group-hover:gap-2 transition-all">
-                View
+                {t('product.view') || 'View'}
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
@@ -204,6 +206,8 @@ const ProductCard = ({ product }) => {
 
 // ============ PAGINATION COMPONENT ============
 const Pagination = ({ currentPage, totalPages, onPageChange }) => {
+  const { t } = useTranslation('shop') // ✅ Ongeza hii
+
   if (totalPages <= 1) return null
 
   const getPageNumbers = () => {
@@ -252,7 +256,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
         </svg>
-        Prev
+        {t('shop.prev') || 'Prev'}
       </button>
 
       <div className="flex items-center gap-1.5">
@@ -289,7 +293,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
             : 'glass text-white/70 hover:text-white hover:border-emerald-400/30 hover:bg-emerald-500/10'
         }`}
       >
-        Next
+        {t('shop.next') || 'Next'}
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
         </svg>
@@ -300,6 +304,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
 
 // ============ MAIN SHOP PAGE ============
 const ShopPage = () => {
+  const { t } = useTranslation('shop') // ✅ Ongeza hii
   const [products, setProducts] = useState([])
   const [categories, setCategories] = useState([])
   const [selectedCategory, setSelectedCategory] = useState('all')
@@ -365,11 +370,11 @@ const ShopPage = () => {
   const saleProducts = products.filter(p => p.is_on_sale).slice(0, 4)
 
   const productTypes = [
-    { value: 'all', label: 'All Types', icon: '📦' },
-    { value: 'honey', label: 'Honey', icon: '🍯' },
-    { value: 'beeswax', label: 'Beeswax', icon: '🕯️' },
-    { value: 'equipment', label: 'Equipment', icon: '🛠️' },
-    { value: 'books', label: 'Books', icon: '📚' },
+    { value: 'all', label: t('shop.all_types') || 'All Types', icon: '📦' },
+    { value: 'honey', label: t('shop.honey') || 'Honey', icon: '🍯' },
+    { value: 'beeswax', label: t('shop.beeswax') || 'Beeswax', icon: '🕯️' },
+    { value: 'equipment', label: t('shop.equipment') || 'Equipment', icon: '🛠️' },
+    { value: 'books', label: t('shop.books') || 'Books', icon: '📚' },
   ]
 
   // Handlers
@@ -382,7 +387,7 @@ const ShopPage = () => {
   if (loading && products.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader size="lg" text="Loading shop..." />
+        <Loader size="lg" text={t('shop.loading') || 'Loading shop...'} />
       </div>
     )
   }
@@ -413,14 +418,16 @@ const ShopPage = () => {
               animate={{ scale: [1, 1.5, 1], opacity: [0.7, 1, 0.7] }}
               transition={{ duration: 2, repeat: Infinity }}
             />
-            <span className="text-sm font-medium text-white/80">🛒 Online Shop</span>
+            <span className="text-sm font-medium text-white/80">
+              {t('shop.badge') || '🛒 Online Shop'}
+            </span>
           </motion.div>
 
           <h1 className="text-3xl md:text-4xl lg:text-6xl font-extrabold text-white mb-4">
-            Our <span className="gradient-text">Products</span>
+            {t('shop.title') || 'Our'} <span className="gradient-text">{t('shop.subtitle') || 'Products'}</span>
           </h1>
           <p className="text-lg text-white/50 max-w-2xl mx-auto">
-            Quality beekeeping products, honey, and equipment delivered to your doorstep
+            {t('shop.description') || 'Quality beekeeping products, honey, and equipment delivered to your doorstep'}
           </p>
         </motion.div>
 
@@ -428,7 +435,7 @@ const ShopPage = () => {
         {featuredProducts.length > 0 && currentPage === 1 && (
           <div className="mb-12">
             <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-              <span>⭐</span> Featured Products
+              <span>⭐</span> {t('shop.featured') || 'Featured Products'}
             </h2>
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {featuredProducts.map((product, i) => (
@@ -461,7 +468,7 @@ const ShopPage = () => {
               type="text"
               value={searchQuery}
               onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1) }}
-              placeholder="Search products..."
+              placeholder={t('shop.search_placeholder') || 'Search products...'}
               className="w-full pl-10 pr-4 py-2.5 glass text-white placeholder:text-white/25 rounded-full border-0 outline-none focus:ring-2 focus:ring-emerald-400/40 transition-all text-sm"
             />
           </div>
@@ -475,7 +482,7 @@ const ShopPage = () => {
                 onChange={(e) => { setSelectedCategory(e.target.value); setCurrentPage(1) }}
                 className="px-4 py-2.5 glass text-white/80 rounded-full text-sm font-semibold outline-none focus:ring-2 focus:ring-emerald-400/40 cursor-pointer appearance-none pr-10"
               >
-                <option value="all">📂 All Categories</option>
+                <option value="all">{t('shop.all_categories') || '📂 All Categories'}</option>
                 {categories.map(cat => (
                   <option key={cat.id} value={cat.id}>
                     {cat.icon ? <Icon name={cat.icon} size="text-sm" /> : '📦'} {cat.name}
@@ -521,7 +528,7 @@ const ShopPage = () => {
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
-                Clear
+                {t('shop.clear') || 'Clear'}
               </button>
             )}
           </div>
@@ -531,7 +538,7 @@ const ShopPage = () => {
         {saleProducts.length > 0 && currentPage === 1 && (
           <div className="mb-10">
             <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-              <span className="text-red-400">🔥</span> On Sale
+              <span className="text-red-400">🔥</span> {t('shop.on_sale') || 'On Sale'}
             </h2>
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {saleProducts.map((product, i) => (
@@ -553,7 +560,7 @@ const ShopPage = () => {
           {/* Section Header */}
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-bold text-white">
-              All Products{' '}
+              {t('shop.all_products') || 'All Products'}{' '}
               {totalCount > 0 && (
                 <span className="text-white/30 text-sm font-normal">
                   ({totalCount})
@@ -562,7 +569,7 @@ const ShopPage = () => {
             </h2>
             {totalPages > 1 && (
               <span className="text-xs text-white/30">
-                Page {currentPage} of {totalPages}
+                {t('shop.page') || 'Page'} {currentPage} {t('shop.of') || 'of'} {totalPages}
               </span>
             )}
           </div>
@@ -593,7 +600,7 @@ const ShopPage = () => {
               {/* Page Info */}
               {totalPages > 1 && (
                 <p className="text-center text-white/20 text-xs mt-4">
-                  Showing {(currentPage - 1) * pageSize + 1}–{Math.min(currentPage * pageSize, totalCount)} of {totalCount} products
+                  {t('shop.showing') || 'Showing'} {(currentPage - 1) * pageSize + 1}–{Math.min(currentPage * pageSize, totalCount)} {t('shop.of') || 'of'} {totalCount} {t('shop.products') || 'products'}
                 </p>
               )}
             </>
@@ -603,9 +610,11 @@ const ShopPage = () => {
               <span className="text-5xl mb-4 block opacity-40">
                 {getIcon(':package:') || '📦'}
               </span>
-              <h3 className="text-xl font-bold text-white mb-2">No products found</h3>
+              <h3 className="text-xl font-bold text-white mb-2">
+                {t('shop.no_products') || 'No products found'}
+              </h3>
               <p className="text-white/40 mb-6">
-                Try adjusting your search filters or browse all categories
+                {t('shop.no_products_message') || 'Try adjusting your search filters or browse all categories'}
               </p>
               <button
                 onClick={() => {
@@ -616,7 +625,7 @@ const ShopPage = () => {
                 }}
                 className="px-6 py-3 rounded-full border-2 border-white/20 text-white font-semibold hover:border-emerald-400/50 transition-all duration-300"
               >
-                View All Products
+                {t('shop.view_all') || 'View All Products'}
               </button>
             </div>
           )}
