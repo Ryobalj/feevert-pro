@@ -3,10 +3,12 @@
 import React, { useState, useEffect } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useTranslation } from 'react-i18next' // ✅ Ongeza hii
 import { useTheme } from '../../../context/ThemeContext'
 import api from '../../../app/api'
 
 const ProjectList = () => {
+  const { t } = useTranslation('projects') // ✅ Ongeza hii
   const [projects, setProjects] = useState([])
   const [categories, setCategories] = useState([])
   const [selectedCategory, setSelectedCategory] = useState('all')
@@ -86,7 +88,9 @@ const ProjectList = () => {
 
   const filteredProjects = projects
 
-  const currentCategoryName = selectedCategory === 'all' ? 'All Projects' : categories.find(c => c.id === selectedCategory || c.id === parseInt(selectedCategory))?.name || 'Projects'
+  const currentCategoryName = selectedCategory === 'all' 
+    ? t('projects.all') || 'All Projects' 
+    : categories.find(c => c.id === selectedCategory || c.id === parseInt(selectedCategory))?.name || t('projects.projects') || 'Projects'
 
   if (loading && projects.length === 0) {
     return (
@@ -96,7 +100,7 @@ const ProjectList = () => {
             <div className="absolute inset-0 bg-emerald-400/10 rounded-full blur-xl animate-pulse" />
             <div className="spinner spinner-lg relative" />
           </div>
-          <p className="text-white/50 animate-pulse">Loading projects...</p>
+          <p className="text-white/50 animate-pulse">{t('projects.loading') || 'Loading projects...'}</p>
         </div>
       </div>
     )
@@ -111,20 +115,27 @@ const ProjectList = () => {
             className="inline-flex items-center gap-2 px-5 py-2 rounded-full glass mb-6">
             <motion.span className="w-2 h-2 bg-emerald-400 rounded-full" animate={{ scale: [1, 1.5, 1], opacity: [0.7, 1, 0.7] }} transition={{ duration: 2, repeat: Infinity }} />
             <span className="text-sm font-medium text-white/80">
-              📁 {selectedCategory === 'all' ? 'Our Portfolio' : currentCategoryName}
+              📁 {selectedCategory === 'all' ? t('projects.featured') || 'Our Portfolio' : currentCategoryName}
             </span>
           </motion.div>
           <h1 className="text-3xl md:text-4xl lg:text-6xl font-extrabold text-white mb-4">
-            {selectedCategory === 'all' ? <>Our <span className="gradient-text">Projects</span></> : <><span className="gradient-text">{currentCategoryName}</span> Projects</>}
+            {selectedCategory === 'all' ? (
+              <>{t('projects.title') || 'Our'} <span className="gradient-text">{t('projects.projects') || 'Projects'}</span></>
+            ) : (
+              <><span className="gradient-text">{currentCategoryName}</span> {t('projects.projects') || 'Projects'}</>
+            )}
           </h1>
           <p className="text-lg text-white/50 max-w-2xl mx-auto">
-            {selectedCategory === 'all' ? 'Success stories that demonstrate our expertise and commitment' : `Explore our ${currentCategoryName.toLowerCase()} projects`}
+            {selectedCategory === 'all' 
+              ? t('projects.description') || 'Success stories that demonstrate our expertise and commitment'
+              : t('projects.category_description') || `Explore our ${currentCategoryName.toLowerCase()} projects`
+            }
           </p>
           
           {filteredProjects.length > 0 && (
             <div className="flex flex-wrap justify-center gap-3 mt-6">
               <div className="glass px-4 py-2 rounded-full text-sm text-white/50">
-                <span className="text-white font-semibold">{totalCount}</span> project{totalCount !== 1 ? 's' : ''}
+                <span className="text-white font-semibold">{totalCount}</span> {t('projects.project') || 'project'}{totalCount !== 1 ? 's' : ''}
               </div>
             </div>
           )}
@@ -141,14 +152,14 @@ const ProjectList = () => {
               </svg>
             </div>
             <input type="text" value={searchQuery} onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1) }}
-              placeholder="Search projects by title, client, or description..."
+              placeholder={t('projects.search_placeholder') || 'Search projects by title, client, or description...'}
               className="w-full pl-12 pr-4 py-3.5 glass text-white placeholder:text-white/30 rounded-2xl border-0 outline-none focus:ring-2 focus:ring-emerald-400/50 transition-all text-sm" />
           </div>
 
           {/* Category Filters */}
           {categories.length > 0 && (
             <div className="flex flex-wrap justify-center gap-2 items-center">
-              {[{ id: 'all', name: 'All Projects' }, ...categories].slice(0, 6).map(cat => (
+              {[{ id: 'all', name: t('projects.all') || 'All Projects' }, ...categories].slice(0, 6).map(cat => (
                 <motion.button key={cat.id} onClick={() => handleCategoryChange(cat.id)}
                   className={`px-4 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 ${
                     selectedCategory === cat.id ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20 scale-105' : 'glass text-white/60 hover:text-white hover:border-white/30'
@@ -160,7 +171,7 @@ const ProjectList = () => {
                 <button onClick={() => { setSelectedCategory('all'); setSearchQuery(''); setCurrentPage(1) }}
                   className="text-xs text-white/40 hover:text-white/70 transition-colors flex items-center gap-1 px-2">
                   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-                  Clear
+                  {t('projects.clear') || 'Clear'}
                 </button>
               )}
             </div>
@@ -188,7 +199,7 @@ const ProjectList = () => {
                       currentPage === 1 ? 'glass text-white/20 cursor-not-allowed' : 'glass text-white/70 hover:text-white hover:border-emerald-400/30'
                     }`}
                   >
-                    ← Previous
+                    ← {t('projects.previous') || 'Previous'}
                   </button>
                   
                   {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
@@ -212,7 +223,7 @@ const ProjectList = () => {
                       currentPage === totalPages ? 'glass text-white/20 cursor-not-allowed' : 'glass text-white/70 hover:text-white hover:border-emerald-400/30'
                     }`}
                   >
-                    Next →
+                    {t('projects.next') || 'Next'} →
                   </button>
                 </div>
               )}
@@ -221,14 +232,17 @@ const ProjectList = () => {
             <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
               className="glass-card p-12 text-center max-w-lg mx-auto">
               <div className="text-5xl mb-4 opacity-40">📁</div>
-              <h3 className="text-xl font-bold text-white mb-2">No projects found</h3>
+              <h3 className="text-xl font-bold text-white mb-2">{t('projects.no_projects') || 'No projects found'}</h3>
               <p className="text-white/40 max-w-sm mx-auto">
-                {searchQuery ? `No projects matching "${searchQuery}".` : `No projects available in ${currentCategoryName}.`}
+                {searchQuery 
+                  ? `${t('projects.no_matching') || 'No projects matching'} "${searchQuery}".`
+                  : `${t('projects.no_projects_message') || 'No projects available in'} ${currentCategoryName}.`
+                }
               </p>
               {(selectedCategory !== 'all' || searchQuery) && (
                 <button onClick={() => { setSelectedCategory('all'); setSearchQuery(''); setCurrentPage(1) }}
                   className="mt-6 px-6 py-3 rounded-full border-2 border-white/20 text-white font-semibold hover:border-emerald-400/50 transition-all duration-300">
-                  Clear all filters
+                  {t('projects.clear_filters') || 'Clear all filters'}
                 </button>
               )}
             </motion.div>
@@ -240,93 +254,107 @@ const ProjectList = () => {
 }
 
 // ============ PROJECT GRID CARD ============
-const ProjectGridCard = ({ project, index }) => (
-  <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-    transition={{ delay: (index % 9) * 0.04, duration: 0.4 }} whileHover={{ y: -4 }}>
-    <Link to={`/projects/${project.id}`} className="block group h-full">
-      <div className="glass-card p-0 overflow-hidden h-full flex flex-col hover:border-emerald-400/30 hover:shadow-lg hover:shadow-emerald-500/5 transition-all duration-500">
-        
-        {/* ✅ IMAGE - Using cover_image_url */}
-        {project.cover_image_url ? (
-          <div className="aspect-[16/10] overflow-hidden relative">
-            <img 
-              src={project.cover_image_url} 
-              alt={project.title}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-              loading="lazy"
-              onError={(e) => { 
-                e.target.style.display = 'none'
-                e.target.nextSibling.style.display = 'flex'
-              }} 
-            />
-            <div className="w-full h-full bg-gradient-to-br from-emerald-500 to-green-700 items-center justify-center hidden">
-              <span className="text-4xl">📁</span>
-            </div>
-            {project.status && (
-              <span className={`absolute top-3 right-3 px-2.5 py-1 rounded-full text-[10px] font-semibold shadow-lg z-10 ${
-                project.status === 'completed' ? 'bg-emerald-500 text-white' : 
-                project.status === 'in_progress' ? 'bg-blue-500 text-white' : 'bg-amber-500 text-white'
-              }`}>
-                {project.status.replace('_', ' ')}
-              </span>
-            )}
-          </div>
-        ) : (
-          <div className="aspect-[16/10] bg-gradient-to-br from-emerald-500 to-green-700 flex items-center justify-center relative overflow-hidden">
-            <div className="absolute top-4 right-4 w-16 h-16 rounded-full bg-white/10 group-hover:scale-150 transition-transform duration-700" />
-            <span className="text-4xl relative z-10">📁</span>
-            {project.status && (
-              <span className={`absolute top-3 right-3 px-2.5 py-1 rounded-full text-[10px] font-semibold shadow-lg z-10 ${
-                project.status === 'completed' ? 'bg-emerald-500 text-white' : 
-                project.status === 'in_progress' ? 'bg-blue-500 text-white' : 'bg-amber-500 text-white'
-              }`}>
-                {project.status.replace('_', ' ')}
-              </span>
-            )}
-          </div>
-        )}
+const ProjectGridCard = ({ project, index }) => {
+  const { t } = useTranslation('projects') // ✅ Ongeza hii
 
-        <div className="p-5 flex-1 flex flex-col">
-          {project.category_name && (
-            <div className="mb-3">
-              <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/20">
-                {project.category_name}
-              </span>
+  // Get status label
+  const getStatusLabel = (status) => {
+    if (status === 'completed') return t('projects.completed')
+    if (status === 'in_progress') return t('projects.in_progress')
+    if (status === 'planned') return t('projects.planned')
+    return status?.replace('_', ' ') || ''
+  }
+
+  // Get status color
+  const getStatusColor = (status) => {
+    if (status === 'completed') return 'bg-emerald-500'
+    if (status === 'in_progress') return 'bg-blue-500'
+    if (status === 'planned') return 'bg-amber-500'
+    return 'bg-white/30'
+  }
+
+  return (
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: (index % 9) * 0.04, duration: 0.4 }} whileHover={{ y: -4 }}>
+      <Link to={`/projects/${project.id}`} className="block group h-full">
+        <div className="glass-card p-0 overflow-hidden h-full flex flex-col hover:border-emerald-400/30 hover:shadow-lg hover:shadow-emerald-500/5 transition-all duration-500">
+          
+          {/* ✅ IMAGE - Using cover_image_url */}
+          {project.cover_image_url ? (
+            <div className="aspect-[16/10] overflow-hidden relative">
+              <img 
+                src={project.cover_image_url} 
+                alt={project.title}
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                loading="lazy"
+                onError={(e) => { 
+                  e.target.style.display = 'none'
+                  e.target.nextSibling.style.display = 'flex'
+                }} 
+              />
+              <div className="w-full h-full bg-gradient-to-br from-emerald-500 to-green-700 items-center justify-center hidden">
+                <span className="text-4xl">📁</span>
+              </div>
+              {project.status && (
+                <span className={`absolute top-3 right-3 px-2.5 py-1 rounded-full text-[10px] font-semibold text-white shadow-lg z-10 ${getStatusColor(project.status)}`}>
+                  {getStatusLabel(project.status)}
+                </span>
+              )}
+            </div>
+          ) : (
+            <div className="aspect-[16/10] bg-gradient-to-br from-emerald-500 to-green-700 flex items-center justify-center relative overflow-hidden">
+              <div className="absolute top-4 right-4 w-16 h-16 rounded-full bg-white/10 group-hover:scale-150 transition-transform duration-700" />
+              <span className="text-4xl relative z-10">📁</span>
+              {project.status && (
+                <span className={`absolute top-3 right-3 px-2.5 py-1 rounded-full text-[10px] font-semibold text-white shadow-lg z-10 ${getStatusColor(project.status)}`}>
+                  {getStatusLabel(project.status)}
+                </span>
+              )}
             </div>
           )}
 
-          <h3 className="text-lg font-bold text-white mb-2 group-hover:text-emerald-400 transition-colors line-clamp-1">
-            {project.title}
-          </h3>
-
-          <p className="text-sm text-white/40 mb-4 line-clamp-2 flex-1 leading-relaxed">
-            {project.description}
-          </p>
-
-          <div className="flex items-center justify-between pt-4 border-t border-white/5">
-            <div className="flex items-center gap-2">
-              {project.client_name ? (
-                <span className="text-xs text-white/30 flex items-center gap-1">
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                  </svg>
-                  {project.client_name}
+          <div className="p-5 flex-1 flex flex-col">
+            {project.category_name && (
+              <div className="mb-3">
+                <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/20">
+                  {project.category_name}
                 </span>
-              ) : (
-                <span className="text-xs text-white/20">FeeVert Project</span>
-              )}
+              </div>
+            )}
+
+            <h3 className="text-lg font-bold text-white mb-2 group-hover:text-emerald-400 transition-colors line-clamp-1">
+              {project.title}
+            </h3>
+
+            <p className="text-sm text-white/40 mb-4 line-clamp-2 flex-1 leading-relaxed">
+              {project.description}
+            </p>
+
+            <div className="flex items-center justify-between pt-4 border-t border-white/5">
+              <div className="flex items-center gap-2">
+                {project.client_name ? (
+                  <span className="text-xs text-white/30 flex items-center gap-1">
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    {project.client_name}
+                  </span>
+                ) : (
+                  <span className="text-xs text-white/20">{t('projects.client') || 'FeeVert Project'}</span>
+                )}
+              </div>
+              <span className="text-sm font-semibold text-emerald-400 flex items-center gap-1 group-hover:gap-2 transition-all">
+                {t('projects.view_details') || 'View'}
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </span>
             </div>
-            <span className="text-sm font-semibold text-emerald-400 flex items-center gap-1 group-hover:gap-2 transition-all">
-              View
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </span>
           </div>
         </div>
-      </div>
-    </Link>
-  </motion.div>
-)
+      </Link>
+    </motion.div>
+  )
+}
 
 export default ProjectList

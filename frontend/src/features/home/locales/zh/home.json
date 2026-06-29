@@ -1,118 +1,166 @@
 ﻿{
-  "cta": {
-    "badge": "让我们一起合作",
-    "title": "准备好开始了吗？",
-    "subtitle": "今天就联系我们进行免费咨询，让我们帮助您实现目标。",
-    "contact_now": "立即联系我们",
-    "view_services": "查看服务",
-    "trust": {
-      "free_consultation": "免费咨询",
-      "quick_response": "快速响应",
-      "confidential": "保密"
-    }
-  },
-  "faq": {
-    "title": "常见",
-    "subtitle": "问题",
-    "description": "有问题吗？我们有答案",
-    "still_have_questions": "还有问题吗？",
-    "contact_support": "联系我们的支持团队"
-  },
-  "hero": {
-    "badge": "坦桑尼亚值得信赖的咨询公司",
-    "title_part1": "专业",
-    "title_part2": "咨询",
-    "title_part3": "共创可持续未来",
-    "subtitle": "农业、环境和职业健康与安全领域的专业服务",
-    "cta_primary": "开始",
-    "cta_secondary": "了解更多",
-    "trust": {
-      "iso_certified": "ISO认证",
-      "experience": "5年以上经验",
-      "clients": "50+满意客户"
-    }
-  },
-  "newsletter": {
-    "title": "订阅我们的",
-    "title_highlight": "新闻简报",
-    "description": "将最新更新、新闻和独家优惠直接发送到您的收件箱。",
-    "input_placeholder": "输入您的电子邮箱",
-    "subscribe_button": "订阅",
-    "subscribing": "订阅中...",
-    "success_message": "订阅成功！",
-    "error_invalid_email": "请输入有效的电子邮箱地址",
-    "error_subscribe": "订阅失败。请重试。",
-    "privacy_note": "我们尊重您的隐私。随时取消订阅。"
-  },
-  "projects": {
-    "badge": "📁 我们的作品集",
-    "title": "精选",
-    "subtitle": "项目",
-    "description": "我们的一些成功项目展示了我们的专业能力",
-    "view_all": "查看所有项目"
-  },
-  "reviews": {
-    "badge": "⭐ 客户评价",
-    "title": "我们的",
-    "subtitle": "客户",
-    "say": "评价",
-    "description": "不要只听我们的——听听我们满意的客户怎么说",
-    "client": "客户",
-    "view_all": "阅读所有评价",
-    "reviews_label": "评价",
-    "loading": "加载评价中...",
-    "page_title": "我们的",
-    "page_subtitle": "客户",
-    "page_description": "不要只听我们的。阅读我们满意的客户对我们的服务评价。",
-    "no_reviews_title": "暂无评价",
-    "no_filtered_reviews": "未找到{{rating}}星评价。请尝试其他筛选条件。",
-    "no_reviews_message": "成为第一个与我们分享您体验的人！",
-    "share_title": "分享您的体验",
-    "share_description": "我们很乐意听取您对我们服务的体验。",
-    "write_review": "写评价"
-  },
-  "services": {
-    "badge": "🛠️ 我们的服务",
-    "title": "核心",
-    "subtitle": "服务",
-    "description": "根据您的需求量身定制的全面解决方案",
-    "from": "起价",
-    "currency": "TZS",
-    "contact_pricing": "请联系获取价格",
-    "learn_more": "了解更多",
-    "view_all": "查看所有服务"
-  },
-  "stats": {
-    "projects": "已完成项目",
-    "clients": "满意客户",
-    "services": "提供的服务",
-    "years": "经验年数"
-  },
-  "team": {
-    "badge": "👥 我们的专家",
-    "title": "认识我们的",
-    "subtitle": "团队",
-    "description": "FeeVert背后充满热情的专业人士，致力于您的成功",
-    "view_all": "认识所有团队成员",
-    "member": "团队成员",
-    "email": "电子邮箱",
-    "linkedin": "领英",
-    "twitter": "推特"
-  },
-  "about": {
-    "badge": "我们的故事",
-    "title": "关于",
-    "company": "FeeVert",
-    "loading": "加载中",
-    "error_title": "无法加载内容",
-    "error_message": "请检查您的连接并重试。",
-    "retry": "重试",
-    "mission": "我们的使命",
-    "vision": "我们的愿景",
-    "core_values_title": "我们的核心",
-    "core_values_subtitle": "价值观",
-    "impact_title": "我们的数据影响力",
-    "why_choose_title": "为什么选择",
-    "why_choose_subtitle": "FeeVert"
-  }
+    "cta":  {
+                "badge":  "让我们一起合作",
+                "title":  "准备好开始了吗？",
+                "subtitle":  "今天就联系我们进行免费咨询，让我们帮助您实现目标。",
+                "contact_now":  "立即联系我们",
+                "view_services":  "查看服务",
+                "trust":  {
+                              "free_consultation":  "免费咨询",
+                              "quick_response":  "快速响应",
+                              "confidential":  "保密"
+                          }
+            },
+    "faq":  {
+                "title":  "常见",
+                "subtitle":  "问题",
+                "description":  "有问题吗？我们有答案",
+                "still_have_questions":  "还有问题吗？",
+                "contact_support":  "联系我们的支持团队"
+            },
+    "hero":  {
+                 "badge":  "坦桑尼亚值得信赖的咨询公司",
+                 "title_part1":  "专业",
+                 "title_part2":  "咨询",
+                 "title_part3":  "共创可持续未来",
+                 "subtitle":  "农业、环境和职业健康与安全领域的专业服务",
+                 "cta_primary":  "开始",
+                 "cta_secondary":  "了解更多",
+                 "trust":  {
+                               "iso_certified":  "ISO认证",
+                               "experience":  "5年以上经验",
+                               "clients":  "50+满意客户"
+                           },
+                 "scroll":  "滚动"
+             },
+    "newsletter":  {
+                       "title":  "订阅我们的",
+                       "title_highlight":  "新闻简报",
+                       "description":  "将最新更新、新闻和独家优惠直接发送到您的收件箱。",
+                       "input_placeholder":  "输入您的电子邮箱",
+                       "subscribe_button":  "订阅",
+                       "subscribing":  "订阅中...",
+                       "success_message":  "订阅成功！",
+                       "error_invalid_email":  "请输入有效的电子邮箱地址",
+                       "error_subscribe":  "订阅失败。请重试。",
+                       "privacy_note":  "我们尊重您的隐私。随时取消订阅。"
+                   },
+    "projects":  {
+                     "badge":  "📁 我们的作品集",
+                     "title":  "精选",
+                     "subtitle":  "项目",
+                     "description":  "我们的一些成功项目展示了我们的专业能力",
+                     "view_all":  "查看所有项目",
+                     "view":  "查看"
+                 },
+    "reviews":  {
+                    "badge":  "⭐ 客户评价",
+                    "title":  "我们的",
+                    "subtitle":  "客户",
+                    "say":  "评价",
+                    "description":  "不要只听我们的——听听我们满意的客户怎么说",
+                    "client":  "客户",
+                    "view_all":  "阅读所有评价",
+                    "reviews_label":  "评价",
+                    "loading":  "加载评价中...",
+                    "page_title":  "我们的",
+                    "page_subtitle":  "客户",
+                    "page_description":  "不要只听我们的。阅读我们满意的客户对我们的服务评价。",
+                    "no_reviews_title":  "暂无评价",
+                    "no_filtered_reviews":  "未找到{{rating}}星评价。请尝试其他筛选条件。",
+                    "no_reviews_message":  "成为第一个与我们分享您体验的人！",
+                    "share_title":  "分享您的体验",
+                    "share_description":  "我们很乐意听取您对我们服务的体验。",
+                    "write_review":  "写评价"
+                },
+    "team":  {
+                 "badge":  "👥 我们的专家",
+                 "title":  "认识我们的",
+                 "subtitle":  "团队",
+                 "description":  "FeeVert背后充满热情的专业人士，致力于您的成功",
+                 "view_all":  "认识所有团队成员",
+                 "member":  "团队成员",
+                 "email":  "电子邮箱",
+                 "linkedin":  "领英",
+                 "twitter":  "推特"
+             },
+    "about":  {
+                  "badge":  "我们的故事",
+                  "title":  "关于",
+                  "company":  "FeeVert",
+                  "loading":  "加载中",
+                  "error_title":  "无法加载内容",
+                  "error_message":  "请检查您的连接并重试。",
+                  "retry":  "重试",
+                  "mission":  "我们的使命",
+                  "vision":  "我们的愿景",
+                  "core_values_title":  "我们的核心",
+                  "core_values_subtitle":  "价值观",
+                  "impact_title":  "我们的数据影响力",
+                  "why_choose_title":  "为什么选择",
+                  "why_choose_subtitle":  "FeeVert"
+              },
+    "home":  {
+                 "view_services":  "查看服务",
+                 "subtitle":  "为可持续未来提供专家咨询",
+                 "welcome":  "欢迎来到",
+                 "explore_homepage":  "探索首页",
+                 "company":  "FeeVert"
+             },
+    "partners":  {
+                     "badge":  "🤝 我们的网络",
+                     "title":  "我们的",
+                     "subtitle":  "合作伙伴",
+                     "description":  "我们与领先组织合作，提供卓越价值",
+                     "loading":  "加载合作伙伴...",
+                     "visit_website":  "访问网站",
+                     "no_partners_title":  "暂无合作伙伴",
+                     "no_partners_message":  "我们正在建立合作伙伴网络。请稍后再来！",
+                     "become_partner_title":  "成为合作伙伴",
+                     "become_partner_description":  "有兴趣与我们合作吗？让我们一起创造伟大的成就。"
+                 },
+    "stats":  {
+                  "title":  "用",
+                  "description":  "结果不言自明",
+                  "badge":  "📊 我们的影响力",
+                  "subtitle":  "数据说话"
+              },
+    "services":  {
+                     "get_quote_description":  "今天就联系我们获取免费报价，让我们帮助您实现目标。",
+                     "get_quote_title":  "获取报价",
+                     "pricing":  "定价",
+                     "get_quote":  "获取报价",
+                     "deliverables":  "交付物",
+                     "duration":  "时长",
+                     "faq":  "常见问题",
+                     "back_to_services":  "返回服务",
+                     "request_service":  "请求服务",
+                     "days":  "天",
+                     "ready_description":  "请求此服务，让我们帮助您实现目标。",
+                     "gallery":  "图库",
+                     "ready_title":  "准备好开始了吗？",
+                     "delivery":  "交付",
+                     "benefits":  "优势",
+                     "prerequisites":  "先决条件",
+                     "images":  "张图片",
+                     "starting_from":  "起价",
+                     "all_services":  "所有服务",
+                     "comprehensive_solutions":  "综合解决方案",
+                     "our_services":  "我们的",
+                     "services":  "服务",
+                     "all_description":  "根据您的具体需求量身定制的全面咨询服务",
+                     "category_description":  "探索我们旨在帮助您成功的服务",
+                     "no_categories":  "没有包含服务的类别",
+                     "service_count":  "项服务",
+                     "found":  "找到",
+                     "clear":  "清除",
+                     "learn_more":  "了解更多",
+                     "page":  "第",
+                     "of":  "页，共",
+                     "total_services":  "总共服务",
+                     "no_services_title":  "未找到服务",
+                     "no_services_message":  "请稍后再来查看新服务。",
+                     "no_category_services":  "此类别中没有可用服务。",
+                     "view_all":  "查看所有服务"
+                 }
 }

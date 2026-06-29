@@ -1,118 +1,166 @@
 ﻿{
-  "cta": {
-    "badge": "Tufanye Kazi Pamoja",
-    "title": "Uko Tayari Kuanza?",
-    "subtitle": "Wasiliana nasi leo kwa ushauri wa bure na tuwasaidie kufikia malengo yako.",
-    "contact_now": "Wasiliana Nasi Sasa",
-    "view_services": "Tazama Huduma",
-    "trust": {
-      "free_consultation": "Ushauri Bure",
-      "quick_response": "Majibu ya Haraka",
-      "confidential": "Siri"
-    }
-  },
-  "faq": {
-    "title": "Maswali Yanayoulizwa",
-    "subtitle": "Mara kwa Mara",
-    "description": "Una maswali? Tuna majibu",
-    "still_have_questions": "Bado una maswali?",
-    "contact_support": "Wasiliana na timu yetu ya msaada"
-  },
-  "hero": {
-    "badge": "Ushauri Unaotegemewa Tanzania",
-    "title_part1": "Ushauri",
-    "title_part2": "Bora",
-    "title_part3": "kwa Mustakabali Endelevu",
-    "subtitle": "Huduma za kitaalamu katika Kilimo, Mazingira na Afya na Usalama Kazini",
-    "cta_primary": "Anza Sasa",
-    "cta_secondary": "Jifunze Zaidi",
-    "trust": {
-      "iso_certified": "Imeidhinishwa ISO",
-      "experience": "Uzoefu wa Miaka 5+",
-      "clients": "Wateja 50+ Walioridhika"
-    }
-  },
-  "newsletter": {
-    "title": "Jisajili Kwa",
-    "title_highlight": "Jarida Letu",
-    "description": "Pata taarifa mpya, habari, na ofa maalum moja kwa moja kwenye barua pepe yako.",
-    "input_placeholder": "Ingiza barua pepe yako",
-    "subscribe_button": "Jisajili",
-    "subscribing": "Inajisajili...",
-    "success_message": "Umejisajili kikamilifu!",
-    "error_invalid_email": "Tafadhali ingiza barua pepe sahihi",
-    "error_subscribe": "Imeshindwa kujisajili. Tafadhali jaribu tena.",
-    "privacy_note": "Tunaheshimu faragha yako. Jisajili kwa hiari yako."
-  },
-  "projects": {
-    "badge": "📁 Kwingineko Yetu",
-    "title": "Miradi",
-    "subtitle": "Iliyoangaziwa",
-    "description": "Baadhi ya miradi yetu iliyofanikiwa inayoonyesha utaalamu wetu",
-    "view_all": "Tazama Miradi Yote"
-  },
-  "reviews": {
-    "badge": "⭐ Maoni ya Wateja",
-    "title": "Wateja",
-    "subtitle": "Wanasema",
-    "say": "Nini?",
-    "description": "Usichukue neno letu tu — sikia kutoka kwa wateja wetu walioridhika",
-    "client": "Mteja",
-    "view_all": "Soma Maoni Yote",
-    "reviews_label": "Maoni",
-    "loading": "Inapakia maoni...",
-    "page_title": "Wateja",
-    "page_subtitle": "Wanasema",
-    "page_description": "Usichukue neno letu tu. Soma kile wateja wetu walioridhika wanasema kuhusu huduma zetu.",
-    "no_reviews_title": "Hakuna maoni bado",
-    "no_filtered_reviews": "Hakuna maoni ya nyota {{rating}} yaliyopatikana. Jaribu kichujio kingine.",
-    "no_reviews_message": "Kuwa wa kwanza kushiriki uzoefu wako nasi!",
-    "share_title": "Shiriki Uzoefu Wako",
-    "share_description": "Tunapenda kusikia kuhusu uzoefu wako na huduma zetu.",
-    "write_review": "Andika Maoni"
-  },
-  "services": {
-    "badge": "🛠️ Tunachotoa",
-    "title": "Huduma",
-    "subtitle": "Zetu",
-    "description": "Suluhisho kamili kulingana na mahitaji yako",
-    "from": "Kuanzia",
-    "currency": "TSh",
-    "contact_pricing": "Wasiliana kwa bei",
-    "learn_more": "Jifunze zaidi",
-    "view_all": "Tazama Huduma Zote"
-  },
-  "stats": {
-    "projects": "Miradi Imekamilika",
-    "clients": "Wateja Walioridhika",
-    "services": "Huduma Zinazotolewa",
-    "years": "Uzoefu wa Miaka"
-  },
-  "team": {
-    "badge": "👥 Wataalamu Wetu",
-    "title": "Wajue",
-    "subtitle": "Timu Yetu",
-    "description": "Wataalamu wenye shauku nyuma ya FeeVert, waliojitolea kwa mafanikio yako",
-    "view_all": "Wajue Wanachama Wote wa Timu",
-    "member": "Mwanachama wa Timu",
-    "email": "Barua Pepe",
-    "linkedin": "LinkedIn",
-    "twitter": "Twitter"
-  },
-  "about": {
-    "badge": "Hadithi Yetu",
-    "title": "Kuhusu",
-    "company": "FeeVert",
-    "loading": "Inapakia",
-    "error_title": "Imeshindwa kupakia maudhui",
-    "error_message": "Tafadhali angalia muunganisho wako na ujaribu tena.",
-    "retry": "Jaribu Tena",
-    "mission": "Dhamira Yetu",
-    "vision": "Maono Yetu",
-    "core_values_title": "Maadili",
-    "core_values_subtitle": "Yetu",
-    "impact_title": "Athari Zetu kwa Nambari",
-    "why_choose_title": "Kwa Nini Uchague",
-    "why_choose_subtitle": "FeeVert"
-  }
+    "cta":  {
+                "badge":  "Tufanye Kazi Pamoja",
+                "title":  "Uko Tayari Kuanza?",
+                "subtitle":  "Wasiliana nasi leo kwa ushauri wa bure na tuwasaidie kufikia malengo yako.",
+                "contact_now":  "Wasiliana Nasi Sasa",
+                "view_services":  "Tazama Huduma",
+                "trust":  {
+                              "free_consultation":  "Ushauri Bure",
+                              "quick_response":  "Majibu ya Haraka",
+                              "confidential":  "Siri"
+                          }
+            },
+    "faq":  {
+                "title":  "Maswali Yanayoulizwa",
+                "subtitle":  "Mara kwa Mara",
+                "description":  "Una maswali? Tuna majibu",
+                "still_have_questions":  "Bado una maswali?",
+                "contact_support":  "Wasiliana na timu yetu ya msaada"
+            },
+    "hero":  {
+                 "badge":  "Ushauri Unaotegemewa Tanzania",
+                 "title_part1":  "Ushauri",
+                 "title_part2":  "Bora",
+                 "title_part3":  "kwa Mustakabali Endelevu",
+                 "subtitle":  "Huduma za kitaalamu katika Kilimo, Mazingira na Afya na Usalama Kazini",
+                 "cta_primary":  "Anza Sasa",
+                 "cta_secondary":  "Jifunze Zaidi",
+                 "trust":  {
+                               "iso_certified":  "Imeidhinishwa ISO",
+                               "experience":  "Uzoefu wa Miaka 5+",
+                               "clients":  "Wateja 50+ Walioridhika"
+                           },
+                 "scroll":  "Tembeza"
+             },
+    "newsletter":  {
+                       "title":  "Jisajili Kwa",
+                       "title_highlight":  "Jarida Letu",
+                       "description":  "Pata taarifa mpya, habari, na ofa maalum moja kwa moja kwenye barua pepe yako.",
+                       "input_placeholder":  "Ingiza barua pepe yako",
+                       "subscribe_button":  "Jisajili",
+                       "subscribing":  "Inajisajili...",
+                       "success_message":  "Umejisajili kikamilifu!",
+                       "error_invalid_email":  "Tafadhali ingiza barua pepe sahihi",
+                       "error_subscribe":  "Imeshindwa kujisajili. Tafadhali jaribu tena.",
+                       "privacy_note":  "Tunaheshimu faragha yako. Jisajili kwa hiari yako."
+                   },
+    "projects":  {
+                     "badge":  "📁 Kwingineko Yetu",
+                     "title":  "Miradi",
+                     "subtitle":  "Iliyoangaziwa",
+                     "description":  "Baadhi ya miradi yetu iliyofanikiwa inayoonyesha utaalamu wetu",
+                     "view_all":  "Tazama Miradi Yote",
+                     "view":  "Tazama"
+                 },
+    "reviews":  {
+                    "badge":  "⭐ Maoni ya Wateja",
+                    "title":  "Wateja",
+                    "subtitle":  "Wanasema",
+                    "say":  "Nini?",
+                    "description":  "Usichukue neno letu tu — sikia kutoka kwa wateja wetu walioridhika",
+                    "client":  "Mteja",
+                    "view_all":  "Soma Maoni Yote",
+                    "reviews_label":  "Maoni",
+                    "loading":  "Inapakia maoni...",
+                    "page_title":  "Wateja",
+                    "page_subtitle":  "Wanasema",
+                    "page_description":  "Usichukue neno letu tu. Soma kile wateja wetu walioridhika wanasema kuhusu huduma zetu.",
+                    "no_reviews_title":  "Hakuna maoni bado",
+                    "no_filtered_reviews":  "Hakuna maoni ya nyota {{rating}} yaliyopatikana. Jaribu kichujio kingine.",
+                    "no_reviews_message":  "Kuwa wa kwanza kushiriki uzoefu wako nasi!",
+                    "share_title":  "Shiriki Uzoefu Wako",
+                    "share_description":  "Tunapenda kusikia kuhusu uzoefu wako na huduma zetu.",
+                    "write_review":  "Andika Maoni"
+                },
+    "team":  {
+                 "badge":  "👥 Wataalamu Wetu",
+                 "title":  "Ifahamu",
+                 "subtitle":  "Timu Yetu",
+                 "description":  "Wataalamu wenye shauku nyuma ya FeeVert, waliojitolea kwa mafanikio yako",
+                 "view_all":  "Wajue Wanachama Wote wa Timu",
+                 "member":  "Mwanachama wa Timu",
+                 "email":  "Barua Pepe",
+                 "linkedin":  "LinkedIn",
+                 "twitter":  "Twitter"
+             },
+    "about":  {
+                  "badge":  "Hadithi Yetu",
+                  "title":  "Kuhusu",
+                  "company":  "FeeVert",
+                  "loading":  "Inapakia",
+                  "error_title":  "Imeshindwa kupakia maudhui",
+                  "error_message":  "Tafadhali angalia muunganisho wako na ujaribu tena.",
+                  "retry":  "Jaribu Tena",
+                  "mission":  "Dhamira Yetu",
+                  "vision":  "Maono Yetu",
+                  "core_values_title":  "Maadili",
+                  "core_values_subtitle":  "Yetu",
+                  "impact_title":  "Athari Zetu kwa Nambari",
+                  "why_choose_title":  "Kwa Nini Uchague",
+                  "why_choose_subtitle":  "FeeVert"
+              },
+    "home":  {
+                 "view_services":  "Tazama Huduma",
+                 "subtitle":  "Ushauri wa kitaalamu kwa mustakabali endelevu",
+                 "welcome":  "Karibu",
+                 "explore_homepage":  "Tazama Ukurasa wa Mwanzo",
+                 "company":  "FeeVert"
+             },
+    "partners":  {
+                     "badge":  "🤝 Mtandao Wetu",
+                     "title":  "Washirika",
+                     "subtitle":  "Wetu",
+                     "description":  "Tunashirikiana na mashirika bora ili kutoa thamani bora",
+                     "loading":  "Inapakia washirika...",
+                     "visit_website":  "Tembelea tovuti",
+                     "no_partners_title":  "Hakuna washirika bado",
+                     "no_partners_message":  "Tunajenga mtandao wetu wa washirika. Rudi tena hivi karibuni!",
+                     "become_partner_title":  "Kuwa Mshirika",
+                     "become_partner_description":  "Unapenda kushirikiana nasi? Wacha tuunde kitu kikubwa pamoja."
+                 },
+    "stats":  {
+                  "title":  "Kwa",
+                  "description":  "Matokeo yanajieleza yenyewe",
+                  "badge":  "📊 Athari Zetu",
+                  "subtitle":  "Nambari"
+              },
+    "services":  {
+                     "get_quote_description":  "Wasiliana nasi leo kwa bei na tuwasaidie kufikia malengo yako.",
+                     "get_quote_title":  "Omba Bei",
+                     "pricing":  "Bei",
+                     "get_quote":  "Omba Bei",
+                     "deliverables":  "Matokeo",
+                     "duration":  "Muda",
+                     "faq":  "Maswali Yanayoulizwa",
+                     "back_to_services":  "Rudi kwenye Huduma",
+                     "request_service":  "Omba Huduma",
+                     "days":  "siku",
+                     "ready_description":  "Omba huduma hii na tuwasaidie kufikia malengo yako.",
+                     "gallery":  "Picha",
+                     "ready_title":  "Uko Tayari Kuanza?",
+                     "delivery":  "Uwasilishaji",
+                     "benefits":  "Manufaa",
+                     "prerequisites":  "Masharti",
+                     "images":  "picha",
+                     "starting_from":  "Kuanzia",
+                     "all_services":  "Huduma Zote",
+                     "comprehensive_solutions":  "Suluhisho Kamili",
+                     "our_services":  "Huduma",
+                     "services":  "Zetu",
+                     "all_description":  "Suluhisho kamili za ushauri kulingana na mahitaji yako",
+                     "category_description":  "Gundua huduma zetu zilizoundwa kukusaidia kufanikiwa",
+                     "no_categories":  "Hakuna kategoria zilizo na huduma",
+                     "service_count":  "huduma",
+                     "found":  "zilizopatikana",
+                     "clear":  "Futa",
+                     "learn_more":  "Jifunze zaidi",
+                     "page":  "Ukurasa",
+                     "of":  "kati ya",
+                     "total_services":  "jumla ya huduma",
+                     "no_services_title":  "Hakuna huduma zilizopatikana",
+                     "no_services_message":  "Rudi tena baadaye kwa huduma mpya.",
+                     "no_category_services":  "Hakuna huduma katika kategoria hii.",
+                     "view_all":  "Tazama huduma zote"
+                 }
 }

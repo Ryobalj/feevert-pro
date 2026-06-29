@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next' // ✅ Ongeza hii
 import { useTheme } from '../../../context/ThemeContext'
 import api from '../../../app/api'
 
 const ContactPage = () => {
+  const { t } = useTranslation('common') // ✅ Ongeza hii
   const [formData, setFormData] = useState({ name: '', email: '', phone: '', subject: '', message: '' })
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
@@ -32,7 +34,7 @@ const ContactPage = () => {
       setTimeout(() => setSubmitted(false), 5000)
     } catch (error) {
       console.error('Error sending message:', error)
-      alert('Error sending message. Please try again.')
+      alert(t('contact.error_message') || 'Error sending message. Please try again.')
     } finally {
       setSubmitting(false)
     }
@@ -45,21 +47,21 @@ const ContactPage = () => {
   const contactCards = [
     { 
       icon: '📧', 
-      label: 'Email', 
+      label: t('contact.email_label') || 'Email', 
       value: settings?.contact_email || 'info@feevert.co.tz', 
       link: `mailto:${settings?.contact_email || 'info@feevert.co.tz'}`,
       color: 'border-l-[var(--g-color-primary)]'
     },
     { 
       icon: '📞', 
-      label: 'Phone', 
+      label: t('contact.phone_label') || 'Phone', 
       value: settings?.contact_phone || '+255 123 456 789', 
       link: `tel:${settings?.contact_phone || '+255123456789'}`,
       color: 'border-l-emerald-500'
     },
     { 
       icon: '📍', 
-      label: 'Address', 
+      label: t('contact.address_label') || 'Address', 
       value: settings?.contact_address || 'Dar es Salaam, Tanzania', 
       link: null,
       color: 'border-l-teal-500'
@@ -81,13 +83,16 @@ const ContactPage = () => {
         >
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass mb-6">
             <span className="text-lg">💬</span>
-            <span className="text-sm text-[var(--g-text-secondary)]">Get in Touch</span>
+            <span className="text-sm text-[var(--g-text-secondary)]">
+              {t('contact.badge') || 'Get in Touch'}
+            </span>
           </div>
           <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-[var(--g-text-primary)] mb-4">
-            Get in <span className="gradient-text">Touch</span>
+            {t('contact.title') || 'Get in'}{' '}
+            <span className="gradient-text">{t('contact.subtitle') || 'Touch'}</span>
           </h1>
           <p className="text-lg text-[var(--g-text-tertiary)] max-w-2xl mx-auto">
-            Have questions? We'd love to hear from you. Send us a message and we'll respond as soon as possible.
+            {t('contact.description') || "Have questions? We'd love to hear from you. Send us a message and we'll respond as soon as possible."}
           </p>
         </motion.div>
 
@@ -131,7 +136,7 @@ const ContactPage = () => {
             animate={{ opacity: 1, y: 0 }}
             className="mb-6 p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-emerald-500 text-center font-medium"
           >
-            ✅ Message sent successfully! We'll get back to you soon.
+            ✅ {t('contact.success_message') || 'Message sent successfully! We\'ll get back to you soon.'}
           </motion.div>
         )}
 
@@ -144,13 +149,15 @@ const ContactPage = () => {
         >
           <h2 className="text-xl font-semibold text-[var(--g-text-primary)] mb-6 flex items-center gap-2">
             <span>📝</span>
-            Send us a message
+            {t('contact.form_title') || 'Send us a message'}
           </h2>
           
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="grid md:grid-cols-2 gap-5">
               <div>
-                <label className="form-label form-label-required">Name</label>
+                <label className="form-label form-label-required">
+                  {t('contact.name_label') || 'Name'}
+                </label>
                 <div className="input-wrapper">
                   <span className="input-icon">👤</span>
                   <input
@@ -160,12 +167,14 @@ const ContactPage = () => {
                     onChange={handleChange}
                     required
                     className="form-input-liquid w-full"
-                    placeholder="Your name"
+                    placeholder={t('contact.name_placeholder') || 'Your name'}
                   />
                 </div>
               </div>
               <div>
-                <label className="form-label form-label-required">Email</label>
+                <label className="form-label form-label-required">
+                  {t('contact.email_label') || 'Email'}
+                </label>
                 <div className="input-wrapper">
                   <span className="input-icon">📧</span>
                   <input
@@ -175,7 +184,7 @@ const ContactPage = () => {
                     onChange={handleChange}
                     required
                     className="form-input-liquid w-full"
-                    placeholder="Your email"
+                    placeholder={t('contact.email_placeholder') || 'Your email'}
                   />
                 </div>
               </div>
@@ -183,7 +192,9 @@ const ContactPage = () => {
             
             <div className="grid md:grid-cols-2 gap-5">
               <div>
-                <label className="form-label">Phone (optional)</label>
+                <label className="form-label">
+                  {t('contact.phone_label') || 'Phone'} <span className="text-white/30 text-xs">({t('contact.optional') || 'optional'})</span>
+                </label>
                 <div className="input-wrapper">
                   <span className="input-icon">📞</span>
                   <input
@@ -192,12 +203,14 @@ const ContactPage = () => {
                     value={formData.phone}
                     onChange={handleChange}
                     className="form-input-liquid w-full"
-                    placeholder="Your phone number"
+                    placeholder={t('contact.phone_placeholder') || 'Your phone number'}
                   />
                 </div>
               </div>
               <div>
-                <label className="form-label form-label-required">Subject</label>
+                <label className="form-label form-label-required">
+                  {t('contact.subject_label') || 'Subject'}
+                </label>
                 <div className="input-wrapper">
                   <span className="input-icon">📋</span>
                   <input
@@ -207,14 +220,16 @@ const ContactPage = () => {
                     onChange={handleChange}
                     required
                     className="form-input-liquid w-full"
-                    placeholder="Subject"
+                    placeholder={t('contact.subject_placeholder') || 'Subject'}
                   />
                 </div>
               </div>
             </div>
             
             <div>
-              <label className="form-label form-label-required">Message</label>
+              <label className="form-label form-label-required">
+                {t('contact.message_label') || 'Message'}
+              </label>
               <textarea
                 name="message"
                 value={formData.message}
@@ -222,7 +237,7 @@ const ContactPage = () => {
                 required
                 rows="5"
                 className="form-textarea liquid-input w-full resize-y"
-                placeholder="Your message..."
+                placeholder={t('contact.message_placeholder') || 'Your message...'}
               />
             </div>
             
@@ -234,11 +249,11 @@ const ContactPage = () => {
               {submitting ? (
                 <span className="flex items-center gap-2">
                   <span className="spinner spinner-sm" />
-                  Sending...
+                  {t('buttons.sending') || 'Sending...'}
                 </span>
               ) : (
                 <span className="flex items-center gap-2">
-                  Send Message
+                  {t('buttons.submit') || 'Send Message'}
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                   </svg>

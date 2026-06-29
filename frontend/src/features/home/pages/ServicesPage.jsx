@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useTranslation } from 'react-i18next' // ✅ Ongeza hii
 import { useTheme } from '../../../context/ThemeContext'
 import api from '../../../app/api'
 import Loader from '../../../components/ui/Loader'
@@ -275,6 +276,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
 
 // ============ MAIN SERVICES PAGE ============
 const ServicesPage = () => {
+  const { t } = useTranslation(['home', 'common']) // ✅ Ongeza hii
   const [services, setServices] = useState([])
   const [categories, setCategories] = useState([])
   const [selectedCategory, setSelectedCategory] = useState('all')
@@ -313,20 +315,18 @@ const ServicesPage = () => {
               page: currentPage,
               page_size: pageSize,
               category: selectedCategory !== 'all' ? selectedCategory : undefined,
-              is_active: true,  // ✅ Ensure only active services
+              is_active: true,
             }
           }),
           api.get('/consultation-categories/', {
             params: {
-              is_active: true,  // ✅ Ensure only active categories
+              is_active: true,
             }
           })
         ])
 
-        // ✅ Process services
         const data = servicesRes.data
         if (data.results) {
-          // Double-check active status
           const activeServices = data.results.filter(s => s.is_active !== false)
           setServices(activeServices)
           setTotalCount(data.count || 0)
@@ -342,7 +342,6 @@ const ServicesPage = () => {
           setTotalPages(1)
         }
 
-        // ✅ Process categories - only active ones
         const categoriesData = Array.isArray(categoriesRes.data?.results)
           ? categoriesRes.data.results
           : categoriesRes.data || []
@@ -398,20 +397,19 @@ const ServicesPage = () => {
   if (loading && services.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader size="lg" text="Loading services..." />
+        <Loader size="lg" text={t('common.loading') || 'Loading services...'} />
       </div>
     )
   }
 
   const currentCategoryName = selectedCategory === 'all'
-    ? 'All Services'
-    : categories.find(c => c.id == selectedCategory)?.name || 'Services'
+    ? t('services.all_services') || 'All Services'
+    : categories.find(c => c.id == selectedCategory)?.name || t('services.services') || 'Services'
 
   const currentCategoryIcon = selectedCategory !== 'all'
     ? categories.find(c => c.id == selectedCategory)?.icon
     : '🛠️'
 
-  // ✅ Get categories that actually have services
   const categoriesWithServices = categories.filter(cat => cat.service_count > 0)
 
   return (
@@ -439,21 +437,23 @@ const ServicesPage = () => {
               transition={{ duration: 2, repeat: Infinity }}
             />
             <span className="text-sm font-medium text-white/80">
-              <Icon name={currentCategoryIcon} /> {selectedCategory === 'all' ? 'Comprehensive Solutions' : currentCategoryName}
+              <Icon name={currentCategoryIcon} /> {selectedCategory === 'all' 
+                ? t('services.comprehensive_solutions') || 'Comprehensive Solutions'
+                : currentCategoryName}
             </span>
           </motion.div>
 
           <h1 className="text-3xl md:text-4xl lg:text-6xl font-extrabold text-white mb-4">
             {selectedCategory === 'all' ? (
-              <>Our <span className="gradient-text">Services</span></>
+              <>{t('services.our_services') || 'Our'} <span className="gradient-text">{t('services.services') || 'Services'}</span></>
             ) : (
-              <><span className="gradient-text">{currentCategoryName}</span> Services</>
+              <><span className="gradient-text">{currentCategoryName}</span> {t('services.services') || 'Services'}</>
             )}
           </h1>
           <p className="text-lg text-white/50 max-w-2xl mx-auto">
             {selectedCategory === 'all'
-              ? 'Comprehensive consultancy solutions tailored to your specific needs'
-              : `Explore our ${currentCategoryName.toLowerCase()} services designed to help you succeed`
+              ? t('services.all_description') || 'Comprehensive consultancy solutions tailored to your specific needs'
+              : t('services.category_description') || `Explore our ${currentCategoryName.toLowerCase()} services designed to help you succeed`
             }
           </p>
         </motion.div>
@@ -510,12 +510,11 @@ const ServicesPage = () => {
                           : 'text-white/70 hover:text-white hover:bg-white/5'
                       }`}
                     >
-                      <span>🛠️</span> All Services
+                      <span>🛠️</span> {t('services.all_services') || 'All Services'}
                       <span className="ml-auto text-xs text-white/30">{totalCount}</span>
                     </button>
                     <div className="h-px bg-white/5 my-1" />
 
-                    {/* ✅ Only show categories that have active services */}
                     {categoriesWithServices.length > 0 ? (
                       categoriesWithServices.map(cat => (
                         <button
@@ -536,7 +535,7 @@ const ServicesPage = () => {
                       ))
                     ) : (
                       <div className="px-4 py-6 text-center text-white/40 text-sm">
-                        No categories with services available
+                        {t('services.no_categories') || 'No categories with services available'}
                       </div>
                     )}
                   </motion.div>
@@ -546,7 +545,7 @@ const ServicesPage = () => {
 
             <span className="text-sm text-white/30 flex items-center gap-2">
               <span className="w-1 h-1 bg-emerald-400 rounded-full" />
-              {totalCount} service{totalCount !== 1 ? 's' : ''} found
+              {totalCount} {t('services.service_count') || 'service'}{totalCount !== 1 ? 's' : ''} {t('services.found') || 'found'}
             </span>
 
             {selectedCategory !== 'all' && (
@@ -557,7 +556,7 @@ const ServicesPage = () => {
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
-                Clear
+                {t('services.clear') || 'Clear'}
               </button>
             )}
           </motion.div>
@@ -619,7 +618,7 @@ const ServicesPage = () => {
                               {getDisplayPrice(service)}
                             </span>
                             <span className="text-sm font-semibold text-emerald-400 flex items-center gap-1 group-hover:gap-2 transition-all ml-auto">
-                              Learn more
+                              {t('services.learn_more') || 'Learn more'}
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                               </svg>
@@ -640,7 +639,7 @@ const ServicesPage = () => {
 
               {totalPages > 1 && (
                 <p className="text-center text-white/20 text-xs mt-4">
-                  Page {currentPage} of {totalPages} · {totalCount} total services
+                  {t('services.page') || 'Page'} {currentPage} {t('services.of') || 'of'} {totalPages} · {totalCount} {t('services.total_services') || 'total services'}
                 </p>
               )}
             </>
@@ -651,11 +650,11 @@ const ServicesPage = () => {
               className="glass-card p-12 text-center"
             >
               <div className="text-5xl mb-4 opacity-40">📂</div>
-              <h3 className="text-xl font-bold text-white mb-2">No services found</h3>
+              <h3 className="text-xl font-bold text-white mb-2">{t('services.no_services_title') || 'No services found'}</h3>
               <p className="text-white/40 max-w-sm mx-auto">
                 {selectedCategory === 'all'
-                  ? 'Check back later for new services.'
-                  : `No services available in ${currentCategoryName}.`
+                  ? t('services.no_services_message') || 'Check back later for new services.'
+                  : t('services.no_category_services') || `No services available in ${currentCategoryName}.`
                 }
               </p>
               {selectedCategory !== 'all' && (
@@ -663,7 +662,7 @@ const ServicesPage = () => {
                   onClick={() => handleCategoryChange('all')}
                   className="mt-6 px-6 py-3 rounded-full border-2 border-white/20 text-white font-semibold hover:border-emerald-400/50 transition-all duration-300"
                 >
-                  View all services
+                  {t('services.view_all') || 'View all services'}
                 </button>
               )}
             </motion.div>

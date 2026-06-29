@@ -2,6 +2,7 @@
 
 import React from 'react'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next' // ✅ Ongeza hii
 
 // ============ PROJECT CARD IMAGE CAROUSEL ============
 const ProjectCardImage = ({ project }) => {
@@ -119,7 +120,7 @@ const ProjectCardImage = ({ project }) => {
 
         {project.is_featured && (
           <span className="absolute top-3 right-3 inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold bg-amber-500/90 text-white shadow-lg z-20">
-            ⭐ Featured
+            ⭐ {project.is_featured_label || 'Featured'}
           </span>
         )}
       </div>
@@ -155,7 +156,7 @@ const ProjectCardImage = ({ project }) => {
 
       {project.is_featured && (
         <span className="absolute top-3 right-3 inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold bg-amber-500/90 text-white shadow-lg z-20">
-          ⭐ Featured
+          ⭐ {project.is_featured_label || 'Featured'}
         </span>
       )}
 
@@ -225,6 +226,8 @@ const ProjectCardImage = ({ project }) => {
 
 // ============ MAIN PROJECT CARD ============
 const ProjectCard = ({ project }) => {
+  const { t } = useTranslation('projects') // ✅ Ongeza hii
+
   return (
     <Link to={`/projects/${project.id}`} className="block group h-full">
       <div className="glass-card p-0 overflow-hidden h-full flex flex-col hover:border-emerald-400/30 hover:shadow-lg hover:shadow-emerald-500/5 transition-all duration-500">
@@ -257,11 +260,11 @@ const ProjectCard = ({ project }) => {
                 <span className="text-white/50 font-medium">{project.client_name}</span>
               </span>
             ) : (
-              <span className="text-xs text-white/20">FeeVert Project</span>
+              <span className="text-xs text-white/20">{t('projects.client') || 'FeeVert Project'}</span>
             )}
 
             <span className="text-sm font-semibold text-emerald-400 flex items-center gap-1 group-hover:gap-2 transition-all duration-300">
-              View
+              {t('projects.view_details') || 'View'}
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>

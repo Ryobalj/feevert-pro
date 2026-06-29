@@ -1,8 +1,11 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next' // ✅ Ongeza hii
 
 export default function Home() {
+  const { t } = useTranslation('home') // ✅ Ongeza hii
+
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
       {/* === JUNGLE GREEN BACKGROUND === */}
@@ -82,8 +85,8 @@ export default function Home() {
             transition={{ delay: 0.3 }}
             className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white mb-4"
           >
-            Welcome to{' '}
-            <span className="gradient-text">FeeVert</span>
+            {t('home.welcome') || 'Welcome to'}{' '}
+            <span className="gradient-text">{t('home.company') || 'FeeVert'}</span>
           </motion.h1>
 
           {/* Subtitle */}
@@ -93,7 +96,7 @@ export default function Home() {
             transition={{ delay: 0.4 }}
             className="text-lg md:text-xl text-white/50 mb-10 max-w-md mx-auto leading-relaxed"
           >
-            Expert consultancy for a sustainable future
+            {t('home.subtitle') || 'Expert consultancy for a sustainable future'}
           </motion.p>
 
           {/* CTA Buttons */}
@@ -115,7 +118,7 @@ export default function Home() {
                   transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
                 />
                 <span className="relative z-10 flex items-center gap-2">
-                  Explore Homepage
+                  {t('home.explore_homepage') || 'Explore Homepage'}
                   <motion.svg 
                     className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                     animate={{ x: [0, 4, 0] }}
@@ -135,7 +138,7 @@ export default function Home() {
               >
                 <div className="absolute inset-0 bg-white/0 group-hover:bg-white/5 transition-colors duration-300" />
                 <span className="relative z-10 flex items-center gap-2">
-                  View Services
+                  {t('home.view_services') || 'View Services'}
                   <motion.svg 
                     className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                     animate={{ x: [0, 4, 0] }}
@@ -155,12 +158,16 @@ export default function Home() {
             transition={{ delay: 0.7 }}
             className="flex flex-wrap items-center justify-center gap-6 mt-12"
           >
-            {['ISO Certified', '5+ Years', '50+ Clients'].map((text, i) => (
+            {[
+              { key: 'trust.iso_certified' },
+              { key: 'trust.experience' },
+              { key: 'trust.clients' }
+            ].map((item, i) => (
               <div key={i} className="flex items-center gap-2 text-sm text-white/40">
                 <svg className="w-4 h-4 text-emerald-400" fill="currentColor" viewBox="0 0 24 24">
                   <path fillRule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm13.36-1.814a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clipRule="evenodd" />
                 </svg>
-                {text}
+                {t(`hero.trust.${item.key}`)}
               </div>
             ))}
           </motion.div>

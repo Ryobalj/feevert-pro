@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next' // ✅ Ongeza hii
 import { useTheme } from '../../../context/ThemeContext'
 import api from '../../../app/api'
 
 const PartnersPage = () => {
+  const { t } = useTranslation('home') // ✅ Ongeza hii
   const [partners, setPartners] = useState([])
   const [loading, setLoading] = useState(true)
   const { darkMode } = useTheme()
@@ -28,7 +30,9 @@ const PartnersPage = () => {
       <div className="min-h-screen flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div className="spinner spinner-lg" />
-          <p className="text-white/50 animate-pulse">Loading partners...</p>
+          <p className="text-white/50 animate-pulse">
+            {t('partners.loading') || 'Loading partners...'}
+          </p>
         </div>
       </div>
     )
@@ -69,14 +73,16 @@ const PartnersPage = () => {
               animate={{ scale: [1, 1.5, 1], opacity: [0.7, 1, 0.7] }}
               transition={{ duration: 2, repeat: Infinity }}
             />
-            <span className="text-sm font-medium text-white/80">🤝 Our Network</span>
+            <span className="text-sm font-medium text-white/80">
+              {t('partners.badge') || '🤝 Our Network'}
+            </span>
           </motion.div>
 
           <h1 className="text-3xl md:text-4xl lg:text-6xl font-extrabold text-white mb-4">
-            Our <span className="gradient-text">Partners</span>
+            {t('partners.title') || 'Our'} <span className="gradient-text">{t('partners.subtitle') || 'Partners'}</span>
           </h1>
           <p className="text-lg text-white/50 max-w-2xl mx-auto">
-            We collaborate with leading organizations to deliver exceptional value
+            {t('partners.description') || 'We collaborate with leading organizations to deliver exceptional value'}
           </p>
         </motion.div>
 
@@ -144,7 +150,7 @@ const PartnersPage = () => {
                         onClick={(e) => e.stopPropagation()}
                         className="inline-flex items-center gap-1.5 mt-2 text-xs font-semibold text-emerald-400 hover:text-emerald-300 transition-colors group/link"
                       >
-                        Visit website
+                        {t('partners.visit_website') || 'Visit website'}
                         <svg className="w-3 h-3 group-hover/link:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                         </svg>
@@ -162,9 +168,11 @@ const PartnersPage = () => {
             className="glass-card p-12 text-center"
           >
             <div className="text-5xl mb-4 opacity-40">🤝</div>
-            <h3 className="text-xl font-bold text-white mb-2">No partners yet</h3>
+            <h3 className="text-xl font-bold text-white mb-2">
+              {t('partners.no_partners_title') || 'No partners yet'}
+            </h3>
             <p className="text-white/40">
-              We're building our partner network. Check back soon!
+              {t('partners.no_partners_message') || "We're building our partner network. Check back soon!"}
             </p>
           </motion.div>
         )}
@@ -189,10 +197,10 @@ const PartnersPage = () => {
               🚀
             </motion.div>
             <h2 className="text-2xl md:text-3xl font-extrabold text-white mb-3">
-              Become a Partner
+              {t('partners.become_partner_title') || 'Become a Partner'}
             </h2>
             <p className="text-white/50 mb-8 max-w-xl mx-auto leading-relaxed">
-              Interested in collaborating with us? Let's create something great together.
+              {t('partners.become_partner_description') || 'Interested in collaborating with us? Let\'s create something great together.'}
             </p>
             <Link 
               to="/contact" 
@@ -206,7 +214,7 @@ const PartnersPage = () => {
               <svg className="w-5 h-5 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
               </svg>
-              <span className="relative z-10">Contact Us</span>
+              <span className="relative z-10">{t('buttons.contact_us') || 'Contact Us'}</span>
             </Link>
           </div>
         </motion.div>

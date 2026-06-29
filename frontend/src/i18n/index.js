@@ -60,6 +60,14 @@ import frHome from '../features/home/locales/fr/home.json'
 import ruHome from '../features/home/locales/ru/home.json'
 import arHome from '../features/home/locales/ar/home.json'
 
+// ============ PROJECTS NAMESPACE ============
+import enProjects from '../features/projects/locales/en/projects.json'
+import swProjects from '../features/projects/locales/sw/projects.json'
+import zhProjects from '../features/projects/locales/zh/projects.json'
+import frProjects from '../features/projects/locales/fr/projects.json'
+import ruProjects from '../features/projects/locales/ru/projects.json'
+import arProjects from '../features/projects/locales/ar/projects.json'
+
 const resources = {
   en: {
     common: enCommon,
@@ -68,7 +76,8 @@ const resources = {
     booking: enBooking,
     careers: enCareers,
     consultations: enConsultations,
-    home: enHome // ✅ Ongeza hii
+    home: enHome,
+    projects: enProjects // ✅ Ongeza hii
   },
   sw: {
     common: swCommon,
@@ -77,7 +86,8 @@ const resources = {
     booking: swBooking,
     careers: swCareers,
     consultations: swConsultations,
-    home: swHome // ✅ Ongeza hii
+    home: swHome,
+    projects: swProjects // ✅ Ongeza hii
   },
   zh: {
     common: zhCommon,
@@ -86,7 +96,8 @@ const resources = {
     booking: zhBooking,
     careers: zhCareers,
     consultations: zhConsultations,
-    home: zhHome // ✅ Ongeza hii
+    home: zhHome,
+    projects: zhProjects // ✅ Ongeza hii
   },
   fr: {
     common: frCommon,
@@ -95,7 +106,8 @@ const resources = {
     booking: frBooking,
     careers: frCareers,
     consultations: frConsultations,
-    home: frHome // ✅ Ongeza hii
+    home: frHome,
+    projects: frProjects // ✅ Ongeza hii
   },
   ru: {
     common: ruCommon,
@@ -104,7 +116,8 @@ const resources = {
     booking: ruBooking,
     careers: ruCareers,
     consultations: ruConsultations,
-    home: ruHome // ✅ Ongeza hii
+    home: ruHome,
+    projects: ruProjects // ✅ Ongeza hii
   },
   ar: {
     common: arCommon,
@@ -113,7 +126,8 @@ const resources = {
     booking: arBooking,
     careers: arCareers,
     consultations: arConsultations,
-    home: arHome // ✅ Ongeza hii
+    home: arHome,
+    projects: arProjects // ✅ Ongeza hii
   }
 }
 
@@ -131,7 +145,7 @@ i18n
       lookupLocalStorage: 'language',
       cookieMinutes: 10080,
     },
-    ns: ['common', 'account', 'admin', 'booking', 'careers', 'consultations', 'home'], // ✅ Ongeza 'home'
+    ns: ['common', 'account', 'admin', 'booking', 'careers', 'consultations', 'home', 'projects'], // ✅ Ongeza 'projects'
     defaultNS: 'common',
     interpolation: {
       escapeValue: false,

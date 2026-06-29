@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useTranslation } from 'react-i18next' // ✅ Ongeza hii
 import { useTheme } from '../../../context/ThemeContext'
 import api from '../../../app/api'
 import Loader from '../../../components/ui/Loader'
@@ -242,6 +243,7 @@ const ServiceImageHero = ({ service }) => {
 const ServiceDetailPage = () => {
   const { id } = useParams()
   const navigate = useNavigate()
+  const { t } = useTranslation(['home', 'common']) // ✅ Ongeza hii
   const [service, setService] = useState(null)
   const [loading, setLoading] = useState(true)
   const [selectedImageIndex, setSelectedImageIndex] = useState(null)
@@ -315,7 +317,7 @@ const ServiceDetailPage = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader size="lg" text="Loading service details..." />
+        <Loader size="lg" text={t('common.loading') || 'Loading service details...'} />
       </div>
     )
   }
@@ -331,7 +333,7 @@ const ServiceDetailPage = () => {
   
   // ✅ Determine booking link: if quote → go to contact, else → request consultation
   const actionLink = isQuote ? '/contact' : '/request-consultation'
-  const actionLabel = isQuote ? 'Get Quote' : 'Request Service'
+  const actionLabel = isQuote ? t('services.get_quote') || 'Get Quote' : t('services.request_service') || 'Request Service'
 
   return (
     <motion.div
@@ -350,7 +352,7 @@ const ServiceDetailPage = () => {
           <svg className="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
-          Back to Services
+          {t('services.back_to_services') || 'Back to Services'}
         </motion.button>
 
         {/* IMAGE HERO CAROUSEL */}
@@ -408,7 +410,7 @@ const ServiceDetailPage = () => {
           <div className="flex flex-wrap gap-4">
             <div className="glass rounded-2xl px-6 py-4 group/price hover:border-emerald-400/30 transition-all duration-300">
               <p className="text-xs text-white/40 mb-1 uppercase tracking-wider font-medium">
-                {isQuote ? 'Pricing' : 'Starting from'}
+                {isQuote ? t('services.pricing') || 'Pricing' : t('services.starting_from') || 'Starting from'}
               </p>
               <p className="text-2xl md:text-3xl font-extrabold gradient-text">
                 {getDisplayPrice(service)}
@@ -416,7 +418,9 @@ const ServiceDetailPage = () => {
             </div>
             {duration && (
               <div className="glass rounded-2xl px-6 py-4 hover:border-emerald-400/30 transition-all duration-300">
-                <p className="text-xs text-white/40 mb-1 uppercase tracking-wider font-medium">Duration</p>
+                <p className="text-xs text-white/40 mb-1 uppercase tracking-wider font-medium">
+                  {t('services.duration') || 'Duration'}
+                </p>
                 <p className="text-xl font-bold text-white flex items-center gap-2">
                   <svg className="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -427,12 +431,14 @@ const ServiceDetailPage = () => {
             )}
             {service.estimated_delivery_days > 0 && (
               <div className="glass rounded-2xl px-6 py-4 hover:border-emerald-400/30 transition-all duration-300">
-                <p className="text-xs text-white/40 mb-1 uppercase tracking-wider font-medium">Delivery</p>
+                <p className="text-xs text-white/40 mb-1 uppercase tracking-wider font-medium">
+                  {t('services.delivery') || 'Delivery'}
+                </p>
                 <p className="text-xl font-bold text-white flex items-center gap-2">
                   <svg className="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
                   </svg>
-                  {service.estimated_delivery_days} day{service.estimated_delivery_days > 1 ? 's' : ''}
+                  {service.estimated_delivery_days} {t('services.days') || 'day'}{service.estimated_delivery_days > 1 ? 's' : ''}
                 </p>
               </div>
             )}
@@ -447,8 +453,8 @@ const ServiceDetailPage = () => {
           >
             <h2 className="text-lg font-bold text-white mb-5 flex items-center gap-2">
               <span className="w-8 h-8 rounded-lg glass flex items-center justify-center text-sm">🖼️</span>
-              Gallery
-              <span className="text-xs text-white/30 font-normal ml-auto">{allGalleryImages.length} images</span>
+              {t('services.gallery') || 'Gallery'}
+              <span className="text-xs text-white/30 font-normal ml-auto">{allGalleryImages.length} {t('services.images') || 'images'}</span>
             </h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {allGalleryImages.map((img, index) => (
@@ -492,7 +498,7 @@ const ServiceDetailPage = () => {
               >
                 <h3 className="text-lg font-bold text-white mb-5 flex items-center gap-2">
                   <span className="w-8 h-8 rounded-lg bg-emerald-500/15 flex items-center justify-center text-sm">✨</span>
-                  Benefits
+                  {t('services.benefits') || 'Benefits'}
                 </h3>
                 <ul className="space-y-3">
                   {renderStringArray(service.benefits)}
@@ -507,7 +513,7 @@ const ServiceDetailPage = () => {
               >
                 <h3 className="text-lg font-bold text-white mb-5 flex items-center gap-2">
                   <span className="w-8 h-8 rounded-lg bg-amber-500/15 flex items-center justify-center text-sm">📦</span>
-                  Deliverables
+                  {t('services.deliverables') || 'Deliverables'}
                 </h3>
                 <ul className="space-y-3">
                   {renderStringArray(service.deliverables)}
@@ -526,7 +532,7 @@ const ServiceDetailPage = () => {
             >
               <h3 className="text-lg font-bold text-white mb-5 flex items-center gap-2">
                 <span className="w-8 h-8 rounded-lg glass flex items-center justify-center text-sm">❓</span>
-                Frequently Asked
+                {t('services.faq') || 'Frequently Asked'}
               </h3>
               <div className="space-y-3">
                 {renderFaq(service.faq)}
@@ -541,7 +547,7 @@ const ServiceDetailPage = () => {
             >
               <h3 className="text-lg font-bold text-white mb-5 flex items-center gap-2">
                 <span className="w-8 h-8 rounded-lg glass flex items-center justify-center text-sm">📋</span>
-                Prerequisites
+                {t('services.prerequisites') || 'Prerequisites'}
               </h3>
               <ul className="space-y-3">
                 {renderStringArray(service.prerequisites)}
@@ -561,13 +567,13 @@ const ServiceDetailPage = () => {
             <div className="flex items-center gap-3">
               <span className="text-3xl">{isQuote ? '📋' : '💬'}</span>
               <h3 className="text-xl font-bold text-white">
-                {isQuote ? 'Get a Quote' : 'Ready to Get Started?'}
+                {isQuote ? t('services.get_quote_title') || 'Get a Quote' : t('services.ready_title') || 'Ready to Get Started?'}
               </h3>
             </div>
             <p className="text-white/60 text-sm max-w-md">
               {isQuote 
-                ? 'Contact us today for a free quote and let us help you achieve your goals.'
-                : 'Request this service and let us help you achieve your goals.'
+                ? t('services.get_quote_description') || 'Contact us today for a free quote and let us help you achieve your goals.'
+                : t('services.ready_description') || 'Request this service and let us help you achieve your goals.'
               }
             </p>
             <Link

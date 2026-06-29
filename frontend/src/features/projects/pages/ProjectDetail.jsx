@@ -3,12 +3,14 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useTranslation } from 'react-i18next' // ✅ Ongeza hii
 import { useTheme } from '../../../context/ThemeContext'
 import api from '../../../app/api'
 
 const ProjectDetail = () => {
   const { id } = useParams()
   const navigate = useNavigate()
+  const { t } = useTranslation('projects') // ✅ Ongeza hii
   const [project, setProject] = useState(null)
   const [selectedImageIndex, setSelectedImageIndex] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -104,7 +106,7 @@ const ProjectDetail = () => {
             <div className="absolute inset-0 bg-emerald-400/10 rounded-full blur-xl animate-pulse" />
             <div className="spinner spinner-lg relative" />
           </div>
-          <p className="text-white/50 animate-pulse">Loading project details...</p>
+          <p className="text-white/50 animate-pulse">{t('projects.loading') || 'Loading project details...'}</p>
         </div>
       </div>
     )
@@ -113,6 +115,30 @@ const ProjectDetail = () => {
   if (!project) return null
 
   const selectedImage = selectedImageIndex !== null ? images[selectedImageIndex] : null
+
+  // Get status label
+  const getStatusLabel = (status) => {
+    if (status === 'completed') return t('projects.completed')
+    if (status === 'in_progress') return t('projects.in_progress')
+    if (status === 'planned') return t('projects.planned')
+    return status?.replace('_', ' ') || ''
+  }
+
+  // Get status icon
+  const getStatusIcon = (status) => {
+    if (status === 'completed') return '✅'
+    if (status === 'in_progress') return '🔄'
+    if (status === 'planned') return '⏳'
+    return ''
+  }
+
+  // Get status color
+  const getStatusColor = (status) => {
+    if (status === 'completed') return 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/20'
+    if (status === 'in_progress') return 'bg-blue-500/15 text-blue-400 border border-blue-500/20'
+    if (status === 'planned') return 'bg-amber-500/15 text-amber-400 border border-amber-500/20'
+    return 'bg-white/10 text-white/50 border border-white/10'
+  }
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="min-h-screen py-10 md:py-16">
@@ -126,7 +152,7 @@ const ProjectDetail = () => {
           <svg className="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
-          Back to Projects
+          {t('projects.view_all') || 'Back to Projects'}
         </motion.button>
 
         {/* ============ PROJECT HEADER ============ */}
@@ -140,14 +166,8 @@ const ProjectDetail = () => {
               {project.title}
             </h1>
             {project.status && project.status !== 'published' && (
-              <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold ${
-                project.status === 'completed' 
-                  ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/20' 
-                  : project.status === 'in_progress'
-                  ? 'bg-blue-500/15 text-blue-400 border border-blue-500/20'
-                  : 'bg-amber-500/15 text-amber-400 border border-amber-500/20'
-              }`}>
-                {project.status === 'completed' ? '✅' : project.status === 'in_progress' ? '🔄' : '⏳'} {project.status.replace('_', ' ')}
+              <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold ${getStatusColor(project.status)}`}>
+                {getStatusIcon(project.status)} {getStatusLabel(project.status)}
               </span>
             )}
           </div>
@@ -158,7 +178,7 @@ const ProjectDetail = () => {
                 <svg className="w-4 h-4 text-emerald-400/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
-                Client: <span className="text-white/70 font-medium">{project.client_name}</span>
+                {t('projects.client')}: <span className="text-white/70 font-medium">{project.client_name}</span>
               </div>
             )}
             {project.category_name && (
@@ -166,7 +186,7 @@ const ProjectDetail = () => {
                 <svg className="w-4 h-4 text-emerald-400/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
                 </svg>
-                Category: <span className="text-white/70 font-medium">{project.category_name}</span>
+                {t('projects.category')}: <span className="text-white/70 font-medium">{project.category_name}</span>
               </div>
             )}
             {project.completion_date && (
@@ -174,7 +194,7 @@ const ProjectDetail = () => {
                 <svg className="w-4 h-4 text-emerald-400/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
-                Completed: <span className="text-white/70 font-medium">{project.completion_date}</span>
+                {t('projects.completed')}: <span className="text-white/70 font-medium">{project.completion_date}</span>
               </div>
             )}
           </div>
@@ -190,8 +210,8 @@ const ProjectDetail = () => {
             
             <h2 className="text-lg font-bold text-white mb-5 flex items-center gap-2">
               <span className="w-8 h-8 rounded-lg glass flex items-center justify-center text-sm">🖼️</span>
-              Project Gallery
-              <span className="text-xs text-white/30 font-normal ml-auto">{images.length} images</span>
+              {t('projects.gallery') || 'Project Gallery'}
+              <span className="text-xs text-white/30 font-normal ml-auto">{images.length} {t('projects.images') || 'images'}</span>
             </h2>
             
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -232,7 +252,7 @@ const ProjectDetail = () => {
               className="glass-card p-6 group hover:border-emerald-400/20 transition-all duration-300">
               <h3 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
                 <span className="w-8 h-8 rounded-lg bg-amber-500/15 flex items-center justify-center text-sm">🎯</span>
-                The Challenge
+                {t('projects.challenge') || 'The Challenge'}
               </h3>
               <p className="text-white/50 leading-relaxed text-sm">{project.challenges}</p>
             </motion.div>
@@ -244,7 +264,7 @@ const ProjectDetail = () => {
               className="glass-card p-6 group hover:border-emerald-400/20 transition-all duration-300">
               <h3 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
                 <span className="w-8 h-8 rounded-lg bg-emerald-500/15 flex items-center justify-center text-sm">💡</span>
-                Our Solution
+                {t('projects.solution') || 'Our Solution'}
               </h3>
               <p className="text-white/50 leading-relaxed text-sm">{project.solutions}</p>
             </motion.div>
@@ -256,7 +276,7 @@ const ProjectDetail = () => {
               className="glass-card p-6 md:col-span-2 group hover:border-emerald-400/20 transition-all duration-300">
               <h3 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
                 <span className="w-8 h-8 rounded-lg bg-blue-500/15 flex items-center justify-center text-sm">📊</span>
-                Results & Impact
+                {t('projects.results') || 'Results & Impact'}
               </h3>
               <p className="text-white/50 leading-relaxed text-sm">{project.results}</p>
             </motion.div>
@@ -270,7 +290,7 @@ const ProjectDetail = () => {
             
             <h2 className="text-lg font-bold text-white mb-5 flex items-center gap-2">
               <span className="w-8 h-8 rounded-lg glass flex items-center justify-center text-sm">💬</span>
-              Client Feedback
+              {t('projects.testimonials') || 'Client Feedback'}
             </h2>
             <div className="space-y-4">
               {project.testimonials.map((t, i) => (

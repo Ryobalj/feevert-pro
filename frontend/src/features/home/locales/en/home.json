@@ -1,118 +1,166 @@
 ﻿{
-  "cta": {
-    "badge": "Let's Work Together",
-    "title": "Ready to Get Started?",
-    "subtitle": "Contact us today for a free consultation and let us help you achieve your goals.",
-    "contact_now": "Contact Us Now",
-    "view_services": "View Services",
-    "trust": {
-      "free_consultation": "Free Consultation",
-      "quick_response": "Quick Response",
-      "confidential": "Confidential"
-    }
-  },
-  "faq": {
-    "title": "Frequently Asked",
-    "subtitle": "Questions",
-    "description": "Got questions? We've got answers",
-    "still_have_questions": "Still have questions?",
-    "contact_support": "Contact our support team"
-  },
-  "hero": {
-    "badge": "Tanzania's Trusted Consultancy",
-    "title_part1": "Expert",
-    "title_part2": "Consultancy",
-    "title_part3": "for a Sustainable Future",
-    "subtitle": "Professional services in Agriculture, Environment & Occupational Health & Safety",
-    "cta_primary": "Get Started",
-    "cta_secondary": "Learn More",
-    "trust": {
-      "iso_certified": "ISO Certified",
-      "experience": "5+ Years Experience",
-      "clients": "50+ Happy Clients"
-    }
-  },
-  "newsletter": {
-    "title": "Subscribe to Our",
-    "title_highlight": "Newsletter",
-    "description": "Get the latest updates, news, and exclusive offers directly to your inbox.",
-    "input_placeholder": "Enter your email address",
-    "subscribe_button": "Subscribe",
-    "subscribing": "Subscribing...",
-    "success_message": "Successfully subscribed!",
-    "error_invalid_email": "Please enter a valid email address",
-    "error_subscribe": "Failed to subscribe. Please try again.",
-    "privacy_note": "We respect your privacy. Unsubscribe anytime."
-  },
-  "projects": {
-    "badge": "📁 Our Portfolio",
-    "title": "Featured",
-    "subtitle": "Projects",
-    "description": "Some of our successful projects that showcase our expertise",
-    "view_all": "View All Projects"
-  },
-  "reviews": {
-    "badge": "⭐ Client Testimonials",
-    "title": "What Our",
-    "subtitle": "Clients",
-    "say": "Say",
-    "description": "Don't just take our word for it — hear from our satisfied clients",
-    "client": "Client",
-    "view_all": "Read All Reviews",
-    "reviews_label": "Reviews",
-    "loading": "Loading testimonials...",
-    "page_title": "What Our",
-    "page_subtitle": "Clients",
-    "page_description": "Don't just take our word for it. Read what our satisfied clients have to say about our services.",
-    "no_reviews_title": "No reviews yet",
-    "no_filtered_reviews": "No {{rating}}-star reviews found. Try another filter.",
-    "no_reviews_message": "Be the first to share your experience with us!",
-    "share_title": "Share Your Experience",
-    "share_description": "We'd love to hear about your experience with our services.",
-    "write_review": "Write a Review"
-  },
-  "services": {
-    "badge": "🛠️ What We Offer",
-    "title": "Our Core",
-    "subtitle": "Services",
-    "description": "Comprehensive solutions tailored to your needs",
-    "from": "From",
-    "currency": "TZS",
-    "contact_pricing": "Contact for pricing",
-    "learn_more": "Learn more",
-    "view_all": "View All Services"
-  },
-  "stats": {
-    "projects": "Projects Completed",
-    "clients": "Happy Clients",
-    "services": "Services Offered",
-    "years": "Years Experience"
-  },
-  "team": {
-    "badge": "👥 Our Experts",
-    "title": "Meet Our",
-    "subtitle": "Team",
-    "description": "The passionate professionals behind FeeVert, dedicated to your success",
-    "view_all": "Meet All Team Members",
-    "member": "Team Member",
-    "email": "Email",
-    "linkedin": "LinkedIn",
-    "twitter": "Twitter"
-  },
-  "about": {
-    "badge": "Our Story",
-    "title": "About",
-    "company": "FeeVert",
-    "loading": "Loading",
-    "error_title": "Unable to load content",
-    "error_message": "Please check your connection and try again.",
-    "retry": "Retry",
-    "mission": "Our Mission",
-    "vision": "Our Vision",
-    "core_values_title": "Our Core",
-    "core_values_subtitle": "Values",
-    "impact_title": "Our Impact in Numbers",
-    "why_choose_title": "Why Choose",
-    "why_choose_subtitle": "FeeVert"
-  }
+    "cta":  {
+                "badge":  "Let\u0027s Work Together",
+                "title":  "Ready to Get Started?",
+                "subtitle":  "Contact us today for a free consultation and let us help you achieve your goals.",
+                "contact_now":  "Contact Us Now",
+                "view_services":  "View Services",
+                "trust":  {
+                              "free_consultation":  "Free Consultation",
+                              "quick_response":  "Quick Response",
+                              "confidential":  "Confidential"
+                          }
+            },
+    "faq":  {
+                "title":  "Frequently Asked",
+                "subtitle":  "Questions",
+                "description":  "Got questions? We\u0027ve got answers",
+                "still_have_questions":  "Still have questions?",
+                "contact_support":  "Contact our support team"
+            },
+    "hero":  {
+                 "badge":  "Tanzania\u0027s Trusted Consultancy",
+                 "title_part1":  "Expert",
+                 "title_part2":  "Consultancy",
+                 "title_part3":  "for a Sustainable Future",
+                 "subtitle":  "Professional services in Agriculture, Environment \u0026 Occupational Health \u0026 Safety",
+                 "cta_primary":  "Get Started",
+                 "cta_secondary":  "Learn More",
+                 "trust":  {
+                               "iso_certified":  "ISO Certified",
+                               "experience":  "5+ Years Experience",
+                               "clients":  "50+ Happy Clients"
+                           },
+                 "scroll":  "Scroll"
+             },
+    "newsletter":  {
+                       "title":  "Subscribe to Our",
+                       "title_highlight":  "Newsletter",
+                       "description":  "Get the latest updates, news, and exclusive offers directly to your inbox.",
+                       "input_placeholder":  "Enter your email address",
+                       "subscribe_button":  "Subscribe",
+                       "subscribing":  "Subscribing...",
+                       "success_message":  "Successfully subscribed!",
+                       "error_invalid_email":  "Please enter a valid email address",
+                       "error_subscribe":  "Failed to subscribe. Please try again.",
+                       "privacy_note":  "We respect your privacy. Unsubscribe anytime."
+                   },
+    "projects":  {
+                     "badge":  "📁 Our Portfolio",
+                     "title":  "Featured",
+                     "subtitle":  "Projects",
+                     "description":  "Some of our successful projects that showcase our expertise",
+                     "view_all":  "View All Projects",
+                     "view":  "View"
+                 },
+    "reviews":  {
+                    "badge":  "⭐ Client Testimonials",
+                    "title":  "What Our",
+                    "subtitle":  "Clients",
+                    "say":  "Say",
+                    "description":  "Don\u0027t just take our word for it — hear from our satisfied clients",
+                    "client":  "Client",
+                    "view_all":  "Read All Reviews",
+                    "reviews_label":  "Reviews",
+                    "loading":  "Loading testimonials...",
+                    "page_title":  "What Our",
+                    "page_subtitle":  "Clients",
+                    "page_description":  "Don\u0027t just take our word for it. Read what our satisfied clients have to say about our services.",
+                    "no_reviews_title":  "No reviews yet",
+                    "no_filtered_reviews":  "No {{rating}}-star reviews found. Try another filter.",
+                    "no_reviews_message":  "Be the first to share your experience with us!",
+                    "share_title":  "Share Your Experience",
+                    "share_description":  "We\u0027d love to hear about your experience with our services.",
+                    "write_review":  "Write a Review"
+                },
+    "team":  {
+                 "badge":  "👥 Our Experts",
+                 "title":  "Meet Our",
+                 "subtitle":  "Team",
+                 "description":  "The passionate professionals behind FeeVert, dedicated to your success",
+                 "view_all":  "Meet All Team Members",
+                 "member":  "Team Member",
+                 "email":  "Email",
+                 "linkedin":  "LinkedIn",
+                 "twitter":  "Twitter"
+             },
+    "about":  {
+                  "badge":  "Our Story",
+                  "title":  "About",
+                  "company":  "FeeVert",
+                  "loading":  "Loading",
+                  "error_title":  "Unable to load content",
+                  "error_message":  "Please check your connection and try again.",
+                  "retry":  "Retry",
+                  "mission":  "Our Mission",
+                  "vision":  "Our Vision",
+                  "core_values_title":  "Our Core",
+                  "core_values_subtitle":  "Values",
+                  "impact_title":  "Our Impact in Numbers",
+                  "why_choose_title":  "Why Choose",
+                  "why_choose_subtitle":  "FeeVert"
+              },
+    "home":  {
+                 "view_services":  "View Services",
+                 "subtitle":  "Expert consultancy for a sustainable future",
+                 "welcome":  "Welcome to",
+                 "explore_homepage":  "Explore Homepage",
+                 "company":  "FeeVert"
+             },
+    "partners":  {
+                     "badge":  "🤝 Our Network",
+                     "title":  "Our",
+                     "subtitle":  "Partners",
+                     "description":  "We collaborate with leading organizations to deliver exceptional value",
+                     "loading":  "Loading partners...",
+                     "visit_website":  "Visit website",
+                     "no_partners_title":  "No partners yet",
+                     "no_partners_message":  "We\u0027re building our partner network. Check back soon!",
+                     "become_partner_title":  "Become a Partner",
+                     "become_partner_description":  "Interested in collaborating with us? Let\u0027s create something great together."
+                 },
+    "stats":  {
+                  "title":  "By the",
+                  "description":  "The results speak for themselves",
+                  "badge":  "📊 Our Impact",
+                  "subtitle":  "Numbers"
+              },
+    "services":  {
+                     "get_quote_description":  "Contact us today for a free quote and let us help you achieve your goals.",
+                     "get_quote_title":  "Get a Quote",
+                     "pricing":  "Pricing",
+                     "get_quote":  "Get Quote",
+                     "deliverables":  "Deliverables",
+                     "duration":  "Duration",
+                     "faq":  "Frequently Asked",
+                     "back_to_services":  "Back to Services",
+                     "request_service":  "Request Service",
+                     "days":  "day",
+                     "ready_description":  "Request this service and let us help you achieve your goals.",
+                     "gallery":  "Gallery",
+                     "ready_title":  "Ready to Get Started?",
+                     "delivery":  "Delivery",
+                     "benefits":  "Benefits",
+                     "prerequisites":  "Prerequisites",
+                     "images":  "images",
+                     "starting_from":  "Starting from",
+                     "all_services":  "All Services",
+                     "comprehensive_solutions":  "Comprehensive Solutions",
+                     "our_services":  "Our",
+                     "services":  "Services",
+                     "all_description":  "Comprehensive consultancy solutions tailored to your specific needs",
+                     "category_description":  "Explore our services designed to help you succeed",
+                     "no_categories":  "No categories with services available",
+                     "service_count":  "service",
+                     "found":  "found",
+                     "clear":  "Clear",
+                     "learn_more":  "Learn more",
+                     "page":  "Page",
+                     "of":  "of",
+                     "total_services":  "total services",
+                     "no_services_title":  "No services found",
+                     "no_services_message":  "Check back later for new services.",
+                     "no_category_services":  "No services available in this category.",
+                     "view_all":  "View all services"
+                 }
 }

@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next' // ✅ Ongeza hii
 import api from '../../../app/api'
 import Loader from '../../../components/ui/Loader'
 import Icon from '../../../components/ui/Icon'
@@ -161,6 +162,7 @@ const CardImage = ({ item, type = 'service' }) => {
 
 // ============ MAIN HOME PAGE ============
 const HomePage = () => {
+  const { t } = useTranslation('home') // ✅ Ongeza hii
   const [loading, setLoading] = useState(true)
   const [siteSettings, setSiteSettings] = useState(null)
   const [services, setServices] = useState([])
@@ -234,7 +236,7 @@ const HomePage = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader variant="morph" size="lg" text="Loading homepage" />
+        <Loader variant="morph" size="lg" text={t('home.loading') || 'Loading homepage'} />
       </div>
     )
   }
@@ -267,13 +269,15 @@ const HomePage = () => {
                   animate={{ scale: [1, 1.5, 1], opacity: [0.7, 1, 0.7] }}
                   transition={{ duration: 2, repeat: Infinity }}
                 />
-                <span className="text-sm font-medium text-white/80">🛠️ What We Offer</span>
+                <span className="text-sm font-medium text-white/80">
+                  {t('services.badge') || '🛠️ What We Offer'}
+                </span>
               </motion.div>
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white mb-4">
-                Our <span className="gradient-text">Services</span>
+                {t('services.title') || 'Our'} <span className="gradient-text">{t('services.subtitle') || 'Services'}</span>
               </h2>
               <p className="text-white/50 text-lg max-w-xl mx-auto">
-                Comprehensive solutions tailored to your needs
+                {t('services.description') || 'Comprehensive solutions tailored to your needs'}
               </p>
             </motion.div>
             
@@ -306,13 +310,13 @@ const HomePage = () => {
                         <div className="flex items-center justify-between pt-4 border-t border-white/5">
                           {service.price && service.price !== '0.00' ? (
                             <span className="text-emerald-400 font-semibold text-sm">
-                              From TZS {parseInt(service.price).toLocaleString()}
+                              {t('services.from') || 'From'} {t('services.currency') || 'TZS'} {parseInt(service.price).toLocaleString()}
                             </span>
                           ) : (
-                            <span className="text-white/20 text-xs">Contact for pricing</span>
+                            <span className="text-white/20 text-xs">{t('services.contact_pricing') || 'Contact for pricing'}</span>
                           )}
                           <span className="text-emerald-400 text-sm font-semibold flex items-center gap-1 group-hover:gap-2 transition-all">
-                            Learn more
+                            {t('services.learn_more') || 'Learn more'}
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                             </svg>
@@ -331,7 +335,7 @@ const HomePage = () => {
                   to="/services"
                   className="group relative inline-flex items-center gap-3 border-2 border-white/20 text-white px-8 py-4 rounded-full font-bold hover:border-emerald-400/50 transition-all duration-300"
                 >
-                  View All Services
+                  {t('services.view_all') || 'View All Services'}
                   <motion.svg
                     className="w-5 h-5"
                     fill="none"
@@ -373,13 +377,15 @@ const HomePage = () => {
                   animate={{ scale: [1, 1.5, 1], opacity: [0.7, 1, 0.7] }}
                   transition={{ duration: 2, repeat: Infinity }}
                 />
-                <span className="text-sm font-medium text-white/80">📁 Our Portfolio</span>
+                <span className="text-sm font-medium text-white/80">
+                  {t('projects.badge') || '📁 Our Portfolio'}
+                </span>
               </motion.div>
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white mb-4">
-                Featured <span className="gradient-text">Projects</span>
+                {t('projects.title') || 'Featured'} <span className="gradient-text">{t('projects.subtitle') || 'Projects'}</span>
               </h2>
               <p className="text-white/50 text-lg max-w-xl mx-auto">
-                Success stories from our clients
+                {t('projects.description') || 'Success stories from our clients'}
               </p>
             </motion.div>
             
@@ -408,7 +414,7 @@ const HomePage = () => {
                             {project.category_name || 'Project'}
                           </span>
                           <span className="text-emerald-400 text-sm font-semibold flex items-center gap-1 group-hover:gap-2 transition-all">
-                            View
+                            {t('projects.view') || 'View'}
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                             </svg>
@@ -427,7 +433,7 @@ const HomePage = () => {
                   to="/projects"
                   className="group relative inline-flex items-center gap-3 border-2 border-white/20 text-white px-8 py-4 rounded-full font-bold hover:border-emerald-400/50 transition-all duration-300"
                 >
-                  View All Projects
+                  {t('projects.view_all') || 'View All Projects'}
                   <motion.svg
                     className="w-5 h-5"
                     fill="none"
@@ -468,13 +474,15 @@ const HomePage = () => {
                   animate={{ scale: [1, 1.5, 1], opacity: [0.7, 1, 0.7] }}
                   transition={{ duration: 2, repeat: Infinity }}
                 />
-                <span className="text-sm font-medium text-white/80">👥 Our Experts</span>
+                <span className="text-sm font-medium text-white/80">
+                  {t('team.badge') || '👥 Our Experts'}
+                </span>
               </motion.div>
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white mb-4">
-                Meet Our <span className="gradient-text">Team</span>
+                {t('team.title') || 'Meet Our'} <span className="gradient-text">{t('team.subtitle') || 'Team'}</span>
               </h2>
               <p className="text-white/50 text-lg max-w-xl mx-auto">
-                Passionate professionals dedicated to your success
+                {t('team.description') || 'Passionate professionals dedicated to your success'}
               </p>
             </motion.div>
             
@@ -534,7 +542,7 @@ const HomePage = () => {
                   to="/team"
                   className="group relative inline-flex items-center gap-3 border-2 border-white/20 text-white px-8 py-4 rounded-full font-bold hover:border-emerald-400/50 transition-all duration-300"
                 >
-                  Meet All Team Members
+                  {t('team.view_all') || 'Meet All Team Members'}
                   <motion.svg
                     className="w-5 h-5"
                     fill="none"
@@ -576,13 +584,15 @@ const HomePage = () => {
                   animate={{ scale: [1, 1.5, 1], opacity: [0.7, 1, 0.7] }}
                   transition={{ duration: 2, repeat: Infinity }}
                 />
-                <span className="text-sm font-medium text-white/80">⭐ Client Love</span>
+                <span className="text-sm font-medium text-white/80">
+                  {t('reviews.badge') || '⭐ Client Love'}
+                </span>
               </motion.div>
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white mb-4">
-                What <span className="gradient-text">Clients</span> Say
+                {t('reviews.title') || 'What'} <span className="gradient-text">{t('reviews.subtitle') || 'Clients'}</span> {t('reviews.say') || 'Say'}
               </h2>
               <p className="text-white/50 text-lg max-w-xl mx-auto">
-                Don't just take our word for it
+                {t('reviews.description') || "Don't just take our word for it"}
               </p>
             </motion.div>
 
@@ -597,7 +607,6 @@ const HomePage = () => {
                   whileHover={{ y: -6 }}
                 >
                   <div className="glass-card h-full flex flex-col relative overflow-hidden group hover:border-emerald-400/30 transition-all duration-300">
-                    {/* ✅ OPEN QUOTE REMOVED */}
                     <div className="p-6 flex flex-col h-full relative z-10">
                       <div className="flex gap-0.5 mb-3">
                         {[...Array(5)].map((_, i) => (
@@ -623,7 +632,7 @@ const HomePage = () => {
                           <h4 className="font-semibold text-white text-sm group-hover:text-emerald-400 transition-colors">
                             {t.client_name}
                           </h4>
-                          <p className="text-xs text-white/40">{t.client_role || 'Client'}</p>
+                          <p className="text-xs text-white/40">{t.client_role || t('reviews.client') || 'Client'}</p>
                         </div>
                       </div>
                     </div>
@@ -647,9 +656,11 @@ const HomePage = () => {
               className="text-center mb-14"
             >
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white mb-4">
-                Frequently Asked <span className="gradient-text">Questions</span>
+                {t('faq.title') || 'Frequently Asked'} <span className="gradient-text">{t('faq.subtitle') || 'Questions'}</span>
               </h2>
-              <p className="text-white/50 text-lg">Got questions? We've got answers</p>
+              <p className="text-white/50 text-lg">
+                {t('faq.description') || 'Got questions? We\'ve got answers'}
+              </p>
             </motion.div>
             
             <div className="space-y-3">
@@ -676,7 +687,7 @@ const HomePage = () => {
                   to="/faq"
                   className="group relative inline-flex items-center gap-3 border-2 border-white/20 text-white px-8 py-4 rounded-full font-bold hover:border-emerald-400/50 transition-all duration-300"
                 >
-                  View All FAQs
+                  {t('faq.view_all') || 'View All FAQs'}
                   <motion.svg
                     className="w-5 h-5"
                     fill="none"
@@ -708,7 +719,7 @@ const HomePage = () => {
               <div className="inline-flex items-center gap-3">
                 <div className="h-px w-8 bg-gradient-to-r from-transparent to-white/20" />
                 <span className="text-xs font-semibold text-white/40 uppercase tracking-[0.2em]">
-                  Trusted by Industry Leaders
+                  {t('partners.title') || 'Trusted by Industry Leaders'}
                 </span>
                 <div className="h-px w-8 bg-gradient-to-l from-transparent to-white/20" />
               </div>
@@ -759,12 +770,16 @@ const HomePage = () => {
                 animate={{ scale: [1, 1.5, 1], opacity: [0.7, 1, 0.7] }}
                 transition={{ duration: 2, repeat: Infinity }}
               />
-              <span className="text-sm font-medium text-white/80">📊 Our Impact</span>
+              <span className="text-sm font-medium text-white/80">
+                {t('stats.badge') || '📊 Our Impact'}
+              </span>
             </motion.div>
             <h2 className="text-3xl md:text-4xl font-extrabold text-white">
-              By the <span className="gradient-text">Numbers</span>
+              {t('stats.title') || 'By the'} <span className="gradient-text">{t('stats.subtitle') || 'Numbers'}</span>
             </h2>
-            <p className="text-white/50 text-lg max-w-xl mx-auto">The results speak for themselves</p>
+            <p className="text-white/50 text-lg max-w-xl mx-auto">
+              {t('stats.description') || 'The results speak for themselves'}
+            </p>
           </motion.div>
           
           <div className="container-main relative z-10">
@@ -785,7 +800,9 @@ const HomePage = () => {
                     <div className="text-3xl md:text-4xl font-extrabold gradient-text group-hover:scale-105 transition-transform duration-300">
                       {counters.projects}+
                     </div>
-                    <div className="text-sm text-white/40 mt-1 font-medium">Projects Completed</div>
+                    <div className="text-sm text-white/40 mt-1 font-medium">
+                      {t('stats.projects') || 'Projects Completed'}
+                    </div>
                     <div className="mt-4 h-1 bg-white/5 rounded-full overflow-hidden">
                       <motion.div
                         className="h-full bg-gradient-to-r from-emerald-400 to-green-400 rounded-full"
@@ -815,7 +832,9 @@ const HomePage = () => {
                     <div className="text-3xl md:text-4xl font-extrabold gradient-text group-hover:scale-105 transition-transform duration-300">
                       {counters.clients}+
                     </div>
-                    <div className="text-sm text-white/40 mt-1 font-medium">Happy Clients</div>
+                    <div className="text-sm text-white/40 mt-1 font-medium">
+                      {t('stats.clients') || 'Happy Clients'}
+                    </div>
                     <div className="mt-4 h-1 bg-white/5 rounded-full overflow-hidden">
                       <motion.div
                         className="h-full bg-gradient-to-r from-green-400 to-teal-400 rounded-full"
@@ -845,7 +864,9 @@ const HomePage = () => {
                     <div className="text-3xl md:text-4xl font-extrabold gradient-text group-hover:scale-105 transition-transform duration-300">
                       {counters.years}+
                     </div>
-                    <div className="text-sm text-white/40 mt-1 font-medium">Years Experience</div>
+                    <div className="text-sm text-white/40 mt-1 font-medium">
+                      {t('stats.years') || 'Years Experience'}
+                    </div>
                     <div className="mt-4 h-1 bg-white/5 rounded-full overflow-hidden">
                       <motion.div
                         className="h-full bg-gradient-to-r from-teal-400 to-cyan-400 rounded-full"
@@ -901,13 +922,15 @@ const HomePage = () => {
                 animate={{ scale: [1, 1.5, 1], opacity: [0.7, 1, 0.7] }}
                 transition={{ duration: 2, repeat: Infinity }}
               />
-              <span className="text-sm font-medium text-white/80">Let's Work Together</span>
+              <span className="text-sm font-medium text-white/80">
+                {t('cta.badge') || "Let's Work Together"}
+              </span>
             </motion.div>
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white mb-6">
-              Ready to Get Started?
+              {t('cta.title') || 'Ready to Get Started?'}
             </h2>
             <p className="text-lg text-white/60 mb-10">
-              Contact us today for a free consultation and let us help you achieve your goals.
+              {t('cta.subtitle') || 'Contact us today for a free consultation and let us help you achieve your goals.'}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
@@ -920,7 +943,7 @@ const HomePage = () => {
                   transition={{ duration: 2, repeat: Infinity }}
                 />
                 <span className="relative z-10 flex items-center gap-2">
-                  Contact Us
+                  {t('cta.contact_now') || 'Contact Us'}
                   <motion.svg
                     className="w-5 h-5"
                     fill="none"
@@ -938,7 +961,7 @@ const HomePage = () => {
                 className="group relative border-2 border-white/30 text-white px-10 py-4 rounded-full font-bold text-lg hover:border-white/60 transition-all"
               >
                 <span className="flex items-center gap-2">
-                  View Services
+                  {t('cta.view_services') || 'View Services'}
                   <motion.svg
                     className="w-5 h-5"
                     fill="none"

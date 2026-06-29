@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useTranslation } from 'react-i18next' // ✅ Ongeza hii
 import { useTheme } from '../../../context/ThemeContext'
 import api from '../../../app/api'
 
 const FaqPage = () => {
+  const { t } = useTranslation('common') // ✅ Ongeza hii
   const [faqs, setFaqs] = useState([])
   const [categories, setCategories] = useState([])
   const [selectedCategory, setSelectedCategory] = useState('all')
@@ -38,7 +40,9 @@ const FaqPage = () => {
       <div className="min-h-screen flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div className="spinner spinner-lg" />
-          <p className="text-white/50 animate-pulse">Loading FAQs...</p>
+          <p className="text-white/50 animate-pulse">
+            {t('faq.loading') || 'Loading FAQs...'}
+          </p>
         </div>
       </div>
     )
@@ -69,15 +73,17 @@ const FaqPage = () => {
               animate={{ scale: [1, 1.5, 1], opacity: [0.7, 1, 0.7] }}
               transition={{ duration: 2, repeat: Infinity }}
             />
-            <span className="text-sm font-medium text-white/80">❓ FAQ</span>
+            <span className="text-sm font-medium text-white/80">
+              {t('faq.badge') || '❓ FAQ'}
+            </span>
           </motion.div>
 
           <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white mb-4">
-            Frequently Asked{' '}
-            <span className="gradient-text">Questions</span>
+            {t('faq.title') || 'Frequently Asked'}{' '}
+            <span className="gradient-text">{t('faq.subtitle') || 'Questions'}</span>
           </h1>
           <p className="text-lg text-white/50 max-w-2xl mx-auto">
-            Find answers to common questions about our services
+            {t('faq.description') || 'Find answers to common questions about our services'}
           </p>
         </motion.div>
 
@@ -99,7 +105,7 @@ const FaqPage = () => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              All Questions
+              {t('faq.all_questions') || 'All Questions'}
             </motion.button>
             {categories.map(cat => (
               <motion.button
@@ -126,8 +132,9 @@ const FaqPage = () => {
           transition={{ delay: 0.2 }}
           className="text-white/30 text-sm text-center mb-6"
         >
-          {filteredFaqs.length} question{filteredFaqs.length !== 1 ? 's' : ''} found
-          {selectedCategory !== 'all' && ` in ${selectedCategory}`}
+          {filteredFaqs.length} {t('faq.question') || 'question'}
+          {filteredFaqs.length !== 1 ? 's' : ''} {t('faq.found') || 'found'}
+          {selectedCategory !== 'all' && ` ${t('faq.in') || 'in'} ${selectedCategory}`}
         </motion.p>
 
         {/* FAQ Accordion */}
@@ -225,9 +232,11 @@ const FaqPage = () => {
             className="glass-card p-12 text-center"
           >
             <div className="text-5xl mb-4 opacity-40">📭</div>
-            <h3 className="text-xl font-bold text-white mb-2">No FAQs found</h3>
+            <h3 className="text-xl font-bold text-white mb-2">
+              {t('faq.no_faqs_title') || 'No FAQs found'}
+            </h3>
             <p className="text-white/40">
-              No questions found in this category. Try selecting another category.
+              {t('faq.no_faqs_message') || 'No questions found in this category. Try selecting another category.'}
             </p>
           </motion.div>
         )}
@@ -242,10 +251,10 @@ const FaqPage = () => {
         >
           <div className="text-4xl mb-4">💡</div>
           <h2 className="text-xl font-bold text-white mb-2">
-            Still have questions?
+            {t('faq.still_questions_title') || 'Still have questions?'}
           </h2>
           <p className="text-white/40 mb-6 max-w-md mx-auto">
-            Can't find what you're looking for? We're here to help.
+            {t('faq.still_questions_message') || "Can't find what you're looking for? We're here to help."}
           </p>
           <Link 
             to="/contact" 
@@ -259,7 +268,7 @@ const FaqPage = () => {
             <svg className="w-5 h-5 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
             </svg>
-            <span className="relative z-10">Contact Support</span>
+            <span className="relative z-10">{t('faq.contact_support') || 'Contact Support'}</span>
           </Link>
         </motion.div>
       </div>

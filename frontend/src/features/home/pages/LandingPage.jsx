@@ -3,11 +3,13 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useTranslation } from 'react-i18next' // ✅ Ongeza hii
 import { useTheme } from '../../../context/ThemeContext'
 import api from '../../../app/api'
 import Loader from '../../../components/ui/Loader'
 
 const LandingPage = () => {
+  const { t } = useTranslation('home') // ✅ Ongeza hii
   const [heroes, setHeroes] = useState([])
   const [currentIndex, setCurrentIndex] = useState(0)
   const [settings, setSettings] = useState(null)
@@ -302,7 +304,7 @@ const LandingPage = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#0d3320]">
-        <Loader variant="morph" size="lg" text="Loading" />
+        <Loader variant="morph" size="lg" text={t('home.loading') || 'Loading'} />
       </div>
     )
   }
@@ -313,6 +315,13 @@ const LandingPage = () => {
   const badgeColor = getBadgeColor()
   const primaryBtnStyles = getPrimaryButtonStyles()
   const secondaryBtnStyles = getSecondaryButtonStyles()
+
+  // Trust indicators data with translation keys
+  const trustIndicators = [
+    { key: 'hero.trust.iso_certified' },
+    { key: 'hero.trust.experience' },
+    { key: 'hero.trust.clients' }
+  ]
 
   return (
     <motion.div 
@@ -448,7 +457,7 @@ const LandingPage = () => {
               transition={{ duration: 2, repeat: Infinity }}
             />
             <span className={`text-sm font-medium ${badgeColor}`}>
-              {settings?.site_tagline || "Tanzania's Trusted Consultancy"}
+              {settings?.site_tagline || t('hero.badge') || "Tanzania's Trusted Consultancy"}
             </span>
           </motion.div>
         )}
@@ -465,7 +474,7 @@ const LandingPage = () => {
           >
             <h1 className={`text-3xl md:text-5xl lg:text-7xl font-extrabold max-w-4xl leading-tight drop-shadow-lg uppercase ${headerColor}`}>
               {currentHero?.title || (
-                <>EXPERT <span className="gradient-text">CONSULTANCY</span> FOR A SUSTAINABLE FUTURE</>
+                <>{t('hero.title_part1') || 'EXPERT'} <span className="gradient-text">{t('hero.title_part2') || 'CONSULTANCY'}</span> {t('hero.title_part3') || 'FOR A SUSTAINABLE FUTURE'}</>
               )}
             </h1>
           </motion.div>
@@ -482,7 +491,7 @@ const LandingPage = () => {
             className="mb-8"
           >
             <p className={`text-base md:text-xl max-w-2xl mx-auto leading-relaxed drop-shadow ${subtitleColor}`}>
-              {currentHero?.subtitle || settings?.site_tagline || 'Expert Consultancy for a Sustainable Future'}
+              {currentHero?.subtitle || settings?.site_tagline || t('hero.subtitle') || 'Expert Consultancy for a Sustainable Future'}
             </p>
           </motion.div>
         </AnimatePresence>
@@ -508,7 +517,7 @@ const LandingPage = () => {
                 style={{ pointerEvents: 'none' }}
               />
               <span className="relative z-10 flex items-center gap-2 uppercase">
-                {currentHero?.cta_text || 'Get Started'}
+                {currentHero?.cta_text || t('hero.cta_primary') || 'Get Started'}
                 <motion.svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                   animate={{ x: [0, 4, 0] }} transition={{ duration: 1.5, repeat: Infinity }}>
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
@@ -526,7 +535,7 @@ const LandingPage = () => {
             >
               <div className="absolute inset-0 bg-white/0 group-hover:bg-white/5 transition-colors duration-300" />
               <span className="relative z-10 flex items-center gap-2 uppercase">
-                View Services
+                {t('hero.cta_secondary') || 'View Services'}
                 <motion.svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                   animate={{ x: [0, 4, 0] }} transition={{ duration: 1.5, repeat: Infinity, delay: 0.5 }}>
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
@@ -561,7 +570,7 @@ const LandingPage = () => {
           transition={{ delay: 0.8 }}
           className="flex flex-wrap items-center justify-center gap-6 md:gap-8 mt-10"
         >
-          {['ISO Certified', '5+ Years Experience', '48+ Clients'].map((text, index) => (
+          {trustIndicators.map((item, index) => (
             <motion.div
               key={index}
               initial={{ opacity: 0, y: 10 }}
@@ -571,7 +580,9 @@ const LandingPage = () => {
               className={`flex items-center gap-2 text-xs md:text-sm font-medium group cursor-default ${subtitleColor}`}
             >
               <span className="text-emerald-400">✅</span>
-              <span className="group-hover:text-white/90 transition-colors">{text}</span>
+              <span className="group-hover:text-white/90 transition-colors">
+                {t(item.key)}
+              </span>
             </motion.div>
           ))}
         </motion.div>
@@ -591,7 +602,7 @@ const LandingPage = () => {
           onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}
         >
           <span className="text-[10px] uppercase tracking-widest text-white/40 group-hover:text-white/70 transition-colors">
-            Scroll
+            {t('hero.scroll') || 'Scroll'}
           </span>
           <div className="w-5 h-8 rounded-full border-2 border-white/20 flex justify-center group-hover:border-white/40 transition-colors">
             <motion.div
