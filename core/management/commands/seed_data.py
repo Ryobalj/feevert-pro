@@ -1123,6 +1123,8 @@ class Command(BaseCommand):
             'ðŸš¨': ':emergency:',
             'ðŸ”Š': ':earprotection:',
             'ðŸ‘·': ':safety:',
+            'ðŸ\x90„': ':cow:',
+            'â˜€ï¸\x8f': ':sun:',
         }
         
         for old, new in broken_icons.items():

@@ -70,6 +70,7 @@ export const ICON_MAP = {
   ':carbon:': '🌍',
   ':certificate:': '📜',
   ':sustainability:': '♻️',
+  ':sun:': '☀️',
 
   // ========== 🛡️ OHS ICONS ==========
   ':shield:': '🛡️',
@@ -200,7 +201,7 @@ export const getIconCategory = (icon) => {
       ':leaf:', ':search:', ':recycle:', ':globe:', ':map:', ':scroll:',
       ':warning:', ':graduate:', ':detective:', ':water:', ':air:', ':soil:',
       ':biodiversity:', ':forest:', ':climate:', ':carbon:', ':certificate:',
-      ':sustainability:'
+      ':sustainability:', ':sun:'
     ],
     [ICON_CATEGORIES.OHS]: [
       ':shield:', ':helmet:', ':fire:', ':ambulance:', ':emergency:',
