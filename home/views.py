@@ -303,9 +303,23 @@ def set_language(request):
         return Response({'error': 'Invalid language'}, status=400)
     
     response = Response({'success': True, 'language': language})
-    response.set_cookie('django_language', language, max_age=31536000)
+    # In production the frontend (feevert.co.tz) and backend
+    # (feevert-api.onrender.com) are genuinely different domains, so this
+    # is a cross-site request from the browser's point of view. Without
+    # SameSite=None the cookie defaults to Lax and never gets sent back on
+    # the subsequent cross-site API calls that need it. SameSite=None
+    # requires Secure, which needs HTTPS - fine in production, but local
+    # dev over plain HTTP would silently drop the cookie if forced on, so
+    # keep the (working) Lax/non-secure behavior there.
+    if settings.DEBUG:
+        response.set_cookie('django_language', language, max_age=31536000)
+    else:
+        response.set_cookie(
+            'django_language', language, max_age=31536000,
+            samesite='None', secure=True
+        )
     request.session['django_language'] = language
-    
+
     return response
 
 
