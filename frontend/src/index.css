@@ -1457,6 +1457,22 @@ body {
   border: 1px solid rgba(255,255,255,0.08) !important;
 }
 
+/* ============================================================
+   ✅ PARTNERS MARQUEE - continuous horizontal scroll (BBC-ticker style)
+   ============================================================ */
+@keyframes marquee-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  animation: marquee-scroll 30s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
 .what-we-do-section .slide-overlay {
   background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.2) 50%, transparent 100%);
 }

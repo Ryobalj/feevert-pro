@@ -245,13 +245,18 @@ def get_what_we_do_slides(request):
             'message': 'No What We Do section found'
         })
 
+    def serialize_services(record):
+        return [
+            {'icon': s.icon, 'title': s.title, 'description': s.description}
+            for s in record.get_services()
+        ]
+
     # Section header (title/subtitle/description/services) comes from the
     # first active record - each additional active record becomes its own
     # slide below, rather than being ignored.
-    services = what_we_do.get_services_list()
+    services = serialize_services(what_we_do)
 
     def build_slide(record, slide_id):
-        record_services = record.get_services_list()
         base = {
             'id': slide_id,
             'title': record.title,
@@ -259,19 +264,16 @@ def get_what_we_do_slides(request):
             'description': record.description,
             'cta_text': record.cta_text,
             'cta_link': record.cta_link,
-            'services': record_services,
+            'services': serialize_services(record),
         }
-        # First image = main/background image for this record's whole turn.
-        # Remaining images = "related" images, each with its own caption,
-        # cycled inside the smaller slide box.
-        images = record.get_slider_images_list()
-        if images:
-            main_image, related_images = images[0], images[1:]
-            return {**base, 'image': main_image['image'], 'related_images': related_images}
-        for service in record_services:
-            if isinstance(service, dict) and service.get('image'):
-                return {**base, 'image': service.get('image'), 'related_images': [], 'icon': service.get('icon', '')}
-        return {**base, 'image': None, 'related_images': []}
+        # Main image = background image for this record's whole turn.
+        # Related images (gallery, each with its own caption) cycle inside
+        # the smaller slide box.
+        related_images = [
+            {'image': img.image_url, 'title': img.title, 'caption': img.caption}
+            for img in record.get_related_images()
+        ]
+        return {**base, 'image': record.image_url, 'related_images': related_images}
 
     slides = [build_slide(record, f'slide_{idx}') for idx, record in enumerate(what_we_do_qs)]
 
@@ -295,8 +297,9 @@ def get_what_we_do_slides(request):
 def set_language(request):
     """Set user's preferred language"""
     language = request.data.get('language', 'en')
-    
-    if language not in ['en', 'sw']:
+
+    valid_codes = [code for code, _ in settings.LANGUAGES]
+    if language not in valid_codes:
         return Response({'error': 'Invalid language'}, status=400)
     
     response = Response({'success': True, 'language': language})

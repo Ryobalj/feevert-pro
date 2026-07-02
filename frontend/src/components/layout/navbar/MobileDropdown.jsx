@@ -27,14 +27,27 @@ const MobileDropdown = ({ label, items, onClose }) => {
             transition={{ duration: 0.2 }}
           >
             {items.filter(i => !i.divider).map(item => (
-              <Link 
-                key={item.path} 
-                to={item.path} 
-                className="block px-4 py-2 rounded-lg transition-all duration-200 text-sm text-[var(--g-text-secondary)] hover:text-[var(--g-color-primary)] hover:bg-[var(--g-liquid-secondary)]" 
-                onClick={onClose}
-              >
-                {item.label}
-              </Link>
+              item.href ? (
+                <a
+                  key={item.href}
+                  href={item.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block px-4 py-2 rounded-lg transition-all duration-200 text-sm text-[var(--g-text-secondary)] hover:text-[var(--g-color-primary)] hover:bg-[var(--g-liquid-secondary)]"
+                  onClick={onClose}
+                >
+                  {item.label}
+                </a>
+              ) : (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className="block px-4 py-2 rounded-lg transition-all duration-200 text-sm text-[var(--g-text-secondary)] hover:text-[var(--g-color-primary)] hover:bg-[var(--g-liquid-secondary)]"
+                  onClick={onClose}
+                >
+                  {item.label}
+                </Link>
+              )
             ))}
           </motion.div>
         )}

@@ -6,9 +6,16 @@ import axios from 'axios'  // ✅ Hakikisha import ipo mwanzoni
 const isLocalhost = window.location.hostname === 'localhost' || 
                     window.location.hostname === '127.0.0.1'
 
-const BASE_URL = isLocalhost 
-  ? 'http://127.0.0.1:8000'             // Local development
-  : 'https://feevert-api.onrender.com'  // Production backend
+// Use whatever hostname the frontend itself is being served from (localhost
+// or 127.0.0.1) rather than hardcoding one - the browser treats those two
+// as different sites, so hardcoding the "wrong" one makes every request a
+// cross-site request. That silently breaks the django_language cookie
+// (and any other cookie-based auth): without SameSite=None it just never
+// gets sent back cross-site, and SameSite=None requires HTTPS, which local
+// dev doesn't have. Matching hostnames keeps everything same-site instead.
+const BASE_URL = isLocalhost
+  ? `http://${window.location.hostname}:8000`  // Local development
+  : 'https://feevert-api.onrender.com'          // Production backend
 
 console.log(`🌐 API Base URL: ${BASE_URL} (${isLocalhost ? 'Development' : 'Production'})`)
 
@@ -16,6 +23,10 @@ const api = axios.create({
   baseURL: BASE_URL,
   headers: { 'Content-Type': 'application/json' },
   timeout: isLocalhost ? 30000 : 60000,
+  // Needed so the `django_language` cookie set by /api/language/set-language/
+  // is actually stored by the browser and sent back on later requests -
+  // frontend and backend are different origins even in local dev.
+  withCredentials: true,
 })
 
 // ============================================

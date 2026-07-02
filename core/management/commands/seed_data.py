@@ -12,6 +12,35 @@ from django.conf import settings
 class Command(BaseCommand):
     help = 'SMART SYNC - Update, Create, Delete based on Excel (fixtures/seed_data.xlsx)'
 
+    # Non-English languages with django-modeltranslation fields registered
+    # (see */translation.py). English itself lives on the plain field name
+    # and is set directly by each sync function's normal `fields` dict.
+    TRANSLATION_LANGS = ['sw', 'fr', 'ar', 'ru', 'zh']
+
+    def _apply_translations(self, obj, row, fields):
+        """
+        For each field in `fields`, look for optional '{field}_{lang}'
+        columns in the Excel row (for every language in TRANSLATION_LANGS)
+        and set them on obj if present and non-empty. This is what makes
+        django-modeltranslation content (services, categories, projects,
+        team, faqs, etc.) part of the portable seed_data.xlsx pipeline
+        instead of living only in one local database - so it survives a
+        fresh `migrate && seed_data` on Render exactly like the rest of
+        the seeded content.
+        Returns True if any translated field was set.
+        """
+        changed = False
+        for field in fields:
+            for lang in self.TRANSLATION_LANGS:
+                col = f'{field}_{lang}'
+                if col not in row.index:
+                    continue
+                val = row.get(col)
+                if pd.notna(val) and str(val).strip():
+                    setattr(obj, f'{field}_{lang}', str(val).strip())
+                    changed = True
+        return changed
+
     def add_arguments(self, parser):
         parser.add_argument('--force', action='store_true', help='Delete all existing data first (full reset)')
         parser.add_argument('--no-delete', action='store_true', help='Update & Create only, no deletion')
@@ -129,6 +158,9 @@ class Command(BaseCommand):
                     # Update existing record
                     obj = existing[lookup_value]
                     changed = self._update_obj_smart(obj, fields)
+                    if self._apply_translations(obj, row, field_names):
+                        obj.save()
+                        changed = True
                     if changed:
                         updated += 1
                     else:
@@ -136,7 +168,9 @@ class Command(BaseCommand):
                 else:
                     # Create new record
                     try:
-                        model.objects.create(**fields)
+                        obj = model.objects.create(**fields)
+                        if self._apply_translations(obj, row, field_names):
+                            obj.save()
                         created += 1
                     except Exception as e:
                         self.stdout.write(self.style.ERROR(f'     ❌ Create {model.__name__} "{lookup_value}": {e}'))
@@ -158,34 +192,72 @@ class Command(BaseCommand):
     def _sync_what_we_do_smart(self, df, app_label, model_name, lookup_field='title', no_delete=False):
         """Smart sync What We Do sections"""
         model = apps.get_model(app_label, model_name)
+        service_model = apps.get_model('home', 'WhatWeDoService')
         created, updated, skipped, deleted = 0, 0, 0, 0
-        
+
         existing = {obj.title: obj for obj in model.objects.all()}
         excel_titles = set()
-        
+
         for _, row in df.iterrows():
             title = str(row.get('title', '')).strip()
             if not title:
                 skipped += 1
                 continue
-            
+
             excel_titles.add(title)
-            
+
             fields = {
                 'title': title,
                 'subtitle': str(row.get('subtitle', '')),
                 'description': str(row.get('description', '')),
-                'services': self._parse_json_with_icons(row.get('services')),
-                'slider_images': self._parse_json(row.get('slider_images')),
                 'cta_text': str(row.get('cta_text', 'Learn More')),
                 'cta_link': str(row.get('cta_link', '/services')),
                 'order': self._int(row.get('order'), 0),
                 'is_active': self._bool(row.get('is_active'), True),
             }
-            
+            services_data = self._parse_json_with_icons(row.get('services'))
+            if not isinstance(services_data, list):
+                services_data = []
+
+            main_image_raw = row.get('main_image')
+            main_image_value = '' if pd.isna(main_image_raw) else str(main_image_raw).strip()
+            main_image_path = self._resolve_local_path(main_image_value)
+
+            related_data = []
+            for i in range(1, 4):
+                img_raw = row.get(f'related_image_{i}')
+                img_value = '' if pd.isna(img_raw) else str(img_raw).strip()
+                img_path = self._resolve_local_path(img_value)
+                if not img_path:
+                    continue
+                item = {
+                    'path': img_path,
+                    'title': str(row.get(f'related_title_{i}', '') or ''),
+                    'caption': str(row.get(f'related_caption_{i}', '') or ''),
+                }
+                for lang in self.TRANSLATION_LANGS:
+                    for f in ('title', 'caption'):
+                        col = f'related_{f}_{i}_{lang}'
+                        val = row.get(col)
+                        if col in row.index and pd.notna(val) and str(val).strip():
+                            item[f'{f}_{lang}'] = str(val).strip()
+                related_data.append(item)
+
+            translate_fields = ['title', 'subtitle', 'description', 'cta_text']
+
             if title in existing:
                 obj = existing[title]
                 changed = self._update_obj_smart(obj, fields)
+                self._sync_what_we_do_services(service_model, obj, services_data)
+                if main_image_path:
+                    self._attach_local_image(obj, 'image', main_image_path)
+                    changed = True
+                if related_data:
+                    self._sync_what_we_do_images(obj, related_data)
+                    changed = True
+                if self._apply_translations(obj, row, translate_fields):
+                    obj.save()
+                    changed = True
                 if changed:
                     updated += 1
                     self.stdout.write(f'     🔄 Updated What We Do: {title}')
@@ -193,21 +265,87 @@ class Command(BaseCommand):
                     skipped += 1
             else:
                 try:
-                    model.objects.create(**fields)
+                    obj = model.objects.create(**fields)
+                    self._sync_what_we_do_services(service_model, obj, services_data)
+                    if main_image_path:
+                        self._attach_local_image(obj, 'image', main_image_path)
+                    if related_data:
+                        self._sync_what_we_do_images(obj, related_data)
+                    if self._apply_translations(obj, row, translate_fields):
+                        obj.save()
                     created += 1
                     self.stdout.write(f'     ✨ Created What We Do: {title}')
                 except Exception as e:
                     self.stdout.write(self.style.ERROR(f'     ❌ Create What We Do "{title}": {e}'))
                     skipped += 1
-        
+
         if not no_delete:
             for title, obj in existing.items():
                 if title not in excel_titles:
                     obj.delete()
                     deleted += 1
                     self.stdout.write(f'     🗑️ Deleted What We Do: {title}')
-        
+
         return created, updated, skipped, deleted
+
+    def _sync_what_we_do_services(self, service_model, what_we_do_obj, services_data):
+        """Smart sync WhatWeDoService child rows for one WhatWeDo record, matched by title"""
+        existing_services = {s.title: s for s in what_we_do_obj.services.all()}
+        seen_titles = set()
+
+        for idx, item in enumerate(services_data):
+            if not isinstance(item, dict) or not str(item.get('title', '')).strip():
+                continue
+            s_title = str(item.get('title')).strip()
+            seen_titles.add(s_title)
+            s_fields = {
+                'icon': str(item.get('icon', '')),
+                'description': str(item.get('description', '')),
+                'order': idx,
+            }
+            if s_title in existing_services:
+                svc = existing_services[s_title]
+                for k, v in s_fields.items():
+                    setattr(svc, k, v)
+            else:
+                svc = service_model(what_we_do=what_we_do_obj, title=s_title, **s_fields)
+            for lang in self.TRANSLATION_LANGS:
+                for f in ('title', 'description'):
+                    val = item.get(f'{f}_{lang}')
+                    if val:
+                        setattr(svc, f'{f}_{lang}', val)
+            svc.save()
+
+        for s_title, svc in existing_services.items():
+            if s_title not in seen_titles:
+                svc.delete()
+
+    def _sync_what_we_do_images(self, what_we_do_obj, related_data):
+        """Smart sync WhatWeDoImage child rows for one WhatWeDo record, matched by title"""
+        WhatWeDoImage = apps.get_model('home', 'WhatWeDoImage')
+        existing_images = {img.title: img for img in what_we_do_obj.related_images.all()}
+        seen_titles = set()
+
+        for idx, item in enumerate(related_data):
+            img_title = item['title'] or f'Related Image {idx + 1}'
+            seen_titles.add(img_title)
+            if img_title in existing_images:
+                img = existing_images[img_title]
+                img.caption = item['caption']
+                img.order = idx
+            else:
+                img = WhatWeDoImage(what_we_do=what_we_do_obj, title=img_title, caption=item['caption'], order=idx)
+            for lang in self.TRANSLATION_LANGS:
+                for f in ('title', 'caption'):
+                    val = item.get(f'{f}_{lang}')
+                    if val:
+                        setattr(img, f'{f}_{lang}', val)
+            img.save()
+            self._attach_local_image(img, 'image', item['path'])
+
+        for img_title, img in existing_images.items():
+            if img_title not in seen_titles:
+                img.delete()
 
     def _sync_team_smart(self, df, app_label, model_name, lookup_field='full_name', no_delete=False):
         """Smart sync Team Members"""
@@ -242,20 +380,32 @@ class Command(BaseCommand):
             }
             
             # Only update profile_image if new value provided
-            profile_image_value = str(row.get('profile_image', '')).strip()
-            if profile_image_value:
+            profile_image_raw = row.get('profile_image')
+            profile_image_value = '' if pd.isna(profile_image_raw) else str(profile_image_raw).strip()
+            is_local_image = profile_image_value and self._resolve_local_path(profile_image_value)
+            if profile_image_value and not is_local_image:
                 fields['profile_image'] = profile_image_value
-            
+
             if full_name in existing:
                 obj = existing[full_name]
                 changed = self._update_obj_smart(obj, fields)
+                if is_local_image:
+                    self._attach_local_image(obj, 'profile_image', profile_image_value)
+                    changed = True
+                if self._apply_translations(obj, row, ['full_name', 'role', 'bio', 'expertise_areas', 'education', 'work_experience', 'certifications']):
+                    obj.save()
+                    changed = True
                 if changed:
                     updated += 1
                 else:
                     skipped += 1
             else:
                 try:
-                    model.objects.create(**fields)
+                    obj = model.objects.create(**fields)
+                    if is_local_image:
+                        self._attach_local_image(obj, 'profile_image', profile_image_value)
+                    if self._apply_translations(obj, row, ['full_name', 'role', 'bio', 'expertise_areas', 'education', 'work_experience', 'certifications']):
+                        obj.save()
                     created += 1
                     self.stdout.write(f'     ✨ Created team member: {full_name}')
                 except Exception as e:
@@ -308,21 +458,35 @@ class Command(BaseCommand):
                 'is_active': self._bool(row.get('is_active'), True),
             }
             
-            # Only update featured_image if new value provided
-            featured_image_value = str(row.get('featured_image', '')).strip()
-            if featured_image_value:
-                fields['featured_image'] = featured_image_value
-            
+            # Only update cover_image if new value provided
+            cover_image_raw = row.get('cover_image')
+            cover_image_value = '' if pd.isna(cover_image_raw) else str(cover_image_raw).strip()
+            is_local_image = cover_image_value and self._resolve_local_path(cover_image_value)
+            if cover_image_value and not is_local_image:
+                fields['cover_image'] = cover_image_value
+
+            translate_fields = ['title', 'description', 'client_name', 'testimonial', 'testimonial_author', 'challenges', 'solutions', 'results', 'meta_title', 'meta_description']
+
             if slug in existing:
                 obj = existing[slug]
                 changed = self._update_obj_smart(obj, fields)
+                if is_local_image:
+                    self._attach_local_image(obj, 'cover_image', cover_image_value)
+                    changed = True
+                if self._apply_translations(obj, row, translate_fields):
+                    obj.save()
+                    changed = True
                 if changed:
                     updated += 1
                 else:
                     skipped += 1
             else:
                 try:
-                    model.objects.create(**fields)
+                    obj = model.objects.create(**fields)
+                    if is_local_image:
+                        self._attach_local_image(obj, 'cover_image', cover_image_value)
+                    if self._apply_translations(obj, row, translate_fields):
+                        obj.save()
                     created += 1
                 except Exception as e:
                     self.stdout.write(self.style.ERROR(f'     ❌ Create project "{title}": {e}'))
@@ -364,20 +528,34 @@ class Command(BaseCommand):
             }
             
             # Only update background_image if new value provided
-            bg_image_value = str(row.get('background_image', '')).strip()
-            if bg_image_value:
+            bg_image_raw = row.get('background_image')
+            bg_image_value = '' if pd.isna(bg_image_raw) else str(bg_image_raw).strip()
+            is_local_image = bg_image_value and self._resolve_local_path(bg_image_value)
+            if bg_image_value and not is_local_image:
                 fields['background_image'] = bg_image_value
-            
+
+            translate_fields = ['title', 'subtitle', 'cta_text', 'cta_second_text']
+
             if title in existing:
                 obj = existing[title]
                 changed = self._update_obj_smart(obj, fields)
+                if is_local_image:
+                    self._attach_local_image(obj, 'background_image', bg_image_value)
+                    changed = True
+                if self._apply_translations(obj, row, translate_fields):
+                    obj.save()
+                    changed = True
                 if changed:
                     updated += 1
                 else:
                     skipped += 1
             else:
                 try:
-                    model.objects.create(**fields)
+                    obj = model.objects.create(**fields)
+                    if is_local_image:
+                        self._attach_local_image(obj, 'background_image', bg_image_value)
+                    if self._apply_translations(obj, row, translate_fields):
+                        obj.save()
                     created += 1
                 except Exception as e:
                     self.stdout.write(self.style.ERROR(f'     ❌ Create hero slide "{title}": {e}'))
@@ -414,26 +592,38 @@ class Command(BaseCommand):
                 'order': self._int(row.get('order'), 0),
                 'is_active': self._bool(row.get('is_active'), True),
             }
-            
-            logo_value = str(row.get('logo', '')).strip()
-            if logo_value:
+
+            logo_raw = row.get('logo')
+            logo_value = '' if pd.isna(logo_raw) else str(logo_raw).strip()
+            is_local_logo = logo_value and self._resolve_local_path(logo_value)
+            if logo_value and not is_local_logo:
                 fields['logo'] = logo_value
-            
+
             if name in existing:
                 obj = existing[name]
                 changed = self._update_obj_smart(obj, fields)
+                if is_local_logo:
+                    self._attach_local_image(obj, 'logo', logo_value)
+                    changed = True
+                if self._apply_translations(obj, row, ['name', 'description']):
+                    obj.save()
+                    changed = True
                 if changed:
                     updated += 1
                 else:
                     skipped += 1
             else:
                 try:
-                    model.objects.create(**fields)
+                    obj = model.objects.create(**fields)
+                    if is_local_logo:
+                        self._attach_local_image(obj, 'logo', logo_value)
+                    if self._apply_translations(obj, row, ['name', 'description']):
+                        obj.save()
                     created += 1
                 except Exception as e:
                     self.stdout.write(self.style.ERROR(f'     ❌ Create partner "{name}": {e}'))
                     skipped += 1
-        
+
         if not no_delete:
             for name, obj in existing.items():
                 if name not in excel_names:
@@ -473,16 +663,23 @@ class Command(BaseCommand):
             if client_image_value:
                 fields['client_image'] = client_image_value
             
+            translate_fields = ['client_name', 'client_role', 'client_company', 'content']
+
             if client_name in existing:
                 obj = existing[client_name]
                 changed = self._update_obj_smart(obj, fields)
+                if self._apply_translations(obj, row, translate_fields):
+                    obj.save()
+                    changed = True
                 if changed:
                     updated += 1
                 else:
                     skipped += 1
             else:
                 try:
-                    model.objects.create(**fields)
+                    obj = model.objects.create(**fields)
+                    if self._apply_translations(obj, row, translate_fields):
+                        obj.save()
                     created += 1
                 except Exception as e:
                     self.stdout.write(self.style.ERROR(f'     ❌ Create testimonial "{client_name}": {e}'))
@@ -599,20 +796,27 @@ class Command(BaseCommand):
                 'order': self._int(row.get('order'), 0),
             }
             
-            image_value = str(row.get('image', '')).strip()
-            if image_value:
+            image_raw = row.get('image')
+            image_value = '' if pd.isna(image_raw) else str(image_raw).strip()
+            is_local_image = image_value and self._resolve_local_path(image_value)
+            if image_value and not is_local_image:
                 fields['image'] = image_value
-            
+
             if slug in existing:
                 obj = existing[slug]
                 changed = self._update_obj_smart(obj, fields)
+                if is_local_image:
+                    self._attach_local_image(obj, 'image', image_value)
+                    changed = True
                 if changed:
                     updated += 1
                 else:
                     skipped += 1
             else:
                 try:
-                    model.objects.create(**fields)
+                    obj = model.objects.create(**fields)
+                    if is_local_image:
+                        self._attach_local_image(obj, 'image', image_value)
                     created += 1
                 except Exception as e:
                     self.stdout.write(self.style.ERROR(f'     ❌ Create product "{name}": {e}'))
@@ -755,6 +959,7 @@ class Command(BaseCommand):
                 'site_tagline': str(row.get('site_tagline', '')),
                 'contact_email': str(row.get('contact_email', 'info@feevert.co.tz')),
                 'contact_phone': str(row.get('contact_phone', '')),
+                'contact_phone_alt': str(row.get('contact_phone_alt', '')),
                 'contact_address': str(row.get('contact_address', '')),
                 'footer_copyright_text': str(row.get('footer_copyright_text', '')),
                 'footer_about_text': str(row.get('footer_about_text', '')),
@@ -765,18 +970,31 @@ class Command(BaseCommand):
             }
             
             # Only update images if new values provided
+            local_images = {}
             for img_field in ['site_logo', 'site_logo_dark', 'favicon']:
-                val = str(row.get(img_field, '')).strip()
-                if val:
+                raw = row.get(img_field)
+                val = '' if pd.isna(raw) else str(raw).strip()
+                if not val:
+                    continue
+                resolved = self._resolve_local_path(val)
+                if resolved:
+                    local_images[img_field] = resolved
+                else:
                     fields[img_field] = val
-            
+
             changed = self._update_obj_smart(obj, fields)
+            if self._apply_translations(obj, row, ['site_name', 'site_tagline', 'footer_copyright_text', 'footer_about_text']):
+                changed = True
             if changed:
                 obj.save()
+            for img_field, path in local_images.items():
+                self._attach_local_image(obj, img_field, path)
+                changed = True
+            if changed:
                 u += 1
             else:
                 s += 1
-        
+
         return c, u, s, d
 
     def _sync_about_smart(self, df, app_label, model_name, lookup_field=None, no_delete=False):
@@ -803,17 +1021,25 @@ class Command(BaseCommand):
                 'is_active': self._bool(row.get('is_active'), True),
             }
             
-            image_value = str(row.get('image', '')).strip()
-            if image_value:
+            image_raw = row.get('image')
+            image_value = '' if pd.isna(image_raw) else str(image_raw).strip()
+            is_local_image = image_value and self._resolve_local_path(image_value)
+            if image_value and not is_local_image:
                 fields['image'] = image_value
-            
+
             changed = self._update_obj_smart(obj, fields)
+            if self._apply_translations(obj, row, ['title', 'description', 'mission', 'vision']):
+                changed = True
             if changed:
                 obj.save()
+            if is_local_image:
+                self._attach_local_image(obj, 'image', image_value)
+                changed = True
+            if changed:
                 u += 1
             else:
                 s += 1
-        
+
         return c, u, s, d
 
     # ==================== SMART CATEGORY REBUILD ====================
@@ -890,13 +1116,18 @@ class Command(BaseCommand):
             obj = model.objects.filter(slug=slug).first()
             if not obj:
                 try:
-                    model.objects.create(**fields)
+                    obj = model.objects.create(**fields)
+                    if self._apply_translations(obj, row, ['name', 'description']):
+                        obj.save()
                     created += 1
                 except Exception as e:
                     self.stdout.write(self.style.ERROR(f'     ❌ Create category "{name}": {e}'))
                     skipped += 1
             else:
                 changed = self._update_obj_smart(obj, fields)
+                if self._apply_translations(obj, row, ['name', 'description']):
+                    obj.save()
+                    changed = True
                 if changed:
                     updated += 1
                 else:
@@ -936,13 +1167,18 @@ class Command(BaseCommand):
             obj = model.objects.filter(slug=slug).first()
             if not obj:
                 try:
-                    model.objects.create(**fields)
+                    obj = model.objects.create(**fields)
+                    if self._apply_translations(obj, row, ['name', 'description']):
+                        obj.save()
                     created += 1
                 except Exception as e:
                     self.stdout.write(self.style.ERROR(f'     ❌ Create sub-category "{name}": {e}'))
                     skipped += 1
             else:
                 changed = self._update_obj_smart(obj, fields)
+                if self._apply_translations(obj, row, ['name', 'description']):
+                    obj.save()
+                    changed = True
                 if changed:
                     updated += 1
                 else:
@@ -994,17 +1230,33 @@ class Command(BaseCommand):
                 'seo_description': str(row.get('seo_description', '')),
                 'is_active': self._bool(row.get('is_active'), True),
             }
-            
+
+            image_raw = row.get('image')
+            image_value = '' if pd.isna(image_raw) else str(image_raw).strip()
+            is_local_image = image_value and self._resolve_local_path(image_value)
+            if image_value and not is_local_image:
+                fields['image'] = image_value
+
             obj = model.objects.filter(slug=slug).first()
             if not obj:
                 try:
-                    model.objects.create(**fields)
+                    obj = model.objects.create(**fields)
+                    if is_local_image:
+                        self._attach_local_image(obj, 'image', image_value)
+                    if self._apply_translations(obj, row, ['name', 'description']):
+                        obj.save()
                     created += 1
                 except Exception as e:
                     self.stdout.write(self.style.ERROR(f'     ❌ Create service "{name}": {e}'))
                     skipped += 1
             else:
                 changed = self._update_obj_smart(obj, fields)
+                if is_local_image:
+                    self._attach_local_image(obj, 'image', image_value)
+                    changed = True
+                if self._apply_translations(obj, row, ['name', 'description']):
+                    obj.save()
+                    changed = True
                 if changed:
                     updated += 1
                 else:
@@ -1049,6 +1301,77 @@ class Command(BaseCommand):
                 self.stdout.write(self.style.ERROR(f'     ❌ Update {obj.__class__.__name__} "{obj}": {e}'))
         
         return changed
+
+    def _resolve_local_path(self, value):
+        """
+        Resolve a spreadsheet image path to a real file on disk, or None if
+        it isn't a local file at all (e.g. it's a pre-existing media URL).
+        Checks the value as-is (an absolute path, useful when testing against
+        files outside the repo) and also relative to the project BASE_DIR
+        (used for paths committed to the repo, e.g. fixtures/seed_images/...,
+        so they resolve the same way in any environment, including a
+        deployment build server where the local absolute path won't exist).
+        """
+        if not value or not isinstance(value, str):
+            return None
+        if os.path.isfile(value):
+            return value
+        candidate = os.path.join(settings.BASE_DIR, value)
+        if os.path.isfile(candidate):
+            return candidate
+        return None
+
+    def _attach_local_image(self, obj, field_name, local_path):
+        """
+        Copy a real image file from local disk into an ImageField, replacing
+        any existing file. Unlike assigning a plain string to the field
+        (which only stores a path with no actual file), this properly saves
+        the file bytes into MEDIA_ROOT via Django's storage backend.
+        Returns True if attached, False if local_path doesn't exist on disk.
+        """
+        local_path = self._resolve_local_path(local_path)
+        if not local_path or not os.path.isfile(local_path):
+            return False
+        from django.core.files import File
+        name = os.path.basename(local_path)
+        if '.' not in name:
+            with open(local_path, 'rb') as f:
+                header = f.read(12)
+            if header.startswith(b'RIFF') and b'WEBP' in header:
+                ext = 'webp'
+            elif header.startswith(b'\xff\xd8'):
+                ext = 'jpg'
+            elif header.startswith(b'\x89PNG'):
+                ext = 'png'
+            else:
+                ext = 'jpg'
+            name = f'{name}.{ext}'
+
+        field_file = getattr(obj, field_name)
+        target_name = field_file.field.generate_filename(obj, name)
+
+        # If a file with this exact clean name is already in storage (from a
+        # previous seed run — including one where the DB row was since
+        # deleted/recreated by --force), point the field at it directly
+        # instead of re-uploading, which would otherwise make the storage
+        # backend append a random suffix (e.g. "bee_wire_CJCp9ti.png") and
+        # leave the old copy orphaned. Works the same for local storage and
+        # Cloudinary in production.
+        if field_file.storage.exists(target_name):
+            if field_file.name != target_name:
+                field_file.name = target_name
+                # update_fields requires an existing row; objects built in
+                # memory (e.g. a new WhatWeDoImage not yet saved) need a
+                # full save instead, since they have no primary key yet.
+                if obj.pk:
+                    obj.save(update_fields=[field_name])
+                else:
+                    obj.save()
+            return True
+
+        with open(local_path, 'rb') as f:
+            field_file.save(name, File(f), save=True)
+        return True
 
     def _bool(self, val, default=True):
         if pd.isna(val) or val is None:

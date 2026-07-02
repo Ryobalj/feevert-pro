@@ -1,4 +1,4 @@
-﻿{
+{
   "nav": {
     "home": "首页",
     "about": "关于我们",
@@ -26,7 +26,8 @@
     "dark": "深色",
     "faq": "常见问题",
     "partners": "合作伙伴",
-    "reviews": "评价"
+    "reviews": "评价",
+    "company_profile": "公司简介"
   },
   "footer": {
     "copyright": "版权所有。",

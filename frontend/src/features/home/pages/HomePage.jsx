@@ -9,6 +9,7 @@ import Loader from '../../../components/ui/Loader'
 import Icon from '../../../components/ui/Icon'
 // ✅ Ongeza import ya WhatWeDoSection
 import WhatWeDoSection from "../components/WhatWeDoSection"
+import AboutSection from "../components/AboutSection"
 
 // ============ IMAGE CAROUSEL ============
 const CardImage = ({ item, type = 'service' }) => {
@@ -176,31 +177,34 @@ const HomePage = () => {
   const [counters, setCounters] = useState({ projects: 0, clients: 0, years: 0 })
   // ✅ Ongeza state ya whatWeDo
   const [whatWeDo, setWhatWeDo] = useState(null)
+  const [about, setAbout] = useState(null)
 
   useEffect(() => {
     const loadAllData = async () => {
       try {
         // ✅ Load data za msingi - WhatWeDo haipo kwenye Promise.all
-        const [settingsRes, servicesRes, projectsRes, teamRes, testimonialsRes, faqRes, partnersRes] = await Promise.all([
+        const [settingsRes, servicesRes, projectsRes, teamRes, testimonialsRes, faqRes, partnersRes, aboutRes] = await Promise.all([
           api.get('/site-settings/'),
           api.get('/consultation-services/'),
           api.get('/projects/'),
           api.get('/team-members/'),
           api.get('/testimonials/'),
           api.get('/faqs/'),
-          api.get('/partners/')
+          api.get('/partners/'),
+          api.get('/about-sections/')
         ])
-        
+
         const extractData = (res) => {
           if (res.data?.results) return res.data.results
           if (Array.isArray(res.data)) return res.data
           return []
         }
-        
+
         setSiteSettings(extractData(settingsRes)[0] || {})
         setServices(extractData(servicesRes))
         setProjects(extractData(projectsRes))
         setTeam(extractData(teamRes))
+        setAbout(extractData(aboutRes)[0] || null)
         setTestimonials(extractData(testimonialsRes))
         setFaqs(extractData(faqRes))
         setPartners(extractData(partnersRes))
@@ -264,112 +268,8 @@ const HomePage = () => {
       {/* ✅ WHAT WE DO SECTION - Inaonekana tu ikiwa data ipo */}
       {whatWeDo && <WhatWeDoSection data={whatWeDo} />}
 
-      {/* ============ SERVICES SECTION ============ */}
-      {services.length > 0 && (
-        <section className="py-20 md:py-28 relative">
-          <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-[#0a2a19]/50 to-transparent pointer-events-none" />
-          <div className="container-main relative z-10">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="text-center mb-14"
-            >
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.1, type: "spring" }}
-                className="inline-flex items-center gap-2 px-5 py-2 rounded-full glass mb-6"
-              >
-                <motion.span
-                  className="w-2 h-2 bg-emerald-400 rounded-full"
-                  animate={{ scale: [1, 1.5, 1], opacity: [0.7, 1, 0.7] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                />
-                <span className="text-sm font-medium text-white/80">
-                  {t('services.badge') || '🛠️ What We Offer'}
-                </span>
-              </motion.div>
-              <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white mb-4">
-                {t('services.title') || 'Our'} <span className="gradient-text">{t('services.subtitle') || 'Services'}</span>
-              </h2>
-              <p className="text-white/50 text-lg max-w-xl mx-auto">
-                {t('services.description') || 'Comprehensive solutions tailored to your needs'}
-              </p>
-            </motion.div>
-            
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {services.slice(0, 6).map((service, i) => (
-                <motion.div
-                  key={service.id}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.08 }}
-                  whileHover={{ y: -6 }}
-                >
-                  <Link to={`/services/${service.id}`} className="block group h-full">
-                    <div className="glass-card h-full flex flex-col overflow-hidden hover:border-emerald-400/30 hover:shadow-lg hover:shadow-emerald-500/5 transition-all duration-500 p-0">
-                      <CardImage item={service} type="service" />
-                      <div className="h-1 bg-gradient-to-r from-emerald-400/0 via-emerald-400/0 to-emerald-400/0 group-hover:from-emerald-400/30 group-hover:via-emerald-400/50 group-hover:to-emerald-400/30 transition-all duration-500" />
-                      <div className="p-6 flex flex-col h-full">
-                        {service.icon && (
-                          <span className="text-2xl mb-3 group-hover:scale-110 transition-transform duration-300 inline-block">
-                            <Icon name={service.icon} size="text-2xl" />
-                          </span>
-                        )}
-                        <h3 className="text-lg font-bold text-white mb-2 group-hover:text-emerald-400 transition-colors">
-                          {service.name}
-                        </h3>
-                        <p className="text-white/40 text-sm mb-4 flex-1 line-clamp-2 leading-relaxed">
-                          {service.description}
-                        </p>
-                        <div className="flex items-center justify-between pt-4 border-t border-white/5">
-                          {service.price && service.price !== '0.00' ? (
-                            <span className="text-emerald-400 font-semibold text-sm">
-                              {t('services.from') || 'From'} {t('services.currency') || 'TZS'} {parseInt(service.price).toLocaleString()}
-                            </span>
-                          ) : (
-                            <span className="text-white/20 text-xs">{t('services.contact_pricing') || 'Contact for pricing'}</span>
-                          )}
-                          <span className="text-emerald-400 text-sm font-semibold flex items-center gap-1 group-hover:gap-2 transition-all">
-                            {t('services.learn_more') || 'Learn more'}
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                            </svg>
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </Link>
-                </motion.div>
-              ))}
-            </div>
-            
-            {services.length > 6 && (
-              <div className="text-center mt-10">
-                <Link
-                  to="/services"
-                  className="group relative inline-flex items-center gap-3 border-2 border-white/20 text-white px-8 py-4 rounded-full font-bold hover:border-emerald-400/50 transition-all duration-300"
-                >
-                  {t('services.view_all') || 'View All Services'}
-                  <motion.svg
-                    className="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    animate={{ x: [0, 5, 0] }}
-                    transition={{ duration: 1.5, repeat: Infinity }}
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                  </motion.svg>
-                </Link>
-              </div>
-            )}
-          </div>
-        </section>
-      )}
+      {/* ============ ABOUT OUR COMPANY SECTION ============ */}
+      {about && <AboutSection data={about} />}
 
       {/* ============ PROJECTS SECTION ============ */}
       {projects.length > 0 && (
@@ -452,115 +352,6 @@ const HomePage = () => {
                   className="group relative inline-flex items-center gap-3 border-2 border-white/20 text-white px-8 py-4 rounded-full font-bold hover:border-emerald-400/50 transition-all duration-300"
                 >
                   {t('projects.view_all') || 'View All Projects'}
-                  <motion.svg
-                    className="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    animate={{ x: [0, 5, 0] }}
-                    transition={{ duration: 1.5, repeat: Infinity }}
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                  </motion.svg>
-                </Link>
-              </div>
-            )}
-          </div>
-        </section>
-      )}
-
-      {/* ============ TEAM SECTION ============ */}
-      {team.length > 0 && (
-        <section className="py-20 md:py-28 relative">
-          <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-[#0a2a19]/50 to-transparent pointer-events-none" />
-          <div className="container-main relative z-10">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="text-center mb-14"
-            >
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.1, type: "spring" }}
-                className="inline-flex items-center gap-2 px-5 py-2 rounded-full glass mb-6"
-              >
-                <motion.span
-                  className="w-2 h-2 bg-emerald-400 rounded-full"
-                  animate={{ scale: [1, 1.5, 1], opacity: [0.7, 1, 0.7] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                />
-                <span className="text-sm font-medium text-white/80">
-                  {t('team.badge') || '👥 Our Experts'}
-                </span>
-              </motion.div>
-              <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white mb-4">
-                {t('team.title') || 'Meet Our'} <span className="gradient-text">{t('team.subtitle') || 'Team'}</span>
-              </h2>
-              <p className="text-white/50 text-lg max-w-xl mx-auto">
-                {t('team.description') || 'Passionate professionals dedicated to your success'}
-              </p>
-            </motion.div>
-            
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-4xl mx-auto">
-              {team.slice(0, 4).map((member, i) => (
-                <motion.div
-                  key={member.id}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.1 }}
-                  whileHover={{ y: -6 }}
-                >
-                  <Link to={`/team/${member.id}`} className="block group">
-                    <div className="glass-card text-center hover:border-emerald-400/30 transition-all duration-300">
-                      <div className="p-5">
-                        {member.profile_image_url ? (
-                          <div className="w-20 h-20 mx-auto mb-4 rounded-full overflow-hidden ring-2 ring-white/10 group-hover:ring-emerald-400/40 group-hover:shadow-lg transition-all duration-300">
-                            <img
-                              src={member.profile_image_url}
-                              alt={member.full_name}
-                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                              onError={(e) => {
-                                e.target.style.display = 'none'
-                                e.target.nextSibling.style.display = 'flex'
-                              }}
-                            />
-                            <div className="w-full h-full bg-gradient-to-br from-emerald-400 to-green-600 items-center justify-center hidden">
-                              <span className="text-2xl font-bold text-white">
-                                {(member.full_name || '?').charAt(0)}
-                              </span>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-emerald-400 to-green-600 flex items-center justify-center ring-2 ring-white/10 group-hover:ring-emerald-400/40 group-hover:shadow-lg group-hover:shadow-emerald-500/10 transition-all duration-300">
-                            <span className="text-2xl font-bold text-white">
-                              {(member.full_name || '?').charAt(0)}
-                            </span>
-                          </div>
-                        )}
-                        <h3 className="font-bold text-white group-hover:text-emerald-400 transition-colors">
-                          {member.full_name}
-                        </h3>
-                        <p className="text-xs text-emerald-400/80 font-semibold uppercase tracking-wider mt-1">
-                          {member.role || member.position}
-                        </p>
-                      </div>
-                    </div>
-                  </Link>
-                </motion.div>
-              ))}
-            </div>
-            
-            {team.length > 4 && (
-              <div className="text-center mt-10">
-                <Link
-                  to="/team"
-                  className="group relative inline-flex items-center gap-3 border-2 border-white/20 text-white px-8 py-4 rounded-full font-bold hover:border-emerald-400/50 transition-all duration-300"
-                >
-                  {t('team.view_all') || 'Meet All Team Members'}
                   <motion.svg
                     className="w-5 h-5"
                     fill="none"
@@ -725,7 +516,7 @@ const HomePage = () => {
 
       {/* ============ PARTNERS SECTION ============ */}
       {partners.length > 0 && (
-        <section className="py-16 relative">
+        <section className="py-16 relative overflow-hidden">
           <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-emerald-400/15 to-transparent" />
           <div className="container-main relative z-10">
             <motion.div
@@ -742,24 +533,52 @@ const HomePage = () => {
                 <div className="h-px w-8 bg-gradient-to-l from-transparent to-white/20" />
               </div>
             </motion.div>
-            <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12">
-              {partners.slice(0, 6).map((partner, i) => (
-                <motion.div
-                  key={partner.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.05 }}
-                  whileHover={{ scale: 1.08 }}
-                  className="glass px-6 py-3 rounded-2xl hover:border-emerald-400/30 transition-all duration-300"
-                >
-                  <span className="text-white/50 hover:text-white font-bold text-sm transition-colors">
-                    {partner.name}
-                  </span>
-                </motion.div>
-              ))}
-            </div>
           </div>
+
+          {partners.length > 6 ? (
+            // Many partners - scroll continuously, ticker-style
+            <div className="relative overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)]">
+              <div className="flex items-center w-max animate-marquee">
+                {[...partners, ...partners].map((partner, i) => (
+                  <div
+                    key={`${partner.id}-${i}`}
+                    className="glass mx-3 md:mx-4 px-6 py-3 rounded-2xl hover:border-emerald-400/30 transition-all duration-300 flex items-center gap-3 flex-shrink-0"
+                  >
+                    {partner.logo_url && (
+                      <img src={partner.logo_url} alt={partner.name} className="h-8 w-auto object-contain" />
+                    )}
+                    <span className="text-white/50 hover:text-white font-bold text-sm transition-colors whitespace-nowrap">
+                      {partner.name}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            // Few partners - static centered layout
+            <div className="container-main relative z-10">
+              <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12">
+                {partners.map((partner, i) => (
+                  <motion.div
+                    key={partner.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.05 }}
+                    whileHover={{ scale: 1.08 }}
+                    className="glass px-6 py-3 rounded-2xl hover:border-emerald-400/30 transition-all duration-300 flex items-center gap-3"
+                  >
+                    {partner.logo_url && (
+                      <img src={partner.logo_url} alt={partner.name} className="h-8 w-auto object-contain" />
+                    )}
+                    <span className="text-white/50 hover:text-white font-bold text-sm transition-colors">
+                      {partner.name}
+                    </span>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          )}
         </section>
       )}
 

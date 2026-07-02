@@ -17,28 +17,13 @@ const LandingPage = () => {
   const [loading, setLoading] = useState(true)
   const [isPaused, setIsPaused] = useState(false)
   const [isHovering, setIsHovering] = useState(false)
-  const [transitionType, setTransitionType] = useState('fade')
   const intervalRef = useRef(null)
-  
+
   // ✅ Get theme but IGNORE it - Force dark mode for landing page
   const { currentTheme } = useTheme()
   // Force dark mode - always use dark theme colors
   const darkMode = true
   const isDark = true
-
-  // ✅ Random transition types
-  const transitions = [
-    'fade',
-    'slide-left',
-    'slide-right',
-    'slide-up',
-    'slide-down',
-    'zoom-in',
-    'zoom-out',
-    'flip',
-    'rotate',
-    'blur',
-  ]
 
   useEffect(() => {
     const loadData = async () => {
@@ -82,13 +67,7 @@ const LandingPage = () => {
     }
     
     intervalRef.current = setInterval(() => {
-      const randomTransition = transitions[Math.floor(Math.random() * transitions.length)]
-      setTransitionType(randomTransition)
-      
-      setTimeout(() => {
-        setCurrentIndex((prev) => (prev + 1) % heroes.length)
-      }, 100)
-      
+      setCurrentIndex((prev) => (prev + 1) % heroes.length)
     }, 8000)
     
     return () => {
@@ -114,92 +93,19 @@ const LandingPage = () => {
   }
   
   const goToSlide = (index) => {
-    const randomTransition = transitions[Math.floor(Math.random() * transitions.length)]
-    setTransitionType(randomTransition)
     setCurrentIndex(index)
   }
 
-  // ✅ Get transition duration based on hover state
-  const getTransitionDuration = () => {
-    return isHovering ? 4.0 : 2.5
-  }
-
-  // ✅ Get transition variants based on type
+  // ✅ Soft, slow crossfade for hero background images (no dramatic
+  // slide/flip/rotate/zoom - just a gentle dissolve with a subtle
+  // Ken Burns-style scale so transitions never feel abrupt).
   const getTransitionVariants = () => {
-    const duration = getTransitionDuration()
-    
-    switch(transitionType) {
-      case 'slide-left':
-        return {
-          initial: { opacity: 0.3, x: '100%', scale: 0.95 },
-          animate: { opacity: 1, x: 0, scale: 1 },
-          exit: { opacity: 0.3, x: '-100%', scale: 0.95 },
-          transition: { duration, ease: [0.25, 0.1, 0.25, 1] }
-        }
-      case 'slide-right':
-        return {
-          initial: { opacity: 0.3, x: '-100%', scale: 0.95 },
-          animate: { opacity: 1, x: 0, scale: 1 },
-          exit: { opacity: 0.3, x: '100%', scale: 0.95 },
-          transition: { duration, ease: [0.25, 0.1, 0.25, 1] }
-        }
-      case 'slide-up':
-        return {
-          initial: { opacity: 0.3, y: '100%', scale: 0.95 },
-          animate: { opacity: 1, y: 0, scale: 1 },
-          exit: { opacity: 0.3, y: '-100%', scale: 0.95 },
-          transition: { duration, ease: [0.25, 0.1, 0.25, 1] }
-        }
-      case 'slide-down':
-        return {
-          initial: { opacity: 0.3, y: '-100%', scale: 0.95 },
-          animate: { opacity: 1, y: 0, scale: 1 },
-          exit: { opacity: 0.3, y: '100%', scale: 0.95 },
-          transition: { duration, ease: [0.25, 0.1, 0.25, 1] }
-        }
-      case 'zoom-in':
-        return {
-          initial: { opacity: 0, scale: 1.4 },
-          animate: { opacity: 1, scale: 1 },
-          exit: { opacity: 0, scale: 0.8 },
-          transition: { duration, ease: [0.25, 0.1, 0.25, 1] }
-        }
-      case 'zoom-out':
-        return {
-          initial: { opacity: 0, scale: 0.6 },
-          animate: { opacity: 1, scale: 1 },
-          exit: { opacity: 0, scale: 1.4 },
-          transition: { duration, ease: [0.25, 0.1, 0.25, 1] }
-        }
-      case 'flip':
-        return {
-          initial: { opacity: 0.3, rotateY: 90, scale: 0.8 },
-          animate: { opacity: 1, rotateY: 0, scale: 1 },
-          exit: { opacity: 0.3, rotateY: -90, scale: 0.8 },
-          transition: { duration, ease: [0.25, 0.1, 0.25, 1] }
-        }
-      case 'rotate':
-        return {
-          initial: { opacity: 0.3, rotate: -15, scale: 0.9 },
-          animate: { opacity: 1, rotate: 0, scale: 1 },
-          exit: { opacity: 0.3, rotate: 15, scale: 0.9 },
-          transition: { duration, ease: [0.25, 0.1, 0.25, 1] }
-        }
-      case 'blur':
-        return {
-          initial: { opacity: 0, filter: 'blur(20px)', scale: 1.05 },
-          animate: { opacity: 1, filter: 'blur(0px)', scale: 1 },
-          exit: { opacity: 0, filter: 'blur(20px)', scale: 1.05 },
-          transition: { duration, ease: [0.25, 0.1, 0.25, 1] }
-        }
-      case 'fade':
-      default:
-        return {
-          initial: { opacity: 0 },
-          animate: { opacity: 1 },
-          exit: { opacity: 0 },
-          transition: { duration, ease: [0.25, 0.1, 0.25, 1] }
-        }
+    const duration = isHovering ? 3.5 : 2.2
+    return {
+      initial: { opacity: 0, scale: 1.04 },
+      animate: { opacity: 1, scale: 1 },
+      exit: { opacity: 0, scale: 1 },
+      transition: { duration, ease: 'easeInOut' }
     }
   }
 
@@ -261,7 +167,7 @@ const LandingPage = () => {
       {/* ✅ BACKGROUND FIXED - BRIGHT with glow, not pure black */}
       <div className="fixed inset-0 z-0 bg-[#0d3320]">
         {hasImage ? (
-          <AnimatePresence mode="wait">
+          <AnimatePresence>
             <motion.div
               key={hasSlideshow ? currentIndex : 'static'}
               initial="initial"
@@ -355,33 +261,31 @@ const LandingPage = () => {
         <div className="container-main relative z-10 py-12 flex flex-col items-center justify-center min-h-screen text-center px-4">
           
           {/* Logo */}
-          {!hasImage && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8, y: -20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ type: "spring", stiffness: 200, damping: 20, delay: 0.2 }}
+            className="mb-6 relative"
+          >
             <motion.div
-              initial={{ opacity: 0, scale: 0.8, y: -20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              transition={{ type: "spring", stiffness: 200, damping: 20, delay: 0.2 }}
-              className="mb-6 relative"
-            >
-              <motion.div 
-                className="absolute -inset-8 bg-emerald-400/15 rounded-full blur-2xl"
-                animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }}
-                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute -inset-8 bg-emerald-400/15 rounded-full blur-2xl"
+              animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }}
+              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+            />
+
+            {!imgError ? (
+              <img
+                src="/logo-2520.png"
+                alt="FeeVert"
+                className="relative w-32 md:w-40 lg:w-52 h-auto object-contain mx-auto drop-shadow-2xl"
+                onError={() => setImgError(true)}
               />
-              
-              {!imgError ? (
-                <img 
-                  src="/logo-2520.png" 
-                  alt="FeeVert"
-                  className="relative w-32 md:w-40 lg:w-52 h-auto object-contain mx-auto drop-shadow-2xl"
-                  onError={() => setImgError(true)}
-                />
-              ) : (
-                <span className={`relative text-4xl md:text-5xl lg:text-6xl font-bold drop-shadow-lg ${headerColor}`}>
-                  FeeVert
-                </span>
-              )}
-            </motion.div>
-          )}
+            ) : (
+              <span className={`relative text-4xl md:text-5xl lg:text-6xl font-bold drop-shadow-lg ${headerColor}`}>
+                FeeVert
+              </span>
+            )}
+          </motion.div>
 
           {/* Glass Badge */}
           {(!hasImage || !currentHero?.title) && (

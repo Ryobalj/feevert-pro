@@ -1,4 +1,4 @@
-﻿{
+{
   "nav": {
     "home": "Nyumbani",
     "about": "Kuhusu Sisi",
@@ -26,7 +26,8 @@
     "dark": "Nyeusi",
     "faq": "Maswali",
     "partners": "Washirika",
-    "reviews": "Maoni"
+    "reviews": "Maoni",
+    "company_profile": "Wasifu wa Kampuni"
   },
   "footer": {
     "copyright": "Haki zote zimehifadhiwa.",

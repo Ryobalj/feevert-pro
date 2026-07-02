@@ -5,7 +5,7 @@ from django.utils import timezone
 from .models import (
     SiteSetting, HeroSection, AboutSection, AboutImage, ServiceHighlight,
     SeoData, Faq, Partner, Testimonial, ContactMessage, Contact,
-    WhatWeDo  # ✅ Ongeza hii
+    WhatWeDo, WhatWeDoImage, WhatWeDoService  # ✅ Ongeza hii
 )
 
 
@@ -14,6 +14,22 @@ class AboutImageInline(admin.TabularInline):
     model = AboutImage
     extra = 1
     fields = ('image', 'caption', 'section', 'order', 'is_active')
+    readonly_fields = ('created_at', 'updated_at')
+
+
+# ========== INLINE RELATED IMAGES FOR WHAT WE DO ==========
+class WhatWeDoImageInline(admin.TabularInline):
+    model = WhatWeDoImage
+    extra = 1
+    fields = ('image', 'title', 'caption', 'order', 'is_active')
+    readonly_fields = ('created_at', 'updated_at')
+
+
+# ========== INLINE SERVICES FOR WHAT WE DO ==========
+class WhatWeDoServiceInline(admin.TabularInline):
+    model = WhatWeDoService
+    extra = 1
+    fields = ('icon', 'title', 'description', 'order', 'is_active')
     readonly_fields = ('created_at', 'updated_at')
 
 
@@ -111,36 +127,15 @@ class WhatWeDoAdmin(admin.ModelAdmin):
     list_filter = ('is_active',)
     search_fields = ('title', 'description', 'subtitle')
     list_editable = ('order', 'is_active')
-    
+    inlines = [WhatWeDoServiceInline, WhatWeDoImageInline]
+
     fieldsets = (
         ('Header & Description', {
             'fields': ('title', 'subtitle', 'description')
         }),
-        ('Services List', {
-            'fields': ('services',),
-            'description': """
-                <div style="background: #f8f9fa; padding: 12px; border-radius: 6px; margin-bottom: 10px;">
-                    <strong>📋 Format:</strong> List of services with icon, title, and description
-                </div>
-                <pre style="background: #f1f3f5; padding: 12px; border-radius: 6px; font-size: 12px;">
-[
-    {"icon": "📊", "title": "Business Consultancy", "description": "Strategic planning and advisory"},
-    {"icon": "🌱", "title": "Sustainability Solutions", "description": "Eco-friendly practices"},
-    {"icon": "💡", "title": "Innovation & Strategy", "description": "Creative problem-solving"}
-]
-                </pre>
-            """
-        }),
-        ('Slider Images', {
-            'fields': ('slider_images',),
-            'description': """
-                <div style="background: #f8f9fa; padding: 12px; border-radius: 6px; margin-bottom: 10px;">
-                    <strong>🖼️ Format:</strong> List of image URLs for the slider
-                </div>
-                <pre style="background: #f1f3f5; padding: 12px; border-radius: 6px; font-size: 12px;">
-["/media/slides/image1.jpg", "/media/slides/image2.jpg", "/media/slides/image3.jpg"]
-                </pre>
-            """
+        ('Main Image', {
+            'fields': ('image',),
+            'description': 'Background image shown for this section\'s whole turn. Add "related" images and services below.'
         }),
         ('Call to Action', {
             'fields': ('cta_text', 'cta_link')
@@ -150,16 +145,16 @@ class WhatWeDoAdmin(admin.ModelAdmin):
             'classes': ('collapse',)
         }),
     )
-    
+
     def service_count(self, obj):
-        count = len(obj.get_services_list())
+        count = obj.services.filter(is_active=True).count()
         return f"{count} service(s)" if count > 0 else "No services"
     service_count.short_description = "Services"
-    
+
     def image_count(self, obj):
-        count = len(obj.get_slider_images_list())
-        return f"{count} image(s)" if count > 0 else "No images"
-    image_count.short_description = "Images"
+        count = obj.related_images.filter(is_active=True).count()
+        return f"{count} related image(s)" if count > 0 else "No related images"
+    image_count.short_description = "Related Images"
 
 
 @admin.register(ServiceHighlight)

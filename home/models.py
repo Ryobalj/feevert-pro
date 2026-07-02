@@ -528,26 +528,14 @@ class WhatWeDo(BaseModel):
         help_text="Brief description about what the company does"
     )
     
-    # ========== SERVICES/POINTS (JSON) ==========
-    services = models.JSONField(
-        default=list,
+    # ========== MAIN IMAGE ==========
+    image = models.ImageField(
+        upload_to='whatwedo/',
         blank=True,
-        help_text='List of {icon, title, description}'
+        null=True,
+        help_text="Main/background image for this section's whole turn"
     )
-    
-    # ========== SLIDER IMAGES (JSON) ==========
-    slider_images = models.JSONField(
-        default=list,
-        blank=True,
-        help_text=(
-            'List of images for the slider. The FIRST entry is the main/'
-            'background image; the rest are "related" images shown with '
-            'their own caption. Each entry can be either a plain URL string '
-            '(no caption) or an object: {"image": "<url>", "title": "...", '
-            '"caption": "..."}.'
-        )
-    )
-    
+
     # ========== CTA ==========
     cta_text = models.CharField(
         max_length=50,
@@ -573,29 +561,65 @@ class WhatWeDo(BaseModel):
     
     def __str__(self):
         return f"What We Do: {self.title[:50]}"
-    
-    def get_services_list(self):
-        """Helper method to safely get services as list"""
-        if isinstance(self.services, list):
-            return self.services
-        return []
-    
-    def get_slider_images_list(self):
-        """
-        Helper method to safely get slider images as a normalized list of
-        {image, title, caption} dicts. Supports both the legacy format
-        (plain URL strings) and the newer format (objects with a caption).
-        """
-        if not isinstance(self.slider_images, list):
-            return []
-        normalized = []
-        for entry in self.slider_images:
-            if isinstance(entry, str) and entry:
-                normalized.append({'image': entry, 'title': '', 'caption': ''})
-            elif isinstance(entry, dict) and entry.get('image'):
-                normalized.append({
-                    'image': entry.get('image'),
-                    'title': entry.get('title', ''),
-                    'caption': entry.get('caption', ''),
-                })
-        return normalized
+
+    @property
+    def image_url(self):
+        if self.image:
+            return self.image.url
+        return None
+
+    def get_related_images(self):
+        """Active related images (gallery), in display order."""
+        return self.related_images.filter(is_active=True).order_by('order', '-created_at')
+
+    def get_services(self):
+        """Active services, in display order."""
+        return self.services.filter(is_active=True).order_by('order', 'id')
+
+
+class WhatWeDoService(BaseModel):
+    """
+    A single service/point shown in the WhatWeDo section's icon grid.
+    Mirrors WhatWeDoImage - a proper related model instead of JSON.
+    """
+    what_we_do = models.ForeignKey(WhatWeDo, on_delete=models.CASCADE, related_name='services')
+    icon = models.CharField(max_length=50, blank=True, help_text='Icon shortcode, e.g. :wheat:')
+    title = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+    order = models.IntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ['order', 'id']
+        verbose_name = "What We Do Service"
+        verbose_name_plural = "What We Do Services"
+
+    def __str__(self):
+        return f"{self.title} ({self.what_we_do.title})"
+
+
+class WhatWeDoImage(BaseModel):
+    """
+    Related images for a WhatWeDo section, cycled inside the smaller slide
+    box while that section's turn is active. Mirrors AboutImage.
+    """
+    what_we_do = models.ForeignKey(WhatWeDo, on_delete=models.CASCADE, related_name='related_images')
+    image = models.ImageField(upload_to='whatwedo/related/')
+    title = models.CharField(max_length=200, blank=True)
+    caption = models.CharField(max_length=500, blank=True)
+    order = models.IntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ['order', '-created_at']
+        verbose_name = "What We Do Related Image"
+        verbose_name_plural = "What We Do Related Images"
+
+    def __str__(self):
+        return f"Image for {self.what_we_do.title} ({self.caption or 'No caption'})"
+
+    @property
+    def image_url(self):
+        if self.image:
+            return self.image.url
+        return None

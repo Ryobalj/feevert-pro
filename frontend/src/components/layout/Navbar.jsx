@@ -181,7 +181,9 @@ const Navbar = () => {
     { path: '/careers', label: t('nav.careers') },
     { divider: true },
     { path: '/partners', label: t('nav.partners') },
-    { path: '/reviews', label: t('nav.reviews') }, 
+    { path: '/reviews', label: t('nav.reviews') },
+    { divider: true },
+    { href: '/documents/feevert-company-profile.pdf', label: `📄 ${t('nav.company_profile')}` },
   ]
 
   // ✅ Projects Menu - MIXED: Static + Database (Database imeachwa)

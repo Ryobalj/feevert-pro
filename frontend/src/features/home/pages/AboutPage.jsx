@@ -217,6 +217,13 @@ const AboutPage = () => {
 
   if (!about) return null
 
+  // Split the DB title so the last word keeps the gradient accent that the
+  // old hardcoded "About FeeVert" heading used to have.
+  const pageTitle = about.title || t('about.title') || 'About FeeVert'
+  const pageTitleWords = pageTitle.trim().split(/\s+/)
+  const pageTitleAccent = pageTitleWords.pop()
+  const pageTitleLead = pageTitleWords.join(' ')
+
   const headerImages = []
   if (about.image_url) headerImages.push(about.image_url)
   if (about.image) {
@@ -264,11 +271,21 @@ const AboutPage = () => {
             </span>
           </motion.div>
 
-          <h1 className="text-3xl md:text-4xl lg:text-6xl font-extrabold text-white mb-4">
-            {t('about.title') || 'About'}{' '}
-            <span className="gradient-text">{t('about.company') || 'FeeVert'}</span>
+          <h1 className="text-3xl md:text-4xl lg:text-6xl font-extrabold text-white mb-4 uppercase">
+            {pageTitleLead && `${pageTitleLead} `}<span className="gradient-text">{pageTitleAccent}</span>
           </h1>
-          {/* ✅ NIMEONDOA MSTARI HUU: {about.title && (<p>...</p>)} */}
+
+          <a
+            href="/documents/feevert-company-profile.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group inline-flex items-center gap-3 bg-emerald-500/90 text-white px-6 py-3 rounded-full font-bold hover:bg-emerald-400 transition-all duration-300"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v12m0 0l-4-4m4 4l4-4M4 20h16" />
+            </svg>
+            {t('about.download_profile') || 'Download PDF'}
+          </a>
         </motion.div>
 
         {/* ============ FEATURED IMAGE ============ */}

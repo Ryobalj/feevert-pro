@@ -23,10 +23,24 @@ const DropdownContent = ({ items, position, onClose, onMouseEnter, onMouseLeave 
   >
     {items.map((item, index) => {
       if (item.divider) return <div key={index} className="h-px bg-[var(--g-border-glass)] my-1" />
+      if (item.href) {
+        return (
+          <a
+            key={item.href}
+            href={item.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block px-4 py-2.5 text-sm rounded-lg text-[var(--g-text-secondary)] hover:text-[var(--g-color-primary)] hover:bg-[var(--g-liquid-secondary)] transition-all duration-200"
+            onClick={onClose}
+          >
+            {item.label}
+          </a>
+        )
+      }
       return (
-        <Link 
-          key={item.path || index} 
-          to={item.path} 
+        <Link
+          key={item.path || index}
+          to={item.path}
           className="block px-4 py-2.5 text-sm rounded-lg text-[var(--g-text-secondary)] hover:text-[var(--g-color-primary)] hover:bg-[var(--g-liquid-secondary)] transition-all duration-200"
           onClick={onClose}
         >

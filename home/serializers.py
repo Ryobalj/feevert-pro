@@ -3,9 +3,9 @@
 from rest_framework import serializers
 from modeltranslation.translator import translator
 from .models import (
-    SiteSetting, HeroSection, AboutSection, AboutImage, ServiceHighlight, 
+    SiteSetting, HeroSection, AboutSection, AboutImage, ServiceHighlight,
     SeoData, Faq, Partner, Testimonial, ContactMessage,
-    WhatWeDo  # ✅ Ongeza hii
+    WhatWeDo, WhatWeDoImage, WhatWeDoService  # ✅ Ongeza hii
 )
 from projects.serializers import ProjectListSerializer
 from consultations.serializers import ConsultationServiceSerializer
@@ -151,52 +151,68 @@ class AboutSectionSerializer(serializers.ModelSerializer):
 # ============================================================
 # ✅ WHAT WE DO - SERIALIZER (MPYA)
 # ============================================================
+class WhatWeDoImageSerializer(serializers.ModelSerializer):
+    """Serializer for What We Do Related Images"""
+    image_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = WhatWeDoImage
+        fields = [
+            'id', 'image', 'image_url', 'title', 'caption', 'order', 'is_active'
+        ]
+        read_only_fields = ['id', 'created_at', 'updated_at']
+
+    def get_image_url(self, obj):
+        if obj.image:
+            return obj.image.url
+        return None
+
+
+class WhatWeDoServiceSerializer(serializers.ModelSerializer):
+    """Serializer for What We Do Services"""
+
+    class Meta:
+        model = WhatWeDoService
+        fields = ['id', 'icon', 'title', 'description', 'order', 'is_active']
+        read_only_fields = ['id', 'created_at', 'updated_at']
+
+
 class WhatWeDoSerializer(serializers.ModelSerializer):
     """Serializer for What We Do section with Multi-language support"""
-    
+    image_url = serializers.SerializerMethodField()
+    related_images = WhatWeDoImageSerializer(many=True, read_only=True)
+    services = WhatWeDoServiceSerializer(many=True, read_only=True)
+
     class Meta:
         model = WhatWeDo
         fields = [
             'id', 'title', 'subtitle', 'description',
-            'services', 'slider_images',
+            'services', 'image', 'image_url', 'related_images',
             'cta_text', 'cta_link',
             'is_active', 'order'
         ]
-    
+
+    def get_image_url(self, obj):
+        if obj.image:
+            return obj.image.url
+        return None
+
     def to_representation(self, instance):
-        """Translate fields based on current language"""
+        """Translate header fields based on current language"""
         data = super().to_representation(instance)
-        
+
         lang = self.context.get('request', None)
         if lang:
             lang = lang.COOKIES.get('django_language', 'en')
         else:
             lang = 'en'
-        
-        # Translate header fields
+
         translate_fields = ['title', 'subtitle', 'description', 'cta_text']
         for field in translate_fields:
             translated_value = getattr(instance, f'{field}_{lang}', None)
             if translated_value:
                 data[field] = translated_value
-        
-        # Translate services list (title and description)
-        if data.get('services') and isinstance(data['services'], list):
-            translated_services = []
-            for i, item in enumerate(data['services']):
-                if isinstance(item, dict):
-                    translated_item = item.copy()
-                    # Translate title
-                    title_translated = getattr(instance, f'services_{i}_title_{lang}', None)
-                    if title_translated:
-                        translated_item['title'] = title_translated
-                    # Translate description
-                    desc_translated = getattr(instance, f'services_{i}_description_{lang}', None)
-                    if desc_translated:
-                        translated_item['description'] = desc_translated
-                translated_services.append(translated_item)
-            data['services'] = translated_services
-        
+
         return data
 
 

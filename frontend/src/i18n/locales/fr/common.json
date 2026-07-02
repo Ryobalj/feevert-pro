@@ -1,4 +1,4 @@
-﻿{
+{
   "nav": {
     "home": "Accueil",
     "about": "À propos",
@@ -26,7 +26,8 @@
     "dark": "Sombre",
     "faq": "FAQ",
     "partners": "Partenaires",
-    "reviews": "Avis"
+    "reviews": "Avis",
+    "company_profile": "Profil de l'entreprise"
   },
   "footer": {
     "copyright": "Tous droits réservés.",

@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import api from '../../app/api'
 
 const languages = [
   { code: 'en', name: 'English', flag: '🇬🇧' },
@@ -17,8 +18,11 @@ const LanguageSwitcher = () => {
   const [isOpen, setIsOpen] = useState(false)
   const currentLang = i18n.language
 
-  const changeLanguage = (lang) => {
-    i18n.changeLanguage(lang)
+  const changeLanguage = async (lang) => {
+    if (lang === currentLang) {
+      setIsOpen(false)
+      return
+    }
     localStorage.setItem('language', lang)
     setIsOpen(false)
     if (lang === 'ar') {
@@ -26,6 +30,18 @@ const LanguageSwitcher = () => {
     } else {
       document.documentElement.dir = 'ltr'
     }
+    // Tell the backend too, so translated database content (services,
+    // projects, testimonials, FAQs, etc.) matches the UI language - this
+    // sets the django_language cookie the API serializers read. Wait for
+    // it, then reload: every page fetches its data once on mount, so
+    // switching language in place would leave already-loaded content in
+    // the old language until a fresh fetch happens.
+    try {
+      await api.post('/language/set-language/', { language: lang })
+    } catch (e) {
+      // proceed even if the backend call fails - UI strings still switch
+    }
+    window.location.reload()
   }
 
   const currentLanguage = languages.find(l => l.code === currentLang) || languages[0]

@@ -3,7 +3,8 @@
 from modeltranslation.translator import register, TranslationOptions
 from .models import (
     SiteSetting, HeroSection, AboutSection, ServiceHighlight,
-    SeoData, Faq, Partner, Testimonial
+    SeoData, Faq, Partner, Testimonial,
+    WhatWeDo, WhatWeDoService, WhatWeDoImage
 )
 
 @register(SiteSetting)
@@ -37,3 +38,15 @@ class PartnerTranslationOptions(TranslationOptions):
 @register(Testimonial)
 class TestimonialTranslationOptions(TranslationOptions):
     fields = ('client_name', 'client_role', 'client_company', 'content')
+
+@register(WhatWeDo)
+class WhatWeDoTranslationOptions(TranslationOptions):
+    fields = ('title', 'subtitle', 'description', 'cta_text')
+
+@register(WhatWeDoService)
+class WhatWeDoServiceTranslationOptions(TranslationOptions):
+    fields = ('title', 'description')
+
+@register(WhatWeDoImage)
+class WhatWeDoImageTranslationOptions(TranslationOptions):
+    fields = ('title', 'caption')
