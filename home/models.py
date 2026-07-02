@@ -505,3 +505,97 @@ class ContactMessage(BaseModel):
     @property
     def priority_label(self):
         return dict(self.PRIORITY_CHOICES).get(self.priority, self.priority)
+
+
+class WhatWeDo(BaseModel):
+    """
+    'What We Do' section shown on the homepage.
+    Brief description of the company's services with supporting images.
+    """
+    
+    # ========== HEADER & DESCRIPTION ==========
+    title = models.CharField(
+        max_length=200,
+        default="What We Do",
+        help_text="Section title"
+    )
+    subtitle = models.CharField(
+        max_length=300,
+        blank=True,
+        help_text="Short subtitle/tagline"
+    )
+    description = models.TextField(
+        help_text="Brief description about what the company does"
+    )
+    
+    # ========== SERVICES/POINTS (JSON) ==========
+    services = models.JSONField(
+        default=list,
+        blank=True,
+        help_text='List of {icon, title, description}'
+    )
+    
+    # ========== SLIDER IMAGES (JSON) ==========
+    slider_images = models.JSONField(
+        default=list,
+        blank=True,
+        help_text=(
+            'List of images for the slider. The FIRST entry is the main/'
+            'background image; the rest are "related" images shown with '
+            'their own caption. Each entry can be either a plain URL string '
+            '(no caption) or an object: {"image": "<url>", "title": "...", '
+            '"caption": "..."}.'
+        )
+    )
+    
+    # ========== CTA ==========
+    cta_text = models.CharField(
+        max_length=50,
+        blank=True,
+        default="Learn More",
+        help_text="Button text"
+    )
+    cta_link = models.CharField(
+        max_length=200,
+        blank=True,
+        default="/services",
+        help_text="Button link"
+    )
+    
+    # ========== STATUS ==========
+    is_active = models.BooleanField(default=True)
+    order = models.IntegerField(default=0, help_text="Order on page")
+    
+    class Meta:
+        ordering = ['order']
+        verbose_name = "What We Do Section"
+        verbose_name_plural = "What We Do Sections"
+    
+    def __str__(self):
+        return f"What We Do: {self.title[:50]}"
+    
+    def get_services_list(self):
+        """Helper method to safely get services as list"""
+        if isinstance(self.services, list):
+            return self.services
+        return []
+    
+    def get_slider_images_list(self):
+        """
+        Helper method to safely get slider images as a normalized list of
+        {image, title, caption} dicts. Supports both the legacy format
+        (plain URL strings) and the newer format (objects with a caption).
+        """
+        if not isinstance(self.slider_images, list):
+            return []
+        normalized = []
+        for entry in self.slider_images:
+            if isinstance(entry, str) and entry:
+                normalized.append({'image': entry, 'title': '', 'caption': ''})
+            elif isinstance(entry, dict) and entry.get('image'):
+                normalized.append({
+                    'image': entry.get('image'),
+                    'title': entry.get('title', ''),
+                    'caption': entry.get('caption', ''),
+                })
+        return normalized

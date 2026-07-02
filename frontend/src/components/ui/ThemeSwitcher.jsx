@@ -1,21 +1,52 @@
 // src/components/ui/ThemeSwitcher.jsx
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { useTheme } from '../../context/ThemeContext'
+import { useLocation } from 'react-router-dom'
 
 const ThemeSwitcher = () => {
   const { t } = useTranslation('common')
-  const { currentTheme, themes, setTheme } = useTheme()
+  const { currentTheme, themes, setTheme, darkMode } = useTheme()
   const [isOpen, setIsOpen] = useState(false)
+  const location = useLocation()
 
-  const currentThemeData = themes[currentTheme]
+  // ✅ Check if user is on landing page
+  const isLandingPage = location.pathname === '/'
 
-  // ✅ Theme options with preview colors - ZINATAFSIRIWA
+  // ✅ Force dark theme when on landing page
+  useEffect(() => {
+    if (isLandingPage && currentTheme !== 'dark') {
+      // Store current theme before switching
+      const previousTheme = localStorage.getItem('feevert-theme')
+      if (previousTheme && previousTheme !== 'dark') {
+        localStorage.setItem('feevert-theme-previous', previousTheme)
+      }
+      // Force dark theme
+      setTheme('dark')
+    }
+  }, [isLandingPage, currentTheme, setTheme])
+
+  // ✅ Restore previous theme when leaving landing page
+  useEffect(() => {
+    if (!isLandingPage) {
+      const previousTheme = localStorage.getItem('feevert-theme-previous')
+      if (previousTheme && previousTheme !== currentTheme) {
+        setTheme(previousTheme)
+        localStorage.removeItem('feevert-theme-previous')
+      }
+    }
+  }, [isLandingPage, currentTheme, setTheme])
+
+  // ✅ Always show dark theme icon on landing page
+  const displayTheme = isLandingPage ? 'dark' : currentTheme
+  const currentThemeData = themes[displayTheme]
+
+  // ✅ Theme options with preview colors
   const themeOptions = [
-    { id: 'white', label: t('nav.white'), icon: '⬜', color: '#ffffff' },
-    { id: 'brand', label: t('nav.brand'), icon: '💚', color: '#0d5c3e' },
+    { id: 'white', label: t('nav.white'), icon: '☀️', color: '#ffffff' },
+    { id: 'brand', label: t('nav.brand'), icon: '🌿', color: '#0d5c3e' },
     { id: 'dark', label: t('nav.dark'), icon: '🌙', color: '#0d3320' },
   ]
 
@@ -25,19 +56,36 @@ const ThemeSwitcher = () => {
       <button
         onClick={(e) => {
           e.stopPropagation()
-          setIsOpen(!isOpen)
+          // ✅ Don't allow theme switching on landing page
+          if (!isLandingPage) {
+            setIsOpen(!isOpen)
+          }
         }}
-        className="w-10 h-10 rounded-full glass flex items-center justify-center hover:border-emerald-400/30 transition-all duration-300 group"
+        className={`w-10 h-10 rounded-full glass flex items-center justify-center hover:border-emerald-400/30 transition-all duration-300 group ${
+          isLandingPage ? 'cursor-not-allowed opacity-80' : ''
+        }`}
         aria-label={t('theme.choose_theme')}
+        title={isLandingPage ? t('theme.disabled_on_landing') || 'Theme switching disabled on landing page' : ''}
       >
         <span className="text-lg group-hover:scale-110 transition-transform duration-300">
-          {currentTheme === 'white' ? '⬜' : currentTheme === 'brand' ? '💚' : '🌙'}
+          {displayTheme === 'white' ? '☀️' : displayTheme === 'brand' ? '🌿' : '🌙'}
         </span>
       </button>
 
-      {/* Dropdown */}
+      {/* ✅ Show lock icon on landing page */}
+      {isLandingPage && (
+        <div className="absolute -top-1 -right-1">
+          <div className="w-4 h-4 rounded-full bg-emerald-500/20 backdrop-blur-sm border border-emerald-400/30 flex items-center justify-center">
+            <svg className="w-2.5 h-2.5 text-emerald-400" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clipRule="evenodd" />
+            </svg>
+          </div>
+        </div>
+      )}
+
+      {/* Dropdown - Only show if not on landing page */}
       <AnimatePresence>
-        {isOpen && (
+        {isOpen && !isLandingPage && (
           <motion.div
             initial={{ opacity: 0, y: -10, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}

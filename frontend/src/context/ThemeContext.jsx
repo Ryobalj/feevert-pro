@@ -23,10 +23,6 @@ const THEMES = {
       navbarBg: 'rgba(255,255,255,0.95)',
       navbarText: '#0d5c3e',
       navbarTextHover: '#1a7a54',
-      // ✅ Add landing page specific colors - FORCE WHITE TEXT
-      landingText: '#ffffff',
-      landingTextSecondary: 'rgba(255,255,255,0.7)',
-      landingTextTertiary: 'rgba(255,255,255,0.4)',
     }
   },
   brand: {
@@ -48,10 +44,6 @@ const THEMES = {
       navbarBg: 'rgba(8,58,38,0.9)',
       navbarText: '#d4a843',
       navbarTextHover: '#e8c95a',
-      // ✅ Add landing page specific colors - FORCE WHITE TEXT
-      landingText: '#ffffff',
-      landingTextSecondary: 'rgba(255,255,255,0.7)',
-      landingTextTertiary: 'rgba(255,255,255,0.4)',
     }
   },
   dark: {
@@ -73,12 +65,25 @@ const THEMES = {
       navbarBg: 'rgba(10,10,10,0.85)',
       navbarText: '#34d399',
       navbarTextHover: '#6ee7b7',
-      // ✅ Add landing page specific colors - FORCE WHITE TEXT
-      landingText: '#ffffff',
-      landingTextSecondary: 'rgba(255,255,255,0.7)',
-      landingTextTertiary: 'rgba(255,255,255,0.4)',
     }
   }
+}
+
+// ✅ DARK THEME COLORS - For landing page (always use these)
+const LANDING_DARK_COLORS = {
+  background: '#000000',
+  surface: '#0a0a0a',
+  card: 'rgba(255,255,255,0.03)',
+  text: '#ffffff', // Force white text
+  textSecondary: 'rgba(255,255,255,0.7)',
+  textTertiary: 'rgba(255,255,255,0.4)',
+  border: 'rgba(255,255,255,0.05)',
+  primary: '#34d399',
+  primaryHover: '#6ee7b7',
+  accent: '#1a4a2e',
+  navbarBg: 'rgba(10,10,10,0.85)',
+  navbarText: '#34d399',
+  navbarTextHover: '#6ee7b7',
 }
 
 // Order of themes (for toggle) - White kwanza
@@ -167,15 +172,32 @@ export const ThemeProvider = ({ children }) => {
     }
   }, [])
 
-  // ✅ Get landing page specific colors (always white text)
+  // ✅ Get landing page colors - ALWAYS USE DARK THEME COLORS
   const getLandingColors = useCallback(() => {
-    const theme = THEMES[currentTheme]
+    // Always return dark theme colors regardless of current theme
     return {
-      text: theme.colors.landingText || '#ffffff',
-      textSecondary: theme.colors.landingTextSecondary || 'rgba(255,255,255,0.7)',
-      textTertiary: theme.colors.landingTextTertiary || 'rgba(255,255,255,0.4)',
+      background: LANDING_DARK_COLORS.background,
+      surface: LANDING_DARK_COLORS.surface,
+      text: LANDING_DARK_COLORS.text,
+      textSecondary: LANDING_DARK_COLORS.textSecondary,
+      textTertiary: LANDING_DARK_COLORS.textTertiary,
+      border: LANDING_DARK_COLORS.border,
+      primary: LANDING_DARK_COLORS.primary,
+      primaryHover: LANDING_DARK_COLORS.primaryHover,
+      accent: LANDING_DARK_COLORS.accent,
+      navbarBg: LANDING_DARK_COLORS.navbarBg,
+      navbarText: LANDING_DARK_COLORS.navbarText,
+      navbarTextHover: LANDING_DARK_COLORS.navbarTextHover,
     }
-  }, [currentTheme])
+  }, [])
+
+  // ✅ Get landing page button styles based on dark theme
+  const getLandingButtonStyles = useCallback(() => {
+    return {
+      primary: 'bg-[#0d5c3e] text-white hover:bg-[#1a7a54] hover:text-white border-2 border-[#34d399]/20',
+      secondary: 'border-[#34d399]/40 text-[#34d399] hover:border-[#34d399] hover:bg-[#34d399]/10 hover:text-white',
+    }
+  }, [])
 
   const value = {
     currentTheme,
@@ -188,8 +210,11 @@ export const ThemeProvider = ({ children }) => {
     isDark: darkMode,
     isLight: !darkMode,
     colors: THEMES[currentTheme]?.colors || THEMES.white.colors,
-    // ✅ Add landing page colors (always white)
+    // ✅ Landing page specific - always dark theme
     landingColors: getLandingColors(),
+    landingButtonStyles: getLandingButtonStyles(),
+    // ✅ Helper to check if landing page should use dark mode
+    useLandingDark: true, // Always true for landing page
   }
 
   return (

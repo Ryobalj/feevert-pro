@@ -3,13 +3,13 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useTranslation } from 'react-i18next' // ✅ Ongeza hii
+import { useTranslation } from 'react-i18next'
 import { useTheme } from '../../../context/ThemeContext'
 import api from '../../../app/api'
 import Loader from '../../../components/ui/Loader'
 
 const LandingPage = () => {
-  const { t } = useTranslation('home') // ✅ Ongeza hii
+  const { t } = useTranslation('home')
   const [heroes, setHeroes] = useState([])
   const [currentIndex, setCurrentIndex] = useState(0)
   const [settings, setSettings] = useState(null)
@@ -20,7 +20,11 @@ const LandingPage = () => {
   const [transitionType, setTransitionType] = useState('fade')
   const intervalRef = useRef(null)
   
-  const { darkMode, currentTheme } = useTheme()
+  // ✅ Get theme but IGNORE it - Force dark mode for landing page
+  const { currentTheme } = useTheme()
+  // Force dark mode - always use dark theme colors
+  const darkMode = true
+  const isDark = true
 
   // ✅ Random transition types
   const transitions = [
@@ -199,106 +203,36 @@ const LandingPage = () => {
     }
   }
 
-  // ✅ Get text color based on background image
+  // ✅ FORCE WHITE TEXT - Always use white text regardless of theme
   const getHeaderColor = () => {
-    // Kama ni Brand Theme (darkMode = false, hakuna image)
-    const isBrandTheme = !darkMode && !hasImage && currentTheme === 'brand'
-    
-    if (isBrandTheme) {
-      return 'text-[#f5f0e8]'
-    }
-    
-    if (!hasImage) {
-      return darkMode ? 'text-emerald-400' : 'text-[#0d5c3e]'
-    }
-    const overlay = currentHero?.background_overlay || 0.5
-    if (overlay > 0.4) {
-      return 'text-white'
-    }
-    return 'text-[#0d5c3e]'
+    return 'text-white'
   }
 
-  // ✅ Get subtitle color
   const getSubtitleColor = () => {
-    const isBrandTheme = !darkMode && !hasImage && currentTheme === 'brand'
-    
-    if (isBrandTheme) {
-      return 'text-[#f5f0e8]/70'
-    }
-    
-    if (!hasImage) {
-      return darkMode ? 'text-white/70' : 'text-black/70'
-    }
-    const overlay = currentHero?.background_overlay || 0.5
-    if (overlay > 0.4) {
-      return 'text-white/70'
-    }
-    return 'text-black/70'
+    return 'text-white/70'
   }
 
-  // ✅ Get badge color
   const getBadgeColor = () => {
-    const isBrandTheme = !darkMode && !hasImage && currentTheme === 'brand'
-    
-    if (isBrandTheme) {
-      return 'text-[#f5f0e8]/80'
-    }
-    
-    if (!hasImage) {
-      return darkMode ? 'text-white/80' : 'text-black/80'
-    }
-    const overlay = currentHero?.background_overlay || 0.5
-    if (overlay > 0.4) {
-      return 'text-white/80'
-    }
-    return 'text-black/80'
+    return 'text-white/80'
   }
 
-  // ✅ Get primary button styles - INATEGEMEA THEME
+  // ✅ FORCE DARK MODE BUTTON STYLES - Always dark theme
   const getPrimaryButtonStyles = () => {
-    // Kama ni Brand Theme
-    const isBrandTheme = currentTheme === 'brand' && !darkMode && !hasImage
-    
-    // 1. KAMA NI BRAND THEME - BUTTON YA DARK GREEN
-    if (isBrandTheme) {
-      return 'bg-[#0d5c3e] text-[#f5f0e8] hover:bg-[#1a7a54] hover:text-white border-2 border-[#f5f0e8]/20'
-    }
-    
-    // 2. KAMA NI DARK THEME - BUTTON YA DARK GREEN (sawa na brand)
-    if (darkMode) {
-      return 'bg-[#0d5c3e] text-[#e8e8e8] hover:bg-[#1a7a54] hover:text-white border-2 border-[#34d399]/20'
-    }
-    
-    // 3. KAMA NI IMAGE OVERLAY > 0.4 - BUTTON NYEUPE
+    // Kama kuna image na overlay kubwa - button nyeupe
     if (hasImage && currentHero?.background_overlay > 0.4) {
       return 'bg-white text-[#0d3320] hover:bg-emerald-400/90 hover:text-[#0d3320]'
     }
-    
-    // 4. DEFAULT - WHITE THEME
-    return 'bg-[#0d5c3e] text-white hover:bg-[#1a7a54] hover:text-white'
+    // DARK MODE BUTTON - Always this style
+    return 'bg-[#0d5c3e] text-white hover:bg-[#1a7a54] hover:text-white border-2 border-[#34d399]/20'
   }
 
-  // ✅ Get secondary button styles - INATEGEMEA THEME
+  // ✅ FORCE DARK MODE SECONDARY BUTTON STYLES
   const getSecondaryButtonStyles = () => {
-    const isBrandTheme = currentTheme === 'brand' && !darkMode && !hasImage
-    
-    // 1. KAMA NI BRAND THEME
-    if (isBrandTheme) {
-      return 'border-[#f5f0e8]/40 text-[#f5f0e8] hover:border-[#f5f0e8] hover:bg-[#f5f0e8]/10 hover:text-white'
-    }
-    
-    // 2. KAMA NI DARK THEME
-    if (darkMode) {
-      return 'border-[#34d399]/40 text-[#34d399] hover:border-[#34d399] hover:bg-[#34d399]/10 hover:text-white'
-    }
-    
-    // 3. KAMA NI IMAGE OVERLAY > 0.4
     if (hasImage && currentHero?.background_overlay > 0.4) {
       return 'border-white/50 text-white hover:border-white hover:bg-white/10 hover:text-white'
     }
-    
-    // 4. DEFAULT - WHITE THEME
-    return 'border-[#0d5c3e]/40 text-[#0d5c3e] hover:border-[#0d5c3e] hover:bg-[#0d5c3e]/10 hover:text-[#0d5c3e]'
+    // DARK MODE SECONDARY BUTTON - Always this style
+    return 'border-[#34d399]/40 text-[#34d399] hover:border-[#34d399] hover:bg-[#34d399]/10 hover:text-white'
   }
 
   if (loading) {
@@ -318,302 +252,309 @@ const LandingPage = () => {
 
   // Trust indicators data with translation keys
   const trustIndicators = [
-    { key: 'hero.trust.iso_certified' },
     { key: 'hero.trust.experience' },
     { key: 'hero.trust.clients' }
   ]
 
   return (
-    <motion.div 
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden"
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-    >
-      {/* ============ BACKGROUND LAYER ============ */}
-      {hasImage ? (
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={hasSlideshow ? currentIndex : 'static'}
-            initial="initial"
-            animate="animate"
-            exit="exit"
-            variants={variants}
-            className="absolute inset-0 z-0"
-          >
-            <img 
-              src={currentHero.background_image_url}
-              alt={currentHero.title || 'FeeVert'}
-              className="w-full h-full object-cover"
-              onError={(e) => {
-                e.target.style.display = 'none'
-                e.target.parentElement.innerHTML = `
-                  <div class="absolute inset-0 bg-gradient-to-br from-[#0a2a19] via-[#0d3320] to-[#104428]"></div>
-                `
-              }}
-            />
-            <div 
-              className="absolute inset-0"
-              style={{
-                background: `linear-gradient(135deg, 
-                  rgba(0,0,0,${currentHero?.background_overlay || 0.5}) 0%, 
-                  rgba(0,0,0,${(currentHero?.background_overlay || 0.5) * 0.6}) 40%, 
-                  rgba(0,0,0,${(currentHero?.background_overlay || 0.5) * 0.7}) 70%, 
-                  rgba(0,0,0,${(currentHero?.background_overlay || 0.5) * 1.2}) 100%
-                )`,
-                opacity: 1,
-              }}
-            />
-          </motion.div>
-        </AnimatePresence>
-      ) : (
-        <div className="absolute inset-0 z-0">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#0a2a19] via-[#0d3320] to-[#104428]" />
-          
-          <motion.div 
-            className="absolute -top-40 -right-40 w-[700px] h-[700px] bg-emerald-500/15 rounded-full blur-[150px]"
-            animate={{ scale: [1, 1.15, 1], opacity: [0.3, 0.5, 0.3] }}
-            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-          />
-          <motion.div 
-            className="absolute -bottom-40 -left-40 w-[600px] h-[600px] bg-green-400/10 rounded-full blur-[130px]"
-            animate={{ scale: [1, 1.2, 1], opacity: [0.2, 0.4, 0.2] }}
-            transition={{ duration: 12, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-          />
-          <motion.div 
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-emerald-300/8 rounded-full blur-[100px]"
-            animate={{ scale: [1, 1.25, 1] }}
-            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
-          />
-
-          <motion.div 
-            className="absolute top-1/4 left-1/4 w-3 h-3 bg-emerald-400/40 rounded-full blur-[2px]"
-            animate={{ y: [0, -40, 0], opacity: [0.4, 1, 0.4] }}
-            transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-          />
-          <motion.div 
-            className="absolute bottom-1/3 right-1/3 w-2.5 h-2.5 bg-green-300/50 rounded-full blur-[2px]"
-            animate={{ y: [0, -35, 0], opacity: [0.3, 0.8, 0.3] }}
-            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-          />
-          <motion.div 
-            className="absolute top-1/3 right-1/4 w-2 h-2 bg-teal-300/40 rounded-full blur-[2px]"
-            animate={{ y: [0, -30, 0], opacity: [0.5, 1, 0.5] }}
-            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-          />
-
-          <div className="absolute inset-0 opacity-[0.03]" style={{
-            backgroundImage: `radial-gradient(circle, rgba(255,255,255,0.8) 1px, transparent 1px)`,
-            backgroundSize: '50px 50px'
-          }} />
-        </div>
-      )}
-
-      {/* ============ CONTENT ============ */}
-      <div className="container-main relative z-10 py-12 flex flex-col items-center justify-center min-h-screen text-center px-4">
-        
-        {/* Logo */}
-        {!hasImage && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8, y: -20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ type: "spring", stiffness: 200, damping: 20, delay: 0.2 }}
-            className="mb-6 relative"
-          >
-            <motion.div 
-              className="absolute -inset-8 bg-emerald-400/15 rounded-full blur-2xl"
-              animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }}
-              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-            />
-            
-            {!imgError ? (
+    <>
+      {/* ✅ BACKGROUND FIXED - BRIGHT with glow, not pure black */}
+      <div className="fixed inset-0 z-0 bg-[#0d3320]">
+        {hasImage ? (
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={hasSlideshow ? currentIndex : 'static'}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              variants={variants}
+              className="absolute inset-0 w-full h-full"
+            >
               <img 
-                src="/logo-2520.png" 
-                alt="FeeVert"
-                className="relative w-32 md:w-40 lg:w-52 h-auto object-contain mx-auto drop-shadow-2xl"
-                onError={() => setImgError(true)}
+                src={currentHero.background_image_url}
+                alt={currentHero.title || 'FeeVert'}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.target.style.display = 'none'
+                  e.target.parentElement.innerHTML = `
+                    <div class="absolute inset-0 bg-gradient-to-br from-[#0a2a19] via-[#0d3320] to-[#104428]"></div>
+                  `
+                }}
               />
-            ) : (
-              <span className={`relative text-4xl md:text-5xl lg:text-6xl font-bold drop-shadow-lg ${headerColor}`}>
-                FeeVert
-              </span>
-            )}
-          </motion.div>
-        )}
-
-        {/* Glass Badge */}
-        {(!hasImage || !currentHero?.title) && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.3, type: "spring" }}
-            className="inline-flex items-center gap-2 px-5 py-2 rounded-full glass mb-4"
-          >
-            <motion.span 
-              className="w-2 h-2 bg-emerald-400 rounded-full"
-              animate={{ scale: [1, 1.5, 1], opacity: [0.7, 1, 0.7] }}
-              transition={{ duration: 2, repeat: Infinity }}
+              <div 
+                className="absolute inset-0"
+                style={{
+                  background: `linear-gradient(135deg, 
+                    rgba(0,0,0,${currentHero?.background_overlay || 0.5}) 0%, 
+                    rgba(0,0,0,${(currentHero?.background_overlay || 0.5) * 0.6}) 40%, 
+                    rgba(0,0,0,${(currentHero?.background_overlay || 0.5) * 0.7}) 70%, 
+                    rgba(0,0,0,${(currentHero?.background_overlay || 0.5) * 1.2}) 100%
+                  )`,
+                  opacity: 1,
+                }}
+              />
+            </motion.div>
+          </AnimatePresence>
+        ) : (
+          <div className="absolute inset-0 w-full h-full">
+            {/* ✅ Bright gradient - not too dark */}
+            <div className="absolute inset-0 bg-gradient-to-br from-[#0a2a19] via-[#0d3320] to-[#104428]" />
+            
+            {/* ✅ Glow effects - bright */}
+            <motion.div 
+              className="absolute -top-40 -right-40 w-[700px] h-[700px] bg-emerald-500/20 rounded-full blur-[150px]"
+              animate={{ scale: [1, 1.15, 1], opacity: [0.3, 0.5, 0.3] }}
+              transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
             />
-            <span className={`text-sm font-medium ${badgeColor}`}>
-              {settings?.site_tagline || t('hero.badge') || "Tanzania's Trusted Consultancy"}
-            </span>
-          </motion.div>
+            <motion.div 
+              className="absolute -bottom-40 -left-40 w-[600px] h-[600px] bg-green-400/15 rounded-full blur-[130px]"
+              animate={{ scale: [1, 1.2, 1], opacity: [0.2, 0.4, 0.2] }}
+              transition={{ duration: 12, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+            />
+            <motion.div 
+              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-emerald-300/10 rounded-full blur-[100px]"
+              animate={{ scale: [1, 1.25, 1] }}
+              transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+            />
+
+            {/* ✅ Floating particles - bright */}
+            <motion.div 
+              className="absolute top-1/4 left-1/4 w-3 h-3 bg-emerald-400/50 rounded-full blur-[2px]"
+              animate={{ y: [0, -40, 0], opacity: [0.4, 1, 0.4] }}
+              transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+            />
+            <motion.div 
+              className="absolute bottom-1/3 right-1/3 w-2.5 h-2.5 bg-green-300/60 rounded-full blur-[2px]"
+              animate={{ y: [0, -35, 0], opacity: [0.3, 0.8, 0.3] }}
+              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+            />
+            <motion.div 
+              className="absolute top-1/3 right-1/4 w-2 h-2 bg-teal-300/50 rounded-full blur-[2px]"
+              animate={{ y: [0, -30, 0], opacity: [0.5, 1, 0.5] }}
+              transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+            />
+
+            {/* ✅ Grid pattern - subtle */}
+            <div className="absolute inset-0 opacity-[0.03]" style={{
+              backgroundImage: `radial-gradient(circle, rgba(255,255,255,0.8) 1px, transparent 1px)`,
+              backgroundSize: '50px 50px'
+            }} />
+          </div>
         )}
+      </div>
 
-        {/* ============ HEADER - UPPERCASE ============ */}
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={hasSlideshow ? currentIndex : 'static'}
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -30 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-            className="mb-4"
-          >
-            <h1 className={`text-3xl md:text-5xl lg:text-7xl font-extrabold max-w-4xl leading-tight drop-shadow-lg uppercase ${headerColor}`}>
-              {currentHero?.title || (
-                <>{t('hero.title_part1') || 'EXPERT'} <span className="gradient-text">{t('hero.title_part2') || 'CONSULTANCY'}</span> {t('hero.title_part3') || 'FOR A SUSTAINABLE FUTURE'}</>
+      {/* ✅ CONTENT - Scrollable on top of fixed background with landing-page class */}
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="landing-page relative z-10 min-h-screen flex flex-col items-center justify-center"
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
+        <div className="container-main relative z-10 py-12 flex flex-col items-center justify-center min-h-screen text-center px-4">
+          
+          {/* Logo */}
+          {!hasImage && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8, y: -20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ type: "spring", stiffness: 200, damping: 20, delay: 0.2 }}
+              className="mb-6 relative"
+            >
+              <motion.div 
+                className="absolute -inset-8 bg-emerald-400/15 rounded-full blur-2xl"
+                animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }}
+                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+              />
+              
+              {!imgError ? (
+                <img 
+                  src="/logo-2520.png" 
+                  alt="FeeVert"
+                  className="relative w-32 md:w-40 lg:w-52 h-auto object-contain mx-auto drop-shadow-2xl"
+                  onError={() => setImgError(true)}
+                />
+              ) : (
+                <span className={`relative text-4xl md:text-5xl lg:text-6xl font-bold drop-shadow-lg ${headerColor}`}>
+                  FeeVert
+                </span>
               )}
-            </h1>
-          </motion.div>
-        </AnimatePresence>
+            </motion.div>
+          )}
 
-        {/* ============ SUBTITLE ============ */}
-        <AnimatePresence mode="wait">
+          {/* Glass Badge */}
+          {(!hasImage || !currentHero?.title) && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.3, type: "spring" }}
+              className="inline-flex items-center gap-2 px-5 py-2 rounded-full glass mb-4 bg-white/10 backdrop-blur-sm border border-white/20"
+            >
+              <motion.span 
+                className="w-2 h-2 bg-emerald-400 rounded-full"
+                animate={{ scale: [1, 1.5, 1], opacity: [0.7, 1, 0.7] }}
+                transition={{ duration: 2, repeat: Infinity }}
+              />
+              <span className={`text-sm font-medium ${badgeColor}`}>
+                {settings?.site_tagline || t('hero.badge') || "Tanzania's Trusted Consultancy"}
+              </span>
+            </motion.div>
+          )}
+
+          {/* ============ HEADER - UPPERCASE ============ */}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={hasSlideshow ? currentIndex : 'static'}
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -30 }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+              className="mb-4"
+            >
+              <h1 className={`text-3xl md:text-5xl lg:text-7xl font-extrabold max-w-4xl leading-tight drop-shadow-lg uppercase ${headerColor}`}>
+                {currentHero?.title || (
+                  <>{t('hero.title_part1') || 'EXPERT'} <span className="text-emerald-400">{t('hero.title_part2') || 'CONSULTANCY'}</span> {t('hero.title_part3') || 'FOR A SUSTAINABLE FUTURE'}</>
+                )}
+              </h1>
+            </motion.div>
+          </AnimatePresence>
+
+          {/* ============ SUBTITLE ============ */}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={hasSlideshow ? currentIndex + '-sub' : 'static-sub'}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.6, delay: 0.1, ease: "easeOut" }}
+              className="mb-8"
+            >
+              <p className={`text-base md:text-xl max-w-2xl mx-auto leading-relaxed drop-shadow ${subtitleColor}`}>
+                {currentHero?.subtitle || settings?.site_tagline || t('hero.subtitle') || 'Expert Consultancy for a Sustainable Future'}
+              </p>
+            </motion.div>
+          </AnimatePresence>
+
+          {/* ============ CTA BUTTONS ============ */}
           <motion.div
-            key={hasSlideshow ? currentIndex + '-sub' : 'static-sub'}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.6, delay: 0.1, ease: "easeOut" }}
-            className="mb-8"
+            transition={{ delay: 0.6 }}
+            className="flex flex-col sm:flex-row gap-4"
           >
-            <p className={`text-base md:text-xl max-w-2xl mx-auto leading-relaxed drop-shadow ${subtitleColor}`}>
-              {currentHero?.subtitle || settings?.site_tagline || t('hero.subtitle') || 'Expert Consultancy for a Sustainable Future'}
-            </p>
-          </motion.div>
-        </AnimatePresence>
+            {/* Primary Button */}
+            <Link to={currentHero?.cta_link || '/home'}>
+              <motion.button
+                className={`group relative px-8 md:px-10 py-3 md:py-4 rounded-full font-bold text-base md:text-lg shadow-2xl shadow-black/40 overflow-hidden transition-all duration-300 ${primaryBtnStyles}`}
+                // ✅ REMOVE hover scale effect - just keep tap
+                whileTap={{ scale: 0.95 }}
+              >
+                <motion.div
+                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12"
+                  animate={{ x: ['-200%', '200%'] }}
+                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                  style={{ pointerEvents: 'none' }}
+                />
+                <span className="relative z-10 flex items-center gap-2 uppercase">
+                  {currentHero?.cta_text || t('hero.cta_primary') || 'Get Started'}
+                  <motion.svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                    animate={{ x: [0, 4, 0] }} transition={{ duration: 1.5, repeat: Infinity }}>
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                  </motion.svg>
+                </span>
+              </motion.button>
+            </Link>
 
-        {/* ============ CTA BUTTONS - FIXED ============ */}
+            {/* Secondary Button */}
+            <Link to="/services">
+              <motion.button
+                className={`group relative px-8 md:px-10 py-3 md:py-4 rounded-full font-bold text-base md:text-lg backdrop-blur-sm overflow-hidden transition-all duration-300 border-2 ${secondaryBtnStyles}`}
+                // ✅ REMOVE hover scale effect - just keep tap
+                whileTap={{ scale: 0.95 }}
+              >
+                <div className="absolute inset-0 bg-white/0 group-hover:bg-white/5 transition-colors duration-300" />
+                <span className="relative z-10 flex items-center gap-2 uppercase">
+                  {t('hero.cta_secondary') || 'View Services'}
+                  <motion.svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                    animate={{ x: [0, 4, 0] }} transition={{ duration: 1.5, repeat: Infinity, delay: 0.5 }}>
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                  </motion.svg>
+                </span>
+              </motion.button>
+            </Link>
+          </motion.div>
+
+          {/* Slide Indicators - Dark mode style */}
+          {hasSlideshow && (
+            <div className="flex gap-2 mt-10">
+              {heroes.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => goToSlide(index)}
+                  className={`rounded-full transition-all duration-300 ${
+                    index === currentIndex 
+                      ? 'bg-emerald-400 h-3 w-8 shadow-lg shadow-emerald-400/30' 
+                      : 'bg-white/20 hover:bg-white/40 h-3 w-3'
+                  }`}
+                  aria-label={`Slide ${index + 1}`}
+                />
+              ))}
+            </div>
+          )}
+
+          {/* Trust Indicators */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.8 }}
+            className="flex flex-wrap items-center justify-center gap-6 md:gap-8 mt-10"
+          >
+            {trustIndicators.map((item, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.8 + index * 0.1 }}
+                whileHover={{ scale: 1.1 }}
+                className={`flex items-center gap-2 text-xs md:text-sm font-medium group cursor-default ${subtitleColor}`}
+              >
+                <span className="text-emerald-400">✅</span>
+                <span className="group-hover:text-white transition-colors">
+                  {t(item.key)}
+                </span>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+
+        {/* Scroll Indicator */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
-          className="flex flex-col sm:flex-row gap-4"
+          transition={{ delay: 1.2 }}
+          className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10"
         >
-          {/* Primary Button - Always visible */}
-          <Link to={currentHero?.cta_link || '/home'}>
-            <motion.button
-              className={`group relative px-8 md:px-10 py-3 md:py-4 rounded-full font-bold text-base md:text-lg shadow-2xl shadow-black/20 overflow-hidden transition-all duration-300 ${primaryBtnStyles}`}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
+          <motion.div
+            animate={{ y: [0, 8, 0] }}
+            transition={{ repeat: Infinity, duration: 2 }}
+            className="flex flex-col items-center gap-2 cursor-pointer group"
+            onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}
+          >
+            <span className="text-[10px] uppercase tracking-widest text-white/30 group-hover:text-white/60 transition-colors">
+              {t('hero.scroll') || 'Scroll'}
+            </span>
+            <div className="w-5 h-8 rounded-full border-2 border-white/15 flex justify-center group-hover:border-white/30 transition-colors">
               <motion.div
-                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -skew-x-12"
-                animate={{ x: ['-200%', '200%'] }}
-                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                style={{ pointerEvents: 'none' }}
+                className="w-1 h-2.5 bg-emerald-400 rounded-full mt-2"
+                animate={{ y: [0, 8, 0] }}
+                transition={{ repeat: Infinity, duration: 1.5 }}
               />
-              <span className="relative z-10 flex items-center gap-2 uppercase">
-                {currentHero?.cta_text || t('hero.cta_primary') || 'Get Started'}
-                <motion.svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                  animate={{ x: [0, 4, 0] }} transition={{ duration: 1.5, repeat: Infinity }}>
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                </motion.svg>
-              </span>
-            </motion.button>
-          </Link>
-
-          {/* Secondary Button - Always visible */}
-          <Link to="/services">
-            <motion.button
-              className={`group relative px-8 md:px-10 py-3 md:py-4 rounded-full font-bold text-base md:text-lg backdrop-blur-sm overflow-hidden transition-all duration-300 border-2 ${secondaryBtnStyles}`}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <div className="absolute inset-0 bg-white/0 group-hover:bg-white/5 transition-colors duration-300" />
-              <span className="relative z-10 flex items-center gap-2 uppercase">
-                {t('hero.cta_secondary') || 'View Services'}
-                <motion.svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                  animate={{ x: [0, 4, 0] }} transition={{ duration: 1.5, repeat: Infinity, delay: 0.5 }}>
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                </motion.svg>
-              </span>
-            </motion.button>
-          </Link>
-        </motion.div>
-
-        {/* Slide Indicators */}
-        {hasSlideshow && (
-          <div className="flex gap-2 mt-10">
-            {heroes.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => goToSlide(index)}
-                className={`rounded-full transition-all duration-300 ${
-                  index === currentIndex 
-                    ? 'bg-white h-3 w-8 shadow-lg shadow-white/30' 
-                    : 'bg-white/30 hover:bg-white/60 h-3 w-3'
-                }`}
-                aria-label={`Slide ${index + 1}`}
-              />
-            ))}
-          </div>
-        )}
-
-        {/* Trust Indicators */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.8 }}
-          className="flex flex-wrap items-center justify-center gap-6 md:gap-8 mt-10"
-        >
-          {trustIndicators.map((item, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.8 + index * 0.1 }}
-              whileHover={{ scale: 1.1 }}
-              className={`flex items-center gap-2 text-xs md:text-sm font-medium group cursor-default ${subtitleColor}`}
-            >
-              <span className="text-emerald-400">✅</span>
-              <span className="group-hover:text-white/90 transition-colors">
-                {t(item.key)}
-              </span>
-            </motion.div>
-          ))}
-        </motion.div>
-      </div>
-
-      {/* Scroll Indicator */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1.2 }}
-        className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10"
-      >
-        <motion.div
-          animate={{ y: [0, 8, 0] }}
-          transition={{ repeat: Infinity, duration: 2 }}
-          className="flex flex-col items-center gap-2 cursor-pointer group"
-          onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}
-        >
-          <span className="text-[10px] uppercase tracking-widest text-white/40 group-hover:text-white/70 transition-colors">
-            {t('hero.scroll') || 'Scroll'}
-          </span>
-          <div className="w-5 h-8 rounded-full border-2 border-white/20 flex justify-center group-hover:border-white/40 transition-colors">
-            <motion.div
-              className="w-1 h-2.5 bg-emerald-400 rounded-full mt-2"
-              animate={{ y: [0, 8, 0] }}
-              transition={{ repeat: Infinity, duration: 1.5 }}
-            />
-          </div>
+            </div>
+          </motion.div>
         </motion.div>
       </motion.div>
-    </motion.div>
+    </>
   )
 }
 

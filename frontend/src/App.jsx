@@ -90,7 +90,7 @@ function App() {
         {!hideNavbar && <Navbar />}
         
         {/* Main Content */}
-        <main className="flex-1 relative z-10 pt-16">
+        <main className={`flex-1 relative z-10 ${hideNavbar ? '' : 'pt-16'}`}>
           <AnimatePresence mode="wait">
             <Routes location={location} key={location.pathname}>
               {/* Public Routes */}

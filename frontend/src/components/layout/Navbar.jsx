@@ -169,8 +169,8 @@ const Navbar = () => {
 
   // ✅ Theme options - 3 themes (White, Brand, Dark) - ZINATAFSIRIWA
   const themeOptions = [
-    { id: 'white', label: t('nav.white'), icon: '⬜', color: '#ffffff' },
-    { id: 'brand', label: t('nav.brand'), icon: '💚', color: '#0d5c3e' },
+    { id: 'white', label: t('nav.white'), icon: '☀️', color: '#ffffff' },
+    { id: 'brand', label: t('nav.brand'), icon: '🌿', color: '#0d5c3e' },
     { id: 'dark', label: t('nav.dark'), icon: '🌙', color: '#0d3320' },
   ]
 
@@ -293,7 +293,7 @@ const Navbar = () => {
                   aria-label={t('nav.theme')}
                 >
                   <span className="text-lg">
-                    {currentTheme === 'white' ? '⬜' : currentTheme === 'brand' ? '💚' : '🌙'}
+                    {currentTheme === 'white' ? '☀️' : currentTheme === 'brand' ? '🌿' : '🌙'}
                   </span>
                 </button>
 

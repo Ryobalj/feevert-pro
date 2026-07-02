@@ -6,7 +6,9 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ============ CSS VARIABLES (Default = White) ============ */
+/* ============================================================
+   CSS VARIABLES (Default = White)
+   ============================================================ */
 :root {
   /* Brand Colors */
   --brand-primary: #0d5c3e;
@@ -33,9 +35,17 @@
   --g-accent: #2d6a4f;
   --g-color-primary: #0d5c3e;
   --g-color-primary-glow: rgba(13,92,62,0.2);
+
+  /* FIX: these were referenced by .theme-option but never defined anywhere.
+     Defining them here (and per-theme below) fixes the broken hover/active
+     state on the theme switcher dropdown. */
+  --g-liquid-primary: rgba(13,92,62,0.1);
+  --g-liquid-secondary: rgba(13,92,62,0.06);
 }
 
-/* ============ BASE ============ */
+/* ============================================================
+   BASE
+   ============================================================ */
 * {
   margin: 0;
   padding: 0;
@@ -55,7 +65,9 @@ body {
   overflow-x: hidden;
 }
 
-/* ============ SCROLLBAR ============ */
+/* ============================================================
+   SCROLLBAR
+   ============================================================ */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -76,7 +88,7 @@ body {
 }
 
 /* ============================================================
-   ✅ GLASS CARD - CONFIDENT GLASS EFFECT
+   GLASS CARD
    ============================================================ */
 .glass-card {
   background: var(--g-card);
@@ -137,7 +149,7 @@ body {
 }
 
 /* ============================================================
-   ✅ GLASS CARD VARIANTS
+   GLASS CARD VARIANTS
    ============================================================ */
 .glass-card-glow {
   background: var(--g-card);
@@ -174,7 +186,7 @@ body {
 }
 
 /* ============================================================
-   ✅ DROPDOWN MENU
+   DROPDOWN MENU
    ============================================================ */
 .dropdown-menu-container {
   background: rgba(255,255,255,0.95) !important;
@@ -187,7 +199,9 @@ body {
   transform: scale(1);
 }
 
-/* ============ GRADIENT TEXT ============ */
+/* ============================================================
+   GRADIENT TEXT
+   ============================================================ */
 .gradient-text {
   background: linear-gradient(135deg, var(--g-primary), var(--g-accent));
   -webkit-background-clip: text;
@@ -197,7 +211,9 @@ body {
   font-weight: 700;
 }
 
-/* ============ CONTAINER ============ */
+/* ============================================================
+   CONTAINER
+   ============================================================ */
 .container-main {
   width: 100%;
   max-width: 1280px;
@@ -205,25 +221,28 @@ body {
   padding: 0 1.5rem;
 }
 
-/* ============ UTILITIES ============ */
+/* ============================================================
+   UTILITIES
+   ============================================================ */
 .line-clamp-1 { display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
 .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .line-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 
-/* ============ SELECTION ============ */
+/* ============================================================
+   SELECTION / FOCUS
+   ============================================================ */
 ::selection {
   background: var(--g-primary);
   color: white;
 }
 
-/* ============ FOCUS ============ */
 *:focus-visible {
   outline: 2px solid var(--g-primary);
   outline-offset: 2px;
 }
 
 /* ============================================================
-   ✅ WHITE THEME - COMPLETE
+   WHITE THEME
    ============================================================ */
 [data-theme="white"] {
   --g-background: #f5f7f6;
@@ -240,46 +259,54 @@ body {
   --g-accent: #2d6a4f;
   --g-color-primary: #0d5c3e;
   --g-color-primary-glow: rgba(13,92,62,0.2);
+  --g-liquid-primary: rgba(13,92,62,0.1);
+  --g-liquid-secondary: rgba(13,92,62,0.06);
 }
 
-/* ✅ ALL HEADERS - GREEN & BOLD */
-[data-theme="white"] h1,
-[data-theme="white"] h2,
-[data-theme="white"] h3,
-[data-theme="white"] h4,
-[data-theme="white"] h5,
-[data-theme="white"] h6,
-[data-theme="white"] .heading,
-[data-theme="white"] .title {
-  color: #0d5c3e !important;
-  font-weight: 700 !important;
+/*
+  NOTE ON THIS SECTION:
+  The previous version forced color on every h1-h6, p, li, span, div, etc.
+  with !important. That means ANY new component (status badges, colored
+  icons, alerts, chips) gets silently overwritten the moment it's rendered
+  inside white theme. Below we scope text-color rules to explicit content
+  classes instead of bare tags, so generic containers (div/span) are no
+  longer hijacked. Keep using .heading/.title/.body-text/.description/etc.
+  on real content elements for this to apply as intended.
+*/
+
+/* Headings - green & bold (except sections that always have a dark
+   background, regardless of theme: .landing-page, .dark-surface) */
+[data-theme="white"] h1:not(.landing-page *):not(.dark-surface *),
+[data-theme="white"] h2:not(.landing-page *):not(.dark-surface *),
+[data-theme="white"] h3:not(.landing-page *):not(.dark-surface *),
+[data-theme="white"] h4:not(.landing-page *):not(.dark-surface *),
+[data-theme="white"] h5:not(.landing-page *):not(.dark-surface *),
+[data-theme="white"] h6:not(.landing-page *):not(.dark-surface *),
+[data-theme="white"] .heading:not(.landing-page *):not(.dark-surface *),
+[data-theme="white"] .title:not(.landing-page *):not(.dark-surface *) {
+  color: #0d5c3e;
+  font-weight: 700;
 }
 
-/* ✅ ALL BODY TEXT - PURE BLACK & BOLD */
-[data-theme="white"] p,
-[data-theme="white"] li,
-[data-theme="white"] span,
-[data-theme="white"] div,
+/* Body text - only on explicit content classes, not bare div/span */
 [data-theme="white"] .text-content,
 [data-theme="white"] .description,
 [data-theme="white"] .body-text,
 [data-theme="white"] .card-text,
 [data-theme="white"] .context-text {
-  color: #000000 !important;
-  font-weight: 500 !important;
-  line-height: 1.7 !important;
+  color: #000000;
+  font-weight: 500;
+  line-height: 1.7;
 }
 
-/* ✅ Ensure text inside glass cards is black */
-[data-theme="white"] .glass-card p,
-[data-theme="white"] .glass-card li,
-[data-theme="white"] .glass-card span,
-[data-theme="white"] .glass-card div:not(.glass-card):not(.glass) {
-  color: #000000 !important;
-  font-weight: 500 !important;
+/* Default paragraph/list color inside white theme (safe: p/li rarely
+   carry deliberate custom colors the way span/div do). Excluded on
+   sections that always have a dark background, regardless of theme. */
+[data-theme="white"] p:not(.landing-page *):not(.dark-surface *),
+[data-theme="white"] li:not(.landing-page *):not(.dark-surface *) {
+  color: #000000;
 }
 
-/* ✅ Gradient text */
 [data-theme="white"] .gradient-text {
   background: linear-gradient(135deg, #0d5c3e, #2d6a4f);
   -webkit-background-clip: text;
@@ -288,8 +315,7 @@ body {
   font-weight: 700;
 }
 
-/* ✅ Glass Card - White Theme - CONFIDENT */
-[data-theme="white"] .glass-card {
+[data-theme="white"] .glass-card:not(.landing-page *):not(.dark-surface *) {
   background: rgba(255,255,255,0.90);
   backdrop-filter: blur(20px) saturate(1.4);
   -webkit-backdrop-filter: blur(20px) saturate(1.4);
@@ -298,14 +324,14 @@ body {
   transform: scale(1);
 }
 
-[data-theme="white"] .glass-card:hover {
+[data-theme="white"] .glass-card:not(.landing-page *):not(.dark-surface *):hover {
   border-color: rgba(13,92,62,0.35);
   background: rgba(255,255,255,0.95);
   box-shadow: 0 12px 48px rgba(13,92,62,0.15), 0 4px 24px rgba(0,0,0,0.04);
   transform: scale(1.02) translateY(-6px);
 }
 
-[data-theme="white"] .glass {
+[data-theme="white"] .glass:not(.landing-page *):not(.dark-surface *) {
   background: rgba(255,255,255,0.70);
   backdrop-filter: blur(12px) saturate(1.2);
   -webkit-backdrop-filter: blur(12px) saturate(1.2);
@@ -313,7 +339,7 @@ body {
   transform: scale(1);
 }
 
-[data-theme="white"] .glass:hover {
+[data-theme="white"] .glass:not(.landing-page *):not(.dark-surface *):hover {
   background: rgba(255,255,255,0.85);
   border-color: rgba(13,92,62,0.3);
   transform: scale(1.015) translateY(-3px);
@@ -329,109 +355,107 @@ body {
 }
 
 /* ============================================================
-   ✅ WHITE THEME - FIX HOVER (NO WHITE)
+   WHITE THEME - HOVER STATES (scoped to interactive elements only,
+   not the previous universal *:hover which recolored everything)
    ============================================================ */
-[data-theme="white"] *:hover:not(.btn-primary):not(.btn-outline):not(.btn-secondary) {
-  color: #0d5c3e !important;
-}
-
-[data-theme="white"] *:hover .text-white {
-  color: #0d5c3e !important;
-}
-
+[data-theme="white"] a:not(.btn-primary):not(.btn-outline):not(.btn-secondary):not(.landing-page *):not(.dark-surface *):hover,
+[data-theme="white"] button:not(.btn-primary):not(.btn-outline):not(.btn-secondary):not(.landing-page *):not(.dark-surface *):hover,
 [data-theme="white"] nav a:hover,
-[data-theme="white"] .nav-link:hover {
-  color: #0d5c3e !important;
+[data-theme="white"] .nav-link:hover,
+[data-theme="white"] .dropdown-item:hover,
+[data-theme="white"] .dropdown-menu-container button:hover,
+[data-theme="white"] .dropdown-menu-container a:hover,
+[data-theme="white"] .mobile-menu-item:hover,
+[data-theme="white"] .mobile-dropdown-item:hover,
+[data-theme="white"] .btn-icon:hover,
+[data-theme="white"] .theme-option:hover,
+[data-theme="white"] .user-menu-item:hover,
+[data-theme="white"] .dropdown-toggle:hover {
+  color: #0d5c3e;
 }
 
 [data-theme="white"] .dropdown-item:hover,
 [data-theme="white"] .dropdown-menu-container button:hover,
-[data-theme="white"] .dropdown-menu-container a:hover {
-  color: #0d5c3e !important;
-  background: rgba(13,92,62,0.06) !important;
-}
-
+[data-theme="white"] .dropdown-menu-container a:hover,
 [data-theme="white"] .mobile-menu-item:hover,
-[data-theme="white"] .mobile-dropdown-item:hover {
-  color: #0d5c3e !important;
-  background: rgba(13,92,62,0.06) !important;
-}
-
-[data-theme="white"] .btn-icon:hover {
-  color: #0d5c3e !important;
-  background: rgba(13,92,62,0.08) !important;
-}
-
-[data-theme="white"] .theme-option:hover {
-  color: #0d5c3e !important;
-  background: rgba(13,92,62,0.06) !important;
-}
-
+[data-theme="white"] .mobile-dropdown-item:hover,
+[data-theme="white"] .btn-icon:hover,
+[data-theme="white"] .theme-option:hover,
 [data-theme="white"] .user-menu-item:hover {
-  color: #0d5c3e !important;
-  background: rgba(13,92,62,0.06) !important;
+  background: rgba(13,92,62,0.06);
 }
 
-[data-theme="white"] .dropdown-toggle:hover {
-  color: #0d5c3e !important;
+/* Glass card hover keeps its own text color, doesn't get overridden */
+[data-theme="white"] .glass:not(.landing-page *):not(.dark-surface *):hover,
+[data-theme="white"] .glass-card:not(.landing-page *):not(.dark-surface *):hover,
+[data-theme="white"] .glass:not(.landing-page *):not(.dark-surface *):hover *,
+[data-theme="white"] .glass-card:not(.landing-page *):not(.dark-surface *):hover * {
+  color: inherit;
 }
 
-[data-theme="white"] .glass:hover,
-[data-theme="white"] .glass-card:hover {
-  color: inherit !important;
-}
-
-[data-theme="white"] .glass:hover *,
-[data-theme="white"] .glass-card:hover * {
-  color: inherit !important;
-}
-
-/* ✅ Exception: Primary buttons should stay white on hover */
+/* Primary/secondary buttons always stay white text on hover */
 [data-theme="white"] .btn-primary:hover,
-[data-theme="white"] .btn-primary:hover * {
-  color: #ffffff !important;
-}
-
+[data-theme="white"] .btn-primary:hover *,
 [data-theme="white"] .btn-secondary:hover,
 [data-theme="white"] .btn-secondary:hover * {
   color: #ffffff !important;
 }
 
-/* ✅ Buttons text colors */
-[data-theme="white"] button {
+[data-theme="white"] button:not(.landing-page *):not(.dark-surface *) {
   color: inherit;
 }
 
-[data-theme="white"] .text-white {
+[data-theme="white"] .text-white:not(.landing-page *):not(.dark-surface *) {
   color: #000000 !important;
 }
 
-[data-theme="white"] .text-white\/50 {
+[data-theme="white"] .text-white\/90:not(.landing-page *):not(.dark-surface *) {
+  color: rgba(0,0,0,0.9) !important;
+}
+
+[data-theme="white"] .text-white\/80:not(.landing-page *):not(.dark-surface *) {
+  color: rgba(0,0,0,0.8) !important;
+}
+
+[data-theme="white"] .text-white\/70:not(.landing-page *):not(.dark-surface *) {
+  color: rgba(0,0,0,0.7) !important;
+}
+
+[data-theme="white"] .text-white\/60:not(.landing-page *):not(.dark-surface *) {
+  color: rgba(0,0,0,0.6) !important;
+}
+
+[data-theme="white"] .text-white\/50:not(.landing-page *):not(.dark-surface *) {
   color: rgba(0,0,0,0.5) !important;
 }
 
-[data-theme="white"] .text-white\/30 {
+[data-theme="white"] .text-white\/40:not(.landing-page *):not(.dark-surface *) {
+  color: rgba(0,0,0,0.4) !important;
+}
+
+[data-theme="white"] .text-white\/30:not(.landing-page *):not(.dark-surface *) {
   color: rgba(0,0,0,0.3) !important;
 }
 
-[data-theme="white"] .text-white\/20 {
+[data-theme="white"] .text-white\/20:not(.landing-page *):not(.dark-surface *) {
   color: rgba(0,0,0,0.2) !important;
+}
+
+[data-theme="white"] .text-white\/10:not(.landing-page *):not(.dark-surface *) {
+  color: rgba(0,0,0,0.1) !important;
 }
 
 [data-theme="white"] .text-red-500 {
   color: #dc2626 !important;
 }
 
-[data-theme="white"] .text-emerald-400 {
-  color: #0d5c3e !important;
-}
-
-[data-theme="white"] .text-emerald-500 {
+[data-theme="white"] .text-emerald-400:not(.landing-page *):not(.dark-surface *),
+[data-theme="white"] .text-emerald-500:not(.landing-page *):not(.dark-surface *) {
   color: #0d5c3e !important;
 }
 
 /* ============================================================
-   ✅ WHITE THEME - BUTTONS
+   WHITE THEME - BUTTONS
    ============================================================ */
 [data-theme="white"] .btn-primary {
   background: #0d5c3e !important;
@@ -481,7 +505,7 @@ body {
 }
 
 /* ============================================================
-   ✅ WHITE THEME - INPUTS & SEARCH
+   WHITE THEME - INPUTS & SEARCH
    ============================================================ */
 [data-theme="white"] input,
 [data-theme="white"] textarea,
@@ -536,36 +560,36 @@ body {
 }
 
 /* ============================================================
-   ✅ WHITE THEME - LINKS
+   WHITE THEME - LINKS
    ============================================================ */
-[data-theme="white"] a:not(.btn-primary):not(.btn-outline) {
-  color: #0d5c3e !important;
-  font-weight: 500 !important;
+[data-theme="white"] a:not(.btn-primary):not(.btn-outline):not(.landing-page *):not(.dark-surface *) {
+  color: #0d5c3e;
+  font-weight: 500;
 }
 
-[data-theme="white"] a:not(.btn-primary):not(.btn-outline):hover {
-  color: #1a7a54 !important;
+[data-theme="white"] a:not(.btn-primary):not(.btn-outline):not(.landing-page *):not(.dark-surface *):hover {
+  color: #1a7a54;
 }
 
 /* ============================================================
-   ✅ WHITE THEME - LABELS & HELP TEXTS
+   WHITE THEME - LABELS & HELP TEXTS
    ============================================================ */
 [data-theme="white"] .label,
 [data-theme="white"] .form-label,
 [data-theme="white"] .help-text,
 [data-theme="white"] .hint-text,
 [data-theme="white"] .helper-text {
-  color: #000000 !important;
-  font-weight: 600 !important;
+  color: #000000;
+  font-weight: 600;
 }
 
 [data-theme="white"] .text-muted,
 [data-theme="white"] .text-secondary {
-  color: rgba(0,0,0,0.6) !important;
+  color: rgba(0,0,0,0.6);
 }
 
 /* ============================================================
-   ✅ WHITE THEME - SIGN IN / SIGN UP
+   WHITE THEME - SIGN IN / SIGN UP
    ============================================================ */
 [data-theme="white"] .auth-button {
   background: #0d5c3e !important;
@@ -580,16 +604,16 @@ body {
 }
 
 [data-theme="white"] .auth-link {
-  color: #0d5c3e !important;
-  font-weight: 500 !important;
+  color: #0d5c3e;
+  font-weight: 500;
 }
 
 [data-theme="white"] .auth-link:hover {
-  color: #1a7a54 !important;
+  color: #1a7a54;
 }
 
 /* ============================================================
-   ✅ BRAND THEME - RANGI NYEUPE (CREAM/WHITE)
+   BRAND THEME
    ============================================================ */
 [data-theme="brand"] {
   --g-background: #083a26;
@@ -606,9 +630,10 @@ body {
   --g-accent: #2d6a4f;
   --g-color-primary: #f5f0e8;
   --g-color-primary-glow: rgba(255,255,255,0.1);
+  --g-liquid-primary: rgba(255,255,255,0.15);
+  --g-liquid-secondary: rgba(255,255,255,0.10);
 }
 
-/* ✅ Brand theme - ALL TEXT - RANGI NYEUPE */
 [data-theme="brand"] h1,
 [data-theme="brand"] h2,
 [data-theme="brand"] h3,
@@ -617,33 +642,28 @@ body {
 [data-theme="brand"] h6,
 [data-theme="brand"] p,
 [data-theme="brand"] li,
-[data-theme="brand"] span,
-[data-theme="brand"] div,
 [data-theme="brand"] .heading,
 [data-theme="brand"] .title {
-  color: #f5f0e8 !important;
-  font-weight: 400 !important;
+  color: #f5f0e8;
+  font-weight: 400;
 }
 
-/* ✅ Brand theme - Bold text */
 [data-theme="brand"] strong,
 [data-theme="brand"] b,
 [data-theme="brand"] .font-bold,
 [data-theme="brand"] .font-semibold {
-  color: #ffffff !important;
-  font-weight: 700 !important;
+  color: #ffffff;
+  font-weight: 700;
 }
 
-/* ✅ Brand theme - Gradient text - RANGI NYEUPE */
 [data-theme="brand"] .gradient-text {
-  background: linear-gradient(135deg, #f5f0e8, #ffffff) !important;
-  -webkit-background-clip: text !important;
-  background-clip: text !important;
-  color: transparent !important;
-  font-weight: 700 !important;
+  background: linear-gradient(135deg, #f5f0e8, #ffffff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-weight: 700;
 }
 
-/* ✅ Brand theme - Glass Card */
 [data-theme="brand"] .glass-card {
   background: rgba(255,255,255,0.08);
   backdrop-filter: blur(20px) saturate(1.4);
@@ -670,7 +690,6 @@ body {
   border-color: rgba(255,255,255,0.3);
 }
 
-/* ✅ Brand theme - Dropdown */
 [data-theme="brand"] .dropdown-menu-container {
   background: rgba(8,58,38,0.95) !important;
   backdrop-filter: blur(24px) saturate(1.4);
@@ -678,7 +697,6 @@ body {
   box-shadow: 0 20px 60px rgba(0,0,0,0.4);
 }
 
-/* ✅ Brand theme - Buttons */
 [data-theme="brand"] .btn-primary {
   background: #f5f0e8 !important;
   color: #083a26 !important;
@@ -724,27 +742,24 @@ body {
   color: #ffffff !important;
 }
 
-/* ✅ Brand theme - Links */
 [data-theme="brand"] a:not(.btn-primary):not(.btn-outline) {
-  color: #f5f0e8 !important;
+  color: #f5f0e8;
 }
 
 [data-theme="brand"] a:not(.btn-primary):not(.btn-outline):hover {
-  color: #ffffff !important;
+  color: #ffffff;
 }
 
-/* ✅ Brand theme - Nav links */
 [data-theme="brand"] nav a,
 [data-theme="brand"] .nav-link {
-  color: rgba(245,240,232,0.75) !important;
+  color: rgba(245,240,232,0.75);
 }
 
 [data-theme="brand"] nav a:hover,
 [data-theme="brand"] .nav-link:hover {
-  color: #ffffff !important;
+  color: #ffffff;
 }
 
-/* ✅ Brand theme - Inputs */
 [data-theme="brand"] input,
 [data-theme="brand"] textarea,
 [data-theme="brand"] select {
@@ -762,7 +777,6 @@ body {
   box-shadow: 0 0 0 3px rgba(255,255,255,0.15) !important;
 }
 
-/* ✅ Brand theme - Auth */
 [data-theme="brand"] .auth-button {
   background: #f5f0e8 !important;
   color: #083a26 !important;
@@ -774,14 +788,13 @@ body {
 }
 
 [data-theme="brand"] .auth-link {
-  color: #f5f0e8 !important;
+  color: #f5f0e8;
 }
 
 [data-theme="brand"] .auth-link:hover {
-  color: #ffffff !important;
+  color: #ffffff;
 }
 
-/* ✅ Brand theme - Text colors */
 [data-theme="brand"] .text-white {
   color: #f5f0e8 !important;
 }
@@ -798,14 +811,8 @@ body {
   color: rgba(245,240,232,0.2) !important;
 }
 
-[data-theme="brand"] .text-emerald-400 {
-  color: #f5f0e8 !important;
-}
-
-[data-theme="brand"] .text-emerald-500 {
-  color: #f5f0e8 !important;
-}
-
+[data-theme="brand"] .text-emerald-400,
+[data-theme="brand"] .text-emerald-500,
 [data-theme="brand"] .text-amber-400 {
   color: #f5f0e8 !important;
 }
@@ -815,7 +822,7 @@ body {
 }
 
 /* ============================================================
-   ✅ DARK THEME - PURE BLACK (KAMA NAVBAR)
+   DARK THEME
    ============================================================ */
 [data-theme="dark"] {
   --g-background: #000000;
@@ -832,38 +839,34 @@ body {
   --g-accent: #1a4a2e;
   --g-color-primary: #34d399;
   --g-color-primary-glow: rgba(52,211,153,0.1);
+  --g-liquid-primary: rgba(52,211,153,0.1);
+  --g-liquid-secondary: rgba(52,211,153,0.06);
 }
 
-/* ✅ Dark theme - Headers */
 [data-theme="dark"] h1,
 [data-theme="dark"] h2,
 [data-theme="dark"] h3,
 [data-theme="dark"] h4,
 [data-theme="dark"] h5,
 [data-theme="dark"] h6 {
-  color: #34d399 !important;
-  font-weight: 700 !important;
+  color: #34d399;
+  font-weight: 700;
 }
 
-/* ✅ Dark theme - Body text */
 [data-theme="dark"] p,
-[data-theme="dark"] li,
-[data-theme="dark"] span,
-[data-theme="dark"] div {
-  color: #e8e8e8 !important;
-  font-weight: 400 !important;
+[data-theme="dark"] li {
+  color: #e8e8e8;
+  font-weight: 400;
 }
 
-/* ✅ Dark theme - Gradient text */
 [data-theme="dark"] .gradient-text {
-  background: linear-gradient(135deg, #34d399, #6ee7b7) !important;
-  -webkit-background-clip: text !important;
-  background-clip: text !important;
-  color: transparent !important;
-  font-weight: 700 !important;
+  background: linear-gradient(135deg, #34d399, #6ee7b7);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-weight: 700;
 }
 
-/* ✅ Dark theme - Glass Card */
 [data-theme="dark"] .glass-card {
   background: rgba(255,255,255,0.03);
   backdrop-filter: blur(20px) saturate(1.4);
@@ -888,7 +891,6 @@ body {
   border-color: rgba(52,211,153,0.2);
 }
 
-/* ✅ Dark theme - Dropdown */
 [data-theme="dark"] .dropdown-menu-container {
   background: rgba(0,0,0,0.95) !important;
   backdrop-filter: blur(24px) saturate(1.4);
@@ -896,7 +898,6 @@ body {
   box-shadow: 0 20px 60px rgba(0,0,0,0.9);
 }
 
-/* ✅ Dark theme - Buttons */
 [data-theme="dark"] .btn-primary {
   background: #34d399 !important;
   color: #000000 !important;
@@ -942,27 +943,24 @@ body {
   color: #6ee7b7 !important;
 }
 
-/* ✅ Dark theme - Links */
 [data-theme="dark"] a:not(.btn-primary):not(.btn-outline) {
-  color: #34d399 !important;
+  color: #34d399;
 }
 
 [data-theme="dark"] a:not(.btn-primary):not(.btn-outline):hover {
-  color: #6ee7b7 !important;
+  color: #6ee7b7;
 }
 
-/* ✅ Dark theme - Nav links */
 [data-theme="dark"] nav a,
 [data-theme="dark"] .nav-link {
-  color: rgba(232,232,232,0.75) !important;
+  color: rgba(232,232,232,0.75);
 }
 
 [data-theme="dark"] nav a:hover,
 [data-theme="dark"] .nav-link:hover {
-  color: #34d399 !important;
+  color: #34d399;
 }
 
-/* ✅ Dark theme - Inputs */
 [data-theme="dark"] input,
 [data-theme="dark"] textarea,
 [data-theme="dark"] select {
@@ -980,7 +978,6 @@ body {
   box-shadow: 0 0 0 3px rgba(52,211,153,0.1) !important;
 }
 
-/* ✅ Dark theme - Auth */
 [data-theme="dark"] .auth-button {
   background: #34d399 !important;
   color: #000000 !important;
@@ -992,14 +989,13 @@ body {
 }
 
 [data-theme="dark"] .auth-link {
-  color: #34d399 !important;
+  color: #34d399;
 }
 
 [data-theme="dark"] .auth-link:hover {
-  color: #6ee7b7 !important;
+  color: #6ee7b7;
 }
 
-/* ✅ Dark theme - Text colors */
 [data-theme="dark"] .text-white {
   color: #e8e8e8 !important;
 }
@@ -1016,14 +1012,8 @@ body {
   color: rgba(232,232,232,0.2) !important;
 }
 
-[data-theme="dark"] .text-emerald-400 {
-  color: #34d399 !important;
-}
-
-[data-theme="dark"] .text-emerald-500 {
-  color: #34d399 !important;
-}
-
+[data-theme="dark"] .text-emerald-400,
+[data-theme="dark"] .text-emerald-500,
 [data-theme="dark"] .text-amber-400 {
   color: #34d399 !important;
 }
@@ -1033,7 +1023,7 @@ body {
 }
 
 /* ============================================================
-   ✅ NAVBAR - CLOUDED-TRANSPARENT GLASS
+   NAVBAR
    ============================================================ */
 .glass-nav {
   background: rgba(255,255,255,0.12) !important;
@@ -1051,18 +1041,16 @@ body {
   box-shadow: 0 4px 30px rgba(0,0,0,0.08) !important;
 }
 
-/* ✅ Navbar - White Theme - IMARA (SI TRANSPARENT) */
 [data-theme="white"] .glass-nav {
-  background: rgba(255,255,255,0.95) !important;
+  background: rgba(255,255,255,0.7) !important;
   border-bottom: 1px solid rgba(0,0,0,0.06) !important;
 }
 
 [data-theme="white"] .glass-nav.scrolled {
-  background: rgba(255,255,255,0.98) !important;
+  background: rgba(255,255,255,0.9) !important;
   border-bottom: 1px solid rgba(0,0,0,0.08) !important;
 }
 
-/* ✅ Navbar - Brand Theme */
 [data-theme="brand"] .glass-nav {
   background: rgba(8,58,38,0.90) !important;
   border-bottom: 1px solid rgba(245,240,232,0.06) !important;
@@ -1073,7 +1061,6 @@ body {
   border-bottom: 1px solid rgba(245,240,232,0.08) !important;
 }
 
-/* ✅ Navbar - Dark Theme */
 [data-theme="dark"] .glass-nav {
   background: rgba(10,10,10,0.85) !important;
   border-bottom: 1px solid rgba(255,255,255,0.04) !important;
@@ -1084,7 +1071,6 @@ body {
   border-bottom: 1px solid rgba(255,255,255,0.06) !important;
 }
 
-/* ✅ Navbar Divider Glow */
 .glass-nav::after {
   content: '';
   position: absolute;
@@ -1097,7 +1083,7 @@ body {
 }
 
 /* ============================================================
-   ✅ MOBILE MENU
+   MOBILE MENU
    ============================================================ */
 .mobile-menu-container {
   background: rgba(255,255,255,0.85) !important;
@@ -1121,7 +1107,7 @@ body {
 }
 
 /* ============================================================
-   ✅ THEME SWITCHER DROPDOWN
+   THEME SWITCHER DROPDOWN
    ============================================================ */
 .theme-dropdown {
   position: absolute;
@@ -1154,6 +1140,8 @@ body {
   color: var(--g-text-secondary);
 }
 
+/* FIX: was referencing --g-liquid-secondary / --g-liquid-primary,
+   which didn't exist anywhere. Now defined per-theme above. */
 .theme-option:hover {
   background: var(--g-liquid-secondary);
   color: var(--g-color-primary);
@@ -1194,7 +1182,6 @@ body {
   flex-shrink: 0;
 }
 
-/* ✅ Theme Switcher - White Theme */
 [data-theme="white"] .theme-dropdown {
   background: #ffffff;
   border-color: rgba(0,0,0,0.06);
@@ -1204,17 +1191,11 @@ body {
   color: rgba(0,0,0,0.6);
 }
 
-[data-theme="white"] .theme-option:hover {
-  background: rgba(13,92,62,0.06);
-  color: #0d5c3e;
-}
-
 [data-theme="white"] .theme-option.active {
   background: rgba(13,92,62,0.1);
   color: #0d5c3e;
 }
 
-/* ✅ Theme Switcher - Brand Theme */
 [data-theme="brand"] .theme-dropdown {
   background: #083a26;
   border-color: rgba(245,240,232,0.08);
@@ -1224,17 +1205,11 @@ body {
   color: rgba(245,240,232,0.7);
 }
 
-[data-theme="brand"] .theme-option:hover {
-  background: rgba(255,255,255,0.1);
-  color: #f5f0e8;
-}
-
 [data-theme="brand"] .theme-option.active {
   background: rgba(255,255,255,0.15);
   color: #ffffff;
 }
 
-/* ✅ Theme Switcher - Dark Theme */
 [data-theme="dark"] .theme-dropdown {
   background: #000000;
   border-color: rgba(255,255,255,0.05);
@@ -1244,23 +1219,244 @@ body {
   color: rgba(232,232,232,0.7);
 }
 
-[data-theme="dark"] .theme-option:hover {
-  background: rgba(52,211,153,0.06);
-  color: #34d399;
-}
-
 [data-theme="dark"] .theme-option.active {
   background: rgba(52,211,153,0.1);
   color: #34d399;
 }
 
-/* ============ RESPONSIVE ============ */
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
 @media (max-width: 640px) {
   .glass-card {
     border-radius: 1rem;
   }
-  
+
   .container-main {
     padding: 0 1rem;
   }
+}
+
+/* ============================================================
+   FORCE-WHITE-TEXT SECTIONS (landing page + "what we do")
+   ------------------------------------------------------------
+   These two sections used to duplicate the exact same
+   "force white, override every theme, kill hover color" recipe
+   twice with slightly different selectors. Consolidated into one
+   shared class (.force-light-section) that both section wrappers
+   use, plus the section-specific extras (slide indicators, nav
+   arrows, badges) kept separate below.
+
+   Usage: add class="force-light-section" alongside
+   "landing-page" / "what-we-do-section" on the section wrapper.
+   ============================================================ */
+.force-light-section,
+.force-light-section * {
+  color: #ffffff !important;
+}
+
+.force-light-section .text-emerald-400,
+.force-light-section .text-emerald-500,
+.force-light-section .text-emerald-600 {
+  color: #34d399 !important;
+}
+
+.force-light-section .gradient-text {
+  background: linear-gradient(135deg, #34d399, #6ee7b7) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  color: transparent !important;
+}
+
+/* Kill hover recoloring inside these sections regardless of theme */
+.force-light-section *:hover,
+.force-light-section *:hover *,
+.force-light-section a:hover,
+.force-light-section a:hover *,
+.force-light-section nav a:hover,
+.force-light-section nav a:hover *,
+.force-light-section .glass:hover,
+.force-light-section .glass:hover *,
+.force-light-section .glass-card:hover,
+.force-light-section .glass-card:hover * {
+  color: #ffffff !important;
+}
+
+.force-light-section .text-emerald-400:hover,
+.force-light-section .text-emerald-400:hover *,
+.force-light-section .text-emerald-500:hover,
+.force-light-section .text-emerald-500:hover * {
+  color: #34d399 !important;
+}
+
+.force-light-section .glass-card {
+  background: rgba(255,255,255,0.06) !important;
+  backdrop-filter: blur(20px) saturate(1.4) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(1.4) !important;
+  border: 1px solid rgba(255,255,255,0.1) !important;
+}
+
+.force-light-section .glass-card:hover {
+  background: rgba(255,255,255,0.08) !important;
+  border-color: rgba(52,211,153,0.2) !important;
+}
+
+.force-light-section .glass {
+  background: rgba(255,255,255,0.04) !important;
+  backdrop-filter: blur(12px) saturate(1.2) !important;
+  -webkit-backdrop-filter: blur(12px) saturate(1.2) !important;
+  border: 1px solid rgba(255,255,255,0.06) !important;
+}
+
+.force-light-section .glass:hover {
+  background: rgba(255,255,255,0.06) !important;
+  border-color: rgba(52,211,153,0.15) !important;
+}
+
+.force-light-section .btn-primary {
+  background: #0d5c3e !important;
+  color: #ffffff !important;
+  border: 2px solid rgba(52,211,153,0.2) !important;
+}
+
+.force-light-section .btn-primary:hover {
+  background: #1a7a54 !important;
+  color: #ffffff !important;
+  border-color: rgba(52,211,153,0.3) !important;
+}
+
+.force-light-section .btn-secondary {
+  border: 2px solid rgba(255,255,255,0.3) !important;
+  color: #ffffff !important;
+  background: transparent !important;
+}
+
+.force-light-section .btn-secondary:hover {
+  background: rgba(255,255,255,0.08) !important;
+  border-color: rgba(255,255,255,0.5) !important;
+  color: #ffffff !important;
+}
+
+.force-light-section .slide-indicator-active {
+  background: #34d399 !important;
+  box-shadow: 0 0 20px rgba(52,211,153,0.3) !important;
+}
+
+.force-light-section .slide-indicator-inactive {
+  background: rgba(255,255,255,0.2) !important;
+}
+
+.force-light-section .slide-indicator-inactive:hover {
+  background: rgba(255,255,255,0.4) !important;
+}
+
+/* Pause slide-indicator animation on hover of the whole section */
+.force-light-section:hover .slide-indicator-active {
+  animation-play-state: paused;
+}
+
+@media (max-width: 640px) {
+  .force-light-section .glass-card {
+    border-radius: 1rem !important;
+  }
+}
+
+/* ============================================================
+   LANDING PAGE - specific extras (not shared with what-we-do)
+   ============================================================ */
+.landing-page .trust-indicator {
+  color: rgba(255,255,255,0.7) !important;
+}
+
+.landing-page .trust-indicator:hover {
+  color: #ffffff !important;
+}
+
+.landing-page .trust-indicator-icon {
+  color: #34d399 !important;
+}
+
+.landing-page .scroll-indicator {
+  color: rgba(255,255,255,0.4) !important;
+}
+
+.landing-page .scroll-indicator:hover {
+  color: rgba(255,255,255,0.8) !important;
+}
+
+.landing-page .scroll-indicator-border {
+  border-color: rgba(255,255,255,0.15) !important;
+}
+
+.landing-page .scroll-indicator-border:hover {
+  border-color: rgba(255,255,255,0.3) !important;
+}
+
+.landing-page .scroll-indicator-dot {
+  background: #34d399 !important;
+  box-shadow: 0 0 20px rgba(52,211,153,0.3) !important;
+}
+
+/* ============================================================
+   WHAT WE DO - specific extras (not shared with landing-page)
+   ============================================================ */
+.what-we-do-section .cta-button {
+  border: 2px solid rgba(255,255,255,0.25) !important;
+  color: #ffffff !important;
+}
+
+.what-we-do-section .cta-button:hover {
+  border-color: rgba(52,211,153,0.5) !important;
+  background: rgba(255,255,255,0.05) !important;
+}
+
+[data-theme="white"] .what-we-do-section .cta-button {
+  border: 2px solid rgba(255,255,255,0.35) !important;
+}
+
+[data-theme="white"] .what-we-do-section .cta-button:hover {
+  border-color: rgba(52,211,153,0.5) !important;
+  background: rgba(255,255,255,0.08) !important;
+}
+
+.what-we-do-section .nav-arrow {
+  background: rgba(0,0,0,0.4) !important;
+  backdrop-filter: blur(8px) !important;
+  border: 1px solid rgba(255,255,255,0.1) !important;
+  color: rgba(255,255,255,0.8) !important;
+}
+
+.what-we-do-section .nav-arrow:hover {
+  background: rgba(0,0,0,0.6) !important;
+  color: #ffffff !important;
+}
+
+.what-we-do-section .badge-glass {
+  background: rgba(255,255,255,0.08) !important;
+  backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(255,255,255,0.15) !important;
+}
+
+[data-theme="white"] .what-we-do-section .badge-glass {
+  background: rgba(255,255,255,0.12) !important;
+  border: 1px solid rgba(255,255,255,0.25) !important;
+}
+
+[data-theme="white"] .what-we-do-section .glass-card {
+  background: rgba(255,255,255,0.12) !important;
+  border: 1px solid rgba(255,255,255,0.20) !important;
+}
+
+[data-theme="brand"] .what-we-do-section .glass-card {
+  background: rgba(255,255,255,0.06) !important;
+  border: 1px solid rgba(255,255,255,0.10) !important;
+}
+
+[data-theme="dark"] .what-we-do-section .glass-card {
+  background: rgba(255,255,255,0.05) !important;
+  border: 1px solid rgba(255,255,255,0.08) !important;
+}
+
+.what-we-do-section .slide-overlay {
+  background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.2) 50%, transparent 100%);
 }

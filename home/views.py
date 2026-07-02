@@ -9,13 +9,14 @@ from django.core.mail import send_mail
 from django.conf import settings
 from .models import (
     SiteSetting, HeroSection, AboutSection, ServiceHighlight, SeoData,
-    Faq, Partner, Testimonial, ContactMessage
+    Faq, Partner, Testimonial, ContactMessage,
+    WhatWeDo  # ✅ Ongeza hii
 )
 from .serializers import (
     SiteSettingSerializer, HeroSectionSerializer, AboutSectionSerializer,
     ServiceHighlightSerializer, SeoDataSerializer, FaqSerializer,
     PartnerSerializer, TestimonialSerializer, ContactMessageSerializer,
-    ContactMessageCreateSerializer
+    ContactMessageCreateSerializer, WhatWeDoSerializer  # ✅ Ongeza hii
 )
 
 
@@ -50,6 +51,19 @@ class ServiceHighlightViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = ServiceHighlightSerializer
     permission_classes = [AllowAny]
     ordering = ['order']
+
+
+# ============================================================
+# ✅ WHAT WE DO - VIEWSET (MPYA)
+# ============================================================
+class WhatWeDoViewSet(viewsets.ReadOnlyModelViewSet):
+    """ViewSet for What We Do section (public)"""
+    queryset = WhatWeDo.objects.filter(is_active=True).order_by('order')
+    serializer_class = WhatWeDoSerializer
+    permission_classes = [AllowAny]
+    
+    def get_object(self):
+        return self.queryset.first()
 
 
 class SeoDataViewSet(viewsets.ReadOnlyModelViewSet):
@@ -152,6 +166,10 @@ def get_homepage_data(request):
     about = AboutSection.objects.filter(is_active=True).first()
     about_data = AboutSectionSerializer(about, context={'request': request}).data if about else None
     
+    # ✅ WHAT WE DO - Ongeza hii
+    what_we_do = WhatWeDo.objects.filter(is_active=True).order_by('order').first()
+    what_we_do_data = WhatWeDoSerializer(what_we_do, context={'request': request}).data if what_we_do else None
+    
     services = ServiceHighlight.objects.filter(is_active=True).order_by('order')
     services_data = ServiceHighlightSerializer(services, many=True, context={'request': request}).data
     
@@ -176,6 +194,7 @@ def get_homepage_data(request):
         'site_settings': site_settings_data,
         'heroes': heroes_data,
         'about': about_data,
+        'what_we_do': what_we_do_data,  # ✅ Ongeza hii
         'services': services_data,
         'testimonials': testimonials_data,
         'partners': partners_data,
@@ -204,6 +223,70 @@ def get_hero_slides(request):
         'site_settings': settings_data,
         'slide_duration': 5000,
         'transition_duration': 1200,
+    })
+
+
+# ============================================================
+# ✅ WHAT WE DO - HERO SLIDES ENDPOINT (MPYA)
+# ============================================================
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def get_what_we_do_slides(request):
+    """
+    Get What We Do section data with hero-style slides
+    Returns section data with images for hero-style slideshow
+    """
+    what_we_do_qs = WhatWeDo.objects.filter(is_active=True).order_by('order')
+    what_we_do = what_we_do_qs.first()
+
+    if not what_we_do:
+        return Response({
+            'has_data': False,
+            'message': 'No What We Do section found'
+        })
+
+    # Section header (title/subtitle/description/services) comes from the
+    # first active record - each additional active record becomes its own
+    # slide below, rather than being ignored.
+    services = what_we_do.get_services_list()
+
+    def build_slide(record, slide_id):
+        record_services = record.get_services_list()
+        base = {
+            'id': slide_id,
+            'title': record.title,
+            'subtitle': record.subtitle,
+            'description': record.description,
+            'cta_text': record.cta_text,
+            'cta_link': record.cta_link,
+            'services': record_services,
+        }
+        # First image = main/background image for this record's whole turn.
+        # Remaining images = "related" images, each with its own caption,
+        # cycled inside the smaller slide box.
+        images = record.get_slider_images_list()
+        if images:
+            main_image, related_images = images[0], images[1:]
+            return {**base, 'image': main_image['image'], 'related_images': related_images}
+        for service in record_services:
+            if isinstance(service, dict) and service.get('image'):
+                return {**base, 'image': service.get('image'), 'related_images': [], 'icon': service.get('icon', '')}
+        return {**base, 'image': None, 'related_images': []}
+
+    slides = [build_slide(record, f'slide_{idx}') for idx, record in enumerate(what_we_do_qs)]
+
+    return Response({
+        'has_data': True,
+        'id': what_we_do.id,
+        'title': what_we_do.title,
+        'subtitle': what_we_do.subtitle,
+        'description': what_we_do.description,
+        'services': services,
+        'slides': slides,
+        'cta_text': what_we_do.cta_text,
+        'cta_link': what_we_do.cta_link,
+        'slide_interval': 15000,
+        'transition_duration': 800,
     })
 
 

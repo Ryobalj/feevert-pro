@@ -8,36 +8,15 @@ const Footer = () => {
   const { t } = useTranslation('common')
   const currentYear = new Date().getFullYear()
 
-  const handleMouseEnter = (e) => {
-    // Ficha URL inayoonyeshwa kwenye status bar
-    e.target.style.pointerEvents = 'none'
-    setTimeout(() => {
-      e.target.style.pointerEvents = 'auto'
-    }, 100)
-  }
-
   return (
     <footer className="liquid-glass border-t border-[var(--g-border-glass)] mt-auto">
       <div className="container-main py-8">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-          {/* Copyright - mwaka na C duara zimefungwa kwenye link ya admin */}
+          {/* Copyright */}
           <div className="text-sm text-[var(--g-text-tertiary)]">
-            <a 
-              href="https://api.feevert.co.tz/feevert-admin/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="no-underline cursor-default hover:text-inherit"
-              onMouseEnter={handleMouseEnter}
-              onClick={(e) => {
-                e.preventDefault()
-                window.open('https://api.feevert.co.tz/feevert-admin/', '_blank')
-              }}
-            >
-              © {currentYear}
-            </a>
-            <span className="text-[var(--g-color-primary)] font-semibold"> FeeVert</span> {t('footer.rights')}
+            © {currentYear} {t('footer.rights')}
           </div>
-          
+
           {/* Footer Navigation */}
           <nav className="flex flex-wrap items-center justify-center gap-4 md:gap-6 text-sm">
             <Link 

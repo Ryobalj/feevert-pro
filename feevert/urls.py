@@ -1,3 +1,5 @@
+# feevert/urls.py
+
 from django.contrib import admin
 from django.urls import path, include, re_path
 from django.conf import settings
@@ -50,7 +52,8 @@ from home.views import (
     SiteSettingViewSet, HeroSectionViewSet, AboutSectionViewSet,
     ServiceHighlightViewSet, SeoDataViewSet, FaqViewSet,
     PartnerViewSet, TestimonialViewSet, ContactMessageViewSet,
-    get_homepage_data
+    WhatWeDoViewSet,  # ✅ Ongeza hii
+    get_homepage_data, get_what_we_do_slides  # ✅ Ongeza hii
 )
 from payments.views import (
     initiate_payment, verify_payment, refund_payment,
@@ -130,6 +133,8 @@ router.register(r'faqs', FaqViewSet, basename='faq')
 router.register(r'partners', PartnerViewSet, basename='partner')
 router.register(r'testimonials', TestimonialViewSet, basename='testimonial')
 router.register(r'contact-messages', ContactMessageViewSet, basename='contact-message')
+# ✅ What We Do - Ongeza kwenye router
+router.register(r'what-we-do', WhatWeDoViewSet, basename='what-we-do')
 
 
 def api_root(request):
@@ -183,6 +188,10 @@ def api_root(request):
                 'current': '/api/language/',
                 'set': '/api/language/set/',
             },
+            'what_we_do': {
+                'list': '/api/v1/what-we-do/',
+                'slides': '/api/what-we-do-slides/',
+            },
             'documentation': 'https://feevert.co.tz/docs',
         }
     })
@@ -228,6 +237,9 @@ urlpatterns = [
     
     # Homepage
     path('api/homepage/', get_homepage_data, name='homepage-data'),
+    
+    # ✅ What We Do Slides - Ongeza hii
+    path('api/what-we-do-slides/', get_what_we_do_slides, name='what-we-do-slides'),
     
     # ============================================
     # NOTIFICATION COUNTS (Different URL to avoid ViewSet conflict)

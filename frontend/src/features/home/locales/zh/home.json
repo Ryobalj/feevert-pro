@@ -126,7 +126,11 @@
                   "badge":  "📊 我们的影响力",
                   "title":  "用",
                   "subtitle":  "数据说话",
-                  "description":  "结果不言自明"
+                  "description":  "结果不言自明",
+                  "projects":  "已完成项目",
+                  "clients":  "满意客户",
+                  "services":  "提供服务",
+                  "years":  "年经验"
               },
     "services":  {
                      "badge":  "🛠️ 我们的服务",

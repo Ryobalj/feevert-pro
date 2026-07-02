@@ -44,6 +44,13 @@ export const ICON_MAP = {
   ':beehive:': '🏠',
   ':queenbee:': '👑🐝',
 
+  // ========== 🌾 AGRICULTURE ICONS ==========
+  ':wheat:': '🌾',
+  ':seedling:': '🌱',
+  ':tractor:': '🚜',
+  ':cow:': '🐄',
+  ':farmer:': '👨‍🌾',
+
   // ========== 🌿 ENVIRONMENTAL ICONS ==========
   ':leaf:': '🌿',
   ':search:': '🔍',
@@ -137,6 +144,7 @@ export const ICON_MAP = {
 export const DEFAULT_ICON = '📌';
 export const ICON_CATEGORIES = {
   BEEKEEPING: 'beekeeping',
+  AGRICULTURE: 'agriculture',
   ENVIRONMENTAL: 'environmental',
   OHS: 'ohs',
   ABOUT: 'about',
@@ -184,6 +192,9 @@ export const getIconCategory = (icon) => {
       ':bee:', ':home:', ':tools:', ':honey:', ':books:', ':sunflower:',
       ':clipboard:', ':chart:', ':honeyjar:', ':beeswax:', ':propolis:',
       ':royaljelly:', ':beevenom:', ':beehive:', ':queenbee:'
+    ],
+    [ICON_CATEGORIES.AGRICULTURE]: [
+      ':wheat:', ':seedling:', ':tractor:', ':cow:', ':farmer:'
     ],
     [ICON_CATEGORIES.ENVIRONMENTAL]: [
       ':leaf:', ':search:', ':recycle:', ':globe:', ':map:', ':scroll:',
@@ -275,6 +286,7 @@ export const hasIcon = (icon) => Boolean(icon && ICON_MAP[icon]);
 // ============================================================
 
 export const BEEKEEPING_ICONS = getIconsByCategory(ICON_CATEGORIES.BEEKEEPING);
+export const AGRICULTURE_ICONS = getIconsByCategory(ICON_CATEGORIES.AGRICULTURE);
 export const ENVIRONMENTAL_ICONS = getIconsByCategory(ICON_CATEGORIES.ENVIRONMENTAL);
 export const OHS_ICONS = getIconsByCategory(ICON_CATEGORIES.OHS);
 export const ABOUT_ICONS = getIconsByCategory(ICON_CATEGORIES.ABOUT);

@@ -126,7 +126,11 @@
                   "badge":  "📊 Notre Impact",
                   "title":  "En",
                   "subtitle":  "Chiffres",
-                  "description":  "Les résultats parlent d\u0027eux-mêmes"
+                  "description":  "Les résultats parlent d\u0027eux-mêmes",
+                  "projects":  "Projets Réalisés",
+                  "clients":  "Clients Satisfaits",
+                  "services":  "Services Offerts",
+                  "years":  "Années d'Expérience"
               },
     "services":  {
                      "badge":  "🛠️ Ce Que Nous Offrons",

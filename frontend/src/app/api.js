@@ -1,6 +1,6 @@
 // frontend/src/app/api.js
 
-import axios from 'axios'
+import axios from 'axios'  // ✅ Hakikisha import ipo mwanzoni
 
 // 🔄 Smart Environment Detection
 const isLocalhost = window.location.hostname === 'localhost' || 
@@ -15,7 +15,7 @@ console.log(`🌐 API Base URL: ${BASE_URL} (${isLocalhost ? 'Development' : 'Pr
 const api = axios.create({
   baseURL: BASE_URL,
   headers: { 'Content-Type': 'application/json' },
-  timeout: isLocalhost ? 30000 : 60000, // Longer timeout for production cold starts
+  timeout: isLocalhost ? 30000 : 60000,
 })
 
 // ============================================
@@ -23,7 +23,7 @@ const api = axios.create({
 // ============================================
 api.interceptors.request.use(
   (config) => {
-    // Smart URL building - USIONGEZE /api/v1 IKIWA TAYARI IPO
+    // Smart URL building
     
     // Auth & Token endpoints → /api/...
     if (config.url.includes('/token/')) {
@@ -42,20 +42,35 @@ api.interceptors.request.use(
     // Homepage → /api/...
     else if (config.url.includes('/homepage/')) {
       config.url = `/api${config.url}`
-    } 
-    // Shop → /api/v1/... (tayari iko kwenye /api/v1/shop/)
+    }
+    // ✅ What We Do Slides → /api/... (si /api/v1/)
+    else if (config.url.includes('/what-we-do-slides/')) {
+      config.url = `/api${config.url}`
+    }
+    // ✅ What We Do → /api/... (si /api/v1/)
+    else if (config.url.includes('/what-we-do/')) {
+      config.url = `/api${config.url}`
+    }
+    // Shop → /api/v1/...
     else if (config.url.includes('/shop/')) {
       config.url = `/api/v1${config.url}`
     } 
-    // Notification counts → /api/v1/... (tayari iko kwenye /api/v1/notification-counts/)
+    // Notification counts → /api/v1/...
     else if (config.url.includes('/notification-counts/')) {
       config.url = `/api/v1${config.url}`
     } 
-    // Realtime messaging → /api/v1/... (itakuwa /api/v1/realtime/...)
+    // Realtime messaging → /api/v1/...
     else if (config.url.includes('/realtime/')) {
       config.url = `/api/v1${config.url}`
     } 
-    // Notifications (ViewSet) → tayari inaingia /api/v1/...
+    // Hero slides → /api/...
+    else if (config.url.includes('/hero-slides/')) {
+      config.url = `/api${config.url}`
+    }
+    // Language → /api/...
+    else if (config.url.includes('/language/')) {
+      config.url = `/api${config.url}`
+    }
     // All other endpoints → /api/v1/...
     else if (!config.url.startsWith('/api/') && !config.url.startsWith('/webhooks/')) {
       config.url = `/api/v1${config.url}`
@@ -71,6 +86,8 @@ api.interceptors.request.use(
     if (isLocalhost && config.method === 'get') {
       config.params = { ...config.params, _t: new Date().getTime() }
     }
+    
+    console.log(`📡 ${config.method?.toUpperCase()} ${config.url}`)  // Debug log
     
     return config
   },

@@ -56,6 +56,8 @@ class Command(BaseCommand):
             ('testimonials', 'home', 'Testimonial', 'client_name', self._sync_testimonial_smart),
             ('partners', 'home', 'Partner', 'name', self._sync_partner_smart),
             ('faqs', 'home', 'Faq', 'question', self._sync_smart('question', {'question', 'answer', 'category', 'order', 'is_active'})),
+            # ✅ WHAT WE DO - MPYA
+            ('what_we_do', 'home', 'WhatWeDo', 'title', self._sync_what_we_do_smart),
             # NEWS
             ('news_categories', 'news', 'NewsCategory', 'name', self._sync_smart('name', {'name', 'slug', 'description', 'order', 'is_active'})),
             ('news', 'news', 'NewsPost', 'slug', self._sync_news_smart),
@@ -149,6 +151,63 @@ class Command(BaseCommand):
             
             return created, updated, skipped, deleted
         return sync_func
+
+    # ============================================================
+    # ✅ WHAT WE DO - SMART SYNC
+    # ============================================================
+    def _sync_what_we_do_smart(self, df, app_label, model_name, lookup_field='title', no_delete=False):
+        """Smart sync What We Do sections"""
+        model = apps.get_model(app_label, model_name)
+        created, updated, skipped, deleted = 0, 0, 0, 0
+        
+        existing = {obj.title: obj for obj in model.objects.all()}
+        excel_titles = set()
+        
+        for _, row in df.iterrows():
+            title = str(row.get('title', '')).strip()
+            if not title:
+                skipped += 1
+                continue
+            
+            excel_titles.add(title)
+            
+            fields = {
+                'title': title,
+                'subtitle': str(row.get('subtitle', '')),
+                'description': str(row.get('description', '')),
+                'services': self._parse_json_with_icons(row.get('services')),
+                'slider_images': self._parse_json(row.get('slider_images')),
+                'cta_text': str(row.get('cta_text', 'Learn More')),
+                'cta_link': str(row.get('cta_link', '/services')),
+                'order': self._int(row.get('order'), 0),
+                'is_active': self._bool(row.get('is_active'), True),
+            }
+            
+            if title in existing:
+                obj = existing[title]
+                changed = self._update_obj_smart(obj, fields)
+                if changed:
+                    updated += 1
+                    self.stdout.write(f'     🔄 Updated What We Do: {title}')
+                else:
+                    skipped += 1
+            else:
+                try:
+                    model.objects.create(**fields)
+                    created += 1
+                    self.stdout.write(f'     ✨ Created What We Do: {title}')
+                except Exception as e:
+                    self.stdout.write(self.style.ERROR(f'     ❌ Create What We Do "{title}": {e}'))
+                    skipped += 1
+        
+        if not no_delete:
+            for title, obj in existing.items():
+                if title not in excel_titles:
+                    obj.delete()
+                    deleted += 1
+                    self.stdout.write(f'     🗑️ Deleted What We Do: {title}')
+        
+        return created, updated, skipped, deleted
 
     def _sync_team_smart(self, df, app_label, model_name, lookup_field='full_name', no_delete=False):
         """Smart sync Team Members"""
@@ -1120,6 +1179,7 @@ class Command(BaseCommand):
             'home.AboutSection',
             'home.SiteSetting',
             'home.HeroSection',
+            'home.WhatWeDo',  # ✅ Ongeza hii
             'news.NewsPost',
             'news.NewsCategory',
             'careers.JobPost',

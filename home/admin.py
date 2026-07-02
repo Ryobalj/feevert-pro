@@ -4,7 +4,8 @@ from django.contrib import admin
 from django.utils import timezone
 from .models import (
     SiteSetting, HeroSection, AboutSection, AboutImage, ServiceHighlight,
-    SeoData, Faq, Partner, Testimonial, ContactMessage, Contact
+    SeoData, Faq, Partner, Testimonial, ContactMessage, Contact,
+    WhatWeDo  # ✅ Ongeza hii
 )
 
 
@@ -99,6 +100,66 @@ class AboutSectionAdmin(admin.ModelAdmin):
 
     class Media:
         js = ('admin/js/about_section_preview.js',)
+
+
+# ============================================================
+# ✅ WHAT WE DO - ADMIN
+# ============================================================
+@admin.register(WhatWeDo)
+class WhatWeDoAdmin(admin.ModelAdmin):
+    list_display = ('title', 'service_count', 'image_count', 'is_active', 'order')
+    list_filter = ('is_active',)
+    search_fields = ('title', 'description', 'subtitle')
+    list_editable = ('order', 'is_active')
+    
+    fieldsets = (
+        ('Header & Description', {
+            'fields': ('title', 'subtitle', 'description')
+        }),
+        ('Services List', {
+            'fields': ('services',),
+            'description': """
+                <div style="background: #f8f9fa; padding: 12px; border-radius: 6px; margin-bottom: 10px;">
+                    <strong>📋 Format:</strong> List of services with icon, title, and description
+                </div>
+                <pre style="background: #f1f3f5; padding: 12px; border-radius: 6px; font-size: 12px;">
+[
+    {"icon": "📊", "title": "Business Consultancy", "description": "Strategic planning and advisory"},
+    {"icon": "🌱", "title": "Sustainability Solutions", "description": "Eco-friendly practices"},
+    {"icon": "💡", "title": "Innovation & Strategy", "description": "Creative problem-solving"}
+]
+                </pre>
+            """
+        }),
+        ('Slider Images', {
+            'fields': ('slider_images',),
+            'description': """
+                <div style="background: #f8f9fa; padding: 12px; border-radius: 6px; margin-bottom: 10px;">
+                    <strong>🖼️ Format:</strong> List of image URLs for the slider
+                </div>
+                <pre style="background: #f1f3f5; padding: 12px; border-radius: 6px; font-size: 12px;">
+["/media/slides/image1.jpg", "/media/slides/image2.jpg", "/media/slides/image3.jpg"]
+                </pre>
+            """
+        }),
+        ('Call to Action', {
+            'fields': ('cta_text', 'cta_link')
+        }),
+        ('Settings', {
+            'fields': ('is_active', 'order'),
+            'classes': ('collapse',)
+        }),
+    )
+    
+    def service_count(self, obj):
+        count = len(obj.get_services_list())
+        return f"{count} service(s)" if count > 0 else "No services"
+    service_count.short_description = "Services"
+    
+    def image_count(self, obj):
+        count = len(obj.get_slider_images_list())
+        return f"{count} image(s)" if count > 0 else "No images"
+    image_count.short_description = "Images"
 
 
 @admin.register(ServiceHighlight)
@@ -233,7 +294,6 @@ class ContactAdmin(admin.ModelAdmin):
     actions = ['link_to_user', 'mark_as_client', 'export_as_csv']
 
     def link_to_user(self, request, queryset):
-        """Link selected contacts to user accounts by email"""
         from accounts.models import User
         linked = 0
         for contact in queryset.filter(linked_user__isnull=True):
@@ -247,13 +307,11 @@ class ContactAdmin(admin.ModelAdmin):
     link_to_user.short_description = "Link to user accounts by email"
 
     def mark_as_client(self, request, queryset):
-        """Mark selected contacts as clients"""
         updated = queryset.update(contact_type='client')
         self.message_user(request, f"{updated} contact(s) marked as clients.")
     mark_as_client.short_description = "Mark selected as clients"
 
     def export_as_csv(self, request, queryset):
-        """Export contacts to CSV"""
         import csv
         from django.http import HttpResponse
         response = HttpResponse(content_type='text/csv')
@@ -321,7 +379,6 @@ class ContactMessageAdmin(admin.ModelAdmin):
         'assign_to_me', 'set_high_priority', 'set_urgent_priority',
     ]
 
-    # ========== CUSTOM DISPLAY ==========
     def subject_preview(self, obj):
         return obj.subject[:60]
     subject_preview.short_description = "Subject"
@@ -346,7 +403,6 @@ class ContactMessageAdmin(admin.ModelAdmin):
     status_badge.admin_order_field = 'status'
     status_badge.allow_tags = True
 
-    # ========== ACTIONS ==========
     def mark_as_read(self, request, queryset):
         updated = queryset.update(is_read=True, status='read')
         self.message_user(request, f"{updated} message(s) marked as read.")
