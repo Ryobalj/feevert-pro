@@ -268,6 +268,17 @@ DEFAULT_FROM_EMAIL = config(
     default='info@feevert.co.tz'
 )
 
+# Without this, Python's SMTP client has NO timeout at all (blocks forever)
+# if the mail server never responds - which is exactly what happens when
+# mail.feevert.co.tz silently drops connections from a blocked country
+# (see the IMAP "COUNTRY IS BLACKLISTED" issue). That hung the whole
+# register request until Render's infra killed the worker ~30s in,
+# producing a raw 500 with no CORS headers (looked like a "CORS error" in
+# the browser, but the real cause was this hang). A short timeout makes
+# the SMTP failure fail fast as a normal Python exception instead, which
+# the register view already catches - so signup succeeds either way.
+EMAIL_TIMEOUT = config('EMAIL_TIMEOUT', default=8, cast=int)
+
 # ===========================
 # RECAPTCHA SETTINGS
 # ===========================

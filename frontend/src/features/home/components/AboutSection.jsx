@@ -45,7 +45,7 @@ const AboutSection = ({ data }) => {
             </span>
           </motion.div>
 
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white capitalize">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white uppercase">
             {sectionTitleLead && `${sectionTitleLead} `}<span className="gradient-text">{sectionTitleAccent}</span>
           </h2>
         </motion.div>
