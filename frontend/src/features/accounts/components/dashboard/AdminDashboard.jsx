@@ -76,7 +76,7 @@ const AdminDashboard = ({ user, darkMode }) => {
           <div className="flex flex-wrap items-center justify-between gap-4 mb-2">
             <div>
               <h1 className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-white">
-                {t('title')} <span className="gradient-text">{t('dashboard')}</span>
+                {t('title')} <span className="gradient-text">{t('dashboard_title')}</span>
               </h1>
               <p className="mt-2 text-white/40 text-sm">
                 {t('subtitle')}
