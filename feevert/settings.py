@@ -601,3 +601,9 @@ IMAP_HOST = config('IMAP_HOST', default='')
 IMAP_PORT = config('IMAP_PORT', default=993, cast=int)
 IMAP_USER = config('IMAP_USER', default='')
 IMAP_PASSWORD = config('IMAP_PASSWORD', default='')
+
+# Shared secret for the external cron trigger (notifications/views.py:
+# cron_sync_emails) - Render's free plan has no built-in Cron Jobs, so an
+# outside scheduler (e.g. cron-job.org) hits that endpoint periodically
+# instead. Must be set to a real random value in production.
+EMAIL_SYNC_CRON_SECRET = config('EMAIL_SYNC_CRON_SECRET', default='dev-only-insecure-secret')

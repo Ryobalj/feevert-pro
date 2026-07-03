@@ -42,6 +42,8 @@ services:
         sync: false
       - key: DEFAULT_FROM_EMAIL
         value: info@feevert.co.tz
+      - key: EMAIL_SYNC_CRON_SECRET
+        generateValue: true
       - key: FRONTEND_URL
         value: https://feevert-frontend.onrender.com
       - key: DATABASE_URL

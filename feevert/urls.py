@@ -31,7 +31,7 @@ from notifications.views import (
     UserNotificationSettingViewSet, NotificationLogViewSet,
     TestEndpointViewSet, get_unread_count, mark_all_as_read,
     mark_as_read, get_notification_stats, IncomingEmailViewSet,
-    EmailAccountViewSet
+    EmailAccountViewSet, cron_sync_emails
 )
 from projects.views import (
     ProjectCategoryViewSet, ProjectTagViewSet, ProjectViewSet,
@@ -237,6 +237,9 @@ urlpatterns = [
     
     # Webhooks
     path('webhooks/pawapay/', pawapay_webhook, name='pawapay-webhook'),
+
+    # Cron (external scheduler, e.g. cron-job.org - see notifications/views.py:cron_sync_emails)
+    path('api/cron/sync-emails/', cron_sync_emails, name='cron-sync-emails'),
     
     # Homepage
     path('api/homepage/', get_homepage_data, name='homepage-data'),

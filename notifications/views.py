@@ -2,7 +2,7 @@
 
 from rest_framework import viewsets, status, generics
 from rest_framework.decorators import action, api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from rest_framework.response import Response
 from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
@@ -524,3 +524,29 @@ def get_notification_stats(request):
         'by_type': list(by_type),
         'by_status': list(by_status),
     })
+
+
+@api_view(['GET', 'POST'])
+@permission_classes([AllowAny])
+def cron_sync_emails(request):
+    """
+    Triggers a fetch of every active EmailAccount's mailbox. Meant to be
+    called by an external scheduler (e.g. cron-job.org) every few minutes,
+    since Render's own Cron Jobs aren't available on the free plan.
+
+    Auth is a shared secret (settings.EMAIL_SYNC_CRON_SECRET) passed as
+    ?secret=... - not a real user login, since an external cron service
+    can't do an OAuth/JWT flow. Compared with hmac.compare_digest to avoid
+    leaking the secret's length/content via timing.
+    """
+    import hmac
+    from django.conf import settings
+    from .services.email_inbound_service import EmailInboundService
+
+    provided = request.GET.get('secret') or request.data.get('secret', '')
+    expected = getattr(settings, 'EMAIL_SYNC_CRON_SECRET', '')
+    if not expected or not hmac.compare_digest(str(provided), str(expected)):
+        return Response({'error': 'Invalid or missing secret'}, status=403)
+
+    results = EmailInboundService.fetch_all_sources()
+    return Response(results)
