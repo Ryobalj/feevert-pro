@@ -47,5 +47,13 @@
                  "loading":  "Inapakia maoni...",
                  "share_description":  "Tunapenda kusikia kuhusu uzoefu wako na huduma zetu.",
                  "no_filtered_reviews":  "Hakuna maoni ya nyota {{rating}} yaliyopatikana."
-             }
+             },
+    "submit":  {
+                   "title":  "Shiriki Uzoefu Wako",
+                   "subtitle":  "Tuambie ulivyoona kufanya kazi nasi",
+                   "thanks_title":  "Asante kwa maoni yako!",
+                   "thanks_message":  "Maoni yako yamewasilishwa na yataonekana baada ya kuidhinishwa.",
+                   "view_reviews":  "Tazama Maoni",
+                   "back_home":  "Rudi Nyumbani"
+               }
 }

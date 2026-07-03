@@ -49,7 +49,8 @@
     "messages": "Messages",
     "support": "Support",
     "settings": "Paramètres",
-    "account": "Compte"
+    "account": "Compte",
+    "email_inbox": "Boîte de réception"
   },
   "buttons": {
     "learn_more": "En savoir plus",

@@ -1,7 +1,7 @@
 # notifications/services/email_outbound_service.py
 
 import logging
-from django.core.mail import send_mail, EmailMultiAlternatives
+from django.core.mail import send_mail, EmailMultiAlternatives, get_connection
 from django.conf import settings
 
 logger = logging.getLogger(__name__)
@@ -13,6 +13,44 @@ class EmailOutboundService:
     - Django send_mail (SMTP) - kwa Gmail, Titan, Custom SMTP
     - Microsoft Graph API - kwa Outlook/365 (inapatikana kupitia EmailInboundService)
     """
+
+    @classmethod
+    def send_via_account(cls, account, to_email, subject, body, html_body=None):
+        """
+        Send using one specific EmailAccount's own SMTP credentials, so the
+        reply actually comes from that staff member's address (e.g.
+        john@feevert.co.tz) instead of the site-wide DEFAULT_FROM_EMAIL.
+        """
+        try:
+            connection = get_connection(
+                backend='django.core.mail.backends.smtp.EmailBackend',
+                host=account.smtp_host or account.imap_host,
+                port=account.smtp_port,
+                username=account.email_address,
+                password=account.get_smtp_password(),
+                use_ssl=account.smtp_use_ssl,
+                use_tls=account.smtp_use_tls,
+            )
+            recipient_list = to_email if isinstance(to_email, list) else [to_email]
+
+            if html_body:
+                email = EmailMultiAlternatives(
+                    subject=subject, body=body, from_email=account.email_address,
+                    to=recipient_list, connection=connection,
+                )
+                email.attach_alternative(html_body, "text/html")
+                sent = email.send()
+            else:
+                sent = send_mail(
+                    subject=subject, message=body, from_email=account.email_address,
+                    recipient_list=recipient_list, connection=connection, fail_silently=False,
+                )
+
+            logger.info(f"Email sent via {account.email_address} to {recipient_list}: {subject}")
+            return {'success': sent > 0}
+        except Exception as e:
+            logger.error(f"Failed to send via account {account.email_address} to {to_email}: {e}")
+            return {'success': False, 'error': str(e)}
 
     @classmethod
     def send(cls, to_email, subject, body, html_body=None, from_email=None, 

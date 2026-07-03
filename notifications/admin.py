@@ -1,10 +1,11 @@
 # notifications/admin.py
 
+from django import forms
 from django.contrib import admin
 from django.utils import timezone
 from .models import (
     Notification, NotificationLog, NotificationTemplate,
-    UserNotificationSetting, IncomingEmail
+    UserNotificationSetting, IncomingEmail, EmailAccount
 )
 
 
@@ -157,12 +158,73 @@ class UserNotificationSettingAdmin(admin.ModelAdmin):
 
 
 # ============================================
+# EMAIL ACCOUNT ADMIN (per-staff mailbox)
+# ============================================
+class EmailAccountForm(forms.ModelForm):
+    """
+    Passwords are write-only here: the fields below are plain (unencrypted)
+    inputs that get encrypted into imap_password_encrypted /
+    smtp_password_encrypted on save, and are never pre-filled from the
+    stored value (so re-opening the form doesn't leak/round-trip the
+    decrypted secret through the browser).
+    """
+    imap_password = forms.CharField(
+        required=False, widget=forms.PasswordInput(render_value=False),
+        help_text='Leave blank to keep the current password unchanged.'
+    )
+    smtp_password = forms.CharField(
+        required=False, widget=forms.PasswordInput(render_value=False),
+        help_text='Leave blank to reuse the IMAP password for sending too.'
+    )
+
+    class Meta:
+        model = EmailAccount
+        exclude = ['imap_password_encrypted', 'smtp_password_encrypted']
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        if self.cleaned_data.get('imap_password'):
+            instance.set_imap_password(self.cleaned_data['imap_password'])
+        if self.cleaned_data.get('smtp_password'):
+            instance.set_smtp_password(self.cleaned_data['smtp_password'])
+        if commit:
+            instance.save()
+        return instance
+
+
+@admin.register(EmailAccount)
+class EmailAccountAdmin(admin.ModelAdmin):
+    form = EmailAccountForm
+    list_display = ['email_address', 'owner_user', 'provider', 'is_active', 'last_synced_at']
+    list_filter = ['provider', 'is_active']
+    search_fields = ['email_address', 'owner_user__username', 'owner_user__email']
+    readonly_fields = ['last_synced_at', 'last_sync_error', 'created_at', 'updated_at']
+
+    fieldsets = (
+        ('Ownership', {
+            'fields': ('owner_user', 'email_address', 'provider', 'is_active'),
+            'description': 'Leave "owner user" blank for a shared inbox visible to all staff.'
+        }),
+        ('IMAP (fetching)', {
+            'fields': ('imap_host', 'imap_port', 'imap_use_ssl', 'imap_password')
+        }),
+        ('SMTP (sending replies)', {
+            'fields': ('smtp_host', 'smtp_port', 'smtp_use_ssl', 'smtp_use_tls', 'smtp_password')
+        }),
+        ('Sync Status', {
+            'fields': ('last_synced_at', 'last_sync_error'),
+            'classes': ('collapse',)
+        }),
+    )
+
+
+# ============================================
 # INCOMING EMAIL ADMIN
 # ============================================
 @admin.register(IncomingEmail)
 class IncomingEmailAdmin(admin.ModelAdmin):
-    list_display = ['sender', 'subject_preview', 'source', 'is_read', 'is_processed', 'received_at']
-    list_filter = ['source', 'is_read', 'is_processed', 'folder', 'received_at']
+    list_display = ['sender', 'subject_preview', 'account', 'source', 'is_read', 'is_processed', 'received_at']
+    list_filter = ['account', 'source', 'is_read', 'is_processed', 'folder', 'received_at']
     search_fields = ['sender', 'sender_name', 'subject', 'body', 'message_id']
     readonly_fields = ['created_at', 'updated_at', 'message_id', 'thread_id']
     date_hierarchy = 'received_at'
@@ -170,7 +232,7 @@ class IncomingEmailAdmin(admin.ModelAdmin):
     
     fieldsets = (
         ('Email Info', {
-            'fields': ('sender', 'sender_name', 'recipient', 'subject')
+            'fields': ('account', 'sender', 'sender_name', 'recipient', 'subject')
         }),
         ('Content', {
             'fields': ('body', 'body_html')

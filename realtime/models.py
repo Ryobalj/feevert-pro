@@ -2,6 +2,7 @@
 
 from django.db import models
 from django.conf import settings
+from django.utils import timezone
 from core.models import BaseModel
 
 
@@ -42,7 +43,14 @@ class Message(BaseModel):
     is_read = models.BooleanField(default=False)
     read_at = models.DateTimeField(blank=True, null=True)
     attachment = models.FileField(upload_to='chat_attachments/', blank=True, null=True)
-    
+    related_consultation = models.ForeignKey(
+        'consultations.ConsultationRequest',
+        on_delete=models.SET_NULL,
+        blank=True, null=True,
+        related_name='messages',
+        help_text='Optional link giving a client-staff conversation its context'
+    )
+
     class Meta:
         ordering = ['-created_at']
         indexes = [

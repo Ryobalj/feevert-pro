@@ -49,7 +49,8 @@
     "messages": "消息",
     "support": "支持",
     "settings": "设置",
-    "account": "账户"
+    "account": "账户",
+    "email_inbox": "邮件收件箱"
   },
   "buttons": {
     "learn_more": "了解更多",

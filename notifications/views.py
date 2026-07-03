@@ -8,7 +8,11 @@ from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
 
-from .models import Notification, NotificationTemplate, UserNotificationSetting, NotificationLog
+from accounts.permissions import IsAdminRole
+from .models import (
+    Notification, NotificationTemplate, UserNotificationSetting, NotificationLog,
+    IncomingEmail, EmailAccount
+)
 from .serializers import (
     NotificationSerializer,
     NotificationListSerializer,
@@ -23,6 +27,10 @@ from .serializers import (
     SMSTestSerializer,
     BulkNotificationSerializer,
     CommunicationSerializer,
+    IncomingEmailSerializer,
+    IncomingEmailListSerializer,
+    EmailReplySerializer,
+    EmailAccountSerializer,
 )
 
 
@@ -37,9 +45,9 @@ class NotificationViewSet(viewsets.ModelViewSet):
     """
     permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-    filterset_fields = ['notification_type', 'priority', 'is_read']
+    filterset_fields = ['notification_type', 'is_read']
     search_fields = ['title', 'message']
-    ordering_fields = ['created_at', 'priority', 'notification_type']
+    ordering_fields = ['created_at', 'notification_type']
     ordering = ['-created_at']
 
     def get_queryset(self):
@@ -67,11 +75,7 @@ class NotificationViewSet(viewsets.ModelViewSet):
             notification_type=notification.notification_type,
             title=notification.title,
             message=notification.message,
-            priority=notification.priority,
             related_link=notification.related_link,
-            object_id=notification.related_object_id,
-            object_type=notification.related_object_type,
-            scheduled_for=notification.scheduled_for,
         )
 
     # ============================================================
@@ -124,7 +128,6 @@ class NotificationViewSet(viewsets.ModelViewSet):
                 notification_type=notification.notification_type,
                 title=notification.title,
                 message=notification.message,
-                priority=notification.priority,
                 related_link=notification.related_link,
             )
             return Response({'success': True, 'message': 'Notification resent'})
@@ -235,6 +238,134 @@ class NotificationLogViewSet(viewsets.ReadOnlyModelViewSet):
     filterset_fields = ['status']
     search_fields = ['notification__title', 'notification__recipient__email']
     ordering = ['-created_at']
+
+
+# ============================================================
+# EMAIL ACCOUNT VIEWS (per-staff mailbox management, admin-only)
+# ============================================================
+
+class EmailAccountViewSet(viewsets.ModelViewSet):
+    """
+    Admin-only CRUD for staff mailboxes. Each account maps one email
+    address to IMAP/SMTP credentials and, optionally, a specific staff
+    user who's the only one (besides admins) who can see its mail.
+    """
+    queryset = EmailAccount.objects.select_related('owner_user').all()
+    serializer_class = EmailAccountSerializer
+    permission_classes = [IsAdminRole]
+    filter_backends = [DjangoFilterBackend, SearchFilter]
+    filterset_fields = ['is_active', 'provider']
+    search_fields = ['email_address', 'owner_user__username', 'owner_user__email']
+
+    @action(detail=True, methods=['post'])
+    def sync_now(self, request, pk=None):
+        """Fetch this one account's mailbox on demand."""
+        from .services.email_inbound_service import EmailInboundService
+        account = self.get_object()
+        result = EmailInboundService.fetch_for_account(account)
+        return Response(result)
+
+
+# ============================================================
+# INCOMING EMAIL (UNIFIED INBOX) VIEWS
+# ============================================================
+
+class IncomingEmailViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    Unified inbox for emails received at staff/shared mailboxes (via
+    Outlook/Microsoft 365 or IMAP - see
+    notifications/services/email_inbound_service.py). Staff-only: reading
+    business email doesn't belong to a specific client.
+
+    Visibility: a shared mailbox (EmailAccount.owner_user is null, or
+    legacy rows with no account at all) is visible to any staff member;
+    a personal mailbox is visible only to its owner. Admins see everything
+    for oversight.
+    """
+    queryset = IncomingEmail.objects.all()
+    permission_classes = [IsAuthenticated]
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_fields = ['is_read', 'source', 'folder', 'account']
+    search_fields = ['sender', 'sender_name', 'subject', 'body']
+    ordering = ['-received_at']
+
+    def get_queryset(self):
+        from django.db.models import Q
+        user = self.request.user
+        if user.role_name == 'admin' or user.is_staff:
+            return IncomingEmail.objects.all()
+        return IncomingEmail.objects.filter(
+            Q(account__owner_user=user) | Q(account__owner_user__isnull=True) | Q(account__isnull=True)
+        )
+
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return IncomingEmailListSerializer
+        return IncomingEmailSerializer
+
+    @action(detail=True, methods=['post'])
+    def mark_read(self, request, pk=None):
+        email = self.get_object()
+        email.is_read = True
+        email.save(update_fields=['is_read'])
+        return Response({'success': True})
+
+    @action(detail=True, methods=['post'])
+    def reply(self, request, pk=None):
+        """Reply to this email, sent from whichever address received it
+        (the linked EmailAccount, or the site default for legacy/unlinked
+        emails) so the recipient sees a normal reply in their own inbox -
+        not a notification from some other address."""
+        email = self.get_object()
+        serializer = EmailReplySerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=400)
+
+        reply_subject = email.subject if email.subject.lower().startswith('re:') else f'Re: {email.subject}'
+
+        if email.account:
+            from .services.email_outbound_service import EmailOutboundService
+            result = EmailOutboundService.send_via_account(
+                account=email.account,
+                to_email=email.sender,
+                subject=reply_subject,
+                body=serializer.validated_data['body'],
+                html_body=serializer.validated_data.get('body_html'),
+            )
+        else:
+            from .services.email_outbound_service import EmailOutboundService
+            result = EmailOutboundService.send(
+                to_email=email.sender,
+                subject=reply_subject,
+                body=serializer.validated_data['body'],
+                html_body=serializer.validated_data.get('body_html'),
+            )
+        if not result.get('success', True):
+            return Response({'error': result.get('error', 'Failed to send reply')}, status=502)
+
+        email.is_processed = True
+        email.save(update_fields=['is_processed'])
+        return Response({'success': True})
+
+    @action(detail=False, methods=['post'])
+    def sync_now(self, request):
+        """Fetch new emails on demand for whichever accounts this user is
+        allowed to see. Until a scheduled job (Render Cron Job or Celery
+        beat) is set up, this button is how new emails actually arrive in
+        the unified inbox."""
+        from django.db.models import Q
+        from .models import EmailAccount
+        from .services.email_inbound_service import EmailInboundService
+
+        user = request.user
+        if user.role_name == 'admin' or user.is_staff:
+            results = EmailInboundService.fetch_all_sources()
+        else:
+            accounts = EmailAccount.objects.filter(is_active=True).filter(
+                Q(owner_user=user) | Q(owner_user__isnull=True)
+            )
+            results = EmailInboundService.fetch_all_accounts(accounts=accounts) if accounts.exists() else {}
+        return Response(results)
 
 
 # ============================================================
@@ -382,18 +513,14 @@ def get_notification_stats(request):
     from django.db.models import Count
 
     total = Notification.objects.count()
-    sent = Notification.objects.filter(sent_at__isnull=False).count()
-    pending = Notification.objects.filter(sent_at__isnull=True).count()
     unread = Notification.objects.filter(is_read=False).count()
 
     by_type = Notification.objects.values('notification_type').annotate(count=Count('id'))
-    by_priority = Notification.objects.values('priority').annotate(count=Count('id'))
+    by_status = NotificationLog.objects.values('status').annotate(count=Count('id'))
 
     return Response({
         'total': total,
-        'sent': sent,
-        'pending': pending,
         'unread': unread,
         'by_type': list(by_type),
-        'by_priority': list(by_priority),
+        'by_status': list(by_status),
     })

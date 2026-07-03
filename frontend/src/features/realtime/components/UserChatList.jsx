@@ -3,11 +3,12 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next' // ✅ Ongeza hii
+import { Link } from 'react-router-dom'
 import api from '../../../app/api'
 import { useAuth } from '../../accounts/hooks/useAuth'
 import ChatBox from './ChatBox'
 
-const UserChatList = ({ isModal, onClose }) => {
+const UserChatList = ({ isModal, onClose, embedded = false, selectedUserId = null, onSelectUser = null }) => {
   const { t } = useTranslation('realtime') // ✅ Ongeza hii
   const { user } = useAuth()
   const [conversations, setConversations] = useState([])
@@ -74,10 +75,16 @@ const UserChatList = ({ isModal, onClose }) => {
   }
 
   const startChat = (chatUser) => {
-    setActiveChat({
+    const chat = {
       id: chatUser.user_id || chatUser.id,
       name: chatUser.full_name || chatUser.username,
-    })
+      avatar: chatUser.profile_picture || null,
+    }
+    if (embedded && onSelectUser) {
+      onSelectUser(chat)
+      return
+    }
+    setActiveChat(chat)
     if (onClose) onClose()
   }
 
@@ -122,7 +129,7 @@ const UserChatList = ({ isModal, onClose }) => {
   return (
     <>
       {/* ============ CHAT PANEL ============ */}
-      <div ref={panelRef} className="w-96 max-w-full glass-card !p-0 overflow-hidden">
+      <div ref={panelRef} className={embedded ? 'w-full max-w-full h-full glass-card !p-0 overflow-hidden flex flex-col' : 'w-96 max-w-full glass-card !p-0 overflow-hidden'}>
         {/* Header */}
         <div className="p-4 border-b border-white/5">
           <div className="flex items-center justify-between mb-3">
@@ -130,15 +137,29 @@ const UserChatList = ({ isModal, onClose }) => {
               <span className="w-7 h-7 rounded-lg glass flex items-center justify-center text-xs">💬</span>
               {t('chat.messages') || 'Messages'}
             </h3>
-            {onClose && (
-              <button onClick={onClose} className="w-7 h-7 rounded-full glass flex items-center justify-center hover:border-red-400/50 hover:text-red-400 transition-all duration-300">
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            )}
+            <div className="flex items-center gap-1.5">
+              {!embedded && (
+                <Link
+                  to="/messages"
+                  onClick={onClose}
+                  className="w-7 h-7 rounded-full glass flex items-center justify-center hover:border-emerald-400/50 hover:text-emerald-400 transition-all duration-300"
+                  title={t('chat.open_full_view') || 'Open full view'}
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-5v4m0-4h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                  </svg>
+                </Link>
+              )}
+              {onClose && (
+                <button onClick={onClose} className="w-7 h-7 rounded-full glass flex items-center justify-center hover:border-red-400/50 hover:text-red-400 transition-all duration-300">
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              )}
+            </div>
           </div>
-          
+
           {/* Tabs */}
           <div className="flex gap-1 p-1 glass rounded-xl">
             <button onClick={() => handleTabChange('conversations')}
@@ -186,7 +207,7 @@ const UserChatList = ({ isModal, onClose }) => {
         )}
 
         {/* Content */}
-        <div className="max-h-[380px] overflow-y-auto">
+        <div className={embedded ? 'flex-1 overflow-y-auto' : 'max-h-[380px] overflow-y-auto'}>
           {loading ? (
             <div className="p-8 text-center">
               <div className="spinner mx-auto mb-3" />
@@ -205,7 +226,7 @@ const UserChatList = ({ isModal, onClose }) => {
             ) : (
               conversations.map((conv) => (
                 <button key={conv.user_id} onClick={() => startChat(conv)}
-                  className="w-full p-3 flex items-center gap-3 hover:bg-white/[0.02] transition-colors text-left">
+                  className={`w-full p-3 flex items-center gap-3 hover:bg-white/[0.02] transition-colors text-left ${selectedUserId === conv.user_id ? 'bg-emerald-500/10 border-r-2 border-emerald-400' : ''}`}>
                   <div className="relative flex-shrink-0">
                     <div className="w-11 h-11 rounded-full bg-gradient-to-br from-emerald-400 to-green-600 flex items-center justify-center text-white font-bold text-sm">
                       {conv.profile_picture ? 
@@ -274,17 +295,21 @@ const UserChatList = ({ isModal, onClose }) => {
       </div>
 
       {/* ============ ACTIVE CHAT BOX ============ */}
-      <AnimatePresence>
-        {activeChat && (
-          <ChatBox
-            key={activeChat.id}
-            recipientId={activeChat.id}
-            recipientName={activeChat.name}
-            onClose={closeChat}
-            onNewMessage={refreshConversations}
-          />
-        )}
-      </AnimatePresence>
+      {/* In embedded (full-page) mode the parent renders ChatBox itself in
+          a second column instead - see MessagesPage.jsx */}
+      {!embedded && (
+        <AnimatePresence>
+          {activeChat && (
+            <ChatBox
+              key={activeChat.id}
+              recipientId={activeChat.id}
+              recipientName={activeChat.name}
+              onClose={closeChat}
+              onNewMessage={refreshConversations}
+            />
+          )}
+        </AnimatePresence>
+      )}
     </>
   )
 }

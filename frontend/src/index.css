@@ -405,44 +405,67 @@ body {
   color: inherit;
 }
 
+/* NOTE ON THE OPACITY SCALE BELOW:
+   These classes were designed for light text on the dark "brand"/"dark"
+   themes, where even a faint 20-30% white reads fine against a near-black
+   background. Under white theme the same alpha applied to BLACK text
+   against a near-white background loses far more relative contrast (e.g.
+   rgba(0,0,0,0.3) on white is only ~2.3:1, well under the ~4.5:1 WCAG AA
+   minimum for body text) - that's the "very faint gray" text users were
+   seeing. The values below are boosted (not a literal 1:1 alpha mirror)
+   so each tier stays readable while keeping the same relative hierarchy.
+   Also covers /15, /25, /75 which exist in the codebase but had no
+   override at all before (rendering as literal near-white-on-white). */
 [data-theme="white"] .text-white:not(.landing-page *):not(.dark-surface *) {
   color: #000000 !important;
 }
 
 [data-theme="white"] .text-white\/90:not(.landing-page *):not(.dark-surface *) {
-  color: rgba(0,0,0,0.9) !important;
+  color: rgba(0,0,0,0.92) !important;
 }
 
 [data-theme="white"] .text-white\/80:not(.landing-page *):not(.dark-surface *) {
-  color: rgba(0,0,0,0.8) !important;
+  color: rgba(0,0,0,0.85) !important;
+}
+
+[data-theme="white"] .text-white\/75:not(.landing-page *):not(.dark-surface *) {
+  color: rgba(0,0,0,0.80) !important;
 }
 
 [data-theme="white"] .text-white\/70:not(.landing-page *):not(.dark-surface *) {
-  color: rgba(0,0,0,0.7) !important;
+  color: rgba(0,0,0,0.75) !important;
 }
 
 [data-theme="white"] .text-white\/60:not(.landing-page *):not(.dark-surface *) {
-  color: rgba(0,0,0,0.6) !important;
+  color: rgba(0,0,0,0.68) !important;
 }
 
 [data-theme="white"] .text-white\/50:not(.landing-page *):not(.dark-surface *) {
-  color: rgba(0,0,0,0.5) !important;
+  color: rgba(0,0,0,0.60) !important;
 }
 
 [data-theme="white"] .text-white\/40:not(.landing-page *):not(.dark-surface *) {
-  color: rgba(0,0,0,0.4) !important;
+  color: rgba(0,0,0,0.52) !important;
 }
 
 [data-theme="white"] .text-white\/30:not(.landing-page *):not(.dark-surface *) {
-  color: rgba(0,0,0,0.3) !important;
+  color: rgba(0,0,0,0.46) !important;
+}
+
+[data-theme="white"] .text-white\/25:not(.landing-page *):not(.dark-surface *) {
+  color: rgba(0,0,0,0.42) !important;
 }
 
 [data-theme="white"] .text-white\/20:not(.landing-page *):not(.dark-surface *) {
-  color: rgba(0,0,0,0.2) !important;
+  color: rgba(0,0,0,0.40) !important;
+}
+
+[data-theme="white"] .text-white\/15:not(.landing-page *):not(.dark-surface *) {
+  color: rgba(0,0,0,0.38) !important;
 }
 
 [data-theme="white"] .text-white\/10:not(.landing-page *):not(.dark-surface *) {
-  color: rgba(0,0,0,0.1) !important;
+  color: rgba(0,0,0,0.36) !important;
 }
 
 [data-theme="white"] .text-red-500 {
@@ -502,6 +525,38 @@ body {
 [data-theme="white"] .btn-ghost:hover {
   background: rgba(13,92,62,0.08) !important;
   color: #1a7a54 !important;
+}
+
+/* ============================================================
+   SELECT OPTIONS (all themes)
+   ------------------------------------------------------------
+   Native <option> popups are rendered by the OS/browser chrome, not by
+   backdrop-filter/rgba styling on the parent <select> - so components
+   that gave <select> a "glass" dark look (e.g. text-white) but never
+   styled <option> directly ended up with white-on-white (or a stray
+   hardcoded dark option background clashing with theme-forced dark
+   text) the moment the dropdown was opened. Setting background/color
+   directly on `option` fixes this regardless of what a component's own
+   className happens to put on its <option> tags.
+   ============================================================ */
+select option {
+  background: var(--g-background);
+  color: var(--g-text);
+}
+
+[data-theme="white"] select option {
+  background: #ffffff !important;
+  color: #000000 !important;
+}
+
+[data-theme="brand"] select option {
+  background: #0d5c3e !important;
+  color: #f5f0e8 !important;
+}
+
+[data-theme="dark"] select option {
+  background: #0a0a0a !important;
+  color: #e8e8e8 !important;
 }
 
 /* ============================================================

@@ -23,9 +23,18 @@ export const useWebSocket = () => {
       return
     }
 
+    // Must target the BACKEND host, not the frontend's own host - they're
+    // different origins (different ports in dev, entirely different
+    // domains in production: feevert.co.tz vs feevert-api.onrender.com).
+    // Mirrors the same isLocalhost logic app/api.js uses for REST calls.
+    const isLocalhost = window.location.hostname === 'localhost' ||
+                        window.location.hostname === '127.0.0.1'
+    const backendHost = isLocalhost
+      ? `${window.location.hostname}:8000`
+      : 'feevert-api.onrender.com'
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
     const token = localStorage.getItem('access_token')
-    const wsUrl = `${protocol}//${window.location.host}/ws/notifications/${token ? `?token=${token}` : ''}`
+    const wsUrl = `${protocol}//${backendHost}/ws/notifications/${token ? `?token=${token}` : ''}`
     
     try {
       wsRef.current = new WebSocket(wsUrl)

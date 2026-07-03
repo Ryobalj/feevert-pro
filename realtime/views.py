@@ -7,6 +7,8 @@ from rest_framework.response import Response
 from django.db.models import Q, Max, Count, OuterRef, Subquery
 from django.utils import timezone
 from django.contrib.auth import get_user_model
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 from accounts.serializers import UserSerializer
 from .models import Message
 from .serializers import MessageSerializer, ConversationSerializer, SendMessageSerializer
@@ -129,8 +131,11 @@ def get_conversations(request):
     """
     Get list of users the current user has chatted with, plus online status
     """
+    from datetime import timedelta
+
     current_user = request.user
-    
+    online_cutoff = timezone.now() - timedelta(minutes=5)
+
     # Get all unique users from sent and received messages
     sent_to = Message.objects.filter(sender=current_user).values_list('recipient', flat=True)
     received_from = Message.objects.filter(recipient=current_user).values_list('sender', flat=True)
@@ -165,7 +170,7 @@ def get_conversations(request):
                 'last_message': last_message.message[:50] if last_message else '',
                 'last_message_time': last_message.created_at if last_message else other_user.last_login,
                 'unread_count': unread_count,
-                'is_online': False  # You can implement online status with WebSocket
+                'is_online': bool(other_user.last_seen and other_user.last_seen >= online_cutoff)
             })
         except User.DoesNotExist:
             continue
@@ -245,30 +250,56 @@ def send_message(request):
     # Don't allow sending messages to yourself
     if recipient == request.user:
         return Response({'error': 'Cannot send message to yourself'}, status=400)
-    
+
+    consultation = None
+    consultation_id = serializer.validated_data.get('related_consultation')
+    if consultation_id:
+        from consultations.models import ConsultationRequest
+        consultation = ConsultationRequest.objects.filter(
+            id=consultation_id
+        ).filter(
+            Q(client=request.user) | Q(assigned_to=request.user)
+        ).first()
+        if not consultation:
+            return Response({'error': 'Consultation not found or not accessible'}, status=404)
+
     # Create message
     message = Message.objects.create(
         sender=request.user,
         recipient=recipient,
-        message=message_text
+        message=message_text,
+        attachment=request.FILES.get('attachment'),
+        related_consultation=consultation,
     )
-    
-    # Send realtime notification via WebSocket
+
+    # Push the full message straight to the recipient's WebSocket group so
+    # their ChatBox can append it live. This bypasses the generic
+    # notification system (NotificationDispatcher/notify_staff), which has
+    # no way to carry chat-specific fields like sender_id/message_id
+    # through to the socket event.
+    try:
+        channel_layer = get_channel_layer()
+        payload = MessageSerializer(message, context={'request': request}).data
+        payload['is_sender'] = False  # from the recipient's point of view
+        async_to_sync(channel_layer.group_send)(
+            f'user_{recipient.id}',
+            {'type': 'chat_message', 'message': payload}
+        )
+    except Exception as e:
+        print(f"Failed to push realtime chat message: {e}")
+
+    # Also raise a standard notification (email/in-app record) in case the
+    # recipient isn't connected to the socket right now.
     try:
         NotificationService.send_realtime_notification(
             recipient.id,
             'new_message',
             f'New message from {request.user.username}',
             message_text[:100] + ('...' if len(message_text) > 100 else ''),
-            {
-                'sender_id': request.user.id,
-                'sender_name': request.user.get_full_name() or request.user.username,
-                'message_id': message.id
-            }
         )
     except Exception as e:
-        print(f"Failed to send realtime notification: {e}")
-    
+        print(f"Failed to send notification record: {e}")
+
     serializer = MessageSerializer(message, context={'request': request})
     return Response(serializer.data, status=201)
 

@@ -1,5 +1,6 @@
 # consultations/views.py
 
+import django_filters
 from rest_framework import viewsets, status
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -22,6 +23,25 @@ from .serializers import (
     ConsultationDocumentSerializer, ConsultationFollowupSerializer,
     ServiceImageSerializer
 )
+
+
+class ConsultationRequestFilter(django_filters.FilterSet):
+    """
+    Same as filterset_fields=[...] except 'assigned_to' also accepts the
+    literal 'me', which the dashboards use to mean "assigned to whoever is
+    logged in". A plain ModelChoiceFilter can't resolve 'me' to a pk and
+    DjangoFilterBackend responds with a 400 for it.
+    """
+    assigned_to = django_filters.CharFilter(method='filter_assigned_to')
+
+    class Meta:
+        model = ConsultationRequest
+        fields = ['status', 'priority', 'service', 'assigned_to']
+
+    def filter_assigned_to(self, queryset, name, value):
+        if value == 'me':
+            return queryset.filter(assigned_to=self.request.user)
+        return queryset.filter(assigned_to_id=value)
 
 
 # ============ CATEGORY VIEWSET ============
@@ -156,27 +176,27 @@ class ConsultationRequestViewSet(viewsets.ModelViewSet):
     serializer_class = ConsultationRequestSerializer
     permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-    filterset_fields = ['status', 'priority', 'service', 'assigned_to']
+    filterset_class = ConsultationRequestFilter
     search_fields = ['client__username', 'client__email', 'service__name', 'message']
     ordering_fields = ['created_at', 'preferred_date', 'priority']
-    
+
     def get_queryset(self):
         user = self.request.user
         queryset = ConsultationRequest.objects.select_related(
             'client', 'service', 'assigned_to'
         ).prefetch_related('documents', 'followups')
-        
-        if user.role in ['admin', 'consultant'] or user.is_staff:
+
+        if user.role_name in ['admin', 'consultant'] or user.is_staff:
             return queryset
-        
+
         return queryset.filter(client=user)
-    
+
     def get_serializer_class(self):
         if self.action == 'create':
             return ConsultationRequestCreateSerializer
         if self.action in ['update', 'partial_update']:
             user = self.request.user
-            if user.role in ['admin', 'consultant'] or user.is_staff:
+            if user.role_name in ['admin', 'consultant'] or user.is_staff:
                 return ConsultationRequestUpdateSerializer
         return ConsultationRequestSerializer
     
@@ -217,8 +237,8 @@ class ConsultationRequestViewSet(viewsets.ModelViewSet):
         
         try:
             consultant = User.objects.get(
-                id=consultant_id, 
-                role__in=['consultant', 'admin'],
+                id=consultant_id,
+                role__name__in=['consultant', 'admin'],
                 is_active=True
             )
             consultation.assigned_to = consultant
@@ -305,7 +325,7 @@ class ConsultationRequestViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'])
     def stats(self, request):
         """Get consultation statistics for current user"""
-        if request.user.role in ['admin', 'consultant'] or request.user.is_staff:
+        if request.user.role_name in ['admin', 'consultant'] or request.user.is_staff:
             queryset = ConsultationRequest.objects.all()
         else:
             queryset = ConsultationRequest.objects.filter(client=request.user)
@@ -333,7 +353,7 @@ class ConsultationDocumentViewSet(viewsets.ModelViewSet):
     
     def get_queryset(self):
         user = self.request.user
-        if user.role in ['admin', 'consultant'] or user.is_staff:
+        if user.role_name in ['admin', 'consultant'] or user.is_staff:
             return ConsultationDocument.objects.all()
         return ConsultationDocument.objects.filter(request__client=user)
     
@@ -352,7 +372,7 @@ class ConsultationFollowupViewSet(viewsets.ModelViewSet):
     
     def get_queryset(self):
         user = self.request.user
-        if user.role in ['admin', 'consultant'] or user.is_staff:
+        if user.role_name in ['admin', 'consultant'] or user.is_staff:
             return ConsultationFollowup.objects.all()
         return ConsultationFollowup.objects.filter(request__client=user)
     

@@ -15,10 +15,10 @@ class MessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Message
         fields = [
-            'id', 'sender', 'sender_name', 'sender_full_name', 
+            'id', 'sender', 'sender_name', 'sender_full_name',
             'recipient', 'recipient_name', 'recipient_full_name',
             'message', 'is_read', 'read_at', 'attachment',
-            'created_at', 'is_sender'
+            'related_consultation', 'created_at', 'is_sender'
         ]
         read_only_fields = ['id', 'created_at', 'read_at', 'is_sender']
     
@@ -52,3 +52,4 @@ class SendMessageSerializer(serializers.Serializer):
     recipient_id = serializers.IntegerField(required=True)
     message = serializers.CharField(required=True, max_length=2000)
     attachment = serializers.FileField(required=False)
+    related_consultation = serializers.IntegerField(required=False, allow_null=True)

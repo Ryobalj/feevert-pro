@@ -5,6 +5,7 @@ import Navbar from './components/layout/Navbar'
 import Footer from './components/layout/Footer'
 import ScrollToTop from './components/common/ScrollToTop'
 import ProtectedRoute from './routes/ProtectedRoute'
+import AdminRoute from './routes/AdminRoute'
 
 // Landing Page
 import LandingPage from './features/home/pages/LandingPage'
@@ -25,10 +26,16 @@ import LoginPage from './features/accounts/pages/LoginPage'
 import RegisterPage from './features/accounts/pages/RegisterPage'
 import ProfilePage from './features/accounts/pages/ProfilePage'
 import Dashboard from './features/accounts/pages/Dashboard'
+import MessagesPage from './features/realtime/pages/MessagesPage'
+import EmailInboxPage from './features/notifications/pages/EmailInboxPage'
+import AdminEmailAccountsPage from './features/notifications/pages/AdminEmailAccountsPage'
 import SettingsPage from './features/accounts/pages/SettingsPage'
 import ForgotPassword from './features/accounts/pages/ForgotPassword'
 import ResetPassword from './features/accounts/pages/ResetPassword'
 import VerifyEmailPage from './features/accounts/pages/VerifyEmailPage'
+import AdminUsersPage from './features/accounts/pages/AdminUsersPage'
+import AdminRolesPage from './features/accounts/pages/AdminRolesPage'
+import AdminSettingsPage from './features/accounts/pages/AdminSettingsPage'
 
 // Consultations
 import ConsultationList from './features/consultations/pages/ConsultationList'
@@ -58,6 +65,7 @@ import TeamMemberDetail from './features/team/pages/TeamMemberDetail'
 
 // Reviews
 import ReviewList from './features/reviews/pages/ReviewList'
+import SubmitReview from './features/reviews/pages/SubmitReview'
 
 // Payments
 import PaymentHistory from './features/payments/pages/PaymentHistory'
@@ -101,6 +109,7 @@ function App() {
               <Route path="/partners" element={<PartnersPage />} />
               <Route path="/faq" element={<FaqPage />} />
               <Route path="/reviews" element={<ReviewList />} />
+              <Route path="/submit-review" element={<ProtectedRoute><SubmitReview /></ProtectedRoute>} />
               
               {/* Services */}
               <Route path="/services" element={<ServicesPage />} />
@@ -137,7 +146,15 @@ function App() {
               {/* Protected */}
               <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
               <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+              <Route path="/messages" element={<ProtectedRoute><MessagesPage /></ProtectedRoute>} />
+              <Route path="/email-inbox" element={<ProtectedRoute><EmailInboxPage /></ProtectedRoute>} />
               <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
+
+              {/* Admin */}
+              <Route path="/admin/users" element={<AdminRoute><AdminUsersPage /></AdminRoute>} />
+              <Route path="/admin/roles" element={<AdminRoute><AdminRolesPage /></AdminRoute>} />
+              <Route path="/admin/settings" element={<AdminRoute><AdminSettingsPage /></AdminRoute>} />
+              <Route path="/admin/email-accounts" element={<AdminRoute><AdminEmailAccountsPage /></AdminRoute>} />
               
               {/* Consultations */}
               <Route path="/consultations" element={<ProtectedRoute><ConsultationList /></ProtectedRoute>} />

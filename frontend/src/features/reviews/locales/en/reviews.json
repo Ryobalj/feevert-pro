@@ -47,5 +47,13 @@
                  "loading":  "Loading reviews...",
                  "share_description":  "We\u0027d love to hear about your experience with our services.",
                  "no_filtered_reviews":  "No {{rating}}-star reviews found."
-             }
+             },
+    "submit":  {
+                   "title":  "Share Your Experience",
+                   "subtitle":  "Tell us what you thought of working with us",
+                   "thanks_title":  "Thank you for your feedback!",
+                   "thanks_message":  "Your review has been submitted and will appear once approved.",
+                   "view_reviews":  "View Reviews",
+                   "back_home":  "Back Home"
+               }
 }

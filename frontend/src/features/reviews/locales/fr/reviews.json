@@ -47,5 +47,13 @@
                  "loading":  "Chargement des avis...",
                  "share_description":  "Nous aimerions connaître votre expérience avec nos services.",
                  "no_filtered_reviews":  "Aucun avis {{rating}} étoiles trouvé."
-             }
+             },
+    "submit":  {
+                   "title":  "Partagez Votre Expérience",
+                   "subtitle":  "Dites-nous ce que vous avez pensé de votre collaboration avec nous",
+                   "thanks_title":  "Merci pour votre avis !",
+                   "thanks_message":  "Votre avis a été soumis et apparaîtra une fois approuvé.",
+                   "view_reviews":  "Voir les avis",
+                   "back_home":  "Retour à l'accueil"
+               }
 }

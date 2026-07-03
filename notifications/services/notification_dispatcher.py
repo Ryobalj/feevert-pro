@@ -54,8 +54,11 @@ class NotificationDispatcher:
     @classmethod
     def send_to_admins(cls, notification_type, title, message, **kwargs):
         """Tuma notification kwa admins WOTE kwa wakati mmoja"""
+        from django.db.models import Q
         from accounts.models import User
-        admins = User.objects.filter(role='admin', is_active=True)
+        admins = User.objects.filter(
+            Q(role__name='admin') | Q(is_staff=True), is_active=True
+        ).distinct()
 
         notifications = []
         for admin in admins:
@@ -85,44 +88,35 @@ class NotificationDispatcher:
             notifications.append(notification)
         return notifications
 
-    @classmethod
-    def send_scheduled(cls):
-        """Tuma notifications zote zilizopangwa kutumwa sasa"""
-        now = timezone.now()
-        pending = Notification.objects.filter(
-            scheduled_for__lte=now,
-            sent_at__isnull=True
-        )
-
-        for notification in pending:
-            cls.send(
-                recipient=notification.recipient,
-                notification_type=notification.notification_type,
-                title=notification.title,
-                message=notification.message,
-                priority=notification.priority,
-                related_link=notification.related_link,
-            )
-
-        return pending.count()
-
     # ============================================================
     # PRIVATE METHODS
     # ============================================================
 
     @classmethod
     def _create_notification(cls, recipient, notification_type, title, message, **kwargs):
-        """Factory method - unda Notification record moja"""
+        """Factory method - unda Notification record moja.
+
+        Notification's schema only has recipient/type/title/message/related_link/
+        is_read/read_at/data - anything else (priority, object_id, object_type,
+        scheduled_for) is preserved inside the `data` JSONField instead of as a
+        real column, since those columns were dropped by an earlier migration.
+        """
+        extra = {
+            'priority': kwargs.get('priority', 'medium'),
+            'object_id': kwargs.get('object_id'),
+            'object_type': kwargs.get('object_type', ''),
+        }
+        if kwargs.get('scheduled_for'):
+            extra['scheduled_for'] = kwargs['scheduled_for'].isoformat()
+        extra.update(kwargs.get('data', {}))
+
         return Notification.objects.create(
             recipient=recipient,
             notification_type=notification_type,
             title=title,
             message=message,
-            priority=kwargs.get('priority', 'medium'),
             related_link=kwargs.get('related_link', ''),
-            related_object_id=kwargs.get('object_id'),
-            related_object_type=kwargs.get('object_type', ''),
-            scheduled_for=kwargs.get('scheduled_for'),
+            data=extra,
         )
 
     @classmethod
@@ -138,8 +132,8 @@ class NotificationDispatcher:
             return False
         except Exception as e:
             logger.error(f"Failed to dispatch notification #{notification.id}: {e}")
-            notification.error_message = str(e)[:500]
-            notification.save(update_fields=['error_message'])
+            notification.data = {**(notification.data or {}), 'error_message': str(e)[:500]}
+            notification.save(update_fields=['data'])
             return False
 
     @classmethod
@@ -192,7 +186,7 @@ class NotificationDispatcher:
                     'notification_type': notification.notification_type,
                     'title': notification.title,
                     'message': notification.message,
-                    'priority': notification.priority,
+                    'priority': (notification.data or {}).get('priority', 'medium'),
                     'timestamp': timezone.now().isoformat(),
                 }
             )
@@ -205,14 +199,15 @@ class NotificationDispatcher:
     def _update_status(cls, notification, success):
         """Update notification status baada ya kutuma"""
         if success:
-            notification.sent_at = timezone.now()
-            notification.save(update_fields=['sent_at'])
+            notification.data = {**(notification.data or {}), 'sent_at': timezone.now().isoformat()}
+            notification.save(update_fields=['data'])
 
     @classmethod
     def _log_delivery(cls, notification, success):
         """Log delivery attempt"""
         NotificationLog.objects.create(
             notification=notification,
+            channel=notification.notification_type,
             status='sent' if success else 'failed',
-            sent_at=timezone.now() if success else None,
+            metadata={'sent_at': timezone.now().isoformat()} if success else {},
         )

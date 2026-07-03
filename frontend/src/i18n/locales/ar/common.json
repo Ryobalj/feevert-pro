@@ -49,7 +49,8 @@
     "messages": "الرسائل",
     "support": "الدعم",
     "settings": "الإعدادات",
-    "account": "الحساب"
+    "account": "الحساب",
+    "email_inbox": "صندوق البريد"
   },
   "buttons": {
     "learn_more": "اعرف المزيد",

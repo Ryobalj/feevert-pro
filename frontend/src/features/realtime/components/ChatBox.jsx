@@ -7,17 +7,22 @@ import api from '../../../app/api'
 import { useAuth } from '../../accounts/hooks/useAuth'
 import { useWebSocket } from '../hooks/useWebSocket'
 
-const ChatBox = ({ recipientId, recipientName, onClose, onNewMessage }) => {
+const ChatBox = ({ recipientId, recipientName, recipientAvatar, onClose, onNewMessage, embedded = false }) => {
   const { t } = useTranslation('realtime') // ✅ Ongeza hii
   const { user } = useAuth()
   const { isConnected, lastMessage, sendMessage } = useWebSocket()
   const [messages, setMessages] = useState([])
   const [inputMessage, setInputMessage] = useState('')
   const [loading, setLoading] = useState(true)
-  const [isTyping, setIsTyping] = useState(false)
+  const [isSendingTyping, setIsSendingTyping] = useState(false)
+  const [remoteIsTyping, setRemoteIsTyping] = useState(false)
+  const [pendingFile, setPendingFile] = useState(null)
+  const [sending, setSending] = useState(false)
   const messagesEndRef = useRef(null)
   const typingTimeoutRef = useRef(null)
+  const remoteTypingTimeoutRef = useRef(null)
   const inputRef = useRef(null)
+  const fileInputRef = useRef(null)
 
   // Load message history
   useEffect(() => {
@@ -34,25 +39,31 @@ const ChatBox = ({ recipientId, recipientName, onClose, onNewMessage }) => {
     api.post(`/conversations/${recipientId}/read/`).catch(console.error)
   }, [recipientId])
 
-  // Handle incoming WebSocket messages
+  // Handle incoming WebSocket messages (full message payload pushed by
+  // the backend's chat_message consumer event - see realtime/views.py)
   useEffect(() => {
-    if (lastMessage && lastMessage.type === 'new_message') {
-      const data = lastMessage.data || lastMessage
-      if (data.sender_id === recipientId || data.sender_id === user?.id) {
-        setMessages(prev => [...prev, {
-          id: data.message_id || Date.now(),
-          sender: data.sender_id, recipient: recipientId,
-          message: lastMessage.message || data.message,
-          created_at: new Date().toISOString(),
-          is_sender: data.sender_id === user?.id
-        }])
-        if (data.sender_id === recipientId) {
+    if (lastMessage?.type === 'new_message' && lastMessage.message) {
+      const incoming = lastMessage.message
+      if (incoming.sender === recipientId || incoming.recipient === recipientId) {
+        setMessages(prev => prev.some(m => m.id === incoming.id) ? prev : [...prev, incoming])
+        if (incoming.sender === recipientId) {
           api.post(`/conversations/${recipientId}/read/`).catch(console.error)
         }
         if (onNewMessage) onNewMessage()
       }
     }
-  }, [lastMessage, recipientId, user?.id])
+  }, [lastMessage, recipientId])
+
+  // Handle incoming typing indicator from the other participant
+  useEffect(() => {
+    if (lastMessage?.type === 'typing' && lastMessage.sender_id === recipientId) {
+      setRemoteIsTyping(!!lastMessage.is_typing)
+      if (remoteTypingTimeoutRef.current) clearTimeout(remoteTypingTimeoutRef.current)
+      if (lastMessage.is_typing) {
+        remoteTypingTimeoutRef.current = setTimeout(() => setRemoteIsTyping(false), 3000)
+      }
+    }
+  }, [lastMessage, recipientId])
 
   // Auto-scroll + focus input
   useEffect(() => {
@@ -62,50 +73,65 @@ const ChatBox = ({ recipientId, recipientName, onClose, onNewMessage }) => {
 
   const handleSendMessage = async (e) => {
     e?.preventDefault()
-    if (!inputMessage.trim()) return
-    
+    if (!inputMessage.trim() && !pendingFile) return
+
     const messageText = inputMessage.trim()
+    const fileToSend = pendingFile
     setInputMessage('')
-    
+    setPendingFile(null)
+    setSending(true)
+
     const tempMessage = {
       id: `temp-${Date.now()}`,
       sender: user.id,
       recipient: recipientId,
       message: messageText,
+      attachment: fileToSend ? URL.createObjectURL(fileToSend) : null,
       created_at: new Date().toISOString(),
       is_sender: true,
       is_temp: true
     }
     setMessages(prev => [...prev, tempMessage])
-    
+
     try {
-      const res = await api.post('/send/', { recipient_id: recipientId, message: messageText })
-      setMessages(prev => prev.map(msg => 
+      // The backend pushes this message to the recipient's socket itself
+      // (see realtime/views.py send_message -> chat_message event), so
+      // there's no need to also broadcast it from the client here.
+      let res
+      if (fileToSend) {
+        const formData = new FormData()
+        formData.append('recipient_id', recipientId)
+        formData.append('message', messageText)
+        formData.append('attachment', fileToSend)
+        res = await api.post('/send/', formData, { headers: { 'Content-Type': 'multipart/form-data' } })
+      } else {
+        res = await api.post('/send/', { recipient_id: recipientId, message: messageText })
+      }
+      setMessages(prev => prev.map(msg =>
         msg.id === tempMessage.id ? { ...res.data, is_sender: true } : msg
       ))
-      if (isConnected) {
-        sendMessage({ 
-          type: 'chat', 
-          recipient_id: recipientId, 
-          message: messageText, 
-          sender_id: user.id, 
-          sender_name: user.username 
-        })
-      }
     } catch (error) {
       console.error('Error sending message:', error)
       setMessages(prev => prev.filter(msg => msg.id !== tempMessage.id))
+    } finally {
+      setSending(false)
     }
   }
 
+  const handleFileSelect = (e) => {
+    const file = e.target.files?.[0]
+    if (file) setPendingFile(file)
+    e.target.value = ''
+  }
+
   const handleTyping = () => {
-    if (!isTyping) {
-      setIsTyping(true)
+    if (!isSendingTyping) {
+      setIsSendingTyping(true)
       if (isConnected) sendMessage({ type: 'typing', recipient_id: recipientId, is_typing: true })
     }
     if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current)
     typingTimeoutRef.current = setTimeout(() => {
-      setIsTyping(false)
+      setIsSendingTyping(false)
       if (isConnected) sendMessage({ type: 'typing', recipient_id: recipientId, is_typing: false })
     }, 1500)
   }
@@ -135,19 +161,22 @@ const ChatBox = ({ recipientId, recipientName, onClose, onNewMessage }) => {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20, scale: 0.95 }}
+      initial={embedded ? false : { opacity: 0, y: 20, scale: 0.95 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, y: 20, scale: 0.95 }}
-      className="fixed bottom-24 right-6 w-[380px] glass-card !p-0 z-50 flex flex-col overflow-hidden shadow-2xl"
-      style={{ height: '520px' }}
+      exit={embedded ? undefined : { opacity: 0, y: 20, scale: 0.95 }}
+      className={embedded
+        ? 'flex-1 h-full glass-card !p-0 flex flex-col overflow-hidden min-w-0'
+        : 'fixed bottom-24 right-6 w-[380px] glass-card !p-0 z-50 flex flex-col overflow-hidden shadow-2xl'
+      }
+      style={embedded ? undefined : { height: '520px' }}
     >
       {/* ============ HEADER ============ */}
       <div className="p-4 border-b border-white/5 flex justify-between items-center bg-emerald-500/10">
         <div className="flex items-center gap-3">
           {/* Avatar */}
           <div className="relative">
-            <div className={`w-9 h-9 rounded-full bg-gradient-to-br from-emerald-400 to-green-600 flex items-center justify-center text-white font-bold text-sm ${isConnected ? 'ring-2 ring-emerald-400/50' : ''}`}>
-              {(recipientName || 'U').charAt(0)}
+            <div className={`w-9 h-9 rounded-full bg-gradient-to-br from-emerald-400 to-green-600 flex items-center justify-center text-white font-bold text-sm overflow-hidden ${isConnected ? 'ring-2 ring-emerald-400/50' : ''}`}>
+              {recipientAvatar ? <img src={recipientAvatar} alt="" className="w-full h-full object-cover" /> : (recipientName || 'U').charAt(0)}
             </div>
             {isConnected && (
               <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-400 rounded-full ring-2 ring-[#0d3320]" />
@@ -160,15 +189,17 @@ const ChatBox = ({ recipientId, recipientName, onClose, onNewMessage }) => {
             </p>
           </div>
         </div>
-        <button 
-          onClick={onClose}
-          className="w-7 h-7 rounded-full glass flex items-center justify-center hover:border-red-400/50 hover:text-red-400 transition-all duration-300"
-          aria-label={t('chat.close') || 'Close chat'}
-        >
-          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="w-7 h-7 rounded-full glass flex items-center justify-center hover:border-red-400/50 hover:text-red-400 transition-all duration-300"
+            aria-label={t('chat.close') || 'Close chat'}
+          >
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        )}
       </div>
 
       {/* ============ MESSAGES ============ */}
@@ -206,7 +237,8 @@ const ChatBox = ({ recipientId, recipientName, onClose, onNewMessage }) => {
                       : 'glass text-white/80 rounded-bl-md'
                   } ${msg.is_temp ? 'opacity-60' : ''}`}
                   >
-                    <p className="whitespace-pre-wrap break-words">{msg.message}</p>
+                    {msg.attachment && <AttachmentPreview url={msg.attachment} />}
+                    {msg.message && <p className="whitespace-pre-wrap break-words">{msg.message}</p>}
                     <div className={`flex items-center gap-1 mt-1 ${msg.is_sender ? 'justify-end' : 'justify-start'}`}>
                       <span className={`text-[10px] ${msg.is_sender ? 'text-white/50' : 'text-white/30'}`}>
                         {formatTime(msg.created_at)}
@@ -234,7 +266,7 @@ const ChatBox = ({ recipientId, recipientName, onClose, onNewMessage }) => {
 
       {/* ============ TYPING INDICATOR ============ */}
       <AnimatePresence>
-        {isTyping && (
+        {remoteIsTyping && (
           <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
             className="px-4 pb-1">
             <p className="text-xs text-emerald-400/70 italic flex items-center gap-1">
@@ -251,7 +283,32 @@ const ChatBox = ({ recipientId, recipientName, onClose, onNewMessage }) => {
 
       {/* ============ INPUT ============ */}
       <form onSubmit={handleSendMessage} className="p-3 border-t border-white/5">
+        {pendingFile && (
+          <div className="flex items-center gap-2 mb-2 px-3 py-2 glass rounded-xl text-xs text-white/70">
+            <svg className="w-4 h-4 flex-shrink-0 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+            </svg>
+            <span className="flex-1 truncate">{pendingFile.name}</span>
+            <button type="button" onClick={() => setPendingFile(null)} className="text-white/40 hover:text-red-400 flex-shrink-0">
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        )}
         <div className="flex gap-2">
+          <input ref={fileInputRef} type="file" onChange={handleFileSelect} className="hidden" />
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={!isConnected}
+            className="w-10 h-10 rounded-full glass flex items-center justify-center text-white/50 hover:text-emerald-400 transition-all disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0"
+            aria-label={t('chat.attach_file') || 'Attach file'}
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+            </svg>
+          </button>
           <input
             ref={inputRef}
             type="text"
@@ -259,13 +316,13 @@ const ChatBox = ({ recipientId, recipientName, onClose, onNewMessage }) => {
             onChange={(e) => setInputMessage(e.target.value)}
             onKeyDown={handleTyping}
             placeholder={t('chat.message_placeholder') || 'Type a message...'}
-            className="flex-1 px-4 py-2.5 glass text-white placeholder:text-white/25 rounded-full border-0 outline-none focus:ring-2 focus:ring-emerald-400/40 transition-all text-sm"
+            className="flex-1 min-w-0 px-4 py-2.5 glass text-white placeholder:text-white/25 rounded-full border-0 outline-none focus:ring-2 focus:ring-emerald-400/40 transition-all text-sm"
             disabled={!isConnected}
           />
           <motion.button
             type="submit"
-            disabled={!isConnected || !inputMessage.trim()}
-            className="w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center text-white hover:bg-emerald-400 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-lg shadow-emerald-500/20"
+            disabled={!isConnected || sending || (!inputMessage.trim() && !pendingFile)}
+            className="w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center text-white hover:bg-emerald-400 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-lg shadow-emerald-500/20 flex-shrink-0"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
@@ -276,6 +333,36 @@ const ChatBox = ({ recipientId, recipientName, onClose, onNewMessage }) => {
         </div>
       </form>
     </motion.div>
+  )
+}
+
+// ============ ATTACHMENT PREVIEW ============
+const IMAGE_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg']
+
+const AttachmentPreview = ({ url }) => {
+  const isImage = IMAGE_EXTENSIONS.some(ext => url.toLowerCase().split('?')[0].endsWith(ext))
+  const fileName = url.split('/').pop().split('?')[0]
+
+  if (isImage) {
+    return (
+      <a href={url} target="_blank" rel="noopener noreferrer" className="block mb-2 -mx-1 -mt-1">
+        <img src={url} alt={fileName} className="max-w-full max-h-56 rounded-lg object-cover" />
+      </a>
+    )
+  }
+
+  return (
+    <a
+      href={url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="flex items-center gap-2 mb-2 px-3 py-2 rounded-lg bg-black/10 hover:bg-black/20 transition-colors"
+    >
+      <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+      </svg>
+      <span className="text-xs truncate underline">{fileName}</span>
+    </a>
   )
 }
 

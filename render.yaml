@@ -12,7 +12,11 @@ services:
       pip install -r requirements.txt
       python manage.py collectstatic --noinput
       python manage.py migrate
-    startCommand: gunicorn feevert.wsgi:application --bind 0.0.0.0:$PORT
+      python manage.py migrate_legacy_email_account
+    # Serves via daphne (ASGI), not gunicorn+wsgi, because the wsgi app
+    # can't handle WebSocket upgrade requests at all - the in-app
+    # messaging feature (realtime/consumers.py) needs ASGI end-to-end.
+    startCommand: daphne -b 0.0.0.0 -p $PORT feevert.asgi:application
     envVars:
       - key: SECRET_KEY
         generateValue: true
@@ -25,17 +29,19 @@ services:
       - key: EMAIL_BACKEND
         value: django.core.mail.backends.smtp.EmailBackend
       - key: EMAIL_HOST
-        value: smtp.gmail.com
+        value: mail.feevert.co.tz
       - key: EMAIL_PORT
-        value: 587
+        value: 465
       - key: EMAIL_USE_TLS
+        value: false
+      - key: EMAIL_USE_SSL
         value: true
       - key: EMAIL_HOST_USER
         sync: false
       - key: EMAIL_HOST_PASSWORD
         sync: false
       - key: DEFAULT_FROM_EMAIL
-        value: noreply@feevert.co.tz
+        value: info@feevert.co.tz
       - key: FRONTEND_URL
         value: https://feevert-frontend.onrender.com
       - key: DATABASE_URL

@@ -9,7 +9,7 @@ from django.utils import timezone
 
 from imap_tools import MailBox, AND
 
-from notifications.models import IncomingEmail
+from notifications.models import IncomingEmail, EmailAccount
 
 
 logger = logging.getLogger(__name__)
@@ -261,24 +261,34 @@ class EmailInboundService:
     # ============================================================
 
     @classmethod
-    def fetch_imap_emails(cls, limit=50, host=None, username=None, password=None, unread_only=False):
+    def fetch_imap_emails(cls, limit=50, host=None, username=None, password=None,
+                           unread_only=False, account=None):
         """
         Fetch emails kutoka IMAP server.
         Inasaidia: Titan, Gmail, cPanel, Custom mail servers.
-        
+
         Args:
             limit: Max emails kufetch
-            host: IMAP host (default: settings.IMAP_HOST)
+            host: IMAP host (default: settings.IMAP_HOST, used only if account is None)
             username: Email address (default: settings.IMAP_USER)
             password: Email password (default: settings.IMAP_PASSWORD)
             unread_only: Fetch unread emails tu
-            
+            account: an EmailAccount instance - if given, its own IMAP
+                credentials are used instead of the host/username/password
+                args, and every saved IncomingEmail is tagged with it so
+                the right staff member (or shared inbox) can find it later.
+
         Returns:
             dict: {'success': bool, 'saved': int, 'error': str}
         """
-        imap_host = host or getattr(settings, 'IMAP_HOST', '')
-        imap_user = username or getattr(settings, 'IMAP_USER', '')
-        imap_password = password or getattr(settings, 'IMAP_PASSWORD', '')
+        if account is not None:
+            imap_host = account.imap_host
+            imap_user = account.email_address
+            imap_password = account.get_imap_password()
+        else:
+            imap_host = host or getattr(settings, 'IMAP_HOST', '')
+            imap_user = username or getattr(settings, 'IMAP_USER', '')
+            imap_password = password or getattr(settings, 'IMAP_PASSWORD', '')
 
         if not all([imap_host, imap_user, imap_password]):
             logger.warning("IMAP credentials not fully configured")
@@ -288,7 +298,11 @@ class EmailInboundService:
         skipped = 0
 
         try:
-            search_criteria = AND(seen=False) if unread_only else None
+            # imap_tools sends this straight into an IMAP SEARCH command -
+            # passing criteria=None literally sends "NONE", which servers
+            # reject as an invalid search key. 'ALL' is the correct default
+            # for "every message", matching fetch()'s own default.
+            search_criteria = AND(seen=False) if unread_only else 'ALL'
 
             with MailBox(imap_host).login(imap_user, imap_password, 'INBOX') as mailbox:
                 for msg in mailbox.fetch(reverse=True, limit=limit, criteria=search_criteria):
@@ -312,9 +326,14 @@ class EmailInboundService:
                     for key, value in msg.headers.items():
                         headers[key] = value
 
+                    received_at = msg.date or timezone.now()
+                    if timezone.is_naive(received_at):
+                        received_at = timezone.make_aware(received_at)
+
                     IncomingEmail.objects.create(
+                        account=account,
                         sender=msg.from_ or 'unknown@unknown.com',
-                        sender_name=msg.from_values.get('name', '') if msg.from_values else '',
+                        sender_name=msg.from_values.name if msg.from_values else '',
                         recipient=imap_user,
                         subject=msg.subject or '',
                         body=msg.text or '',
@@ -322,7 +341,7 @@ class EmailInboundService:
                         message_id=message_id,
                         thread_id=headers.get('Thread-Index', headers.get('Message-ID', '')),
                         in_reply_to=headers.get('In-Reply-To', ''),
-                        received_at=msg.date or timezone.now(),
+                        received_at=received_at,
                         is_read=msg.flags and '\\Seen' in msg.flags,
                         has_attachments=len(attachments) > 0,
                         attachments=attachments,
@@ -344,6 +363,43 @@ class EmailInboundService:
             return {'success': False, 'error': str(e)}
 
     # ============================================================
+    # MULTI-ACCOUNT FETCH - one mailbox per staff member (or shared)
+    # ============================================================
+
+    @classmethod
+    def fetch_for_account(cls, account, limit=50):
+        """Fetch one EmailAccount's mailbox and record sync status on it."""
+        if account.provider == 'outlook':
+            # Outlook accounts still go through the single tenant-wide app
+            # registration (MICROSOFT_CLIENT_ID/SECRET/TENANT_ID) - per
+            # account Graph delegated auth isn't wired up yet.
+            result = cls.fetch_outlook_emails(limit=limit)
+        else:
+            result = cls.fetch_imap_emails(limit=limit, account=account)
+
+        account.last_synced_at = timezone.now()
+        account.last_sync_error = '' if result.get('success') else str(result.get('error', ''))[:2000]
+        account.save(update_fields=['last_synced_at', 'last_sync_error'])
+        return result
+
+    @classmethod
+    def fetch_all_accounts(cls, limit=50, accounts=None):
+        """
+        Fetch every active EmailAccount. Returns {email_address: result}.
+        Pass `accounts` (a queryset) to restrict to a subset (e.g. just the
+        accounts one user is allowed to trigger a sync for).
+        """
+        queryset = accounts if accounts is not None else EmailAccount.objects.filter(is_active=True)
+        results = {}
+        for account in queryset:
+            try:
+                results[account.email_address] = cls.fetch_for_account(account, limit=limit)
+            except Exception as e:
+                logger.error(f"Failed to fetch account {account.email_address}: {e}")
+                results[account.email_address] = {'success': False, 'error': str(e)}
+        return results
+
+    # ============================================================
     # UNIFIED FETCH - Inajaribu zote
     # ============================================================
 
@@ -351,18 +407,26 @@ class EmailInboundService:
     def fetch_all_sources(cls, limit=50):
         """
         Fetch emails kutoka sources zote zilizosanidiwa.
-        Inajaribu Outlook kwanza, kisha IMAP.
-        
-        Returns:
-            dict: {'outlook': {...}, 'imap': {...}}
-        """
-        results = {}
 
-        # Try Outlook first
+        If any EmailAccount rows exist, those are the source of truth (one
+        mailbox per staff member, or shared). Otherwise falls back to the
+        single legacy settings.IMAP_*/Outlook config, for installs that
+        haven't been migrated to EmailAccount yet.
+
+        Returns:
+            dict: {'outlook': {...}, 'imap': {...}} (legacy) or
+                  {email_address: {...}, ...} (multi-account)
+        """
+        if EmailAccount.objects.filter(is_active=True).exists():
+            results = cls.fetch_all_accounts(limit=limit)
+            total_saved = sum(r.get('saved', 0) for r in results.values() if r.get('success'))
+            logger.info(f"Unified fetch complete: {total_saved} total emails saved across {len(results)} account(s)")
+            return results
+
+        results = {}
         outlook_result = cls.fetch_outlook_emails(limit=limit)
         results['outlook'] = outlook_result
 
-        # Then try IMAP
         imap_result = cls.fetch_imap_emails(limit=limit)
         results['imap'] = imap_result
 

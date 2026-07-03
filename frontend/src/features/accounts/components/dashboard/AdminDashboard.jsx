@@ -194,6 +194,9 @@ const AdminDashboard = ({ user, darkMode }) => {
             <Link to="/admin/settings" className="glass px-6 py-3 rounded-full text-white font-semibold text-sm hover:border-emerald-400/40 hover:text-emerald-400 transition-all duration-300">
               ⚙️ {t('site_settings')}
             </Link>
+            <Link to="/admin/email-accounts" className="glass px-6 py-3 rounded-full text-white font-semibold text-sm hover:border-emerald-400/40 hover:text-emerald-400 transition-all duration-300">
+              📧 Staff Mailboxes
+            </Link>
           </div>
         </motion.div>
       </div>

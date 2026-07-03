@@ -29,8 +29,9 @@ from reviews.views import ReviewViewSet, ReviewImageViewSet, ReviewHelpfulVoteVi
 from notifications.views import (
     NotificationViewSet, NotificationTemplateViewSet,
     UserNotificationSettingViewSet, NotificationLogViewSet,
-    TestEndpointViewSet, get_unread_count, mark_all_as_read, 
-    mark_as_read, get_notification_stats
+    TestEndpointViewSet, get_unread_count, mark_all_as_read,
+    mark_as_read, get_notification_stats, IncomingEmailViewSet,
+    EmailAccountViewSet
 )
 from projects.views import (
     ProjectCategoryViewSet, ProjectTagViewSet, ProjectViewSet,
@@ -94,6 +95,8 @@ router.register(r'notifications', NotificationViewSet, basename='notification')
 router.register(r'notification-templates', NotificationTemplateViewSet, basename='notification-template')
 router.register(r'notification-settings', UserNotificationSettingViewSet, basename='notification-setting')
 router.register(r'notification-logs', NotificationLogViewSet, basename='notification-log')
+router.register(r'email-inbox', IncomingEmailViewSet, basename='incoming-email')
+router.register(r'email-accounts', EmailAccountViewSet, basename='email-account')
 
 # Projects
 router.register(r'project-categories', ProjectCategoryViewSet, basename='project-category')

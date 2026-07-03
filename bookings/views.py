@@ -1,5 +1,6 @@
 # bookings/views.py
 
+import django_filters
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -14,6 +15,25 @@ from .serializers import (
 )
 
 
+class BookingFilter(django_filters.FilterSet):
+    """
+    Same as filterset_fields=['status', 'consultant'] except 'consultant'
+    also accepts the literal 'me' ("bookings assigned to whoever is logged
+    in", used by the consultant dashboard) - a plain filter can't resolve
+    'me' to a pk and DjangoFilterBackend responds with a 400 for it.
+    """
+    consultant = django_filters.CharFilter(method='filter_consultant')
+
+    class Meta:
+        model = Booking
+        fields = ['status', 'consultant']
+
+    def filter_consultant(self, queryset, name, value):
+        if value == 'me':
+            return queryset.filter(consultant=self.request.user)
+        return queryset.filter(consultant_id=value)
+
+
 class TimeSlotViewSet(viewsets.ModelViewSet):
     """ViewSet for Time Slots"""
     queryset = TimeSlot.objects.all()
@@ -24,7 +44,7 @@ class TimeSlotViewSet(viewsets.ModelViewSet):
     
     def get_queryset(self):
         user = self.request.user
-        if user.role in ['admin', 'consultant']:
+        if user.role_name in ['admin', 'consultant'] or user.is_staff:
             return TimeSlot.objects.all()
         return TimeSlot.objects.filter(is_booked=False)
     
@@ -51,14 +71,14 @@ class BookingViewSet(viewsets.ModelViewSet):
     serializer_class = BookingSerializer
     permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend, OrderingFilter]
-    filterset_fields = ['status', 'consultant']
+    filterset_class = BookingFilter
     ordering_fields = ['created_at', 'slot__date']
     
     def get_queryset(self):
         user = self.request.user
-        if user.role == 'admin':
+        if user.role_name == 'admin' or user.is_staff:
             return Booking.objects.all()
-        elif user.role == 'consultant':
+        elif user.role_name == 'consultant':
             return Booking.objects.filter(consultant=user)
         return Booking.objects.filter(client=user)
     
@@ -109,7 +129,7 @@ class AvailabilityViewSet(viewsets.ModelViewSet):
     
     def get_queryset(self):
         user = self.request.user
-        if user.role == 'admin':
+        if user.role_name == 'admin' or user.is_staff:
             return Availability.objects.all()
         return Availability.objects.filter(consultant=user)
 
@@ -122,7 +142,7 @@ class HolidayViewSet(viewsets.ModelViewSet):
     
     def get_queryset(self):
         user = self.request.user
-        if user.role == 'admin':
+        if user.role_name == 'admin' or user.is_staff:
             return Holiday.objects.all()
         return Holiday.objects.filter(consultant=user)
 

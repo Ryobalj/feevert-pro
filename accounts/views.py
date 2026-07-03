@@ -33,6 +33,7 @@ from .models import (
 
 from .serializers import (
     UserSerializer,
+    AdminUserUpdateSerializer,
     UserCreateSerializer,
     ProfileSerializer,
     RoleSerializer,
@@ -42,6 +43,7 @@ from .serializers import (
 )
 
 from .throttles import LoginThrottle, RegisterThrottle
+from .permissions import IsAdminRole
 
 
 # =========================
@@ -57,9 +59,19 @@ class UserViewSet(viewsets.ModelViewSet):
             self.permission_classes = [AllowAny] if self.action == 'create' else [IsAuthenticated]
         return super().get_permissions()
 
+    def get_serializer_class(self):
+        # Only admins may change another user's role/is_active, and only
+        # through the standard update/partial_update actions (never via
+        # the self-service 'me' action) - see AdminUserUpdateSerializer.
+        user = self.request.user
+        if (self.action in ('update', 'partial_update') and user.is_authenticated
+                and (user.role_name == 'admin' or user.is_staff)):
+            return AdminUserUpdateSerializer
+        return UserSerializer
+
     def get_queryset(self):
         user = self.request.user
-        if user.role and user.role.name == 'admin':
+        if user.role_name == 'admin' or user.is_staff:
             return User.objects.all()
         return User.objects.filter(id=user.id)
 
@@ -357,12 +369,16 @@ class ProfileViewSet(viewsets.ModelViewSet):
 class RoleViewSet(viewsets.ModelViewSet):
     queryset = Role.objects.all()
     serializer_class = RoleSerializer
-    
+
     def get_permissions(self):
         if self.action in ['list', 'retrieve']:
+            # Any authenticated user may read the role list (e.g. to
+            # populate a role picker), but only an admin may create,
+            # rename, or delete roles - anyone else could otherwise grant
+            # themselves powers by editing a role's permissions.
             permission_classes = [IsAuthenticated]
         else:
-            permission_classes = [IsAuthenticated]
+            permission_classes = [IsAuthenticated, IsAdminRole]
         return [permission() for permission in permission_classes]
 
 

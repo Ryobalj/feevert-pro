@@ -40,6 +40,7 @@ else:
 # INSTALLED APPS
 # ===========================
 INSTALLED_APPS = [
+    'daphne',  # Must be first so Channels can patch runserver to serve ASGI/WebSocket
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -593,3 +594,10 @@ MICROSOFT_TENANT_ID = config('MICROSOFT_TENANT_ID', default='')
 MICROSOFT_REDIRECT_URI = config('MICROSOFT_REDIRECT_URI', default='https://feevert.co.tz/api/communications/outlook/callback/')
 EMAIL_INGESTION_ENABLED = config('EMAIL_INGESTION_ENABLED', default=False, cast=bool)
 EMAIL_INGESTION_POLLING_MINUTES = config('EMAIL_INGESTION_POLLING_MINUTES', default=5, cast=int)
+
+# IMAP - generic fallback for any provider hosting email@feevert.co.tz
+# (Titan, cPanel, Google Workspace, etc.) when not using Microsoft 365.
+IMAP_HOST = config('IMAP_HOST', default='')
+IMAP_PORT = config('IMAP_PORT', default=993, cast=int)
+IMAP_USER = config('IMAP_USER', default='')
+IMAP_PASSWORD = config('IMAP_PASSWORD', default='')

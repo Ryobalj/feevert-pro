@@ -40,7 +40,8 @@ class SiteSettingSerializer(serializers.ModelSerializer):
             'social_facebook', 'social_twitter', 'social_linkedin', 'social_instagram',
             'social_youtube', 'social_whatsapp', 'meta_description', 'meta_keywords',
             'google_analytics_id', 'primary_color', 'secondary_color', 'accent_color',
-            'footer_copyright_text', 'footer_about_text', 'enable_maintenance_mode'
+            'footer_copyright_text', 'footer_about_text', 'enable_maintenance_mode',
+            'maintenance_message',
         ]
         read_only_fields = ['id']
     

@@ -7,6 +7,7 @@ from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from django.core.mail import send_mail
 from django.conf import settings
+from accounts.permissions import IsAdminRole
 from .models import (
     SiteSetting, HeroSection, AboutSection, ServiceHighlight, SeoData,
     Faq, Partner, Testimonial, ContactMessage,
@@ -20,12 +21,21 @@ from .serializers import (
 )
 
 
-class SiteSettingViewSet(viewsets.ReadOnlyModelViewSet):
-    """ViewSet for Site Settings (public)"""
+class SiteSettingViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for Site Settings. Reading is public (the homepage/footer
+    depend on it); only an admin may update the singleton row. There's
+    only ever one SiteSetting row, so create/destroy aren't offered.
+    """
+    http_method_names = ['get', 'put', 'patch', 'head', 'options']
     queryset = SiteSetting.objects.all()
     serializer_class = SiteSettingSerializer
-    permission_classes = [AllowAny]
-    
+
+    def get_permissions(self):
+        if self.action in ('list', 'retrieve'):
+            return [AllowAny()]
+        return [IsAdminRole()]
+
     def get_object(self):
         return SiteSetting.objects.first()
 
@@ -94,7 +104,7 @@ class PartnerViewSet(viewsets.ReadOnlyModelViewSet):
 
 class TestimonialViewSet(viewsets.ReadOnlyModelViewSet):
     """ViewSet for Testimonials (public)"""
-    queryset = Testimonial.objects.filter(is_active=True, is_approved=True)
+    queryset = Testimonial.objects.filter(is_active=True, is_approved=True, rating__gte=4)
     serializer_class = TestimonialSerializer
     permission_classes = [AllowAny]
     ordering = ['order']
@@ -173,7 +183,7 @@ def get_homepage_data(request):
     services = ServiceHighlight.objects.filter(is_active=True).order_by('order')
     services_data = ServiceHighlightSerializer(services, many=True, context={'request': request}).data
     
-    testimonials = Testimonial.objects.filter(is_active=True, is_approved=True).order_by('order')
+    testimonials = Testimonial.objects.filter(is_active=True, is_approved=True, rating__gte=4).order_by('order')
     testimonials_data = TestimonialSerializer(testimonials, many=True, context={'request': request}).data
     
     partners = Partner.objects.filter(is_active=True).order_by('order')

@@ -40,15 +40,30 @@ class UserSerializer(serializers.ModelSerializer):
             'date_joined', 'last_login', 'is_active',
             'profile'  # <-- NESTED PROFILE
         ]
-        read_only_fields = ['id', 'date_joined', 'last_login']
-    
+        # role/is_active must NOT be self-editable - without this a client
+        # could PATCH their own /users/me/ with {"role": <admin id>} and
+        # promote themselves to admin. Only AdminUserUpdateSerializer
+        # (admin-only, see below) may change these.
+        read_only_fields = ['id', 'date_joined', 'last_login', 'role', 'is_active']
+
     def get_full_name(self, obj):
         return obj.get_full_name() or obj.username
-    
+
     def get_profile_picture_url(self, obj):
         if obj.profile_picture:
             return obj.profile_picture.url
         return None
+
+
+class AdminUserUpdateSerializer(UserSerializer):
+    """
+    Same as UserSerializer but lets an admin change another user's role
+    and active status. Only ever wired up for admin-authenticated requests
+    (see UserViewSet.get_serializer_class) - never exposed for self-service
+    profile updates.
+    """
+    class Meta(UserSerializer.Meta):
+        read_only_fields = ['id', 'date_joined', 'last_login']
 
 
 class UserCreateSerializer(serializers.ModelSerializer):

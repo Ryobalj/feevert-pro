@@ -49,7 +49,8 @@
     "messages": "Сообщения",
     "support": "Поддержка",
     "settings": "Настройки",
-    "account": "Аккаунт"
+    "account": "Аккаунт",
+    "email_inbox": "Почтовый ящик"
   },
   "buttons": {
     "learn_more": "Узнать больше",

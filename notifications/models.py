@@ -115,11 +115,87 @@ class UserNotificationSetting(BaseModel):
         return f"Settings for {self.user.username}"
 
 
+class EmailAccount(BaseModel):
+    """
+    A mailbox the system polls for incoming mail and sends replies from.
+
+    owner_user: the staff member this mailbox belongs to. Leave blank for a
+    shared/team inbox (e.g. info@feevert.co.tz) that every staff member can
+    see; set it for a personal mailbox (e.g. john@feevert.co.tz) that only
+    that user (plus admins, for oversight) can see.
+    """
+    PROVIDER_CHOICES = (
+        ('imap', 'IMAP'),
+        ('outlook', 'Outlook / Microsoft 365'),
+    )
+
+    owner_user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='email_accounts',
+        help_text='Leave blank for a shared inbox visible to all staff'
+    )
+    email_address = models.EmailField(unique=True)
+    provider = models.CharField(max_length=20, choices=PROVIDER_CHOICES, default='imap')
+    is_active = models.BooleanField(default=True)
+
+    # IMAP (fetching)
+    imap_host = models.CharField(max_length=255, blank=True)
+    imap_port = models.IntegerField(default=993)
+    imap_use_ssl = models.BooleanField(default=True)
+    imap_password_encrypted = models.TextField(blank=True)
+
+    # SMTP (sending replies "from" this address)
+    smtp_host = models.CharField(max_length=255, blank=True)
+    smtp_port = models.IntegerField(default=465)
+    smtp_use_ssl = models.BooleanField(default=True)
+    smtp_use_tls = models.BooleanField(default=False)
+    smtp_password_encrypted = models.TextField(blank=True)
+
+    last_synced_at = models.DateTimeField(null=True, blank=True)
+    last_sync_error = models.TextField(blank=True)
+
+    class Meta:
+        ordering = ['email_address']
+
+    def __str__(self):
+        owner = self.owner_user.username if self.owner_user else 'shared'
+        return f"{self.email_address} ({owner})"
+
+    def set_imap_password(self, raw_password):
+        from .utils import encrypt_secret
+        self.imap_password_encrypted = encrypt_secret(raw_password)
+
+    def get_imap_password(self):
+        from .utils import decrypt_secret
+        return decrypt_secret(self.imap_password_encrypted)
+
+    def set_smtp_password(self, raw_password):
+        from .utils import encrypt_secret
+        self.smtp_password_encrypted = encrypt_secret(raw_password)
+
+    def get_smtp_password(self):
+        from .utils import decrypt_secret
+        # Most mailboxes use the same password for IMAP and SMTP - fall
+        # back to the IMAP one if a distinct SMTP password wasn't set.
+        return decrypt_secret(self.smtp_password_encrypted) or self.get_imap_password()
+
+
 class IncomingEmail(BaseModel):
     """
     Incoming emails from external sources (Outlook/365, IMAP, etc.)
     Stored as part of the unified communication hub.
     """
+    account = models.ForeignKey(
+        EmailAccount,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='incoming_emails',
+        help_text='Which mailbox this email arrived at'
+    )
     sender = models.EmailField()
     sender_name = models.CharField(max_length=300, blank=True)
     recipient = models.EmailField(blank=True)

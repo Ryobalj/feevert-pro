@@ -14,17 +14,27 @@ from .serializers import (
 
 class ReviewViewSet(viewsets.ModelViewSet):
     """ViewSet for Reviews"""
+    # Minimum star rating shown to the public (homepage, reviews page).
+    # Lower-rated reviews stay in the database and remain visible to admins
+    # for moderation/follow-up, they're just not surfaced publicly.
+    PUBLIC_MIN_RATING = 4
+
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
-    permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['rating', 'is_approved']
-    
+
+    def get_permissions(self):
+        if self.action in ('list', 'retrieve'):
+            return [AllowAny()]
+        return [IsAuthenticated()]
+
     def get_queryset(self):
-        if self.request.user.role == 'admin':
+        user = self.request.user
+        if user.is_authenticated and (user.role_name == 'admin' or user.is_staff):
             return Review.objects.all()
-        return Review.objects.filter(is_approved=True)
-    
+        return Review.objects.filter(is_approved=True, rating__gte=self.PUBLIC_MIN_RATING)
+
     def get_serializer_class(self):
         if self.action == 'create':
             return ReviewCreateSerializer

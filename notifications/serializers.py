@@ -1,7 +1,10 @@
 # notifications/serializers.py
 
 from rest_framework import serializers
-from .models import Notification, NotificationLog, NotificationTemplate, UserNotificationSetting
+from .models import (
+    Notification, NotificationLog, NotificationTemplate, UserNotificationSetting,
+    IncomingEmail, EmailAccount
+)
 
 
 # ============================================================
@@ -13,7 +16,6 @@ class NotificationSerializer(serializers.ModelSerializer):
     recipient_name = serializers.CharField(source='recipient.username', read_only=True)
     recipient_email = serializers.CharField(source='recipient.email', read_only=True)
     type_display = serializers.CharField(source='get_notification_type_display', read_only=True)
-    priority_display = serializers.CharField(source='get_priority_display', read_only=True)
     is_read_status = serializers.SerializerMethodField()
     has_been_sent = serializers.SerializerMethodField()
 
@@ -23,19 +25,16 @@ class NotificationSerializer(serializers.ModelSerializer):
             'id', 'recipient', 'recipient_name', 'recipient_email',
             'notification_type', 'type_display',
             'title', 'message', 'is_read', 'is_read_status',
-            'priority', 'priority_display',
-            'related_link', 'related_object_id', 'related_object_type',
-            'scheduled_for', 'sent_at', 'has_been_sent',
-            'retry_count', 'error_message',
+            'related_link', 'data', 'has_been_sent',
             'created_at', 'updated_at',
         ]
-        read_only_fields = ['id', 'sent_at', 'created_at', 'updated_at', 'retry_count', 'error_message']
+        read_only_fields = ['id', 'data', 'created_at', 'updated_at']
 
     def get_is_read_status(self, obj):
         return 'read' if obj.is_read else 'unread'
 
     def get_has_been_sent(self, obj):
-        return obj.sent_at is not None
+        return bool((obj.data or {}).get('sent_at'))
 
 
 class NotificationListSerializer(serializers.ModelSerializer):
@@ -51,8 +50,8 @@ class NotificationListSerializer(serializers.ModelSerializer):
         model = Notification
         fields = [
             'id', 'recipient_name', 'notification_type', 'type_display',
-            'title', 'message_preview', 'is_read', 'priority',
-            'related_link', 'sent_at', 'created_at',
+            'title', 'message_preview', 'is_read',
+            'related_link', 'created_at',
         ]
 
     def get_message_preview(self, obj):
@@ -66,8 +65,7 @@ class NotificationCreateSerializer(serializers.ModelSerializer):
         model = Notification
         fields = [
             'recipient', 'notification_type', 'title', 'message',
-            'priority', 'related_link', 'related_object_id',
-            'related_object_type', 'scheduled_for',
+            'related_link',
         ]
 
 
@@ -191,8 +189,8 @@ class NotificationLogSerializer(serializers.ModelSerializer):
         model = NotificationLog
         fields = [
             'id', 'notification', 'notification_title', 'notification_type',
-            'recipient_name', 'status', 'status_display',
-            'error_message', 'sent_at', 'provider_response',
+            'recipient_name', 'channel', 'status', 'status_display',
+            'error_message', 'metadata',
             'created_at',
         ]
         read_only_fields = ['id', 'created_at']
@@ -240,6 +238,100 @@ class BulkNotificationSerializer(serializers.Serializer):
         default='medium'
     )
     related_link = serializers.CharField(max_length=500, required=False, allow_blank=True)
+
+
+# ============================================================
+# INCOMING EMAIL (Unified Inbox) SERIALIZERS
+# ============================================================
+
+class IncomingEmailListSerializer(serializers.ModelSerializer):
+    """Preview-only serializer for the inbox list view"""
+    body_preview = serializers.SerializerMethodField()
+    account_email = serializers.CharField(source='account.email_address', read_only=True, default=None)
+
+    class Meta:
+        model = IncomingEmail
+        fields = [
+            'id', 'account', 'account_email', 'sender', 'sender_name', 'subject', 'body_preview',
+            'received_at', 'is_read', 'has_attachments', 'source', 'folder',
+        ]
+
+    def get_body_preview(self, obj):
+        text = obj.body or ''
+        return text[:150] + '...' if len(text) > 150 else text
+
+
+class IncomingEmailSerializer(serializers.ModelSerializer):
+    """Full serializer for the email detail/reply view"""
+    account_email = serializers.CharField(source='account.email_address', read_only=True, default=None)
+
+    class Meta:
+        model = IncomingEmail
+        fields = [
+            'id', 'account', 'account_email', 'sender', 'sender_name', 'recipient', 'subject',
+            'body', 'body_html', 'message_id', 'thread_id', 'in_reply_to',
+            'received_at', 'is_read', 'is_processed',
+            'has_attachments', 'attachments', 'source', 'folder',
+            'linked_message', 'created_at',
+        ]
+        read_only_fields = [
+            'id', 'account', 'sender', 'sender_name', 'recipient', 'subject',
+            'body', 'body_html', 'message_id', 'thread_id', 'in_reply_to',
+            'received_at', 'has_attachments', 'attachments', 'source',
+            'folder', 'linked_message', 'created_at',
+        ]
+
+
+class EmailReplySerializer(serializers.Serializer):
+    """Serializer for replying to an incoming email"""
+    body = serializers.CharField()
+    body_html = serializers.CharField(required=False, allow_blank=True)
+
+
+class EmailAccountSerializer(serializers.ModelSerializer):
+    """
+    Admin-only serializer for managing per-staff mailboxes. Passwords are
+    write-only plain input (encrypted on save) and never sent back to the
+    client - the detail/list responses never include the encrypted secret
+    either, so a decrypted or encrypted password never round-trips through
+    the API.
+    """
+    owner_username = serializers.CharField(source='owner_user.username', read_only=True, default=None)
+    imap_password = serializers.CharField(write_only=True, required=False, allow_blank=True)
+    smtp_password = serializers.CharField(write_only=True, required=False, allow_blank=True)
+
+    class Meta:
+        model = EmailAccount
+        fields = [
+            'id', 'owner_user', 'owner_username', 'email_address', 'provider', 'is_active',
+            'imap_host', 'imap_port', 'imap_use_ssl', 'imap_password',
+            'smtp_host', 'smtp_port', 'smtp_use_ssl', 'smtp_use_tls', 'smtp_password',
+            'last_synced_at', 'last_sync_error', 'created_at',
+        ]
+        read_only_fields = ['id', 'last_synced_at', 'last_sync_error', 'created_at']
+
+    def create(self, validated_data):
+        imap_password = validated_data.pop('imap_password', '')
+        smtp_password = validated_data.pop('smtp_password', '')
+        instance = EmailAccount(**validated_data)
+        if imap_password:
+            instance.set_imap_password(imap_password)
+        if smtp_password:
+            instance.set_smtp_password(smtp_password)
+        instance.save()
+        return instance
+
+    def update(self, instance, validated_data):
+        imap_password = validated_data.pop('imap_password', '')
+        smtp_password = validated_data.pop('smtp_password', '')
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        if imap_password:
+            instance.set_imap_password(imap_password)
+        if smtp_password:
+            instance.set_smtp_password(smtp_password)
+        instance.save()
+        return instance
 
 
 class CommunicationSerializer(serializers.Serializer):

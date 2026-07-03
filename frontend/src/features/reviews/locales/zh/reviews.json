@@ -47,5 +47,13 @@
                  "loading":  "加载评价中...",
                  "share_description":  "我们很乐意听取您对我们服务的体验。",
                  "no_filtered_reviews":  "未找到{{rating}}星评价。"
-             }
+             },
+    "submit":  {
+                   "title":  "分享您的体验",
+                   "subtitle":  "告诉我们您对与我们合作的看法",
+                   "thanks_title":  "感谢您的反馈！",
+                   "thanks_message":  "您的评价已提交,审核通过后将会显示。",
+                   "view_reviews":  "查看评价",
+                   "back_home":  "返回首页"
+               }
 }

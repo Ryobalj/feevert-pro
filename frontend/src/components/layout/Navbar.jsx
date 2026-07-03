@@ -215,6 +215,9 @@ const Navbar = () => {
   ]
 
   // ✅ User Menu - ZINATAFSIRIWA
+  const roleName = (user?.role_name || user?.role || '').toLowerCase()
+  const isStaffRole = ['admin', 'consultant', 'normal employee'].includes(roleName)
+
   const userMenuItems = isAuthenticated ? [
     { label: user?.full_name || user?.username || 'User', type: 'header', email: user?.email },
     { divider: true },
@@ -228,6 +231,7 @@ const Navbar = () => {
     { path: '/notifications', label: t('auth.notifications'), icon: '🔔', badge: totalUnreadNotifications },
     { action: 'chat', label: t('auth.messages'), icon: '💭', badge: totalUnreadMessages, onClick: () => { setActiveModal('chat'); setOpenDropdown(null) } },
     { action: 'support', label: t('auth.support'), icon: '🛟', onClick: () => { setActiveModal('support'); setOpenDropdown(null) } },
+    ...(isStaffRole ? [{ path: '/email-inbox', label: t('auth.email_inbox') || 'Email Inbox', icon: '📧' }] : []),
     { divider: true },
     { path: '/settings', label: t('auth.settings'), icon: '⚙️' },
     { action: 'logout', label: t('auth.sign_out'), icon: '🚪', danger: true },
