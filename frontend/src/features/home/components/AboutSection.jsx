@@ -13,7 +13,7 @@ const AboutSection = ({ data }) => {
   // This is a homepage teaser, so it always reads "About Company" (a
   // generic label) rather than the specific about.title from the database -
   // the full About page shows that title instead.
-  const sectionTitle = t('about.company_title') || 'About Company'
+  const sectionTitle = t('about.company_title') || 'ABOUT OUR COMPANY'
   const sectionTitleWords = sectionTitle.trim().split(/\s+/)
   const sectionTitleAccent = sectionTitleWords.pop()
   const sectionTitleLead = sectionTitleWords.join(' ')
