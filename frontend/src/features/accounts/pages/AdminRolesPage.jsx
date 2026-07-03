@@ -2,11 +2,13 @@
 
 import React, { useState, useEffect, useCallback } from 'react'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 import api from '../../../app/api'
 
 const emptyForm = { name: '', description: '', priority_level: 0 }
 
 const AdminRolesPage = () => {
+  const { t } = useTranslation('admin')
   const [roles, setRoles] = useState([])
   const [loading, setLoading] = useState(true)
   const [form, setForm] = useState(emptyForm)
@@ -31,7 +33,7 @@ const AdminRolesPage = () => {
     e.preventDefault()
     setError('')
     if (!form.name.trim()) {
-      setError('Role name is required')
+      setError(t('roles_page.name_required') || 'Role name is required')
       return
     }
     setCreating(true)
@@ -45,7 +47,7 @@ const AdminRolesPage = () => {
       setRoles(prev => [...prev, res.data])
       setForm(emptyForm)
     } catch (err) {
-      setError(err.response?.data?.name?.[0] || err.response?.data?.detail || 'Failed to create role')
+      setError(err.response?.data?.name?.[0] || err.response?.data?.detail || t('roles_page.create_error') || 'Failed to create role')
     } finally {
       setCreating(false)
     }
@@ -53,13 +55,13 @@ const AdminRolesPage = () => {
 
   const handleDelete = async (role) => {
     if (role.is_system_role) return
-    if (!window.confirm(`Delete role "${role.name}"? This can't be undone.`)) return
+    if (!window.confirm(t('roles_page.delete_confirm', { name: role.name }) || `Delete role "${role.name}"? This can't be undone.`)) return
     try {
       await api.delete(`/roles/${role.id}/`)
       setRoles(prev => prev.filter(r => r.id !== role.id))
     } catch (err) {
       console.error('Error deleting role:', err)
-      alert(err.response?.data?.detail || 'Failed to delete role')
+      alert(err.response?.data?.detail || t('roles_page.delete_error') || 'Failed to delete role')
     }
   }
 
@@ -76,38 +78,38 @@ const AdminRolesPage = () => {
   return (
     <div className="container-main py-8 md:py-12 max-w-3xl">
       <div className="mb-6">
-        <h1 className="text-2xl md:text-3xl font-extrabold text-white">Manage Roles</h1>
-        <p className="text-white/40 text-sm mt-1">Roles control what each account type can do across the system.</p>
+        <h1 className="text-2xl md:text-3xl font-extrabold text-white">{t('roles_page.title') || 'Manage Roles'}</h1>
+        <p className="text-white/40 text-sm mt-1">{t('roles_page.subtitle') || 'Roles control what each account type can do across the system.'}</p>
       </div>
 
       <form onSubmit={handleCreate} className="glass-card p-6 mb-6 space-y-3">
-        <h2 className="text-sm font-bold text-white/70 uppercase tracking-wide mb-2">New Role</h2>
+        <h2 className="text-sm font-bold text-white/70 uppercase tracking-wide mb-2">{t('roles_page.new_role') || 'New Role'}</h2>
         <div className="grid sm:grid-cols-2 gap-3">
           <input
             type="text"
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
-            placeholder="Role name (e.g. support_agent)"
+            placeholder={t('roles_page.name_placeholder') || 'Role name (e.g. support_agent)'}
             className="px-4 py-2.5 glass text-white placeholder:text-white/25 rounded-xl border-0 outline-none focus:ring-2 focus:ring-emerald-400/40 text-sm"
           />
           <input
             type="number"
             value={form.priority_level}
             onChange={(e) => setForm({ ...form, priority_level: e.target.value })}
-            placeholder="Priority level"
+            placeholder={t('roles_page.priority_placeholder') || 'Priority level'}
             className="px-4 py-2.5 glass text-white placeholder:text-white/25 rounded-xl border-0 outline-none focus:ring-2 focus:ring-emerald-400/40 text-sm"
           />
         </div>
         <textarea
           value={form.description}
           onChange={(e) => setForm({ ...form, description: e.target.value })}
-          placeholder="Description"
+          placeholder={t('roles_page.description_placeholder') || 'Description'}
           rows={2}
           className="w-full px-4 py-2.5 glass text-white placeholder:text-white/25 rounded-xl border-0 outline-none focus:ring-2 focus:ring-emerald-400/40 text-sm resize-none"
         />
         {error && <p className="text-red-400 text-sm">{error}</p>}
         <button type="submit" disabled={creating} className="btn-primary text-sm disabled:opacity-50">
-          {creating ? 'Creating...' : 'Create Role'}
+          {creating ? (t('roles_page.creating') || 'Creating...') : (t('roles_page.create_button') || 'Create Role')}
         </button>
       </form>
 
@@ -121,13 +123,13 @@ const AdminRolesPage = () => {
                 <div className="flex items-center gap-2">
                   <h3 className="font-bold text-white">{role.name}</h3>
                   {role.is_system_role && (
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-white/10 text-white/50">system</span>
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-white/10 text-white/50">{t('roles_page.system_badge') || 'system'}</span>
                   )}
-                  <span className="text-xs text-white/30">{role.users_count} user{role.users_count === 1 ? '' : 's'}</span>
+                  <span className="text-xs text-white/30">{t('roles_page.users_count', { count: role.users_count }) || `${role.users_count} user${role.users_count === 1 ? '' : 's'}`}</span>
                 </div>
                 {!role.is_system_role && (
                   <button onClick={() => handleDelete(role)} className="text-xs text-red-400/70 hover:text-red-400 transition-colors">
-                    Delete
+                    {t('roles_page.delete_button') || 'Delete'}
                   </button>
                 )}
               </div>

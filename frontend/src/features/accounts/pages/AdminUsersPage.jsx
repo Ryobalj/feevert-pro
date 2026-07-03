@@ -2,10 +2,12 @@
 
 import React, { useState, useEffect, useCallback } from 'react'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 import api from '../../../app/api'
 import { useAuth } from '../hooks/useAuth'
 
 const AdminUsersPage = () => {
+  const { t } = useTranslation('admin')
   const { user: currentUser } = useAuth()
   const [users, setUsers] = useState([])
   const [roles, setRoles] = useState([])
@@ -38,7 +40,7 @@ const AdminUsersPage = () => {
       setUsers(prev => prev.map(u => u.id === targetUser.id ? res.data : u))
     } catch (error) {
       console.error('Error updating role:', error)
-      alert(error.response?.data?.role?.[0] || 'Failed to update role')
+      alert(error.response?.data?.role?.[0] || t('users_page.update_role_error') || 'Failed to update role')
     } finally {
       setSavingId(null)
     }
@@ -66,14 +68,14 @@ const AdminUsersPage = () => {
     <div className="container-main py-8 md:py-12">
       <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl md:text-3xl font-extrabold text-white">Manage Users</h1>
-          <p className="text-white/40 text-sm mt-1">{users.length} registered users</p>
+          <h1 className="text-2xl md:text-3xl font-extrabold text-white">{t('users_page.title') || 'Manage Users'}</h1>
+          <p className="text-white/40 text-sm mt-1">{t('users_page.subtitle', { count: users.length }) || `${users.length} registered users`}</p>
         </div>
         <input
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search by username or email..."
+          placeholder={t('users_page.search_placeholder') || 'Search by username or email...'}
           className="px-4 py-2.5 glass text-white placeholder:text-white/25 rounded-full border-0 outline-none focus:ring-2 focus:ring-emerald-400/40 transition-all text-sm w-64"
         />
       </div>
@@ -87,11 +89,11 @@ const AdminUsersPage = () => {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-white/10 text-left text-white/40 text-xs uppercase tracking-wide">
-                <th className="px-5 py-3 font-semibold">User</th>
-                <th className="px-5 py-3 font-semibold">Email</th>
-                <th className="px-5 py-3 font-semibold">Role</th>
-                <th className="px-5 py-3 font-semibold">Status</th>
-                <th className="px-5 py-3 font-semibold">Joined</th>
+                <th className="px-5 py-3 font-semibold">{t('users_page.table_user') || 'User'}</th>
+                <th className="px-5 py-3 font-semibold">{t('users_page.table_email') || 'Email'}</th>
+                <th className="px-5 py-3 font-semibold">{t('users_page.table_role') || 'Role'}</th>
+                <th className="px-5 py-3 font-semibold">{t('users_page.table_status') || 'Status'}</th>
+                <th className="px-5 py-3 font-semibold">{t('users_page.table_joined') || 'Joined'}</th>
               </tr>
             </thead>
             <tbody>
@@ -118,7 +120,7 @@ const AdminUsersPage = () => {
                       onChange={(e) => handleRoleChange(u, e.target.value)}
                       className="px-3 py-1.5 glass text-white rounded-lg border-0 outline-none focus:ring-2 focus:ring-emerald-400/40 text-xs disabled:opacity-50"
                     >
-                      <option value="">No role</option>
+                      <option value="">{t('users_page.no_role') || 'No role'}</option>
                       {roles.map(r => (
                         <option key={r.id} value={r.id}>{r.name}</option>
                       ))}
@@ -132,7 +134,7 @@ const AdminUsersPage = () => {
                         u.is_active ? 'bg-emerald-500/15 text-emerald-400 hover:bg-red-500/15 hover:text-red-400' : 'bg-red-500/15 text-red-400 hover:bg-emerald-500/15 hover:text-emerald-400'
                       }`}
                     >
-                      {u.is_active ? 'Active' : 'Inactive'}
+                      {u.is_active ? (t('users_page.active') || 'Active') : (t('users_page.inactive') || 'Inactive')}
                     </button>
                   </td>
                   <td className="px-5 py-3 text-white/40 text-xs">
@@ -142,7 +144,7 @@ const AdminUsersPage = () => {
               ))}
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="px-5 py-10 text-center text-white/30">No users found</td>
+                  <td colSpan={5} className="px-5 py-10 text-center text-white/30">{t('users_page.no_users_found') || 'No users found'}</td>
                 </tr>
               )}
             </tbody>

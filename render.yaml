@@ -13,6 +13,7 @@ services:
       python manage.py collectstatic --noinput
       python manage.py migrate
       python manage.py migrate_legacy_email_account
+      python manage.py fix_sequences
     # Serves via daphne (ASGI), not gunicorn+wsgi, because the wsgi app
     # can't handle WebSocket upgrade requests at all - the in-app
     # messaging feature (realtime/consumers.py) needs ASGI end-to-end.

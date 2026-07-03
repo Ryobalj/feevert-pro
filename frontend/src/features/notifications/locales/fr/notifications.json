@@ -22,5 +22,47 @@
                                        "no_read":  "Aucune notification lue",
                                        "notification":  "Notification"
                                    }
-                      }
+                      },
+    "inbox": {
+        "title": "Boîte de réception",
+        "subtitle": "Les e-mails envoyés à votre adresse professionnelle, tous au même endroit",
+        "sync_now": "Synchroniser",
+        "syncing": "Synchronisation...",
+        "no_emails": "Aucun e-mail pour le moment",
+        "no_emails_hint": "Cliquez sur \"Synchroniser\" pour vérifier les nouveaux messages",
+        "reply_placeholder": "Écrire une réponse...",
+        "sending": "Envoi...",
+        "send_reply": "Envoyer la réponse",
+        "select_email": "Sélectionner un e-mail"
+    },
+    "email_accounts": {
+        "title": "Boîtes mail du personnel",
+        "subtitle": "Connectez la boîte mail @feevert.co.tz de chaque membre du personnel, ou laissez \"membre du personnel\" vide pour une boîte partagée visible par tous.",
+        "connect_mailbox": "Connecter une boîte mail",
+        "email_placeholder": "personnel@feevert.co.tz",
+        "shared_option": "Boîte partagée (tout le personnel)",
+        "host_placeholder": "Hôte IMAP (mail.feevert.co.tz)",
+        "port_placeholder": "Port",
+        "password_placeholder": "Mot de passe de la boîte mail",
+        "smtp_note": "Le SMTP utilise par défaut le même hôte/mot de passe que l'IMAP, sauf si vous les définissez séparément plus tard.",
+        "connect_button": "Connecter la boîte mail",
+        "connecting": "Connexion...",
+        "required_error": "L'adresse e-mail, l'hôte IMAP et le mot de passe IMAP sont requis",
+        "create_error": "Échec de la création du compte",
+        "delete_confirm": "Supprimer la boîte mail {{email}} ? Les e-mails enregistrés resteront, mais la synchronisation s'arrêtera.",
+        "shared_badge": "partagée",
+        "owner_prefix": "Propriétaire : {{username}}",
+        "visible_all": "Visible par tout le personnel",
+        "last_synced": "Dernière synchronisation {{date}}",
+        "last_error": "Dernière erreur :",
+        "sync_now": "Synchroniser",
+        "syncing": "Synchronisation...",
+        "sync_success": "Synchronisé : {{count}} nouveau(x) e-mail(s)",
+        "sync_failed_reason": "Échec : {{reason}}",
+        "sync_failed": "Échec de la synchronisation",
+        "active": "Actif",
+        "paused": "En pause",
+        "remove": "Supprimer",
+        "no_mailboxes": "Aucune boîte mail connectée pour le moment."
+    }
 }

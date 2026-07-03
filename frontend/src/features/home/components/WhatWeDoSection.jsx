@@ -92,7 +92,7 @@ const WhatWeDoSection = ({ data }) => {
   }
   
   return (
-    <section className="dark-surface py-20 md:py-28 relative overflow-hidden">
+    <section className="dark-surface py-12 md:py-16 relative overflow-hidden">
       {/* ============ BACKGROUND IMAGE WITH OVERLAY ============ */}
       <div className="absolute inset-0 z-0">
         {/* Background Image */}

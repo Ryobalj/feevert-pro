@@ -22,5 +22,47 @@
                                        "no_read":  "لا توجد إشعارات مقروءة",
                                        "notification":  "إشعار"
                                    }
-                      }
+                      },
+    "inbox": {
+        "title": "صندوق البريد الإلكتروني",
+        "subtitle": "الرسائل المرسلة إلى بريدك التجاري، جميعها في مكان واحد",
+        "sync_now": "مزامنة الآن",
+        "syncing": "جاري المزامنة...",
+        "no_emails": "لا توجد رسائل بعد",
+        "no_emails_hint": "انقر على \"مزامنة الآن\" للتحقق من الرسائل الجديدة",
+        "reply_placeholder": "اكتب ردًا...",
+        "sending": "جاري الإرسال...",
+        "send_reply": "إرسال الرد",
+        "select_email": "اختر رسالة"
+    },
+    "email_accounts": {
+        "title": "صناديق بريد الموظفين",
+        "subtitle": "قم بربط بريد كل موظف الخاص بـ @feevert.co.tz، أو اترك \"الموظف\" فارغًا لصندوق مشترك يراه جميع الموظفين.",
+        "connect_mailbox": "ربط صندوق بريد",
+        "email_placeholder": "staff@feevert.co.tz",
+        "shared_option": "صندوق مشترك (جميع الموظفين)",
+        "host_placeholder": "خادم IMAP (mail.feevert.co.tz)",
+        "port_placeholder": "المنفذ",
+        "password_placeholder": "كلمة مرور البريد",
+        "smtp_note": "يستخدم SMTP نفس خادم/كلمة مرور IMAP افتراضيًا ما لم تقم بتعيينهما بشكل منفصل لاحقًا.",
+        "connect_button": "ربط صندوق البريد",
+        "connecting": "جاري الربط...",
+        "required_error": "عنوان البريد الإلكتروني وخادم IMAP وكلمة المرور مطلوبة",
+        "create_error": "فشل إنشاء الحساب",
+        "delete_confirm": "إزالة صندوق البريد {{email}}؟ ستبقى الرسائل المحفوظة، لكن المزامنة ستتوقف.",
+        "shared_badge": "مشترك",
+        "owner_prefix": "المالك: {{username}}",
+        "visible_all": "مرئي لجميع الموظفين",
+        "last_synced": "آخر مزامنة {{date}}",
+        "last_error": "آخر خطأ:",
+        "sync_now": "مزامنة الآن",
+        "syncing": "جاري المزامنة...",
+        "sync_success": "تمت المزامنة: {{count}} رسالة جديدة",
+        "sync_failed_reason": "فشل: {{reason}}",
+        "sync_failed": "فشلت المزامنة",
+        "active": "نشط",
+        "paused": "متوقف مؤقتًا",
+        "remove": "إزالة",
+        "no_mailboxes": "لا توجد صناديق بريد مرتبطة بعد."
+    }
 }

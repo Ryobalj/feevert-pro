@@ -22,5 +22,47 @@
                                        "no_read":  "Hakuna arifa zilizosomwa",
                                        "notification":  "Arifa"
                                    }
-                      }
+                      },
+    "inbox": {
+        "title": "Sanduku la Barua Pepe",
+        "subtitle": "Barua pepe zilizotumwa kwenye anwani yako ya biashara, zote sehemu moja",
+        "sync_now": "Sasisha Sasa",
+        "syncing": "Inasasisha...",
+        "no_emails": "Hakuna barua pepe bado",
+        "no_emails_hint": "Bonyeza \"Sasisha Sasa\" kuangalia ujumbe mpya",
+        "reply_placeholder": "Andika jibu...",
+        "sending": "Inatuma...",
+        "send_reply": "Tuma Jibu",
+        "select_email": "Chagua barua pepe"
+    },
+    "email_accounts": {
+        "title": "Barua Pepe za Wafanyakazi",
+        "subtitle": "Unganisha barua pepe ya kila mfanyakazi ya @feevert.co.tz, au acha \"mfanyakazi\" wazi kwa sanduku la pamoja linaloonekana na wafanyakazi wote.",
+        "connect_mailbox": "Unganisha Barua Pepe",
+        "email_placeholder": "mfanyakazi@feevert.co.tz",
+        "shared_option": "Sanduku la pamoja (wafanyakazi wote)",
+        "host_placeholder": "IMAP host (mail.feevert.co.tz)",
+        "port_placeholder": "Port",
+        "password_placeholder": "Password ya barua pepe",
+        "smtp_note": "SMTP itatumia host/password sawa na IMAP isipokuwa ukiweka tofauti baadaye.",
+        "connect_button": "Unganisha Barua Pepe",
+        "connecting": "Inaunganisha...",
+        "required_error": "Anwani ya barua pepe, IMAP host, na password vinahitajika",
+        "create_error": "Imeshindwa kuunda akaunti",
+        "delete_confirm": "Ondoa barua pepe {{email}}? Barua zilizohifadhiwa zitabaki, lakini usasishaji utasimama.",
+        "shared_badge": "ya pamoja",
+        "owner_prefix": "Mmiliki: {{username}}",
+        "visible_all": "Inaonekana kwa wafanyakazi wote",
+        "last_synced": "Ilisasishwa mara ya mwisho {{date}}",
+        "last_error": "Hitilafu ya mwisho:",
+        "sync_now": "Sasisha Sasa",
+        "syncing": "Inasasisha...",
+        "sync_success": "Imesasishwa: barua {{count}} mpya",
+        "sync_failed_reason": "Imeshindwa: {{reason}}",
+        "sync_failed": "Usasishaji umeshindwa",
+        "active": "Hai",
+        "paused": "Imesimamishwa",
+        "remove": "Ondoa",
+        "no_mailboxes": "Hakuna barua pepe zilizounganishwa bado."
+    }
 }
