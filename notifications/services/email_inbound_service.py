@@ -304,7 +304,14 @@ class EmailInboundService:
             # for "every message", matching fetch()'s own default.
             search_criteria = AND(seen=False) if unread_only else 'ALL'
 
-            with MailBox(imap_host).login(imap_user, imap_password, 'INBOX') as mailbox:
+            # timeout=10: imap_tools/imaplib has NO timeout by default (blocks
+            # forever) - the exact same class of bug as the SMTP hang fixed via
+            # settings.EMAIL_TIMEOUT. Without it, a connection silently dropped
+            # by the mail server (e.g. its country-based firewall) hangs the
+            # whole request until Render's infra kills the worker, producing a
+            # raw 500 with no CORS headers that looks like a CORS error in the
+            # browser console.
+            with MailBox(imap_host, timeout=10).login(imap_user, imap_password, 'INBOX') as mailbox:
                 for msg in mailbox.fetch(reverse=True, limit=limit, criteria=search_criteria):
                     # Check if already exists
                     message_id = msg.uid
