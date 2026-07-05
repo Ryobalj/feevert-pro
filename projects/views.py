@@ -36,7 +36,7 @@ class ProjectViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = ProjectSerializer
     permission_classes = [AllowAny]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-    filterset_fields = ['category', 'tags', 'is_featured']
+    filterset_fields = ['category', 'tags', 'is_featured', 'work_status']
     search_fields = ['title', 'description', 'client_name']
     ordering_fields = ['order', '-completion_date', '-created_at']
     

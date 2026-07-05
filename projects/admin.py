@@ -27,17 +27,17 @@ class ProjectTagAdmin(admin.ModelAdmin):
 
 @admin.register(Project)
 class ProjectAdmin(admin.ModelAdmin):
-    list_display = ('title', 'category', 'client_name', 'completion_date', 'is_featured', 'status')
-    list_filter = ('category', 'status', 'is_featured', 'completion_date')
+    list_display = ('title', 'category', 'client_name', 'completion_date', 'is_featured', 'status', 'work_status')
+    list_filter = ('category', 'status', 'work_status', 'is_featured', 'completion_date')
     search_fields = ('title', 'client_name', 'description')
     prepopulated_fields = {'slug': ('title',)}
-    list_editable = ('is_featured', 'status')
+    list_editable = ('is_featured', 'status', 'work_status')
     filter_horizontal = ('tags',)
     inlines = [ProjectImageInline, ProjectAwardInline]
     
     fieldsets = (
         ('Basic Information', {
-            'fields': ('title', 'slug', 'category', 'tags', 'status')
+            'fields': ('title', 'slug', 'category', 'tags', 'status', 'work_status')
         }),
         ('Content', {
             'fields': ('description', 'cover_image', 'gallery')

@@ -34,9 +34,8 @@ const MobileServicesMenu = ({ categories, tree, onClose }) => {
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.2 }}
           >
-            <Link to="/services" onClick={onClose} className="block px-4 py-2.5 text-sm text-[var(--g-color-primary)] font-medium">🛠️ All Services</Link>
             <Link to="/request-consultation" onClick={onClose} className="block px-4 py-2.5 text-sm text-[var(--g-color-primary)] font-medium">📋 Request Consultation</Link>
-            
+
             <div className="h-px bg-[var(--g-border-glass)] my-1" />
             
             {mainCategories.map(main => (

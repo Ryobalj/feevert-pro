@@ -114,7 +114,7 @@ const HeroSection = ({ data }) => {
             className="flex flex-col sm:flex-row gap-4 justify-center"
           >
             {/* Primary CTA */}
-            <Link to="/services">
+            <Link to="/request-consultation">
               <motion.button
                 className="group relative bg-emerald-500 hover:bg-emerald-400 text-white px-8 py-4 rounded-full font-bold text-lg shadow-2xl shadow-emerald-500/30 overflow-hidden transition-all"
                 whileHover={{ scale: 1.05 }}

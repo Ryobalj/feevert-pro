@@ -25,20 +25,8 @@ const Footer = () => {
             >
               {t('nav.about')}
             </Link>
-            <Link 
-              to="/services" 
-              className="text-[var(--g-text-tertiary)] hover:text-[var(--g-color-primary)] transition-colors duration-200"
-            >
-              {t('nav.services')}
-            </Link>
-            <Link 
-              to="/projects" 
-              className="text-[var(--g-text-tertiary)] hover:text-[var(--g-color-primary)] transition-colors duration-200"
-            >
-              {t('nav.projects')}
-            </Link>
-            <Link 
-              to="/team" 
+            <Link
+              to="/team"
               className="text-[var(--g-text-tertiary)] hover:text-[var(--g-color-primary)] transition-colors duration-200"
             >
               {t('nav.team')}

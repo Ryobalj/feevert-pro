@@ -21,6 +21,7 @@
                  "start_new_chat":  "Start a new chat",
                  "tap_to_chat":  "Tap to chat",
                  "no_users_found":  "No users found",
-                 "no_users_available":  "No users available"
+                 "no_users_available":  "No users available",
+                 "open_full_view":  "Open full view"
              }
 }

@@ -370,23 +370,6 @@ const LandingPage = () => {
               </motion.button>
             </Link>
 
-            {/* Secondary Button */}
-            <Link to="/services">
-              <motion.button
-                className={`group relative px-8 md:px-10 py-3 md:py-4 rounded-full font-bold text-base md:text-lg backdrop-blur-sm overflow-hidden transition-all duration-300 border-2 ${secondaryBtnStyles}`}
-                // ✅ REMOVE hover scale effect - just keep tap
-                whileTap={{ scale: 0.95 }}
-              >
-                <div className="absolute inset-0 bg-white/0 group-hover:bg-white/5 transition-colors duration-300" />
-                <span className="relative z-10 flex items-center gap-2 uppercase">
-                  {t('hero.cta_secondary') || 'View Services'}
-                  <motion.svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                    animate={{ x: [0, 4, 0] }} transition={{ duration: 1.5, repeat: Infinity, delay: 0.5 }}>
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                  </motion.svg>
-                </span>
-              </motion.button>
-            </Link>
           </motion.div>
 
           {/* Slide Indicators - Dark mode style */}

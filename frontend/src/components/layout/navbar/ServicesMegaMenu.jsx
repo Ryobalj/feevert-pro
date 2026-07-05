@@ -67,9 +67,6 @@ const ServicesMegaMenu = ({ tree, categories, onClose, onMouseEnter, onMouseLeav
         <h3 className="text-xs font-semibold text-[var(--g-text-tertiary)] uppercase tracking-widest flex items-center gap-1">
           <Icon name="🛠️" size="text-sm" /> Services Menu
         </h3>
-        <Link to="/services" onClick={onClose} className="text-xs text-[var(--g-color-primary)] hover:underline font-medium">
-          View All →
-        </Link>
       </div>
 
       {/* Mobile: Tabs */}
@@ -144,16 +141,22 @@ const ServicesMegaMenu = ({ tree, categories, onClose, onMouseEnter, onMouseLeav
                 </button>
                 <h4 className="px-3 py-1 text-xs font-semibold text-[var(--g-text-secondary)]">{activeSub?.name || 'Services'}</h4>
                 {services.length > 0 ? services.map(service => (
-                  <Link key={service.id} to={`/services/${service.id}`} onClick={onClose}
-                    className="block px-3 py-3 text-sm rounded-lg transition-all duration-200 text-[var(--g-text-secondary)] hover:text-[var(--g-color-primary)] hover:bg-[var(--g-liquid-secondary)]">
-                    <div className="font-medium flex items-center gap-2">
+                  <div key={service.id} className="px-3 py-3 rounded-lg transition-all duration-200 hover:bg-[var(--g-liquid-secondary)]">
+                    <div className="font-medium text-sm flex items-center gap-2 text-[var(--g-text-secondary)]">
                       <Icon name={service.icon} size="text-lg" />
                       <span>{service.name}</span>
                     </div>
-                    {service.display_price && service.display_price !== 'Get Quote' && (
-                      <div className="text-[10px] text-[var(--g-text-tertiary)] mt-0.5 ml-7">{service.display_price}</div>
+                    {service.description && (
+                      <p className="text-[11px] leading-snug text-[var(--g-text-tertiary)] mt-1 ml-8 line-clamp-2">
+                        {service.description}
+                      </p>
                     )}
-                  </Link>
+                    <Link to={`/services/${service.id}`} onClick={onClose}
+                      className="inline-flex items-center gap-1 text-[11px] font-semibold text-[var(--g-color-primary)] mt-1.5 ml-8 hover:gap-2 transition-all">
+                      Read More
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                    </Link>
+                  </div>
                 )) : <div className="px-3 py-6 text-center text-xs text-[var(--g-text-tertiary)]">No services</div>}
               </div>
             )}
@@ -224,22 +227,30 @@ const ServicesMegaMenu = ({ tree, categories, onClose, onMouseEnter, onMouseLeav
             </h4>
             {activeSubId || (activeMainId && subCategories.length === 0) ? (
               services.length > 0 ? (
-                <div className="space-y-0.5">
+                <div className="space-y-2">
                   {services.map(service => (
-                    <Link
+                    <div
                       key={service.id}
-                      to={`/services/${service.id}`}
-                      onClick={onClose}
-                      className="block px-3 py-2 text-sm rounded-lg transition-all duration-200 text-[var(--g-text-secondary)] hover:text-[var(--g-color-primary)] hover:bg-[var(--g-liquid-secondary)]"
+                      className="px-3 py-2.5 rounded-lg transition-all duration-200 hover:bg-[var(--g-liquid-secondary)] group/svc"
                     >
-                      <div className="font-medium flex items-center gap-2">
-                        <Icon name={service.icon} size="text-base" />
+                      <div className="font-medium text-sm text-[var(--g-text-secondary)] flex items-center gap-2 group-hover/svc:text-[var(--g-color-primary)] transition-colors">
+                        <Icon name={service.icon} size="text-base" className="flex-shrink-0" />
                         <span>{service.name}</span>
                       </div>
-                      {service.display_price && service.display_price !== 'Get Quote' && (
-                        <div className="text-[10px] text-[var(--g-text-tertiary)] mt-0.5 ml-7">{service.display_price}</div>
+                      {service.description && (
+                        <p className="text-[11px] leading-snug text-[var(--g-text-tertiary)] mt-1 ml-7 line-clamp-2">
+                          {service.description}
+                        </p>
                       )}
-                    </Link>
+                      <Link
+                        to={`/services/${service.id}`}
+                        onClick={onClose}
+                        className="inline-flex items-center gap-1 text-[11px] font-semibold text-[var(--g-color-primary)] mt-1.5 ml-7 hover:gap-2 transition-all"
+                      >
+                        Read More
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                      </Link>
+                    </div>
                   ))}
                 </div>
               ) : (

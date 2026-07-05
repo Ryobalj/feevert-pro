@@ -21,6 +21,7 @@
                  "start_new_chat":  "Commencer une nouvelle discussion",
                  "tap_to_chat":  "Tapez pour discuter",
                  "no_users_found":  "Aucun utilisateur trouvé",
-                 "no_users_available":  "Aucun utilisateur disponible"
+                 "no_users_available":  "Aucun utilisateur disponible",
+                 "open_full_view":  "Ouvrir en plein écran"
              }
 }

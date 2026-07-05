@@ -30,13 +30,13 @@ const ChatBox = ({ recipientId, recipientName, recipientAvatar, onClose, onNewMe
     const loadMessages = async () => {
       setLoading(true)
       try {
-        const res = await api.get(`/messages/${recipientId}/`)
+        const res = await api.get(`/realtime/messages/${recipientId}/`)
         setMessages(res.data || [])
       } catch (error) { console.error('Error loading messages:', error) }
       finally { setLoading(false) }
     }
     loadMessages()
-    api.post(`/conversations/${recipientId}/read/`).catch(console.error)
+    api.post(`/realtime/conversations/${recipientId}/read/`).catch(console.error)
   }, [recipientId])
 
   // Handle incoming WebSocket messages (full message payload pushed by
@@ -47,7 +47,7 @@ const ChatBox = ({ recipientId, recipientName, recipientAvatar, onClose, onNewMe
       if (incoming.sender === recipientId || incoming.recipient === recipientId) {
         setMessages(prev => prev.some(m => m.id === incoming.id) ? prev : [...prev, incoming])
         if (incoming.sender === recipientId) {
-          api.post(`/conversations/${recipientId}/read/`).catch(console.error)
+          api.post(`/realtime/conversations/${recipientId}/read/`).catch(console.error)
         }
         if (onNewMessage) onNewMessage()
       }
@@ -103,9 +103,9 @@ const ChatBox = ({ recipientId, recipientName, recipientAvatar, onClose, onNewMe
         formData.append('recipient_id', recipientId)
         formData.append('message', messageText)
         formData.append('attachment', fileToSend)
-        res = await api.post('/send/', formData, { headers: { 'Content-Type': 'multipart/form-data' } })
+        res = await api.post('/realtime/send/', formData, { headers: { 'Content-Type': 'multipart/form-data' } })
       } else {
-        res = await api.post('/send/', { recipient_id: recipientId, message: messageText })
+        res = await api.post('/realtime/send/', { recipient_id: recipientId, message: messageText })
       }
       setMessages(prev => prev.map(msg =>
         msg.id === tempMessage.id ? { ...res.data, is_sender: true } : msg

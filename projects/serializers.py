@@ -53,7 +53,8 @@ class ProjectSerializer(serializers.ModelSerializer):
     awards = ProjectAwardSerializer(many=True, read_only=True)
     cover_image_url = serializers.SerializerMethodField()
     status_display = serializers.CharField(source='get_status_display', read_only=True)
-    
+    work_status_display = serializers.CharField(source='get_work_status_display', read_only=True)
+
     class Meta:
         model = Project
         fields = [
@@ -61,7 +62,8 @@ class ProjectSerializer(serializers.ModelSerializer):
             'description', 'cover_image', 'cover_image_url', 'gallery',
             'client_name', 'completion_date', 'technologies_used', 'video_url',
             'testimonial', 'testimonial_author', 'challenges', 'solutions', 'results',
-            'is_featured', 'status', 'status_display', 'images', 'awards',
+            'is_featured', 'status', 'status_display',
+            'work_status', 'work_status_display', 'images', 'awards',
             'meta_title', 'meta_description', 'order', 'created_at', 'updated_at'
         ]
         read_only_fields = ['id', 'slug', 'created_at', 'updated_at']
@@ -79,7 +81,7 @@ class ProjectListSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Project
-        fields = ['id', 'title', 'slug', 'category_name', 'cover_image_url', 'client_name', 'completion_date', 'is_featured']
+        fields = ['id', 'title', 'slug', 'category', 'category_name', 'cover_image_url', 'client_name', 'completion_date', 'is_featured', 'work_status']
     
     def get_cover_image_url(self, obj):
         if obj.cover_image:

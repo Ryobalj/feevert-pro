@@ -86,30 +86,6 @@ const ProjectsSection = ({ data }) => {
           ))}
         </motion.div>
 
-        {/* View All CTA */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.3 }}
-          className="text-center mt-12"
-        >
-          <Link 
-            to="/projects" 
-            className="group relative inline-flex items-center gap-3 border-2 border-white/20 text-white px-8 py-4 rounded-full font-bold text-base hover:border-emerald-400/50 transition-all duration-300 overflow-hidden"
-          >
-            <span className="absolute inset-0 bg-emerald-500/0 group-hover:bg-emerald-500/5 transition-colors duration-300" />
-            <span className="relative z-10">{t('projects.view_all') || 'View All Projects'}</span>
-            <motion.svg 
-              className="w-5 h-5 relative z-10" 
-              fill="none" stroke="currentColor" viewBox="0 0 24 24"
-              animate={{ x: [0, 5, 0] }}
-              transition={{ duration: 1.5, repeat: Infinity }}
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-            </motion.svg>
-          </Link>
-        </motion.div>
       </div>
     </section>
   )

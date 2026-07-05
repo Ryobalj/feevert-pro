@@ -23,7 +23,7 @@ const ProjectDetail = () => {
         setProject(res.data)
       } catch (error) {
         console.error('Error loading project:', error)
-        navigate('/projects')
+        navigate('/home')
       } finally {
         setLoading(false)
       }
@@ -146,7 +146,7 @@ const ProjectDetail = () => {
         {/* ============ BACK BUTTON ============ */}
         <motion.button
           initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}
-          onClick={() => navigate('/projects')}
+          onClick={() => navigate(-1)}
           className="flex items-center gap-2 text-sm text-white/40 hover:text-emerald-400 transition-colors mb-8 group"
         >
           <svg className="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">

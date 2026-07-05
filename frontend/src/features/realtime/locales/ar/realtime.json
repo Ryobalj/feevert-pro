@@ -21,6 +21,7 @@
                  "start_new_chat":  "بدء محادثة جديدة",
                  "tap_to_chat":  "انقر للمحادثة",
                  "no_users_found":  "لم يتم العثور على مستخدمين",
-                 "no_users_available":  "لا يوجد مستخدمين متاحين"
+                 "no_users_available":  "لا يوجد مستخدمين متاحين",
+                 "open_full_view":  "فتح العرض الكامل"
              }
 }

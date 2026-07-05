@@ -15,7 +15,6 @@ import HomePage from './features/home/pages/HomePage'
 
 // Other Pages
 import AboutPage from './features/home/pages/AboutPage'
-import ServicesPage from './features/home/pages/ServicesPage'
 import ServiceDetailPage from './features/home/pages/ServiceDetailPage'
 import ContactPage from './features/home/pages/ContactPage'
 import PartnersPage from './features/home/pages/PartnersPage'
@@ -48,7 +47,6 @@ import BookingDetail from './features/bookings/pages/BookingDetail'
 import BookingPage from './features/bookings/pages/BookingPage'
 
 // Projects
-import ProjectList from './features/projects/pages/ProjectList'
 import ProjectDetail from './features/projects/pages/ProjectDetail'
 
 // Careers
@@ -111,12 +109,10 @@ function App() {
               <Route path="/reviews" element={<ReviewList />} />
               <Route path="/submit-review" element={<ProtectedRoute><SubmitReview /></ProtectedRoute>} />
               
-              {/* Services */}
-              <Route path="/services" element={<ServicesPage />} />
+              {/* Services (listing page removed - browsing happens in the navbar mega-menu) */}
               <Route path="/services/:id" element={<ServiceDetailPage />} />
-              
-              {/* Projects */}
-              <Route path="/projects" element={<ProjectList />} />
+
+              {/* Projects (listing page removed - browsing happens in the navbar mega-menu) */}
               <Route path="/projects/:id" element={<ProjectDetail />} />
               
               {/* Team */}

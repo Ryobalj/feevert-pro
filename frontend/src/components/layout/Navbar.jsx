@@ -17,6 +17,8 @@ import DropdownContent from './navbar/DropdownContent'
 import MobileDropdown from './navbar/MobileDropdown'
 import MobileServicesMenu from './navbar/MobileServicesMenu'
 import ServicesMegaMenu from './navbar/ServicesMegaMenu'
+import ProjectsMegaMenu from './navbar/ProjectsMegaMenu'
+import MobileProjectsMenu from './navbar/MobileProjectsMenu'
 
 // 🆕 SHOP - Cart Context & Drawer
 import { useCart } from '../../features/shop/context/CartContext'
@@ -186,13 +188,8 @@ const Navbar = () => {
     { href: '/documents/feevert-company-profile.pdf', label: `📄 ${t('nav.company_profile')}` },
   ]
 
-  // ✅ Projects Menu - MIXED: Static + Database (Database imeachwa)
-  const projectsMenu = [
-    { path: '/projects', label: t('nav.projects') },
-    ...(projectCategories.length > 0 ? [{ divider: true }] : []),
-    // ⚠️ Hizi zinategemea database - zitaonyesha majina kutoka backend
-    ...projectCategories.map(c => ({ path: `/projects?category=${c.slug || c.id}`, label: c.name })),
-  ]
+  // Projects now render as a mega-menu (ProjectsMegaMenu / MobileProjectsMenu),
+  // driven by projectCategories + a live /projects fetch - no flat list here.
 
   // ✅ Resources Menu - ZINATAFSIRIWA
   const resourcesMenu = [
@@ -242,7 +239,6 @@ const Navbar = () => {
 
   const getDropdownItems = (name) => {
     switch(name) {
-      case 'projects': return projectsMenu
       case 'company': return companyMenu
       case 'resources': return resourcesMenu
       case 'shop': return shopMenu
@@ -433,7 +429,7 @@ const Navbar = () => {
                 </Link>
                 <MobileDropdown label={t('nav.company')} items={companyMenu} onClose={() => setIsOpen(false)} />
                 <MobileServicesMenu categories={serviceCategories} tree={servicesTree} onClose={() => setIsOpen(false)} />
-                <MobileDropdown label={t('nav.projects')} items={projectsMenu} onClose={() => setIsOpen(false)} />
+                <MobileProjectsMenu categories={projectCategories} onClose={() => setIsOpen(false)} />
                 <MobileDropdown label={t('nav.resources')} items={resourcesMenu} onClose={() => setIsOpen(false)} />
                 
                 <div className="divider-glass my-3" />
@@ -536,7 +532,8 @@ const Navbar = () => {
       
       {/* Dropdown Portals */}
       {openDropdown === 'services' && createPortal(<ServicesMegaMenu tree={servicesTree} categories={serviceCategories} onClose={() => { setOpenDropdown(null); currentDropdownRef.current = null }} onMouseEnter={megaEnter} onMouseLeave={megaLeave} />, document.body)}
-      {openDropdown && openDropdown !== 'user' && openDropdown !== 'services' && createPortal(<DropdownContent items={getDropdownItems(openDropdown)} position={dropdownPosition} onClose={() => { setOpenDropdown(null); currentDropdownRef.current = null }} onMouseEnter={megaEnter} onMouseLeave={megaLeave} />, document.body)}
+      {openDropdown === 'projects' && createPortal(<ProjectsMegaMenu categories={projectCategories} onClose={() => { setOpenDropdown(null); currentDropdownRef.current = null }} onMouseEnter={megaEnter} onMouseLeave={megaLeave} />, document.body)}
+      {openDropdown && openDropdown !== 'user' && openDropdown !== 'services' && openDropdown !== 'projects' && createPortal(<DropdownContent items={getDropdownItems(openDropdown)} position={dropdownPosition} onClose={() => { setOpenDropdown(null); currentDropdownRef.current = null }} onMouseEnter={megaEnter} onMouseLeave={megaLeave} />, document.body)}
       {openDropdown === 'user' && createPortal(<UserDropdownMenu items={userMenuItems} position={dropdownPosition} onClose={() => { setOpenDropdown(null); currentDropdownRef.current = null }} onLogout={handleLogout} navigate={navigate} onMouseEnter={megaEnter} onMouseLeave={megaLeave} />, document.body)}
       
       {/* Chat/Support Modals */}

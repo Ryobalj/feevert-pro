@@ -345,26 +345,6 @@ const HomePage = () => {
               ))}
             </div>
             
-            {projects.length > 4 && (
-              <div className="text-center mt-10">
-                <Link
-                  to="/projects"
-                  className="group relative inline-flex items-center gap-3 border-2 border-white/20 text-white px-8 py-4 rounded-full font-bold hover:border-emerald-400/50 transition-all duration-300"
-                >
-                  {t('projects.view_all') || 'View All Projects'}
-                  <motion.svg
-                    className="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    animate={{ x: [0, 5, 0] }}
-                    transition={{ duration: 1.5, repeat: Infinity }}
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                  </motion.svg>
-                </Link>
-              </div>
-            )}
           </div>
         </section>
       )}
@@ -790,24 +770,6 @@ const HomePage = () => {
                     transition={{ duration: 1.5, repeat: Infinity }}
                   >
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                  </motion.svg>
-                </span>
-              </Link>
-              <Link
-                to="/services"
-                className="group relative border-2 border-white/30 text-white px-10 py-4 rounded-full font-bold text-lg hover:border-white/60 transition-all"
-              >
-                <span className="flex items-center gap-2">
-                  {t('cta.view_services') || 'View Services'}
-                  <motion.svg
-                    className="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    animate={{ x: [0, 4, 0] }}
-                    transition={{ duration: 1.5, repeat: Infinity, delay: 0.5 }}
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                   </motion.svg>
                 </span>
               </Link>

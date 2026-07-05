@@ -62,7 +62,15 @@ class Project(BaseModel):
         ('published', 'Published'),
         ('archived', 'Archived'),
     )
-    
+
+    # Editorial visibility (draft/published/archived) is separate from the
+    # real-world state of the work itself. work_status drives the Projects
+    # mega-menu split between "Completed Projects" and "On-going Projects".
+    WORK_STATUS_CHOICES = (
+        ('completed', 'Completed'),
+        ('ongoing', 'On-going'),
+    )
+
     title = models.CharField(max_length=200)
     slug = models.SlugField(max_length=200, unique=True, blank=True)
     category = models.ForeignKey(ProjectCategory, on_delete=models.CASCADE, related_name='projects')
@@ -81,6 +89,10 @@ class Project(BaseModel):
     results = models.TextField(blank=True, help_text="Results and outcomes")
     is_featured = models.BooleanField(default=False)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='draft')
+    work_status = models.CharField(
+        max_length=10, choices=WORK_STATUS_CHOICES, default='completed',
+        help_text="Whether the work is finished or still on-going"
+    )
     meta_title = models.CharField(max_length=60, blank=True)
     meta_description = models.CharField(max_length=160, blank=True)
     order = models.IntegerField(default=0)

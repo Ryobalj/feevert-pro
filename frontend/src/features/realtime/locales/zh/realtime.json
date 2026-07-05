@@ -21,6 +21,7 @@
                  "start_new_chat":  "开始新聊天",
                  "tap_to_chat":  "点击聊天",
                  "no_users_found":  "未找到用户",
-                 "no_users_available":  "没有可用用户"
+                 "no_users_available":  "没有可用用户",
+                 "open_full_view":  "打开完整视图"
              }
 }

@@ -28,8 +28,8 @@ const UserChatList = ({ isModal, onClose, embedded = false, selectedUserId = nul
     const loadData = async () => {
       try {
         const [convRes, unreadRes] = await Promise.all([
-          api.get('/conversations/'),
-          api.get('/unread-count/')
+          api.get('/realtime/conversations/'),
+          api.get('/realtime/unread-count/')
         ])
         setConversations(convRes.data || [])
         setTotalUnread(unreadRes.data?.unread_count || 0)
@@ -93,8 +93,8 @@ const UserChatList = ({ isModal, onClose, embedded = false, selectedUserId = nul
   const refreshConversations = async () => {
     try {
       const [convRes, unreadRes] = await Promise.all([
-        api.get('/conversations/'),
-        api.get('/unread-count/')
+        api.get('/realtime/conversations/'),
+        api.get('/realtime/unread-count/')
       ])
       setConversations(convRes.data || [])
       setTotalUnread(unreadRes.data?.unread_count || 0)
