@@ -301,7 +301,6 @@ const ChatBox = ({ recipientId, recipientName, recipientAvatar, onClose, onNewMe
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            disabled={!isConnected}
             className="w-10 h-10 rounded-full glass flex items-center justify-center text-white/50 hover:text-emerald-400 transition-all disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0"
             aria-label={t('chat.attach_file') || 'Attach file'}
           >
@@ -317,11 +316,10 @@ const ChatBox = ({ recipientId, recipientName, recipientAvatar, onClose, onNewMe
             onKeyDown={handleTyping}
             placeholder={t('chat.message_placeholder') || 'Type a message...'}
             className="flex-1 min-w-0 px-4 py-2.5 glass text-white placeholder:text-white/25 rounded-full border-0 outline-none focus:ring-2 focus:ring-emerald-400/40 transition-all text-sm"
-            disabled={!isConnected}
           />
           <motion.button
             type="submit"
-            disabled={!isConnected || sending || (!inputMessage.trim() && !pendingFile)}
+            disabled={sending || (!inputMessage.trim() && !pendingFile)}
             className="w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center text-white hover:bg-emerald-400 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-lg shadow-emerald-500/20 flex-shrink-0"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
