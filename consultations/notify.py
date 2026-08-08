@@ -31,11 +31,11 @@ def notify_request_assigned(consultation, assignee, actor=None):
     """Tell the staff member a job was assigned to them."""
     if not assignee:
         return
-    service = getattr(consultation.service, 'name', 'a service')
+    item = consultation.item_name or 'a service'
     _create(
         assignee,
         title="New job assigned to you",
-        message=f"You have been assigned: {service}.",
+        message=f"You have been assigned: {item}.",
         link='/dashboard',
         data={'request_id': str(consultation.id), 'kind': 'assigned'},
     )

@@ -318,10 +318,20 @@ class ConsultationRequest(BaseModel):
         on_delete=models.CASCADE, 
         related_name='consultation_requests'
     )
+    # In the flat services model the requestable item is a sub-category
+    # (ConsultationCategory level 1). `service` is kept for backward
+    # compatibility but is now optional; new requests use `category`.
     service = models.ForeignKey(
-        ConsultationService, 
-        on_delete=models.CASCADE, 
-        related_name='requests'
+        ConsultationService,
+        on_delete=models.SET_NULL,
+        related_name='requests',
+        null=True, blank=True,
+    )
+    category = models.ForeignKey(
+        ConsultationCategory,
+        on_delete=models.SET_NULL,
+        related_name='requests',
+        null=True, blank=True,
     )
     assigned_to = models.ForeignKey(
         settings.AUTH_USER_MODEL, 
@@ -357,8 +367,18 @@ class ConsultationRequest(BaseModel):
             models.Index(fields=['priority', 'status']),
         ]
     
+    @property
+    def item_name(self):
+        """The requested item's name — the sub-category (flat model) or, for
+        legacy rows, the service."""
+        if self.category_id and self.category:
+            return self.category.name
+        if self.service_id and self.service:
+            return self.service.name
+        return ''
+
     def __str__(self):
-        return f"{self.client.username} - {self.service.name} ({self.get_status_display()})"
+        return f"{self.client.username} - {self.item_name} ({self.get_status_display()})"
 
 
 class ConsultationDocument(BaseModel):

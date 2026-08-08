@@ -97,7 +97,7 @@ const ClientJobs = () => {
               <div key={job.id} className="rounded-xl border border-white/10 bg-white/[0.02] p-4">
                 <div className="flex items-start justify-between gap-3 mb-4">
                   <div className="min-w-0">
-                    <div className="text-sm font-semibold text-white truncate">{job.service_name || 'Service'}</div>
+                    <div className="text-sm font-semibold text-white truncate">{job.item_name || job.service_name || 'Service'}</div>
                     <div className="text-xs text-white/40">
                       Requested {new Date(job.created_at).toLocaleDateString()}
                       {job.assigned_to_name ? ` · Specialist: ${job.assigned_to_name}` : ''}

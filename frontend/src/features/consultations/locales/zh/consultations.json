@@ -69,7 +69,7 @@
   "request": {
     "badge": "联系我们",
     "title": "请求",
-    "subtitle": "咨询",
+    "subtitle": "告诉我们您的需求，我们的专家会为您处理。",
     "description": "填写表格，我们将尽快回复您",
     "loading_services": "正在加载服务...",
     "select_service": "选择服务",
@@ -88,6 +88,7 @@
     "submit_error": "提交请求出错。请重试。",
     "success_title": "请求已提交！",
     "success_message": "感谢您的请求。我们将尽快与您联系。",
-    "redirecting": "正在跳转到咨询列表..."
+    "redirecting": "正在跳转到咨询列表...",
+    "title_highlight": "咨询"
   }
 }

@@ -252,8 +252,10 @@ class ConsultationRequestSerializer(serializers.ModelSerializer):
     client_name = serializers.CharField(source='client.full_name', read_only=True, allow_null=True)
     client_email = serializers.EmailField(source='client.email', read_only=True)
     client_phone = serializers.CharField(source='client.phone', read_only=True, allow_null=True)
-    service_name = serializers.CharField(source='service.name', read_only=True)
-    service_category = serializers.CharField(source='service.category.full_path', read_only=True)
+    service_name = serializers.CharField(source='service.name', read_only=True, allow_null=True)
+    service_category = serializers.CharField(source='service.category.full_path', read_only=True, allow_null=True)
+    category_name = serializers.CharField(source='category.name', read_only=True, allow_null=True)
+    item_name = serializers.CharField(read_only=True)
     assigned_to_name = serializers.CharField(
         source='assigned_to.full_name', read_only=True, allow_null=True
     )
@@ -269,6 +271,7 @@ class ConsultationRequestSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'client', 'client_name', 'client_email', 'client_phone',
             'service', 'service_name', 'service_category',
+            'category', 'category_name', 'item_name',
             'preferred_date', 'preferred_time', 'alternative_date',
             'message', 'budget_range', 'attachments',
             'status', 'status_display', 'priority', 'priority_display',
@@ -310,14 +313,29 @@ class ConsultationRequestSerializer(serializers.ModelSerializer):
 
 
 class ConsultationRequestCreateSerializer(serializers.ModelSerializer):
-    """Serializer for creating a consultation request"""
+    """Serializer for creating a consultation request.
+
+    In the flat model the client picks a `category` (sub-category-as-service).
+    `service` stays accepted for backward compatibility. At least one is
+    required. Returns `id` so the frontend can navigate to the new request.
+    """
     class Meta:
         model = ConsultationRequest
         fields = [
-            'service', 'preferred_date', 'preferred_time',
+            'id', 'service', 'category', 'preferred_date', 'preferred_time',
             'alternative_date', 'message', 'budget_range'
         ]
-    
+        read_only_fields = ['id']
+        extra_kwargs = {
+            'service': {'required': False},
+            'category': {'required': False},
+        }
+
+    def validate(self, attrs):
+        if not attrs.get('service') and not attrs.get('category'):
+            raise serializers.ValidationError('Please choose a service.')
+        return attrs
+
     def validate_preferred_date(self, value):
         from django.utils import timezone
         if value < timezone.now():

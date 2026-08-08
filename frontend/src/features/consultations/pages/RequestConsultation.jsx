@@ -7,9 +7,9 @@ import api from '../../../app/api'
 
 const RequestConsultation = () => {
   const { t } = useTranslation('consultations') // ✅ Ongeza hii
-  const [services, setServices] = useState([])
+  const [groups, setGroups] = useState([])
   const [formData, setFormData] = useState({
-    service: '', preferred_date: '', message: '', budget_range: ''
+    category: '', preferred_date: '', message: '', budget_range: ''
   })
   const [loading, setLoading] = useState(false)
   const [fetching, setFetching] = useState(true)
@@ -21,8 +21,15 @@ const RequestConsultation = () => {
   useEffect(() => {
     const loadServices = async () => {
       try {
-        const res = await api.get('/consultation-services/')
-        setServices(res.data?.results || res.data || [])
+        // Flat model: the requestable items are the sub-categories under each
+        // core category. Use the category tree and keep the ones with children.
+        const res = await api.get('/consultation-categories/tree/')
+        const tree = res.data?.results || res.data || []
+        setGroups(
+          tree
+            .map(core => ({ label: core.name, items: core.children || [] }))
+            .filter(g => g.items.length > 0)
+        )
       } catch (error) { console.error('Error loading services:', error) }
       finally { setFetching(false) }
     }
@@ -33,7 +40,7 @@ const RequestConsultation = () => {
     e.preventDefault()
     setError('')
     
-    if (!formData.service) {
+    if (!formData.category) {
       setError(t('request.select_service_error'))
       return
     }
@@ -137,17 +144,21 @@ const RequestConsultation = () => {
                   </svg>
                   {t('request.select_service')} <span className="text-red-400">*</span>
                 </label>
-                <select 
-                  value={formData.service} 
-                  onChange={(e) => { setFormData({...formData, service: e.target.value}); setError('') }} 
+                <select
+                  value={formData.category}
+                  onChange={(e) => { setFormData({...formData, category: e.target.value}); setError('') }}
                   required
                   className="w-full px-4 py-3.5 glass text-white rounded-2xl border-0 outline-none focus:ring-2 focus:ring-emerald-400/50 transition-all text-sm cursor-pointer"
                 >
                   <option value="" className="bg-[#0d3320]">{t('request.choose_service')}</option>
-                  {services.map(service => (
-                    <option key={service.id} value={service.id} className="bg-[#0d3320]">
-                      {service.name} {service.price ? `— TZS ${parseInt(service.price).toLocaleString()}` : ''}
-                    </option>
+                  {groups.map(group => (
+                    <optgroup key={group.label} label={group.label} className="bg-[#0d3320]">
+                      {group.items.map(item => (
+                        <option key={item.id} value={item.id} className="bg-[#0d3320]">
+                          {item.name}
+                        </option>
+                      ))}
+                    </optgroup>
                   ))}
                 </select>
               </div>

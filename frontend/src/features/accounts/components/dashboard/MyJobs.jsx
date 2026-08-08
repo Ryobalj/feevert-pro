@@ -112,7 +112,7 @@ const MyJobs = () => {
                   className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-white/[0.03] transition-colors"
                 >
                   <div className="flex-1 min-w-0">
-                    <div className="text-sm font-semibold text-white truncate">{job.service_name || 'Service'}</div>
+                    <div className="text-sm font-semibold text-white truncate">{job.item_name || job.service_name || 'Service'}</div>
                     <div className="text-xs text-white/40 truncate">
                       {job.client_name || job.client_email || 'Client'} · {new Date(job.created_at).toLocaleDateString()}
                     </div>

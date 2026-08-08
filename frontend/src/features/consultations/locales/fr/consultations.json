@@ -69,7 +69,7 @@
   "request": {
     "badge": "Contactez-nous",
     "title": "Demander",
-    "subtitle": "une consultation",
+    "subtitle": "Dites-nous ce dont vous avez besoin et nos spécialistes s'en chargeront.",
     "description": "Remplissez le formulaire et nous vous répondrons rapidement",
     "loading_services": "Chargement des services...",
     "select_service": "Sélectionner un service",
@@ -88,6 +88,7 @@
     "submit_error": "Erreur lors de la soumission de la demande. Veuillez réessayer.",
     "success_title": "Demande soumise !",
     "success_message": "Merci pour votre demande. Nous vous contacterons bientôt.",
-    "redirecting": "Redirection vers les consultations..."
+    "redirecting": "Redirection vers les consultations...",
+    "title_highlight": "une Consultation"
   }
 }

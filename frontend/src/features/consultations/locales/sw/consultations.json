@@ -69,7 +69,7 @@
   "request": {
     "badge": "Wasiliana Nasi",
     "title": "Omba",
-    "subtitle": "Ushauri",
+    "subtitle": "Tuambie unachohitaji, na wataalamu wetu watalishughulikia.",
     "description": "Jaza fomu na tutakurudishia hivi karibuni",
     "loading_services": "Inapakia huduma...",
     "select_service": "Chagua Huduma",
@@ -88,6 +88,7 @@
     "submit_error": "Hitilafu ya kutuma ombi. Tafadhali jaribu tena.",
     "success_title": "Ombi Limetumwa!",
     "success_message": "Asante kwa ombi lako. Tutawasiliana nawe hivi karibuni.",
-    "redirecting": "Inaelekeza kwenye ushauri..."
+    "redirecting": "Inaelekeza kwenye ushauri...",
+    "title_highlight": "Ushauri"
   }
 }
