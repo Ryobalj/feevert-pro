@@ -16,6 +16,7 @@ import HomePage from './features/home/pages/HomePage'
 // Other Pages
 import AboutPage from './features/home/pages/AboutPage'
 import ServiceDetailPage from './features/home/pages/ServiceDetailPage'
+import CategoryDetailPage from './features/home/pages/CategoryDetailPage'
 import ContactPage from './features/home/pages/ContactPage'
 import PartnersPage from './features/home/pages/PartnersPage'
 import FaqPage from './features/home/pages/FaqPage'
@@ -110,6 +111,8 @@ function App() {
               <Route path="/submit-review" element={<ProtectedRoute><SubmitReview /></ProtectedRoute>} />
               
               {/* Services (listing page removed - browsing happens in the navbar mega-menu) */}
+              {/* A sub-category with no child services acts as a service itself */}
+              <Route path="/services/category/:id" element={<CategoryDetailPage />} />
               <Route path="/services/:id" element={<ServiceDetailPage />} />
 
               {/* Projects (listing page removed - browsing happens in the navbar mega-menu) */}

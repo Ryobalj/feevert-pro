@@ -14,6 +14,9 @@ from rest_framework_simplejwt.views import (
     TokenVerifyView,
 )
 
+# Staff-only admin helper views
+from core.admin_views import export_seed_download
+
 # Import all viewset routers
 from accounts.views import UserViewSet, ProfileViewSet, RoleViewSet, UserActivityLogViewSet
 from consultations.views import (
@@ -208,7 +211,8 @@ urlpatterns = [
     path('', api_root, name='api-root'),
     path('api/language/', include('home.urls')),
     
-    # Admin
+    # Admin — custom staff-only views must precede admin.site.urls so they resolve first
+    path('feevert-admin/export-seed/', export_seed_download, name='admin-export-seed'),
     path('feevert-admin/', admin.site.urls),
     
     # JWT Authentication

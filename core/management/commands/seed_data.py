@@ -44,11 +44,17 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('--force', action='store_true', help='Delete all existing data first (full reset)')
         parser.add_argument('--no-delete', action='store_true', help='Update & Create only, no deletion')
+        parser.add_argument('--file', default=None,
+                            help='Path to the Excel file (default: fixtures/seed_data.xlsx)')
+        parser.add_argument('--only', default=None,
+                            help='Limit sync to a comma list, e.g. "services,sub_categories". '
+                                 'Any of categories/sub_categories/services runs the consultation rebuild; '
+                                 'other names match the sheet loop. Skips the superuser step.')
 
     def handle(self, *args, **options):
         self.stdout.write(self.style.SUCCESS('🔄 SMART DATA SYNC FROM EXCEL...'))
 
-        file_path = os.path.join(settings.BASE_DIR, 'fixtures', 'seed_data.xlsx')
+        file_path = options.get('file') or os.path.join(settings.BASE_DIR, 'fixtures', 'seed_data.xlsx')
 
         if not os.path.exists(file_path):
             self.stdout.write(self.style.ERROR(f'❌ File not found: {file_path}'))
@@ -57,6 +63,12 @@ class Command(BaseCommand):
         force = options.get('force', False)
         no_delete = options.get('no_delete', False)
 
+        only = options.get('only')
+        only_set = {x.strip() for x in only.split(',') if x.strip()} if only else None
+        run_consult = (only_set is None) or bool(only_set & {'categories', 'sub_categories', 'services'})
+        if only_set is not None:
+            self.stdout.write(self.style.WARNING(f'🎯 ONLY mode: {sorted(only_set)} (other data untouched)'))
+
         if force:
             self.stdout.write(self.style.WARNING('🗑️ FORCE MODE: Deleting all data...'))
             self._delete_all_data()
@@ -64,7 +76,8 @@ class Command(BaseCommand):
             self.stdout.write(self.style.SUCCESS('🧠 SMART SYNC MODE: Update, Create, Delete (if removed from Excel)...'))
 
         # ✅ SMART REBUILD CATEGORIES + SERVICES (if mismatch or force)
-        self._smart_rebuild_categories(file_path, force=force)
+        if run_consult:
+            self._smart_rebuild_categories(file_path, force=force)
 
         total_created = 0
         total_updated = 0
@@ -101,6 +114,8 @@ class Command(BaseCommand):
         ]
 
         for sheet_name, app_label, model_name, lookup_field, sync_func in sheets:
+            if only_set is not None and sheet_name not in only_set:
+                continue
             try:
                 df = pd.read_excel(file_path, sheet_name=sheet_name)
                 c, u, s, d = sync_func(df, app_label, model_name, lookup_field=lookup_field, no_delete=no_delete)
@@ -114,7 +129,8 @@ class Command(BaseCommand):
             except Exception as e:
                 self.stdout.write(self.style.WARNING(f'   ⚠️ {sheet_name}: {e}'))
 
-        self._create_superuser()
+        if only_set is None:
+            self._create_superuser()
 
         self.stdout.write(self.style.SUCCESS(f'✅ SMART SYNC COMPLETE!'))
         self.stdout.write(f'   📝 Created: {total_created}')

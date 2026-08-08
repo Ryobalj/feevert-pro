@@ -157,7 +157,25 @@ const ServicesMegaMenu = ({ tree, categories, onClose, onMouseEnter, onMouseLeav
                       <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
                     </Link>
                   </div>
-                )) : <div className="px-3 py-6 text-center text-xs text-[var(--g-text-tertiary)]">No services</div>}
+                )) : activeSub ? (
+                  /* Sub-category has no services → the sub-category itself IS the service */
+                  <div className="px-3 py-3 rounded-lg transition-all duration-200 hover:bg-[var(--g-liquid-secondary)]">
+                    <div className="font-medium text-sm flex items-center gap-2 text-[var(--g-text-secondary)]">
+                      <Icon name={activeSub.icon} size="text-lg" />
+                      <span>{activeSub.name}</span>
+                    </div>
+                    {activeSub.description && (
+                      <p className="text-[11px] leading-snug text-[var(--g-text-tertiary)] mt-1 ml-8 line-clamp-3">
+                        {activeSub.description}
+                      </p>
+                    )}
+                    <Link to={`/services/category/${activeSub.id}`} onClick={onClose}
+                      className="inline-flex items-center gap-1 text-[11px] font-semibold text-[var(--g-color-primary)] mt-1.5 ml-8 hover:gap-2 transition-all">
+                      Read More
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                    </Link>
+                  </div>
+                ) : <div className="px-3 py-6 text-center text-xs text-[var(--g-text-tertiary)]">No services</div>}
               </div>
             )}
           </div>
@@ -252,6 +270,27 @@ const ServicesMegaMenu = ({ tree, categories, onClose, onMouseEnter, onMouseLeav
                       </Link>
                     </div>
                   ))}
+                </div>
+              ) : activeSub ? (
+                /* Sub-category has no services → the sub-category itself IS the service */
+                <div className="px-3 py-2.5 rounded-lg transition-all duration-200 hover:bg-[var(--g-liquid-secondary)] group/svc">
+                  <div className="font-medium text-sm text-[var(--g-text-secondary)] flex items-center gap-2 group-hover/svc:text-[var(--g-color-primary)] transition-colors">
+                    <Icon name={activeSub.icon} size="text-base" className="flex-shrink-0" />
+                    <span>{activeSub.name}</span>
+                  </div>
+                  {activeSub.description && (
+                    <p className="text-[11px] leading-snug text-[var(--g-text-tertiary)] mt-1 ml-7 line-clamp-3">
+                      {activeSub.description}
+                    </p>
+                  )}
+                  <Link
+                    to={`/services/category/${activeSub.id}`}
+                    onClick={onClose}
+                    className="inline-flex items-center gap-1 text-[11px] font-semibold text-[var(--g-color-primary)] mt-1.5 ml-7 hover:gap-2 transition-all"
+                  >
+                    Read More
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                  </Link>
                 </div>
               ) : (
                 <div className="px-3 py-8 text-center text-xs text-[var(--g-text-tertiary)]">No services</div>

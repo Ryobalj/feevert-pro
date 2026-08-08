@@ -27,6 +27,11 @@ services:
         value: .onrender.com,feevert.co.tz,www.feevert.co.tz
       - key: USE_REDIS
         value: false
+      # Never auto-seed on deploy - content is managed via the admin panel
+      # on live. seed_data would overwrite/delete those edits. (Belt-and-
+      # suspenders alongside the RENDER=true check in core/seed_guard.py.)
+      - key: SKIP_SEED_DATA
+        value: true
       - key: EMAIL_BACKEND
         value: django.core.mail.backends.smtp.EmailBackend
       - key: EMAIL_HOST

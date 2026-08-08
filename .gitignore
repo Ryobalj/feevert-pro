@@ -8,6 +8,8 @@ env/
 venv/
 feevert-env/
 .env
+.env.live
+.env.*.local
 *.log
 staticfiles/
 media/
@@ -31,3 +33,7 @@ Thumbs.db
 
 # Termux
 *.lock
+
+# Seed working files (only fixtures/seed_data.xlsx is the committed baseline)
+fixtures/seed_data.new.xlsx
+fixtures/seed_data.exported.xlsx
