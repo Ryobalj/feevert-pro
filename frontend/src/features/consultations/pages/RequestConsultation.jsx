@@ -15,8 +15,19 @@ const RequestConsultation = () => {
   const [fetching, setFetching] = useState(true)
   const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState('')
+  const [pdate, setPdate] = useState('')
+  const [ptime, setPtime] = useState('')
   const navigate = useNavigate()
   const { darkMode } = useTheme()
+
+  // Hybrid date + time: a date input plus a time dropdown, combined into the
+  // single `preferred_date` the backend expects (YYYY-MM-DDTHH:MM).
+  const setDateTime = (d, tm) => {
+    setPdate(d); setPtime(tm); setError('')
+    setFormData(prev => ({ ...prev, preferred_date: d && tm ? `${d}T${tm}` : '' }))
+  }
+  const TIME_SLOTS = Array.from({ length: 10 }, (_, i) => `${String(8 + i).padStart(2, '0')}:00`) // 08:00–17:00
+  const todayStr = new Date().toISOString().slice(0, 10)
 
   // Native <select> options don't inherit page theme — set them explicitly so
   // the grouped list is readable in both light and dark themes.
@@ -181,14 +192,31 @@ const RequestConsultation = () => {
                   </svg>
                   {t('request.preferred_date')} <span className="text-red-400">*</span>
                 </label>
-                <input 
-                  type="datetime-local" 
-                  value={formData.preferred_date} 
-                  onChange={(e) => { setFormData({...formData, preferred_date: e.target.value}); setError('') }} 
-                  required
-                  min={new Date().toISOString().slice(0, 16)}
-                  className="w-full px-4 py-3.5 glass text-white rounded-2xl border-0 outline-none focus:ring-2 focus:ring-emerald-400/50 transition-all text-sm cursor-pointer [color-scheme:dark]" 
-                />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {/* Date (input / calendar) */}
+                  <input
+                    type="date"
+                    value={pdate}
+                    onChange={(e) => setDateTime(e.target.value, ptime)}
+                    required
+                    min={todayStr}
+                    style={{ colorScheme: darkMode ? 'dark' : 'light' }}
+                    className="w-full px-4 py-3.5 glass text-white rounded-2xl border-0 outline-none focus:ring-2 focus:ring-emerald-400/50 transition-all text-sm cursor-pointer"
+                  />
+                  {/* Time (select) */}
+                  <select
+                    value={ptime}
+                    onChange={(e) => setDateTime(pdate, e.target.value)}
+                    required
+                    style={{ colorScheme: darkMode ? 'dark' : 'light' }}
+                    className="w-full px-4 py-3.5 glass text-white rounded-2xl border-0 outline-none focus:ring-2 focus:ring-emerald-400/50 transition-all text-sm cursor-pointer"
+                  >
+                    <option value="" style={optionStyle}>{t('request.choose_time') || 'Choose a time'}</option>
+                    {TIME_SLOTS.map(slot => (
+                      <option key={slot} value={slot} style={optionStyle}>{slot}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
 
               {/* Budget Range */}

@@ -89,6 +89,7 @@
     "success_title": "Demande soumise !",
     "success_message": "Merci pour votre demande. Nous vous contacterons bientôt.",
     "redirecting": "Redirection vers les consultations...",
-    "title_highlight": "une Consultation"
+    "title_highlight": "une Consultation",
+    "choose_time": "Choisir une heure"
   }
 }

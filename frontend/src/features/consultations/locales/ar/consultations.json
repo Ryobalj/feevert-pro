@@ -89,6 +89,7 @@
     "success_title": "تم إرسال الطلب!",
     "success_message": "شكراً لطلبك. سنتواصل معك قريباً.",
     "redirecting": "جاري التوجيه إلى الاستشارات...",
-    "title_highlight": "استشارة"
+    "title_highlight": "استشارة",
+    "choose_time": "اختر وقتًا"
   }
 }

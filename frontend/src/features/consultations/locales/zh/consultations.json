@@ -89,6 +89,7 @@
     "success_title": "请求已提交！",
     "success_message": "感谢您的请求。我们将尽快与您联系。",
     "redirecting": "正在跳转到咨询列表...",
-    "title_highlight": "咨询"
+    "title_highlight": "咨询",
+    "choose_time": "选择时间"
   }
 }

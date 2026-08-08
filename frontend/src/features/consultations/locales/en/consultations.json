@@ -89,6 +89,7 @@
     "success_title": "Request Submitted!",
     "success_message": "Thank you for your request. We'll contact you soon.",
     "redirecting": "Redirecting to consultations...",
-    "title_highlight": "Consultation"
+    "title_highlight": "Consultation",
+    "choose_time": "Choose a time"
   }
 }
