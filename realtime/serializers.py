@@ -50,6 +50,6 @@ class ConversationSerializer(serializers.Serializer):
 class SendMessageSerializer(serializers.Serializer):
     """Serializer for sending a message"""
     recipient_id = serializers.IntegerField(required=True)
-    message = serializers.CharField(required=True, max_length=2000)
+    message = serializers.CharField(required=False, allow_blank=True, max_length=2000)
     attachment = serializers.FileField(required=False)
     related_consultation = serializers.IntegerField(required=False, allow_null=True)

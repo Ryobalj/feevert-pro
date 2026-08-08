@@ -203,7 +203,7 @@ const ChatBox = ({ recipientId, recipientName, recipientAvatar, onClose, onNewMe
       </div>
 
       {/* ============ MESSAGES ============ */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-4">
         {loading ? (
           <div className="flex items-center justify-center h-full">
             <div className="spinner" />

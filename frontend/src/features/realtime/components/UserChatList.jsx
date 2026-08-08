@@ -309,7 +309,7 @@ const UserChatList = ({ isModal, onClose, embedded = false, selectedUserId = nul
               key={activeChat.id}
               recipientId={activeChat.id}
               recipientName={activeChat.name}
-              onClose={closeChat}
+              onClose={() => { closeChat(); if (onClose) onClose() }}
               onNewMessage={refreshConversations}
             />
           )}

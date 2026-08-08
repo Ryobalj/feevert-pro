@@ -240,8 +240,13 @@ def send_message(request):
         return Response(serializer.errors, status=400)
     
     recipient_id = serializer.validated_data['recipient_id']
-    message_text = serializer.validated_data['message']
-    
+    message_text = serializer.validated_data.get('message', '') or ''
+    attachment = request.FILES.get('attachment')
+
+    # Need at least a text body or a file
+    if not message_text.strip() and not attachment:
+        return Response({'error': 'Message or attachment is required'}, status=400)
+
     try:
         recipient = User.objects.get(id=recipient_id, is_active=True)
     except User.DoesNotExist:
@@ -264,13 +269,28 @@ def send_message(request):
             return Response({'error': 'Consultation not found or not accessible'}, status=404)
 
     # Create message
-    message = Message.objects.create(
-        sender=request.user,
-        recipient=recipient,
-        message=message_text,
-        attachment=request.FILES.get('attachment'),
-        related_consultation=consultation,
-    )
+    try:
+        message = Message.objects.create(
+            sender=request.user,
+            recipient=recipient,
+            message=message_text,
+            attachment=attachment,
+            related_consultation=consultation,
+        )
+    except Exception as e:
+        # Most commonly an attachment storage failure (e.g. Cloudinary). Save
+        # the text so the message isn't lost, and tell the client the file
+        # couldn't be attached instead of returning an opaque 500.
+        print(f"Message create failed (attachment?): {e}")
+        if attachment and message_text.strip():
+            message = Message.objects.create(
+                sender=request.user, recipient=recipient,
+                message=message_text, related_consultation=consultation,
+            )
+            resp = MessageSerializer(message, context={'request': request}).data
+            resp['attachment_error'] = 'The file could not be attached, but your message was sent.'
+            return Response(resp, status=201)
+        return Response({'error': 'Could not send the attachment. Please try a smaller or different file.'}, status=400)
 
     # Push the full message straight to the recipient's WebSocket group so
     # their ChatBox can append it live. This bypasses the generic

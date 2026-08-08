@@ -6,6 +6,20 @@ from django.utils import timezone
 from core.models import BaseModel
 
 
+def _chat_attachment_storage():
+    """Chat attachments can be any file type (PDF, Word, images). On production
+    the default Cloudinary storage only accepts images and 500s on other files,
+    so use raw storage there. Locally (filesystem) this stays the default."""
+    default = (getattr(settings, 'DEFAULT_FILE_STORAGE', '') or '').lower()
+    if 'cloudinary' in default:
+        try:
+            from cloudinary_storage.storage import RawMediaCloudinaryStorage
+            return RawMediaCloudinaryStorage()
+        except Exception:
+            return None
+    return None
+
+
 # Realtime app inatumia models za notifications app
 # Hii ni empty file - models zote zinatoka kwenye notifications app
 
@@ -42,7 +56,7 @@ class Message(BaseModel):
     message = models.TextField()
     is_read = models.BooleanField(default=False)
     read_at = models.DateTimeField(blank=True, null=True)
-    attachment = models.FileField(upload_to='chat_attachments/', blank=True, null=True)
+    attachment = models.FileField(upload_to='chat_attachments/', storage=_chat_attachment_storage(), blank=True, null=True)
     related_consultation = models.ForeignKey(
         'consultations.ConsultationRequest',
         on_delete=models.SET_NULL,
