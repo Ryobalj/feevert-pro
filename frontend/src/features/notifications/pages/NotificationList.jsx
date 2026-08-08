@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next' // ✅ Ongeza hii
 import { useTheme } from '../../../context/ThemeContext'
@@ -6,10 +7,19 @@ import api from '../../../app/api'
 
 const NotificationList = () => {
   const { t } = useTranslation('notifications') // ✅ Ongeza hii
+  const navigate = useNavigate()
   const [notifications, setNotifications] = useState([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState('all')
   const { darkMode } = useTheme()
+
+  // Clicking a notification: mark it read and open the related page.
+  const openNotification = (n) => {
+    if (!n.is_read) markAsRead(n.id)
+    const type = n.notification_type || n.type
+    const link = n.related_link || (type === 'chat' ? '/messages' : type === 'consultation' ? '/dashboard' : null)
+    if (link) navigate(link)
+  }
 
   useEffect(() => {
     const loadNotifications = async () => {
@@ -139,7 +149,7 @@ const NotificationList = () => {
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.03 }}
                     whileHover={{ x: 4 }}
-                    onClick={() => isUnread && markAsRead(notification.id)}
+                    onClick={() => openNotification(notification)}
                     className={`glass-card p-4 cursor-pointer transition-all duration-300 group ${
                       isUnread 
                         ? 'border-l-[3px] border-l-emerald-400 bg-emerald-400/[0.02]' 
