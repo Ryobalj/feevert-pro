@@ -6,13 +6,21 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import api from '../../../app/api'
 import { useAuth } from '../../accounts/hooks/useAuth'
+import { useTheme } from '../../../context/ThemeContext'
 
 const BookingPage = () => {
   const { t } = useTranslation('booking')
   const navigate = useNavigate()
   const { isAuthenticated, user } = useAuth()
+  const { darkMode } = useTheme()
+  const optionStyle = darkMode
+    ? { backgroundColor: '#0d3320', color: '#ffffff' }
+    : { backgroundColor: '#ffffff', color: '#0f2e1d' }
+  const groupStyle = darkMode
+    ? { backgroundColor: '#0a2417', color: '#8fd8b0', fontWeight: 600 }
+    : { backgroundColor: '#eaf5ee', color: '#1b5e20', fontWeight: 600 }
   const [consultants, setConsultants] = useState([])
-  const [services, setServices] = useState([])
+  const [groups, setGroups] = useState([])
   const [timeSlots, setTimeSlots] = useState([])
   const [selectedConsultant, setSelectedConsultant] = useState('')
   const [selectedService, setSelectedService] = useState('')
@@ -26,12 +34,17 @@ const BookingPage = () => {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const [consultantsRes, servicesRes] = await Promise.all([
+        const [consultantsRes, treeRes] = await Promise.all([
           api.get('/users/?role=consultant'),
-          api.get('/consultation-services/')
+          api.get('/consultation-categories/tree/')
         ])
         setConsultants(consultantsRes.data?.results || consultantsRes.data || [])
-        setServices(servicesRes.data?.results || servicesRes.data || [])
+        const tree = treeRes.data?.results || treeRes.data || []
+        setGroups(
+          tree
+            .map(core => ({ label: core.name, items: core.children || [] }))
+            .filter(g => g.items.length > 0)
+        )
       } catch (error) {
         console.error('Error loading data:', error)
       }
@@ -85,7 +98,8 @@ const BookingPage = () => {
     try {
       await api.post('/bookings/', {
         slot: selectedSlot,
-        service: selectedService || null,
+        consultant: selectedConsultant,
+        category: selectedService || null,
         notes: notes
       })
       navigate('/my-bookings', { state: { message: t('booking.success_message') } })
@@ -154,16 +168,21 @@ const BookingPage = () => {
               </svg>
               {t('booking.select_service')}
             </label>
-            <select 
-              value={selectedService} 
-              onChange={(e) => setSelectedService(e.target.value)} 
+            <select
+              value={selectedService}
+              onChange={(e) => setSelectedService(e.target.value)}
+              style={{ colorScheme: darkMode ? 'dark' : 'light' }}
               className="w-full px-4 py-3.5 glass text-white rounded-2xl border-0 outline-none focus:ring-2 focus:ring-emerald-400/50 transition-all text-sm cursor-pointer"
             >
-              <option value="" className="bg-[#0d3320]">{t('booking.select_service_optional')}</option>
-              {services.map(service => (
-                <option key={service.id} value={service.id} className="bg-[#0d3320]">
-                  {service.name}
-                </option>
+              <option value="" style={optionStyle}>{t('booking.select_service_optional')}</option>
+              {groups.map(group => (
+                <optgroup key={group.label} label={group.label} style={groupStyle}>
+                  {group.items.map(item => (
+                    <option key={item.id} value={item.id} style={optionStyle}>
+                      {item.name}
+                    </option>
+                  ))}
+                </optgroup>
               ))}
             </select>
           </div>
@@ -176,15 +195,16 @@ const BookingPage = () => {
               </svg>
               {t('booking.select_consultant')} <span className="text-red-400">*</span>
             </label>
-            <select 
-              value={selectedConsultant} 
-              onChange={(e) => setSelectedConsultant(e.target.value)} 
+            <select
+              value={selectedConsultant}
+              onChange={(e) => setSelectedConsultant(e.target.value)}
+              style={{ colorScheme: darkMode ? 'dark' : 'light' }}
               className="w-full px-4 py-3.5 glass text-white rounded-2xl border-0 outline-none focus:ring-2 focus:ring-emerald-400/50 transition-all text-sm cursor-pointer"
               required
             >
-              <option value="" className="bg-[#0d3320]">{t('booking.choose_consultant')}</option>
+              <option value="" style={optionStyle}>{t('booking.choose_consultant')}</option>
               {consultants.map(c => (
-                <option key={c.id} value={c.id} className="bg-[#0d3320]">
+                <option key={c.id} value={c.id} style={optionStyle}>
                   {c.full_name || c.username} - {c.role_name || c.role?.name || 'Consultant'}
                 </option>
               ))}
@@ -199,13 +219,14 @@ const BookingPage = () => {
               </svg>
               {t('booking.select_date')} <span className="text-red-400">*</span>
             </label>
-            <input 
-              type="date" 
-              value={selectedDate} 
-              onChange={(e) => setSelectedDate(e.target.value)} 
-              className="w-full px-4 py-3.5 glass text-white rounded-2xl border-0 outline-none focus:ring-2 focus:ring-emerald-400/50 transition-all text-sm cursor-pointer [color-scheme:dark]"
-              min={getTomorrow()} 
-              required 
+            <input
+              type="date"
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+              style={{ colorScheme: darkMode ? 'dark' : 'light' }}
+              className="w-full px-4 py-3.5 glass text-white rounded-2xl border-0 outline-none focus:ring-2 focus:ring-emerald-400/50 transition-all text-sm cursor-pointer"
+              min={getTomorrow()}
+              required
             />
           </div>
 

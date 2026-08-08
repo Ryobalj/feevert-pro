@@ -25,12 +25,14 @@ class BookingSerializer(serializers.ModelSerializer):
     consultant_name = serializers.CharField(source='consultant.username', read_only=True)
     slot_info = serializers.CharField(source='slot.__str__', read_only=True)
     service_name = serializers.CharField(source='service.name', read_only=True, allow_null=True)
-    
+    category_name = serializers.CharField(source='category.name', read_only=True, allow_null=True)
+
     class Meta:
         model = Booking
         fields = [
             'id', 'client', 'client_name', 'consultant', 'consultant_name',
-            'service', 'service_name', 'slot', 'slot_info', 'status', 'notes',
+            'service', 'service_name', 'category', 'category_name',
+            'slot', 'slot_info', 'status', 'notes',
             'meeting_link', 'cancellation_reason', 'reminder_sent', 'admin_notes',
             'created_at', 'updated_at'
         ]
@@ -41,7 +43,11 @@ class BookingCreateSerializer(serializers.ModelSerializer):
     """Serializer for creating a booking"""
     class Meta:
         model = Booking
-        fields = ['consultant', 'service', 'slot', 'notes']
+        fields = ['consultant', 'service', 'category', 'slot', 'notes']
+        extra_kwargs = {
+            'service': {'required': False},
+            'category': {'required': False},
+        }
 
 
 class AvailabilitySerializer(serializers.ModelSerializer):
