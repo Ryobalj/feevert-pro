@@ -18,6 +18,15 @@ const RequestConsultation = () => {
   const navigate = useNavigate()
   const { darkMode } = useTheme()
 
+  // Native <select> options don't inherit page theme — set them explicitly so
+  // the grouped list is readable in both light and dark themes.
+  const optionStyle = darkMode
+    ? { backgroundColor: '#0d3320', color: '#ffffff' }
+    : { backgroundColor: '#ffffff', color: '#0f2e1d' }
+  const groupStyle = darkMode
+    ? { backgroundColor: '#0a2417', color: '#8fd8b0', fontWeight: 600 }
+    : { backgroundColor: '#eaf5ee', color: '#1b5e20', fontWeight: 600 }
+
   useEffect(() => {
     const loadServices = async () => {
       try {
@@ -148,13 +157,14 @@ const RequestConsultation = () => {
                   value={formData.category}
                   onChange={(e) => { setFormData({...formData, category: e.target.value}); setError('') }}
                   required
+                  style={{ colorScheme: darkMode ? 'dark' : 'light' }}
                   className="w-full px-4 py-3.5 glass text-white rounded-2xl border-0 outline-none focus:ring-2 focus:ring-emerald-400/50 transition-all text-sm cursor-pointer"
                 >
-                  <option value="" className="bg-[#0d3320]">{t('request.choose_service')}</option>
+                  <option value="" style={optionStyle}>{t('request.choose_service')}</option>
                   {groups.map(group => (
-                    <optgroup key={group.label} label={group.label} className="bg-[#0d3320]">
+                    <optgroup key={group.label} label={group.label} style={groupStyle}>
                       {group.items.map(item => (
-                        <option key={item.id} value={item.id} className="bg-[#0d3320]">
+                        <option key={item.id} value={item.id} style={optionStyle}>
                           {item.name}
                         </option>
                       ))}
