@@ -16,9 +16,13 @@ const NotificationList = () => {
   // Clicking a notification: mark it read and open the related page.
   const openNotification = (n) => {
     if (!n.is_read) markAsRead(n.id)
-    const type = n.notification_type || n.type
-    const link = n.related_link || (type === 'chat' ? '/messages' : type === 'consultation' ? '/dashboard' : null)
-    if (link) navigate(link)
+    const type = (n.notification_type || n.type || '').toLowerCase()
+    const title = (n.title || '').toLowerCase()
+    const link = n.related_link
+      || (type === 'chat' || title.includes('message') ? '/messages'
+        : type === 'booking' ? '/my-bookings'
+        : '/dashboard')  // always open somewhere useful
+    navigate(link)
   }
 
   useEffect(() => {
