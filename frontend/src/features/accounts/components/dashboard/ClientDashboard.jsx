@@ -6,6 +6,7 @@ import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import api from '../../../../app/api'
 import { BookingItem, ConsultationItem, ProjectCard } from './index'
+import ClientJobs from './ClientJobs'
 
 const ClientDashboard = ({ user, darkMode }) => {
   const { t } = useTranslation('admin')
@@ -114,8 +115,11 @@ const ClientDashboard = ({ user, darkMode }) => {
           ))}
         </motion.div>
 
+        {/* My Requests — step-by-step progress + deliverable downloads */}
+        <ClientJobs />
+
         {/* Recent Bookings */}
-        <DashboardSection 
+        <DashboardSection
           title={t('client.recent_bookings')} 
           link="/my-bookings" 
           icon="📅" 

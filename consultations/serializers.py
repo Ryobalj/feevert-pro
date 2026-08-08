@@ -287,7 +287,14 @@ class ConsultationRequestSerializer(serializers.ModelSerializer):
         }
     
     def get_documents(self, obj):
+        from django.db.models import Q
         documents = obj.documents.all()
+        request = self.context.get('request')
+        user = getattr(request, 'user', None)
+        # Clients see only delivered deliverables + their own uploads — never
+        # staff drafts / internal working files.
+        if user and not (getattr(user, 'role_name', None) in ['admin', 'consultant', 'employee'] or user.is_staff):
+            documents = documents.filter(Q(is_deliverable=True) | Q(uploaded_by=user))
         if documents.exists():
             return ConsultationDocumentSerializer(
                 documents, many=True, context=self.context
@@ -345,6 +352,7 @@ class ConsultationDocumentSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'request', 'file', 'file_url', 'title',
             'document_type', 'document_type_display', 'description',
+            'is_deliverable',
             'uploaded_by', 'uploaded_by_name', 'file_size', 'file_size_display',
             'created_at'
         ]

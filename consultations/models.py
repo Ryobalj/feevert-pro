@@ -302,6 +302,7 @@ class ConsultationRequest(BaseModel):
         ('confirmed', 'Confirmed'),
         ('in_progress', 'In Progress'),
         ('completed', 'Completed'),
+        ('delivered', 'Delivered'),
         ('cancelled', 'Cancelled'),
     )
     
@@ -379,6 +380,11 @@ class ConsultationDocument(BaseModel):
     description = models.TextField(blank=True)
     uploaded_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='uploaded_documents')
     file_size = models.IntegerField(blank=True, null=True)
+    # A deliverable is staff output prepared for the client (e.g. the finished
+    # MS Office file). Deliverables are visible to the client; other documents
+    # (client's own uploads / internal files) follow the visibility rules in
+    # ConsultationDocumentViewSet.
+    is_deliverable = models.BooleanField(default=False)
     
     def __str__(self):
         return f"{self.request.client.username} - {self.title}"

@@ -6,6 +6,7 @@ import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import api from '../../../../app/api'
 import { BookingItem, ConsultationItem } from './index'
+import MyJobs from './MyJobs'
 
 const ConsultantDashboard = ({ user, darkMode }) => {
   const { t } = useTranslation('admin')
@@ -105,35 +106,8 @@ const ConsultantDashboard = ({ user, darkMode }) => {
           ))}
         </motion.div>
 
-        {/* ============ ASSIGNED CONSULTATIONS ============ */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 }}
-          className="glass-card p-6 mb-6 group hover:border-emerald-400/20 transition-all duration-300"
-        >
-          <div className="flex items-center justify-between mb-5">
-            <h2 className="text-lg font-bold text-white flex items-center gap-2">
-              <span className="w-8 h-8 rounded-lg glass flex items-center justify-center text-sm">💬</span>
-              {t('consultant.assigned_consultations')}
-            </h2>
-            <Link to="/consultations" className="text-xs text-emerald-400 hover:text-emerald-300 font-medium transition-colors flex items-center gap-1 group/link">
-              {t('view_all')}
-              <svg className="w-3.5 h-3.5 group-hover/link:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </Link>
-          </div>
-          {consultations.length > 0 ? (
-            <div className="space-y-3">
-              {consultations.slice(0, 5).map(consultation => (
-                <ConsultationItem key={consultation.id} consultation={consultation} darkMode={darkMode} showClient />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-8 text-white/30 text-sm">{t('consultant.no_consultations')}</div>
-          )}
-        </motion.div>
+        {/* ============ MY JOBS (assigned work + actions) ============ */}
+        <MyJobs />
 
         {/* ============ UPCOMING BOOKINGS ============ */}
         <motion.div

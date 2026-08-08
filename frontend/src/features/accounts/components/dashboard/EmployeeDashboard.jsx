@@ -6,6 +6,7 @@ import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import api from '../../../../app/api'
 import { ProjectCard, NewsItem, TeamMemberCard } from './index'
+import MyJobs from './MyJobs'
 
 const EmployeeDashboard = ({ user, darkMode }) => {
   const { t } = useTranslation('admin')
@@ -77,8 +78,11 @@ const EmployeeDashboard = ({ user, darkMode }) => {
           </div>
         </motion.div>
 
+        {/* ============ MY JOBS (assigned work + actions) ============ */}
+        <MyJobs />
+
         {/* ============ PROJECTS ============ */}
-        <DashboardSection 
+        <DashboardSection
           title={t('employee.projects_title')} 
           icon="📁" 
           link="/projects" 

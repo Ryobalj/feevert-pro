@@ -11,6 +11,7 @@ from django.shortcuts import get_object_or_404
 from django.db.models import Count, Q
 from django.utils import timezone
 
+from .notify import notify_request_status, notify_request_assigned
 from .models import (
     ConsultationCategory, ConsultationService, ConsultationRequest,
     ConsultationDocument, ConsultationFollowup, ServiceImage
@@ -186,7 +187,7 @@ class ConsultationRequestViewSet(viewsets.ModelViewSet):
             'client', 'service', 'assigned_to'
         ).prefetch_related('documents', 'followups')
 
-        if user.role_name in ['admin', 'consultant'] or user.is_staff:
+        if user.role_name in ['admin', 'consultant', 'employee'] or user.is_staff:
             return queryset
 
         return queryset.filter(client=user)
@@ -208,21 +209,52 @@ class ConsultationRequestViewSet(viewsets.ModelViewSet):
         """Update consultation request status"""
         consultation = self.get_object()
         new_status = request.data.get('status')
-        
-        valid_statuses = ['pending', 'confirmed', 'in_progress', 'completed', 'cancelled']
+
+        valid_statuses = ['pending', 'confirmed', 'in_progress', 'completed', 'delivered', 'cancelled']
         if new_status not in valid_statuses:
             return Response(
                 {'error': f'Invalid status. Must be one of: {", ".join(valid_statuses)}'},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        
+
         consultation.status = new_status
-        
-        if new_status == 'completed':
+
+        if new_status == 'completed' and not consultation.completed_at:
             consultation.completed_at = timezone.now()
-        
+        if new_status == 'delivered' and not consultation.response_sent_at:
+            consultation.response_sent_at = timezone.now()
+
         consultation.save()
-        
+        notify_request_status(consultation, actor=request.user)
+
+        serializer = self.get_serializer(consultation)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=['post'])
+    def deliver(self, request, pk=None):
+        """Staff/admin sends the finished work to the client.
+
+        Marks the job delivered, timestamps it, and notifies the client with a
+        link to their deliverables. Optionally flags given documents as
+        deliverables (document_ids) so the client can see/download them.
+        """
+        consultation = self.get_object()
+        user = request.user
+        if not (getattr(user, 'role_name', None) in ['admin', 'consultant', 'employee'] or user.is_staff):
+            return Response({'error': 'Only staff can deliver work.'},
+                            status=status.HTTP_403_FORBIDDEN)
+
+        doc_ids = request.data.get('document_ids') or []
+        if doc_ids:
+            consultation.documents.filter(id__in=doc_ids).update(is_deliverable=True)
+
+        consultation.status = 'delivered'
+        if not consultation.completed_at:
+            consultation.completed_at = timezone.now()
+        consultation.response_sent_at = timezone.now()
+        consultation.save()
+        notify_request_status(consultation, actor=user, delivered=True)
+
         serializer = self.get_serializer(consultation)
         return Response(serializer.data)
     
@@ -237,19 +269,23 @@ class ConsultationRequestViewSet(viewsets.ModelViewSet):
         
         try:
             consultant = User.objects.get(
+                Q(role__name__in=['consultant', 'admin', 'employee']) | Q(is_staff=True),
                 id=consultant_id,
-                role__name__in=['consultant', 'admin'],
-                is_active=True
+                is_active=True,
             )
             consultation.assigned_to = consultant
-            consultation.status = 'confirmed'
+            if consultation.status == 'pending':
+                consultation.status = 'confirmed'
             consultation.save()
-            
+
+            notify_request_assigned(consultation, consultant, actor=request.user)
+            notify_request_status(consultation, actor=request.user)  # client: accepted
+
             serializer = self.get_serializer(consultation)
             return Response(serializer.data)
         except User.DoesNotExist:
             return Response(
-                {'error': 'Consultant not found or not active'},
+                {'error': 'Staff member not found or not active'},
                 status=status.HTTP_404_NOT_FOUND
             )
     
@@ -349,14 +385,18 @@ class ConsultationDocumentViewSet(viewsets.ModelViewSet):
     serializer_class = ConsultationDocumentSerializer
     permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend, OrderingFilter]
-    filterset_fields = ['document_type', 'request']
-    
+    filterset_fields = ['document_type', 'request', 'is_deliverable']
+
     def get_queryset(self):
         user = self.request.user
-        if user.role_name in ['admin', 'consultant'] or user.is_staff:
+        if user.role_name in ['admin', 'consultant', 'employee'] or user.is_staff:
             return ConsultationDocument.objects.all()
-        return ConsultationDocument.objects.filter(request__client=user)
-    
+        # A client sees only delivered deliverables + files they uploaded
+        # themselves — never staff drafts / internal working files.
+        return ConsultationDocument.objects.filter(request__client=user).filter(
+            Q(is_deliverable=True) | Q(uploaded_by=user)
+        )
+
     def perform_create(self, serializer):
         serializer.save(uploaded_by=self.request.user)
 
