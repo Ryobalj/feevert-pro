@@ -133,7 +133,7 @@ const UserChatList = ({ isModal, onClose, embedded = false, selectedUserId = nul
     <>
       {/* ============ CHAT PANEL (hidden in popup mode while a chat is open) ============ */}
       {(embedded || !activeChat) && (
-      <div ref={panelRef} className={embedded ? 'w-full max-w-full h-full glass-card !p-0 overflow-hidden flex flex-col' : 'w-96 max-w-full glass-card !p-0 overflow-hidden'}>
+      <div ref={panelRef} className={embedded ? 'dark-surface w-full max-w-full h-full glass-card !p-0 overflow-hidden flex flex-col' : 'dark-surface w-96 max-w-full glass-card !p-0 overflow-hidden'}>
         {/* Header */}
         <div className="p-4 border-b border-white/5">
           <div className="flex items-center justify-between mb-3">

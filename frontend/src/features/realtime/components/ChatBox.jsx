@@ -83,7 +83,7 @@ const ChatBox = ({ recipientId, recipientName, recipientAvatar, onClose, onNewMe
 
     const tempMessage = {
       id: `temp-${Date.now()}`,
-      sender: user.id,
+      sender: user?.id,
       recipient: recipientId,
       message: messageText,
       attachment: fileToSend ? URL.createObjectURL(fileToSend) : null,
@@ -165,8 +165,8 @@ const ChatBox = ({ recipientId, recipientName, recipientAvatar, onClose, onNewMe
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={embedded ? undefined : { opacity: 0, y: 20, scale: 0.95 }}
       className={embedded
-        ? 'flex-1 h-full glass-card !p-0 flex flex-col overflow-hidden min-w-0'
-        : 'fixed bottom-24 right-6 w-[380px] glass-card !p-0 z-50 flex flex-col overflow-hidden shadow-2xl'
+        ? 'dark-surface flex-1 h-full glass-card !p-0 flex flex-col overflow-hidden min-w-0'
+        : 'dark-surface fixed bottom-24 right-6 w-[380px] glass-card !p-0 z-50 flex flex-col overflow-hidden shadow-2xl'
       }
       style={embedded ? undefined : { height: '520px' }}
     >
