@@ -84,8 +84,11 @@ const UserChatList = ({ isModal, onClose, embedded = false, selectedUserId = nul
       onSelectUser(chat)
       return
     }
+    // Non-embedded (popup): show the ChatBox. Do NOT call onClose() here — the
+    // ChatBox is rendered inside this component, so closing the popup would
+    // unmount it before it can appear. The list panel is hidden below while a
+    // chat is active; closing the ChatBox brings the list back.
     setActiveChat(chat)
-    if (onClose) onClose()
   }
 
   const closeChat = () => setActiveChat(null)
@@ -128,7 +131,8 @@ const UserChatList = ({ isModal, onClose, embedded = false, selectedUserId = nul
 
   return (
     <>
-      {/* ============ CHAT PANEL ============ */}
+      {/* ============ CHAT PANEL (hidden in popup mode while a chat is open) ============ */}
+      {(embedded || !activeChat) && (
       <div ref={panelRef} className={embedded ? 'w-full max-w-full h-full glass-card !p-0 overflow-hidden flex flex-col' : 'w-96 max-w-full glass-card !p-0 overflow-hidden'}>
         {/* Header */}
         <div className="p-4 border-b border-white/5">
@@ -293,6 +297,7 @@ const UserChatList = ({ isModal, onClose, embedded = false, selectedUserId = nul
           )}
         </div>
       </div>
+      )}
 
       {/* ============ ACTIVE CHAT BOX ============ */}
       {/* In embedded (full-page) mode the parent renders ChatBox itself in
