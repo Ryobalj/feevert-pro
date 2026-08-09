@@ -49,7 +49,7 @@ services:
       - key: EMAIL_HOST_PASSWORD
         sync: false
       - key: DEFAULT_FROM_EMAIL
-        value: info@feevert.co.tz
+        value: support@feevert.co.tz
       - key: EMAIL_TIMEOUT
         value: 8
       - key: EMAIL_SYNC_CRON_SECRET
@@ -61,7 +61,7 @@ services:
       - key: IMAP_PORT
         value: 993
       - key: IMAP_USER
-        value: info@feevert.co.tz
+        value: support@feevert.co.tz
       - key: IMAP_PASSWORD
         sync: false
       - key: FRONTEND_URL
