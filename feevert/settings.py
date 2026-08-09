@@ -181,6 +181,18 @@ LANGUAGES = [
 LOCALE_PATHS = [BASE_DIR / 'locale']
 
 # ===========================
+# ZOHO MAIL API (OAuth) — in-app inbox sync
+# ===========================
+# Zoho blocks IMAP logins from Render's datacenter IPs ("country blacklisted"),
+# so the in-app inbox reads mail via the Zoho Mail REST API instead. Secrets are
+# set in the Render dashboard.
+ZOHO_CLIENT_ID = config('ZOHO_CLIENT_ID', default='')
+ZOHO_CLIENT_SECRET = config('ZOHO_CLIENT_SECRET', default='')
+ZOHO_REFRESH_TOKEN = config('ZOHO_REFRESH_TOKEN', default='')
+ZOHO_ACCOUNTS_BASE = config('ZOHO_ACCOUNTS_BASE', default='https://accounts.zoho.com')
+ZOHO_MAIL_BASE = config('ZOHO_MAIL_BASE', default='https://mail.zoho.com/api')
+
+# ===========================
 # CLOUDINARY CONFIGURATION (PRODUCTION ONLY)
 # ===========================
 if not DEBUG:

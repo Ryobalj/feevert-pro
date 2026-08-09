@@ -64,6 +64,15 @@ services:
         value: support@feevert.co.tz
       - key: IMAP_PASSWORD
         sync: false
+      # Zoho Mail API (OAuth) — the in-app inbox reads mail via the REST API
+      # because Zoho blocks IMAP from Render's datacenter IPs. Secrets set in
+      # the dashboard.
+      - key: ZOHO_CLIENT_ID
+        sync: false
+      - key: ZOHO_CLIENT_SECRET
+        sync: false
+      - key: ZOHO_REFRESH_TOKEN
+        sync: false
       - key: FRONTEND_URL
         value: https://feevert-frontend.onrender.com
       - key: DATABASE_URL
