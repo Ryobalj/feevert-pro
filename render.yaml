@@ -34,8 +34,10 @@ services:
         value: true
       - key: EMAIL_BACKEND
         value: django.core.mail.backends.smtp.EmailBackend
+      # Zoho Mail (US data center). Outbound via Zoho SMTP; auth uses a
+      # Zoho app-specific password (set as EMAIL_HOST_PASSWORD in the dashboard).
       - key: EMAIL_HOST
-        value: mail.feevert.co.tz
+        value: smtp.zoho.com
       - key: EMAIL_PORT
         value: 465
       - key: EMAIL_USE_TLS
@@ -52,8 +54,10 @@ services:
         value: 8
       - key: EMAIL_SYNC_CRON_SECRET
         generateValue: true
+      # Zoho IMAP — publicly reachable from Render (unlike the old cPanel host),
+      # so the in-app inbox sync finally works. Auth uses a Zoho app password.
       - key: IMAP_HOST
-        value: mail.feevert.co.tz
+        value: imap.zoho.com
       - key: IMAP_PORT
         value: 993
       - key: IMAP_USER
