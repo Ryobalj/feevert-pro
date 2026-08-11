@@ -17,7 +17,9 @@ const EmailInboxPage = () => {
   const loadEmails = useCallback(async () => {
     setLoading(true)
     try {
-      const res = await api.get('/email-inbox/')
+      // The API paginates at 9 by default, which made a full mailbox look
+      // nearly empty — ask for a mailbox-sized page instead.
+      const res = await api.get('/email-inbox/?page_size=200')
       setEmails(res.data?.results || res.data || [])
     } catch (error) {
       console.error('Error loading inbox:', error)

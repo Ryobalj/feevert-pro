@@ -16,8 +16,9 @@ class Command(BaseCommand):
     help = 'Sync the in-app inbox from Zoho Mail via the REST API.'
 
     def add_arguments(self, parser):
-        parser.add_argument('--limit', type=int, default=50,
-                            help='Max recent messages per account to check (default 50)')
+        parser.add_argument('--limit', type=int, default=100,
+                            help='Max recent messages per mailbox to check (default 100; '
+                                 'raise it for a deeper backfill, e.g. --limit=500)')
         parser.add_argument('--diagnose', action='store_true',
                             help='Show what Zoho returns per mailbox (no saving)')
 
