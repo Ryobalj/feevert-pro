@@ -30,6 +30,8 @@ class Command(BaseCommand):
         parser.add_argument('--owner', help='System user (username or email) who owns this mailbox')
         parser.add_argument('--shared', action='store_true', help='Mark as a team inbox (all staff)')
         parser.add_argument('--unassign', action='store_true', help='Clear owner and shared (admins only)')
+        parser.add_argument('--create', action='store_true',
+                            help="Create the mailbox row if the sync hasn't discovered it yet")
 
     def _describe(self, a):
         if a.owner_user_id:
@@ -54,9 +56,14 @@ class Command(BaseCommand):
 
         account = EmailAccount.objects.filter(email_address__iexact=o['email']).first()
         if not account:
-            self.stdout.write(self.style.ERROR(
-                f"No mailbox {o['email']}. Run sync_zoho_inbox first, or check the address."))
-            return
+            if not o['create']:
+                self.stdout.write(self.style.ERROR(
+                    f"No mailbox {o['email']}. Run sync_zoho_inbox first, or add --create."))
+                return
+            account = EmailAccount.objects.create(
+                email_address=o['email'], provider='zoho_api', is_active=True, is_shared=False,
+            )
+            self.stdout.write(f'Created mailbox row for {account.email_address}')
 
         if o['unassign']:
             account.owner_user = None
