@@ -124,7 +124,14 @@ def sync(limit=50, fetch_bodies=True):
         logger.warning('Zoho API not configured — skipping sync')
         return 0
 
-    from notifications.models import EmailAccount
+    from notifications.models import EmailAccount, IncomingEmail
+
+    # Mail synced before its mailbox row existed has no account, which makes it
+    # admin-only. Re-attach it by recipient so it shows in the right inbox.
+    for ea in EmailAccount.objects.all():
+        IncomingEmail.objects.filter(
+            account__isnull=True, recipient__iexact=ea.email_address
+        ).update(account=ea)
 
     total = _sync_one(None, limit, fetch_bodies)
     for ea in EmailAccount.objects.exclude(oauth_refresh_token='').filter(is_active=True):
@@ -194,21 +201,27 @@ def _sync_one(refresh_token, limit, fetch_bodies, only_address=None,
                         logger.warning('Zoho content fetch failed for %s: %s', mid, e)
 
             try:
-                IncomingEmail.objects.create(
-                    account=ea,
-                    sender=(msg.get('fromAddress') or '')[:254],
-                    sender_name=(msg.get('sender') or '')[:300],
-                    recipient=(msg.get('toAddress') or primary or '')[:254],
-                    subject=(msg.get('subject') or '')[:500],
-                    body=body,
-                    body_html=body,
+                # get_or_create, not create: the same message can be seen twice
+                # in one run (and message_id is globally unique), so a re-import
+                # should be a quiet no-op rather than an error.
+                _, was_created = IncomingEmail.objects.get_or_create(
                     message_id=mid[:500],
-                    received_at=_parse_ts(msg.get('receivedTime') or msg.get('sentDateInGMT')),
-                    has_attachments=str(msg.get('hasAttachment')) in ('1', 'true', 'True'),
-                    source='zoho_api',
-                    folder='inbox',
+                    defaults=dict(
+                        account=ea,
+                        sender=(msg.get('fromAddress') or '')[:254],
+                        sender_name=(msg.get('sender') or '')[:300],
+                        recipient=(msg.get('toAddress') or primary or '')[:254],
+                        subject=(msg.get('subject') or '')[:500],
+                        body=body,
+                        body_html=body,
+                        received_at=_parse_ts(msg.get('receivedTime') or msg.get('sentDateInGMT')),
+                        has_attachments=str(msg.get('hasAttachment')) in ('1', 'true', 'True'),
+                        source='zoho_api',
+                        folder='inbox',
+                    ),
                 )
-                saved += 1
+                if was_created:
+                    saved += 1
             except Exception as e:
                 logger.warning('Zoho save failed for %s: %s', mid, e)
 
