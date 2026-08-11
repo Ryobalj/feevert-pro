@@ -166,6 +166,11 @@ class EmailAccount(BaseModel):
     # mailbox but only *read* its own owner's mail, so each mailbox we want in
     # the in-app inbox connects once and stores its own refresh token here.
     oauth_refresh_token = models.TextField(blank=True)
+    # A Zoho Self Client belongs to the account that created it, so a mailbox
+    # connected from its own Zoho login has its own client credentials. Blank =
+    # use the org-wide ZOHO_CLIENT_ID/SECRET from settings.
+    oauth_client_id = models.CharField(max_length=255, blank=True)
+    oauth_client_secret = models.CharField(max_length=255, blank=True)
 
     last_synced_at = models.DateTimeField(null=True, blank=True)
     last_sync_error = models.TextField(blank=True)

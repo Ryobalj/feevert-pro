@@ -66,6 +66,12 @@ class Command(BaseCommand):
             return
 
         account.oauth_refresh_token = rt
+        # Remember which client minted this token: a Self Client created from
+        # the mailbox's own Zoho login differs from the org-wide one, and the
+        # refresh call must use the same client.
+        if o['client_id']:
+            account.oauth_client_id = o['client_id']
+            account.oauth_client_secret = o['client_secret'] or ''
         account.provider = 'zoho_api'
         account.is_active = True
         account.last_sync_error = ''

@@ -37,16 +37,17 @@ def is_configured():
     ])
 
 
-def get_access_token(refresh_token=None):
+def get_access_token(refresh_token=None, client_id=None, client_secret=None):
     """Exchange a refresh token for a short-lived access token.
 
-    Defaults to the org-wide token in settings; pass a mailbox's own token to
-    read that mailbox (Zoho only lets a token read its own owner's mail).
+    Defaults to the org-wide credentials in settings; a mailbox connected from
+    its own Zoho login passes its own token *and* its own client credentials
+    (a Self Client belongs to the account that created it).
     """
     r = requests.post(f'{_accounts_base()}/oauth/v2/token', data={
         'refresh_token': refresh_token or settings.ZOHO_REFRESH_TOKEN,
-        'client_id': settings.ZOHO_CLIENT_ID,
-        'client_secret': settings.ZOHO_CLIENT_SECRET,
+        'client_id': client_id or settings.ZOHO_CLIENT_ID,
+        'client_secret': client_secret or settings.ZOHO_CLIENT_SECRET,
         'grant_type': 'refresh_token',
     }, timeout=20)
     r.raise_for_status()
@@ -129,7 +130,9 @@ def sync(limit=50, fetch_bodies=True):
     for ea in EmailAccount.objects.exclude(oauth_refresh_token='').filter(is_active=True):
         try:
             total += _sync_one(ea.oauth_refresh_token, limit, fetch_bodies,
-                               only_address=ea.email_address.lower())
+                               only_address=ea.email_address.lower(),
+                               client_id=ea.oauth_client_id or None,
+                               client_secret=ea.oauth_client_secret or None)
         except Exception as e:
             logger.warning('Zoho sync failed for %s: %s', ea.email_address, e)
             EmailAccount.objects.filter(pk=ea.pk).update(last_sync_error=str(e)[:500])
@@ -137,12 +140,13 @@ def sync(limit=50, fetch_bodies=True):
     return total
 
 
-def _sync_one(refresh_token, limit, fetch_bodies, only_address=None):
+def _sync_one(refresh_token, limit, fetch_bodies, only_address=None,
+              client_id=None, client_secret=None):
     """Sync the mailboxes readable by one token. `only_address` restricts it to
     that mailbox (used for per-mailbox tokens)."""
     from notifications.models import IncomingEmail, EmailAccount
 
-    token = get_access_token(refresh_token)
+    token = get_access_token(refresh_token, client_id, client_secret)
     accounts = get_accounts(token)
     if not accounts:
         logger.warning('Zoho API returned no accounts')
