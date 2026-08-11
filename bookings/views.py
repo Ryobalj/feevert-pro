@@ -1,6 +1,7 @@
 # bookings/views.py
 
 import django_filters
+from accounts.roles import is_staff_role
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -44,7 +45,7 @@ class TimeSlotViewSet(viewsets.ModelViewSet):
     
     def get_queryset(self):
         user = self.request.user
-        if user.role_name in ['admin', 'consultant'] or user.is_staff:
+        if is_staff_role(user):
             return TimeSlot.objects.all()
         return TimeSlot.objects.filter(is_booked=False)
     

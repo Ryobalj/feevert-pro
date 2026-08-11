@@ -11,6 +11,7 @@ from django.shortcuts import get_object_or_404
 from django.db.models import Count, Q
 from django.utils import timezone
 
+from accounts.roles import is_staff_role
 from .notify import notify_request_status, notify_request_assigned
 from .models import (
     ConsultationCategory, ConsultationService, ConsultationRequest,
@@ -187,7 +188,7 @@ class ConsultationRequestViewSet(viewsets.ModelViewSet):
             'client', 'service', 'assigned_to'
         ).prefetch_related('documents', 'followups')
 
-        if user.role_name in ['admin', 'consultant', 'employee'] or user.is_staff:
+        if is_staff_role(user):
             return queryset
 
         return queryset.filter(client=user)
@@ -197,7 +198,7 @@ class ConsultationRequestViewSet(viewsets.ModelViewSet):
             return ConsultationRequestCreateSerializer
         if self.action in ['update', 'partial_update']:
             user = self.request.user
-            if user.role_name in ['admin', 'consultant'] or user.is_staff:
+            if is_staff_role(user):
                 return ConsultationRequestUpdateSerializer
         return ConsultationRequestSerializer
     
@@ -240,7 +241,7 @@ class ConsultationRequestViewSet(viewsets.ModelViewSet):
         """
         consultation = self.get_object()
         user = request.user
-        if not (getattr(user, 'role_name', None) in ['admin', 'consultant', 'employee'] or user.is_staff):
+        if not is_staff_role(user):
             return Response({'error': 'Only staff can deliver work.'},
                             status=status.HTTP_403_FORBIDDEN)
 
@@ -361,7 +362,7 @@ class ConsultationRequestViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'])
     def stats(self, request):
         """Get consultation statistics for current user"""
-        if request.user.role_name in ['admin', 'consultant'] or request.user.is_staff:
+        if is_staff_role(request.user):
             queryset = ConsultationRequest.objects.all()
         else:
             queryset = ConsultationRequest.objects.filter(client=request.user)
@@ -389,7 +390,7 @@ class ConsultationDocumentViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        if user.role_name in ['admin', 'consultant', 'employee'] or user.is_staff:
+        if is_staff_role(user):
             return ConsultationDocument.objects.all()
         # A client sees only delivered deliverables + files they uploaded
         # themselves — never staff drafts / internal working files.
@@ -412,7 +413,7 @@ class ConsultationFollowupViewSet(viewsets.ModelViewSet):
     
     def get_queryset(self):
         user = self.request.user
-        if user.role_name in ['admin', 'consultant'] or user.is_staff:
+        if is_staff_role(user):
             return ConsultationFollowup.objects.all()
         return ConsultationFollowup.objects.filter(request__client=user)
     
