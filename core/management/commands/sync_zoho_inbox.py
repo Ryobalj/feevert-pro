@@ -18,11 +18,32 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('--limit', type=int, default=50,
                             help='Max recent messages per account to check (default 50)')
+        parser.add_argument('--diagnose', action='store_true',
+                            help='Show what Zoho returns per mailbox (no saving)')
 
     def handle(self, *args, **opts):
         if not zoho_mail_api.is_configured():
             self.stdout.write(self.style.ERROR(
                 'Zoho API not configured. Set ZOHO_CLIENT_ID / ZOHO_CLIENT_SECRET / ZOHO_REFRESH_TOKEN.'))
+            return
+
+        if opts['diagnose']:
+            try:
+                token = zoho_mail_api.get_access_token()
+                accounts = zoho_mail_api.get_accounts(token)
+                self.stdout.write(self.style.SUCCESS(f'Zoho returned {len(accounts)} mailbox(es):'))
+                for a in accounts:
+                    addr = (a.get('primaryEmailAddress') or a.get('mailboxAddress')
+                            or a.get('incomingUserName') or '?')
+                    aid = a.get('accountId') or a.get('account_id')
+                    try:
+                        msgs = zoho_mail_api.list_messages(token, aid, limit=opts['limit'])
+                        self.stdout.write(f'  {addr:35} accountId={aid} messages={len(msgs)}')
+                    except Exception as e:
+                        self.stdout.write(self.style.WARNING(
+                            f'  {addr:35} accountId={aid} ERROR: {str(e)[:120]}'))
+            except Exception as e:
+                self.stdout.write(self.style.ERROR(f'Diagnose failed: {e}'))
             return
         try:
             n = zoho_mail_api.sync(limit=opts['limit'])
