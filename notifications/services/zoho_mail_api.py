@@ -110,7 +110,11 @@ def get_folders(token, account_id):
         r.raise_for_status()
         return r.json().get('data', []) or []
     except Exception as e:
-        logger.info('Zoho folders unavailable for %s: %s', account_id, e)
+        # A 401 here usually means the token lacks ZohoMail.folders.READ — the
+        # inbox still syncs, only Sent/Drafts/Spam/Trash stay empty until the
+        # mailbox is reconnected with that scope added.
+        logger.info('Zoho folders unavailable for %s (add ZohoMail.folders.READ '
+                    'to the scope to mirror Sent/Drafts/Trash): %s', account_id, e)
         return []
 
 

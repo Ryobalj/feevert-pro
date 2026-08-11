@@ -1,6 +1,7 @@
 // src/features/accounts/pages/Dashboard.jsx
 
 import React from 'react'
+import WorkspacePage from './WorkspacePage'
 import { Navigate, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
@@ -72,8 +73,7 @@ const Dashboard = () => {
       transition={{ duration: 0.3 }}
     >
       {roleName === 'admin' && <AdminDashboard {...dashboardProps} />}
-      {roleName === 'consultant' && <ConsultantDashboard {...dashboardProps} />}
-      {roleName === 'normal employee' && <EmployeeDashboard {...dashboardProps} />}
+      {(roleName === 'consultant' || roleName === 'normal employee') && <WorkspacePage />}
       {(roleName === 'client' || !['admin', 'consultant', 'normal employee'].includes(roleName)) && (
         <ClientDashboard {...dashboardProps} />
       )}

@@ -244,12 +244,12 @@ const EmailInboxPage = () => {
                 onClick={() => setCompose({ to: '', subject: '', body: '', account: mailbox })}
                 className="w-full py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white text-sm font-bold transition-colors"
               >
-                ✏️ {t('inbox.new_mail') || 'New Mail'}
+                ✏️ {t('inbox.new_mail', 'New Mail')}
               </button>
             </div>
             <div className="flex-1 min-h-0 overflow-y-auto px-3 pb-3">
               <p className="px-3 pb-1 pt-1 text-[10px] uppercase tracking-wider text-white/30 font-bold">
-                {t('inbox.folders') || 'Folders'}
+                {t('inbox.folders', 'Folders')}
               </p>
               {FOLDERS.map(f => (
                 <NavRow key={f.key} icon={f.icon} label={f.label}
@@ -259,7 +259,7 @@ const EmailInboxPage = () => {
               ))}
 
               <p className="px-3 pb-1 pt-4 text-[10px] uppercase tracking-wider text-white/30 font-bold">
-                {t('inbox.views') || 'Views'}
+                {t('inbox.views', 'Views')}
               </p>
               {TEAM_VIEWS.map(v => (
                 <NavRow key={v.key} icon={v.icon} label={v.label}
@@ -268,9 +268,9 @@ const EmailInboxPage = () => {
               ))}
 
               <p className="px-3 pb-1 pt-4 text-[10px] uppercase tracking-wider text-white/30 font-bold">
-                {t('inbox.mailboxes') || 'Mailboxes'}
+                {t('inbox.mailboxes', 'Mailboxes')}
               </p>
-              <NavRow icon="🗂️" label={t('inbox.all_mailboxes') || 'All mailboxes'}
+              <NavRow icon="🗂️" label={t('inbox.all_mailboxes', 'All mailboxes')}
                 active={!mailbox} onClick={() => setMailbox(null)} />
               {mailboxes.map(m => (
                 <NavRow key={m.id ?? 'none'} icon={m.is_shared ? '👥' : '👤'}
@@ -290,18 +290,18 @@ const EmailInboxPage = () => {
                   {folderLabel}
                   {counts.unread > 0 && folder === 'inbox' && (
                     <span className="ml-2 text-[11px] font-semibold text-emerald-400">
-                      {counts.unread} {t('inbox.unread') || 'unread'}
+                      {counts.unread} {t('inbox.unread', 'unread')}
                     </span>
                   )}
                 </h2>
                 <button onClick={handleSync} disabled={syncing}
                   className="text-[11px] px-2.5 py-1.5 rounded-lg bg-white/[0.06] text-white/70 hover:bg-white/10 disabled:opacity-40 whitespace-nowrap">
-                  {syncing ? (t('inbox.syncing') || 'Syncing…') : (t('inbox.sync_now') || 'Sync')}
+                  {syncing ? (t('inbox.syncing', 'Syncing…')) : (t('inbox.sync_now', 'Sync'))}
                 </button>
               </div>
               <div className="relative">
                 <input value={search} onChange={e => setSearch(e.target.value)}
-                  placeholder={t('inbox.search') || 'Search mail…'}
+                  placeholder={t('inbox.search', 'Search mail…')}
                   className="w-full pl-8 pr-3 py-2 glass text-white placeholder:text-white/25 rounded-lg border-0 outline-none focus:ring-2 focus:ring-emerald-400/40 text-xs" />
                 <svg className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -311,12 +311,12 @@ const EmailInboxPage = () => {
 
             <div className="flex-1 min-h-0 overflow-y-auto">
               {loading ? (
-                <div className="p-8 text-center text-white/40 text-sm">{t('inbox.loading') || 'Loading…'}</div>
+                <div className="p-8 text-center text-white/40 text-sm">{t('inbox.loading', 'Loading…')}</div>
               ) : emails.length === 0 ? (
                 <div className="p-10 text-center">
                   <div className="text-4xl mb-3 opacity-40">📭</div>
-                  <p className="text-white/50 text-sm">{t('inbox.no_emails') || 'Nothing here'}</p>
-                  <p className="text-white/25 text-xs mt-1">{t('inbox.no_emails_hint') || 'Click Sync to check for new mail'}</p>
+                  <p className="text-white/50 text-sm">{t('inbox.no_emails', 'Nothing here')}</p>
+                  <p className="text-white/25 text-xs mt-1">{t('inbox.no_emails_hint', 'Click Sync to check for new mail')}</p>
                 </div>
               ) : (
                 grouped.map(([bucket, items]) => (
@@ -389,24 +389,24 @@ const EmailInboxPage = () => {
                   ) : (
                     <button onClick={() => assignToMe(selected)} disabled={acting}
                       className="px-2.5 py-1.5 rounded-lg bg-emerald-500 text-white text-[11px] font-semibold hover:bg-emerald-400 disabled:opacity-40">
-                      {t('inbox.assign_me') || 'Assign to me'}
+                      {t('inbox.assign_me', 'Assign to me')}
                     </button>
                   )}
                   <button onClick={() => archive(selected, !selected.is_archived)} disabled={acting}
                     className="px-2.5 py-1.5 rounded-lg bg-white/[0.06] text-white/70 text-[11px] font-semibold hover:bg-white/10 disabled:opacity-40">
-                    🗄️ {selected.is_archived ? (t('inbox.unarchive') || 'Unarchive') : (t('inbox.archive') || 'Archive')}
+                    🗄️ {selected.is_archived ? (t('inbox.unarchive', 'Unarchive')) : (t('inbox.archive', 'Archive'))}
                   </button>
                   <button onClick={() => snooze(selected, 24)} disabled={acting}
                     className="px-2.5 py-1.5 rounded-lg bg-white/[0.06] text-white/70 text-[11px] font-semibold hover:bg-white/10 disabled:opacity-40">
-                    🕓 {t('inbox.snooze') || 'Snooze'}
+                    🕓 {t('inbox.snooze', 'Snooze')}
                   </button>
                   <button onClick={forward}
                     className="px-2.5 py-1.5 rounded-lg bg-white/[0.06] text-white/70 text-[11px] font-semibold hover:bg-white/10">
-                    ↪️ {t('inbox.forward') || 'Forward'}
+                    ↪️ {t('inbox.forward', 'Forward')}
                   </button>
                   <button onClick={() => markUnread(selected)}
                     className="ml-auto text-[11px] text-white/40 hover:text-emerald-400 whitespace-nowrap">
-                    {t('inbox.mark_unread') || 'Mark unread'}
+                    {t('inbox.mark_unread', 'Mark unread')}
                   </button>
                 </div>
 
@@ -422,7 +422,7 @@ const EmailInboxPage = () => {
                         {selected.sender_name || selected.sender} <span className="text-white/35">&lt;{selected.sender}&gt;</span>
                       </p>
                       <p className="text-[11px] text-white/30">
-                        {t('inbox.to') || 'to'} {selected.recipient || selected.account_email} · {new Date(selected.received_at).toLocaleString()}
+                        {t('inbox.to', 'to')} {selected.recipient || selected.account_email} · {new Date(selected.received_at).toLocaleString()}
                       </p>
                     </div>
                   </div>
@@ -430,26 +430,28 @@ const EmailInboxPage = () => {
 
                 {/* body */}
                 <div className="flex-1 min-h-0 overflow-y-auto px-5 py-4">
+                  {/* Sender-authored HTML carries its own (usually dark-on-white)
+                      colours, so render it on a white sheet rather than fighting it. */}
                   {selected.body_html ? (
-                    <div className="text-sm text-white/80 leading-relaxed [&_a]:text-emerald-400 [&_img]:max-w-full"
+                    <div className="mail-body text-sm leading-relaxed overflow-x-auto [&_img]:max-w-full"
                       dangerouslySetInnerHTML={{ __html: selected.body_html }} />
                   ) : (
-                    <pre className="text-sm text-white/80 whitespace-pre-wrap font-sans leading-relaxed">{selected.body}</pre>
+                    <pre className="mail-body text-sm whitespace-pre-wrap font-sans leading-relaxed">{selected.body}</pre>
                   )}
                 </div>
 
                 {/* reply */}
                 <form onSubmit={handleReply} className="border-t border-white/5 p-3">
                   <textarea value={replyText} onChange={e => setReplyText(e.target.value)} rows="3"
-                    placeholder={t('inbox.reply_placeholder') || 'Write a reply…'}
+                    placeholder={t('inbox.reply_placeholder', 'Write a reply…')}
                     className="w-full px-4 py-3 glass text-white placeholder:text-white/25 rounded-xl border-0 outline-none focus:ring-2 focus:ring-emerald-400/40 text-sm resize-none" />
                   <div className="flex items-center justify-between mt-2">
                     <span className="text-[11px] text-white/30">
-                      {t('inbox.replying_from') || 'From'} {selected.account_email || 'default address'}
+                      {t('inbox.replying_from', 'From')} {selected.account_email || 'default address'}
                     </span>
                     <button type="submit" disabled={sendingReply || !replyText.trim()}
                       className="px-5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white text-sm font-semibold disabled:opacity-40">
-                      {sendingReply ? (t('inbox.sending') || 'Sending…') : (t('inbox.send_reply') || 'Reply')}
+                      {sendingReply ? (t('inbox.sending', 'Sending…')) : (t('inbox.send_reply', 'Reply'))}
                     </button>
                   </div>
                 </form>
@@ -457,9 +459,9 @@ const EmailInboxPage = () => {
             ) : (
               <div className="flex-1 flex flex-col items-center justify-center text-center p-10">
                 <div className="text-5xl mb-4 opacity-30">✉️</div>
-                <p className="text-white/50 font-medium">{t('inbox.select_email') || 'Select a message'}</p>
+                <p className="text-white/50 font-medium">{t('inbox.select_email', 'Select a message')}</p>
                 <p className="text-white/25 text-sm mt-1">
-                  {t('inbox.select_email_hint') || 'Pick one from the list to read, reply or assign'}
+                  {t('inbox.select_email_hint', 'Pick one from the list to read, reply or assign')}
                 </p>
               </div>
             )}
@@ -474,7 +476,7 @@ const EmailInboxPage = () => {
           <form onSubmit={sendCompose} onClick={e => e.stopPropagation()}
             className="dark-surface glass-card !p-0 w-full md:max-w-2xl overflow-hidden">
             <div className="px-5 py-3 border-b border-white/5 flex items-center justify-between">
-              <h3 className="text-sm font-bold text-white">{t('inbox.new_mail') || 'New Mail'}</h3>
+              <h3 className="text-sm font-bold text-white">{t('inbox.new_mail', 'New Mail')}</h3>
               <button type="button" onClick={() => setCompose(null)} className="text-white/40 hover:text-red-400">✕</button>
             </div>
             <div className="p-4 space-y-2">
@@ -482,33 +484,33 @@ const EmailInboxPage = () => {
                 <select value={compose.account || ''} onChange={e => setCompose({ ...compose, account: e.target.value })}
                   className="w-full px-3 py-2.5 glass text-white rounded-xl border-0 outline-none text-sm">
                   <option value="" style={{ backgroundColor: '#0d3320', color: '#fff' }}>
-                    {t('inbox.from_default') || 'From: default mailbox'}
+                    {t('inbox.from_default', 'From: default mailbox')}
                   </option>
                   {mailboxes.filter(m => m.id).map(m => (
                     <option key={m.id} value={m.id} style={{ backgroundColor: '#0d3320', color: '#fff' }}>
-                      {t('inbox.from') || 'From'}: {m.email_address}
+                      {t('inbox.from', 'From')}: {m.email_address}
                     </option>
                   ))}
                 </select>
               )}
               <input value={compose.to} onChange={e => setCompose({ ...compose, to: e.target.value })}
-                placeholder={t('inbox.to_placeholder') || 'To (email address)'} type="email" required
+                placeholder={t('inbox.to_placeholder', 'To (email address)')} type="email" required
                 className="w-full px-3 py-2.5 glass text-white placeholder:text-white/25 rounded-xl border-0 outline-none focus:ring-2 focus:ring-emerald-400/40 text-sm" />
               <input value={compose.subject} onChange={e => setCompose({ ...compose, subject: e.target.value })}
-                placeholder={t('inbox.subject') || 'Subject'}
+                placeholder={t('inbox.subject', 'Subject')}
                 className="w-full px-3 py-2.5 glass text-white placeholder:text-white/25 rounded-xl border-0 outline-none focus:ring-2 focus:ring-emerald-400/40 text-sm" />
               <textarea value={compose.body} onChange={e => setCompose({ ...compose, body: e.target.value })}
-                rows="9" placeholder={t('inbox.message') || 'Write your message…'}
+                rows="9" placeholder={t('inbox.message', 'Write your message…')}
                 className="w-full px-3 py-2.5 glass text-white placeholder:text-white/25 rounded-xl border-0 outline-none focus:ring-2 focus:ring-emerald-400/40 text-sm resize-none" />
             </div>
             <div className="px-4 pb-4 flex justify-end gap-2">
               <button type="button" onClick={() => setCompose(null)}
                 className="px-4 py-2 rounded-xl bg-white/[0.06] text-white/70 text-sm font-semibold hover:bg-white/10">
-                {t('inbox.cancel') || 'Cancel'}
+                {t('inbox.cancel', 'Cancel')}
               </button>
               <button type="submit" disabled={sendingReply || !compose.to.trim()}
                 className="px-6 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white text-sm font-semibold disabled:opacity-40">
-                {sendingReply ? (t('inbox.sending') || 'Sending…') : (t('inbox.send') || 'Send')}
+                {sendingReply ? (t('inbox.sending', 'Sending…')) : (t('inbox.send', 'Send'))}
               </button>
             </div>
           </form>

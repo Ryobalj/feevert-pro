@@ -194,9 +194,9 @@ const ChatBox = ({ recipientId, recipientName, recipientAvatar, onClose, onNewMe
             )}
           </div>
           <div>
-            <h3 className="font-bold text-white text-sm">{recipientName || t('chat.support') || 'Support'}</h3>
+            <h3 className="font-bold text-white text-sm">{recipientName || t('chat.support', 'Support')}</h3>
             <p className="text-[10px] text-white/50">
-              {isConnected ? t('chat.online') || 'Online' : t('chat.connecting') || 'Connecting...'}
+              {isConnected ? t('chat.online', 'Online') : t('chat.connecting', 'Connecting...')}
             </p>
           </div>
         </div>
@@ -204,7 +204,7 @@ const ChatBox = ({ recipientId, recipientName, recipientAvatar, onClose, onNewMe
           <button
             onClick={onClose}
             className="w-7 h-7 rounded-full glass flex items-center justify-center hover:border-red-400/50 hover:text-red-400 transition-all duration-300"
-            aria-label={t('chat.close') || 'Close chat'}
+            aria-label={t('chat.close', 'Close chat')}
           >
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -222,8 +222,8 @@ const ChatBox = ({ recipientId, recipientName, recipientAvatar, onClose, onNewMe
         ) : messages.length === 0 ? (
           <div className="text-center py-12">
             <div className="w-16 h-16 mx-auto mb-4 rounded-2xl glass flex items-center justify-center text-2xl">💬</div>
-            <p className="text-white/50 text-sm">{t('chat.no_messages') || 'No messages yet'}</p>
-            <p className="text-white/30 text-xs mt-1">{t('chat.start_chat') || 'Send a message to start chatting'}</p>
+            <p className="text-white/50 text-sm">{t('chat.no_messages', 'No messages yet')}</p>
+            <p className="text-white/30 text-xs mt-1">{t('chat.start_chat', 'Send a message to start chatting')}</p>
           </div>
         ) : (
           Object.entries(messageGroups).map(([date, msgs]) => (
@@ -286,7 +286,7 @@ const ChatBox = ({ recipientId, recipientName, recipientAvatar, onClose, onNewMe
                 <span className="w-1 h-1 bg-emerald-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
                 <span className="w-1 h-1 bg-emerald-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
               </span>
-              {t('chat.typing') || 'Typing...'}
+              {t('chat.typing', 'Typing...')}
             </p>
           </motion.div>
         )}
@@ -313,7 +313,7 @@ const ChatBox = ({ recipientId, recipientName, recipientAvatar, onClose, onNewMe
             type="button"
             onClick={() => fileInputRef.current?.click()}
             className="w-10 h-10 rounded-full glass flex items-center justify-center text-white/50 hover:text-emerald-400 transition-all disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0"
-            aria-label={t('chat.attach_file') || 'Attach file'}
+            aria-label={t('chat.attach_file', 'Attach file')}
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
@@ -325,7 +325,7 @@ const ChatBox = ({ recipientId, recipientName, recipientAvatar, onClose, onNewMe
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
             onKeyDown={handleTyping}
-            placeholder={t('chat.message_placeholder') || 'Type a message...'}
+            placeholder={t('chat.message_placeholder', 'Type a message...')}
             className="flex-1 min-w-0 px-4 py-2.5 glass text-white placeholder:text-white/25 rounded-full border-0 outline-none focus:ring-2 focus:ring-emerald-400/40 transition-all text-sm"
           />
           <motion.button

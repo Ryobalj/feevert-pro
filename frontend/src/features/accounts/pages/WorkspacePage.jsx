@@ -183,7 +183,7 @@ const WorkspacePage = () => {
       <div className="min-h-screen flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
           <div className="spinner spinner-lg" />
-          <p className="text-white/50">{t('loading') || 'Loading your workspace…'}</p>
+          <p className="text-white/50">{t('loading', 'Loading your workspace…')}</p>
         </div>
       </div>
     )
@@ -212,7 +212,7 @@ const WorkspacePage = () => {
             <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
               <div>
                 <h1 className="text-2xl md:text-3xl font-extrabold text-white">
-                  {t('workspace.title') || 'My Workspace'}
+                  {t('workspace.title', 'My Workspace')}
                 </h1>
                 <p className="text-white/45 text-sm mt-0.5">
                   {user?.full_name || user?.username} · {user?.role_name || 'staff'}
@@ -220,11 +220,11 @@ const WorkspacePage = () => {
               </div>
               <div className="flex gap-2">
                 <Link to="/email-inbox" className="px-4 py-2.5 rounded-xl bg-white/[0.06] text-white/80 text-sm font-semibold hover:bg-white/10">
-                  📥 {t('workspace.inbox') || 'Inbox'}{mailUnread > 0 && <span className="ml-1.5 text-emerald-400">{mailUnread}</span>}
+                  📥 {t('workspace.inbox', 'Inbox')}{mailUnread > 0 && <span className="ml-1.5 text-emerald-400">{mailUnread}</span>}
                 </Link>
                 <button onClick={() => { setSection('tasks'); setNewTask({ title: '', assigned_to: user?.id, priority: 'medium' }) }}
                   className="px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white text-sm font-semibold">
-                  ➕ {t('workspace.new_task') || 'New task'}
+                  ➕ {t('workspace.new_task', 'New task')}
                 </button>
               </div>
             </div>
@@ -245,20 +245,20 @@ const WorkspacePage = () => {
             {section === 'overview' && (
               <div className="space-y-4">
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-                  <Stat icon="✅" label={t('workspace.open_tasks') || 'Open tasks'} value={openTasks.length} />
-                  <Stat icon="⏰" label={t('workspace.overdue') || 'Overdue'} value={overdue.length} tone="amber" />
-                  <Stat icon="🗂️" label={t('workspace.my_jobs') || 'My jobs'} value={jobs.length} tone="blue" to="/dashboard" />
-                  <Stat icon="📥" label={t('workspace.unread_mail') || 'Unread mail'} value={mailUnread} tone="purple" to="/email-inbox" />
+                  <Stat icon="✅" label={t('workspace.open_tasks', 'Open tasks')} value={openTasks.length} />
+                  <Stat icon="⏰" label={t('workspace.overdue', 'Overdue')} value={overdue.length} tone="amber" />
+                  <Stat icon="🗂️" label={t('workspace.my_jobs', 'My jobs')} value={jobs.length} tone="blue" to="/dashboard" />
+                  <Stat icon="📥" label={t('workspace.unread_mail', 'Unread mail')} value={mailUnread} tone="purple" to="/email-inbox" />
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                   <div className="glass-card p-5">
                     <div className="flex items-center justify-between mb-3">
-                      <h2 className="text-sm font-bold text-white">{t('workspace.todays_work') || "Today's work"}</h2>
-                      <button onClick={() => setSection('tasks')} className="text-[11px] text-emerald-400">{t('view_all') || 'View all'}</button>
+                      <h2 className="text-sm font-bold text-white">{t('workspace.todays_work', "Today's work")}</h2>
+                      <button onClick={() => setSection('tasks')} className="text-[11px] text-emerald-400">{t('view_all', 'View all')}</button>
                     </div>
                     {openTasks.length === 0 ? (
-                      <p className="text-white/30 text-sm py-6 text-center">{t('workspace.no_tasks') || 'Nothing assigned right now'}</p>
+                      <p className="text-white/30 text-sm py-6 text-center">{t('workspace.no_tasks', 'Nothing assigned right now')}</p>
                     ) : openTasks.slice(0, 6).map(tk => (
                       <div key={tk.id} className="flex items-center gap-2 py-2 border-b border-white/[0.04] last:border-0">
                         <button onClick={() => setTaskStatus(tk, 'done')}
@@ -270,11 +270,11 @@ const WorkspacePage = () => {
                   </div>
 
                   <div className="glass-card p-5">
-                    <h2 className="text-sm font-bold text-white mb-3">{t('workspace.pinned_notes') || 'Notes'}</h2>
+                    <h2 className="text-sm font-bold text-white mb-3">{t('workspace.pinned_notes', 'Notes')}</h2>
                     {notes.length === 0 ? (
                       <button onClick={() => { setSection('notes'); addNote() }}
                         className="w-full py-6 text-sm text-white/40 hover:text-emerald-400">
-                        + {t('workspace.add_note') || 'Add your first note'}
+                        + {t('workspace.add_note', 'Add your first note')}
                       </button>
                     ) : (
                       <div className="grid grid-cols-2 gap-2">
@@ -294,20 +294,20 @@ const WorkspacePage = () => {
             {section === 'tasks' && (
               <div className="glass-card p-5">
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-base font-bold text-white">{t('workspace.tasks') || 'Tasks'}</h2>
+                  <h2 className="text-base font-bold text-white">{t('workspace.tasks', 'Tasks')}</h2>
                   <button onClick={() => setNewTask({ title: '', assigned_to: user?.id, priority: 'medium' })}
                     className="px-3 py-1.5 rounded-lg bg-emerald-500 text-white text-xs font-semibold hover:bg-emerald-400">
-                    ➕ {t('workspace.new_task') || 'New task'}
+                    ➕ {t('workspace.new_task', 'New task')}
                   </button>
                 </div>
 
                 {newTask && (
                   <form onSubmit={saveTask} className="mb-4 p-4 rounded-xl bg-white/[0.03] border border-white/10 space-y-2">
                     <input autoFocus value={newTask.title} onChange={e => setNewTask({ ...newTask, title: e.target.value })}
-                      placeholder={t('workspace.task_title') || 'What needs doing?'}
+                      placeholder={t('workspace.task_title', 'What needs doing?')}
                       className="w-full px-3 py-2.5 glass text-white placeholder:text-white/25 rounded-lg border-0 outline-none focus:ring-2 focus:ring-emerald-400/40 text-sm" />
                     <textarea value={newTask.description || ''} onChange={e => setNewTask({ ...newTask, description: e.target.value })}
-                      rows="2" placeholder={t('workspace.task_details') || 'Details (optional)'}
+                      rows="2" placeholder={t('workspace.task_details', 'Details (optional)')}
                       className="w-full px-3 py-2.5 glass text-white placeholder:text-white/25 rounded-lg border-0 outline-none text-sm resize-none" />
                     <div className="flex flex-wrap gap-2">
                       {canDelegate && assignables.length > 0 && (
@@ -330,9 +330,9 @@ const WorkspacePage = () => {
                         className="px-3 py-2 glass text-white rounded-lg border-0 outline-none text-sm" style={{ colorScheme: 'dark' }} />
                       <div className="ml-auto flex gap-2">
                         <button type="button" onClick={() => setNewTask(null)}
-                          className="px-3 py-2 rounded-lg bg-white/[0.06] text-white/70 text-sm">{t('cancel') || 'Cancel'}</button>
+                          className="px-3 py-2 rounded-lg bg-white/[0.06] text-white/70 text-sm">{t('cancel', 'Cancel')}</button>
                         <button type="submit" className="px-4 py-2 rounded-lg bg-emerald-500 text-white text-sm font-semibold">
-                          {t('save') || 'Save'}
+                          {t('save', 'Save')}
                         </button>
                       </div>
                     </div>
@@ -340,7 +340,7 @@ const WorkspacePage = () => {
                 )}
 
                 {tasks.length === 0 ? (
-                  <p className="text-white/30 text-sm py-10 text-center">{t('workspace.no_tasks') || 'No tasks yet'}</p>
+                  <p className="text-white/30 text-sm py-10 text-center">{t('workspace.no_tasks', 'No tasks yet')}</p>
                 ) : (
                   <div className="space-y-2">
                     {tasks.map(tk => (
@@ -391,7 +391,7 @@ const WorkspacePage = () => {
                     <button onClick={() => setMonth(new Date(month.getFullYear(), month.getMonth() - 1, 1))}
                       className="px-3 py-1.5 rounded-lg bg-white/[0.06] text-white/70 text-sm">‹</button>
                     <button onClick={() => { const d = new Date(); setMonth(new Date(d.getFullYear(), d.getMonth(), 1)) }}
-                      className="px-3 py-1.5 rounded-lg bg-white/[0.06] text-white/70 text-xs">{t('workspace.today') || 'Today'}</button>
+                      className="px-3 py-1.5 rounded-lg bg-white/[0.06] text-white/70 text-xs">{t('workspace.today', 'Today')}</button>
                     <button onClick={() => setMonth(new Date(month.getFullYear(), month.getMonth() + 1, 1))}
                       className="px-3 py-1.5 rounded-lg bg-white/[0.06] text-white/70 text-sm">›</button>
                   </div>
@@ -425,9 +425,9 @@ const WorkspacePage = () => {
                   })}
                 </div>
                 <div className="flex gap-3 mt-3 text-[10px] text-white/40">
-                  <span>🟨 {t('workspace.tasks') || 'Tasks'}</span>
-                  <span>🟦 {t('workspace.bookings') || 'Bookings'}</span>
-                  <span>🟩 {t('workspace.jobs') || 'Client jobs'}</span>
+                  <span>🟨 {t('workspace.tasks', 'Tasks')}</span>
+                  <span>🟦 {t('workspace.bookings', 'Bookings')}</span>
+                  <span>🟩 {t('workspace.jobs', 'Client jobs')}</span>
                 </div>
               </div>
             )}
@@ -436,20 +436,20 @@ const WorkspacePage = () => {
             {section === 'notes' && (
               <div className="glass-card p-5">
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-base font-bold text-white">{t('workspace.notes') || 'Sticky notes'}</h2>
+                  <h2 className="text-base font-bold text-white">{t('workspace.notes', 'Sticky notes')}</h2>
                   <button onClick={addNote} className="px-3 py-1.5 rounded-lg bg-emerald-500 text-white text-xs font-semibold hover:bg-emerald-400">
-                    ➕ {t('workspace.add_note') || 'Add note'}
+                    ➕ {t('workspace.add_note', 'Add note')}
                   </button>
                 </div>
                 {notes.length === 0 ? (
-                  <p className="text-white/30 text-sm py-10 text-center">{t('workspace.no_notes') || 'No notes yet'}</p>
+                  <p className="text-white/30 text-sm py-10 text-center">{t('workspace.no_notes', 'No notes yet')}</p>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                     {notes.map(n => (
                       <div key={n.id} className={`rounded-xl border p-3 ${NOTE_COLORS[n.color] || NOTE_COLORS.yellow}`}>
                         <textarea defaultValue={n.content} rows="6"
                           onBlur={e => saveNote(n, e.target.value)}
-                          placeholder={t('workspace.note_placeholder') || 'Write something…'}
+                          placeholder={t('workspace.note_placeholder', 'Write something…')}
                           className="w-full bg-transparent text-sm text-white/85 placeholder:text-white/30 outline-none resize-none" />
                         <div className="flex justify-between items-center pt-1 border-t border-white/10">
                           <span className="text-[10px] text-white/30">
@@ -485,14 +485,13 @@ const WorkspacePage = () => {
             {/* ---------- DOCUMENTS ---------- */}
             {section === 'files' && (
               <div className="glass-card p-5">
-                <h2 className="text-base font-bold text-white mb-1">{t('workspace.documents') || 'Documents'}</h2>
+                <h2 className="text-base font-bold text-white mb-1">{t('workspace.documents', 'Documents')}</h2>
                 <p className="text-white/40 text-sm mb-4">
-                  {t('workspace.documents_hint')
-                    || 'Work on files in Word or Excel, then upload the finished version to the job so the client can download it.'}
+                  {t('workspace.documents_hint', 'Work on files in Word or Excel, then upload the finished version to the job so the client can download it.')}
                 </p>
                 {jobs.length === 0 ? (
                   <p className="text-white/30 text-sm py-8 text-center">
-                    {t('workspace.no_jobs') || 'No jobs assigned to you yet'}
+                    {t('workspace.no_jobs', 'No jobs assigned to you yet')}
                   </p>
                 ) : (
                   <div className="space-y-2">
@@ -504,7 +503,7 @@ const WorkspacePage = () => {
                             <p className="text-[11px] text-white/35">{j.client_name || j.client_email}</p>
                           </div>
                           <span className="text-[10px] px-2 py-1 rounded-full bg-white/10 text-white/60 whitespace-nowrap">
-                            {(j.documents || []).length} {t('workspace.files') || 'files'}
+                            {(j.documents || []).length} {t('workspace.files', 'files')}
                           </span>
                         </div>
                         {(j.documents || []).length > 0 && (
@@ -520,7 +519,7 @@ const WorkspacePage = () => {
                       </div>
                     ))}
                     <p className="text-[11px] text-white/30 pt-2">
-                      {t('workspace.upload_hint') || 'Upload deliverables from your dashboard job list (My Jobs).'}
+                      {t('workspace.upload_hint', 'Upload deliverables from your dashboard job list (My Jobs).')}
                     </p>
                   </div>
                 )}
@@ -531,13 +530,13 @@ const WorkspacePage = () => {
             {section === 'reports' && (
               <div className="space-y-4">
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-                  <Stat icon="✅" label={t('workspace.tasks_done') || 'Tasks completed'} value={myTasks.filter(x => x.status === 'done').length} />
-                  <Stat icon="🕓" label={t('workspace.tasks_open') || 'Tasks open'} value={openTasks.length} tone="amber" />
-                  <Stat icon="🗂️" label={t('workspace.jobs_assigned') || 'Jobs assigned'} value={jobs.length} tone="blue" />
-                  <Stat icon="📅" label={t('workspace.bookings') || 'Bookings'} value={bookings.length} tone="purple" />
+                  <Stat icon="✅" label={t('workspace.tasks_done', 'Tasks completed')} value={myTasks.filter(x => x.status === 'done').length} />
+                  <Stat icon="🕓" label={t('workspace.tasks_open', 'Tasks open')} value={openTasks.length} tone="amber" />
+                  <Stat icon="🗂️" label={t('workspace.jobs_assigned', 'Jobs assigned')} value={jobs.length} tone="blue" />
+                  <Stat icon="📅" label={t('workspace.bookings', 'Bookings')} value={bookings.length} tone="purple" />
                 </div>
                 <div className="glass-card p-5">
-                  <h2 className="text-sm font-bold text-white mb-3">{t('workspace.jobs_by_status') || 'My jobs by stage'}</h2>
+                  <h2 className="text-sm font-bold text-white mb-3">{t('workspace.jobs_by_status', 'My jobs by stage')}</h2>
                   {['pending', 'confirmed', 'in_progress', 'completed', 'delivered'].map(s => {
                     const n = jobs.filter(j => j.status === s).length
                     const pct = jobs.length ? Math.round((n / jobs.length) * 100) : 0
@@ -552,7 +551,7 @@ const WorkspacePage = () => {
                       </div>
                     )
                   })}
-                  {jobs.length === 0 && <p className="text-white/30 text-sm py-4 text-center">{t('workspace.no_jobs') || 'No jobs yet'}</p>}
+                  {jobs.length === 0 && <p className="text-white/30 text-sm py-4 text-center">{t('workspace.no_jobs', 'No jobs yet')}</p>}
                 </div>
               </div>
             )}

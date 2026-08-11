@@ -116,7 +116,7 @@ const UserChatList = ({ isModal, onClose, embedded = false, selectedUserId = nul
   const formatLastSeen = (ts) => {
     if (!ts) return ''
     const mins = Math.floor((new Date() - new Date(ts)) / 60000)
-    if (mins < 1) return t('chat.just_now') || 'Just now'
+    if (mins < 1) return t('chat.just_now', 'Just now')
     if (mins < 60) return t('chat.minutes_ago', { count: mins }) || `${mins}m ago`
     const hrs = Math.floor(mins / 60)
     if (hrs < 24) return t('chat.hours_ago', { count: hrs }) || `${hrs}h ago`
@@ -143,7 +143,7 @@ const UserChatList = ({ isModal, onClose, embedded = false, selectedUserId = nul
           <div className="flex items-center justify-between mb-3">
             <h3 className="font-bold text-white text-sm flex items-center gap-2">
               <span className="w-7 h-7 rounded-lg glass flex items-center justify-center text-xs">💬</span>
-              {t('chat.messages') || 'Messages'}
+              {t('chat.messages', 'Messages')}
             </h3>
             <div className="flex items-center gap-1.5">
               {!embedded && (
@@ -151,7 +151,7 @@ const UserChatList = ({ isModal, onClose, embedded = false, selectedUserId = nul
                   to="/messages"
                   onClick={onClose}
                   className="w-7 h-7 rounded-full glass flex items-center justify-center hover:border-emerald-400/50 hover:text-emerald-400 transition-all duration-300"
-                  title={t('chat.open_full_view') || 'Open full view'}
+                  title={t('chat.open_full_view', 'Open full view')}
                 >
                   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-5v4m0-4h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
@@ -174,7 +174,7 @@ const UserChatList = ({ isModal, onClose, embedded = false, selectedUserId = nul
               className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-all duration-300 flex items-center justify-center gap-1 ${
                 view === 'conversations' ? 'bg-emerald-500 text-white shadow-md' : 'text-white/50 hover:text-white/80'
               }`}>
-              💬 {t('chat.chats') || 'Chats'}
+              💬 {t('chat.chats', 'Chats')}
               {totalUnread > 0 && (
                 <span className="bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full">
                   {totalUnread > 9 ? '9+' : totalUnread}
@@ -185,7 +185,7 @@ const UserChatList = ({ isModal, onClose, embedded = false, selectedUserId = nul
               className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-all duration-300 flex items-center justify-center gap-1 ${
                 view === 'users' ? 'bg-emerald-500 text-white shadow-md' : 'text-white/50 hover:text-white/80'
               }`}>
-              👤 {t('chat.new_chat') || 'New Chat'}
+              👤 {t('chat.new_chat', 'New Chat')}
             </button>
           </div>
         </div>
@@ -200,7 +200,7 @@ const UserChatList = ({ isModal, onClose, embedded = false, selectedUserId = nul
                 </svg>
               </div>
               <input ref={searchInputRef} type="text" 
-                placeholder={t('chat.search_users') || 'Search users...'} 
+                placeholder={t('chat.search_users', 'Search users...')} 
                 value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-10 pr-8 py-2.5 glass text-white placeholder:text-white/25 rounded-xl border-0 outline-none focus:ring-2 focus:ring-emerald-400/40 transition-all text-sm" />
               {searchQuery && (
@@ -219,15 +219,15 @@ const UserChatList = ({ isModal, onClose, embedded = false, selectedUserId = nul
           {loading ? (
             <div className="p-8 text-center">
               <div className="spinner mx-auto mb-3" />
-              <p className="text-white/40 text-sm">{t('chat.loading') || 'Loading...'}</p>
+              <p className="text-white/40 text-sm">{t('chat.loading', 'Loading...')}</p>
             </div>
           ) : view === 'conversations' ? (
             conversations.length === 0 ? (
               <EmptyState 
                 icon="💬" 
-                title={t('chat.no_conversations') || 'No conversations yet'} 
-                subtitle={t('chat.start_chatting') || 'Start chatting with someone!'} 
-                action={t('chat.start_new_chat') || 'Start a new chat'} 
+                title={t('chat.no_conversations', 'No conversations yet')} 
+                subtitle={t('chat.start_chatting', 'Start chatting with someone!')} 
+                action={t('chat.start_new_chat', 'Start a new chat')} 
                 onClick={() => handleTabChange('users')} 
                 t={t}
               />
@@ -257,7 +257,7 @@ const UserChatList = ({ isModal, onClose, embedded = false, selectedUserId = nul
                     </div>
                     <div className="flex items-center justify-between mt-0.5">
                       <p className="text-xs text-white/40 truncate">
-                        {conv.last_message || t('chat.tap_to_chat') || 'Tap to chat'}
+                        {conv.last_message || t('chat.tap_to_chat', 'Tap to chat')}
                       </p>
                       {conv.unread_count > 0 && (
                         <span className="bg-emerald-500 text-white text-[10px] font-bold rounded-full min-w-[18px] h-4 px-1 flex items-center justify-center">
@@ -273,7 +273,7 @@ const UserChatList = ({ isModal, onClose, embedded = false, selectedUserId = nul
             filteredUsers.length === 0 ? (
               <EmptyState 
                 icon="👤" 
-                title={searchQuery ? t('chat.no_users_found') || 'No users found' : t('chat.no_users_available') || 'No users available'} 
+                title={searchQuery ? t('chat.no_users_found', 'No users found') : t('chat.no_users_available', 'No users available')} 
                 t={t}
               />
             ) : (
