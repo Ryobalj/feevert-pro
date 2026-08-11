@@ -424,6 +424,17 @@ class EmailInboundService:
             dict: {'outlook': {...}, 'imap': {...}} (legacy) or
                   {email_address: {...}, ...} (multi-account)
         """
+        # Zoho blocks IMAP logins from Render's datacenter IPs, so when the
+        # Zoho Mail API is configured it is the source of truth for the inbox.
+        try:
+            from notifications.services import zoho_mail_api
+            if zoho_mail_api.is_configured():
+                saved = zoho_mail_api.sync(limit=limit)
+                logger.info(f"Unified fetch complete (Zoho API): {saved} email(s) saved")
+                return {'zoho_api': {'success': True, 'saved': saved}}
+        except Exception as e:
+            logger.warning(f"Zoho API sync failed, falling back to IMAP/Outlook: {e}")
+
         if EmailAccount.objects.filter(is_active=True).exists():
             results = cls.fetch_all_accounts(limit=limit)
             total_saved = sum(r.get('saved', 0) for r in results.values() if r.get('success'))
