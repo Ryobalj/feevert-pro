@@ -277,7 +277,7 @@ EMAIL_HOST_PASSWORD = config(
 
 DEFAULT_FROM_EMAIL = config(
     'DEFAULT_FROM_EMAIL',
-    default='info@feevert.co.tz'
+    default='support@feevert.co.tz'
 )
 
 # Without this, Python's SMTP client has NO timeout at all (blocks forever)
@@ -382,7 +382,7 @@ REST_FRAMEWORK = {
         'rest_framework.filters.SearchFilter',
         'rest_framework.filters.OrderingFilter',
     ],
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'DEFAULT_PAGINATION_CLASS': 'core.pagination.StandardPagination',
     'PAGE_SIZE': 9,
     'PAGE_SIZE_QUERY_PARAM': 'page_size',
     'MAX_PAGE_SIZE': 50,
@@ -558,7 +558,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # ===========================
 # CONTACT FORM EMAIL
 # ===========================
-CONTACT_FORM_EMAIL = config('CONTACT_FORM_EMAIL', default='admin@feevert.co.tz')
+# Contact-form submissions go to the support desk (admin@ was never a real
+# mailbox, so these notifications had nowhere to land).
+CONTACT_FORM_EMAIL = config('CONTACT_FORM_EMAIL', default='support@feevert.co.tz')
 
 # ===========================
 # PAWAPAY PAYMENT SETTINGS

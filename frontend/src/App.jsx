@@ -28,6 +28,7 @@ import ProfilePage from './features/accounts/pages/ProfilePage'
 import Dashboard from './features/accounts/pages/Dashboard'
 import MessagesPage from './features/realtime/pages/MessagesPage'
 import EmailInboxPage from './features/notifications/pages/EmailInboxPage'
+import WorkspacePage from './features/accounts/pages/WorkspacePage'
 import AdminEmailAccountsPage from './features/notifications/pages/AdminEmailAccountsPage'
 import SettingsPage from './features/accounts/pages/SettingsPage'
 import ForgotPassword from './features/accounts/pages/ForgotPassword'
@@ -147,6 +148,7 @@ function App() {
               <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
               <Route path="/messages" element={<ProtectedRoute><MessagesPage /></ProtectedRoute>} />
               <Route path="/email-inbox" element={<ProtectedRoute><EmailInboxPage /></ProtectedRoute>} />
+              <Route path="/workspace" element={<ProtectedRoute><WorkspacePage /></ProtectedRoute>} />
               <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
 
               {/* Admin */}

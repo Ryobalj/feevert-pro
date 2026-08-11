@@ -71,6 +71,15 @@ const ChatBox = ({ recipientId, recipientName, recipientAvatar, onClose, onNewMe
     inputRef.current?.focus()
   }, [messages])
 
+  // Escape closes the popup — people expect a chat window to be dismissible
+  // without hunting for a button.
+  useEffect(() => {
+    if (embedded || !onClose) return
+    const onKey = (e) => { if (e.key === 'Escape') onClose() }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [embedded, onClose])
+
   const handleSendMessage = async (e) => {
     e?.preventDefault()
     if (!inputMessage.trim() && !pendingFile) return
@@ -166,9 +175,11 @@ const ChatBox = ({ recipientId, recipientName, recipientAvatar, onClose, onNewMe
       exit={embedded ? undefined : { opacity: 0, y: 20, scale: 0.95 }}
       className={embedded
         ? 'dark-surface flex-1 h-full glass-card !p-0 flex flex-col overflow-hidden min-w-0'
-        : 'dark-surface fixed bottom-24 right-6 w-[380px] glass-card !p-0 z-50 flex flex-col overflow-hidden shadow-2xl'
+        // Popup: near-fullscreen on phones (a fixed 380x520 box hung off the
+        // edge of small screens, taking the close button with it), a docked
+        // panel from md up.
+        : 'dark-surface fixed inset-x-2 bottom-2 top-16 md:inset-auto md:bottom-24 md:right-6 md:w-[380px] md:h-[520px] glass-card !p-0 z-50 flex flex-col overflow-hidden shadow-2xl'
       }
-      style={embedded ? undefined : { height: '520px' }}
     >
       {/* ============ HEADER ============ */}
       <div className="p-4 border-b border-white/5 flex justify-between items-center bg-emerald-500/10">

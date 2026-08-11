@@ -133,7 +133,11 @@ const UserChatList = ({ isModal, onClose, embedded = false, selectedUserId = nul
     <>
       {/* ============ CHAT PANEL (hidden in popup mode while a chat is open) ============ */}
       {(embedded || !activeChat) && (
-      <div ref={panelRef} className={embedded ? 'dark-surface w-full max-w-full h-full glass-card !p-0 overflow-hidden flex flex-col' : 'dark-surface w-96 max-w-full glass-card !p-0 overflow-hidden'}>
+      <div ref={panelRef} className={embedded
+        ? 'dark-surface w-full max-w-full h-full glass-card !p-0 overflow-hidden flex flex-col'
+        // Popup: fills the screen on phones so the header (and its close
+        // button) is always reachable; a docked panel from md up.
+        : 'dark-surface fixed inset-x-2 bottom-2 top-16 md:inset-auto md:relative md:w-96 md:max-w-full md:h-auto glass-card !p-0 overflow-hidden flex flex-col'}>
         {/* Header */}
         <div className="p-4 border-b border-white/5">
           <div className="flex items-center justify-between mb-3">
@@ -211,7 +215,7 @@ const UserChatList = ({ isModal, onClose, embedded = false, selectedUserId = nul
         )}
 
         {/* Content */}
-        <div className={embedded ? 'flex-1 overflow-y-auto' : 'max-h-[380px] overflow-y-auto'}>
+        <div className={embedded ? 'flex-1 overflow-y-auto' : 'flex-1 min-h-0 md:max-h-[380px] overflow-y-auto'}>
           {loading ? (
             <div className="p-8 text-center">
               <div className="spinner mx-auto mb-3" />

@@ -300,12 +300,14 @@ class IncomingEmailViewSet(viewsets.ReadOnlyModelViewSet):
     notifications/services/email_inbound_service.py). Staff-only: reading
     business email doesn't belong to a specific client.
 
-    Visibility (TeamInbox-style):
+    Visibility (TeamInbox-style), the same rule for everyone including admins:
       * shared mailbox (is_shared, e.g. info@)  -> every staff member
       * personal mailbox (owner_user set)       -> that owner only
-      * unassigned mailbox (neither)            -> admins only, so a mailbox
-        discovered by the Zoho sync never leaks before it's been mapped
-      * admins see everything, for oversight
+      * unassigned mailbox (neither)            -> nobody here
+
+    Admins deliberately get no bypass: an admin reads their own mailbox plus
+    the shared one, not their colleagues' private mail. Full oversight lives in
+    the Django admin, which is audited and off the day-to-day path.
     """
     queryset = IncomingEmail.objects.all()
     permission_classes = [IsAuthenticated]
@@ -317,11 +319,9 @@ class IncomingEmailViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         from django.db.models import Q
         user = self.request.user
-        if user.role_name == 'admin' or user.is_staff:
-            return IncomingEmail.objects.all()
         return IncomingEmail.objects.filter(
             Q(account__owner_user=user) | Q(account__is_shared=True)
-        )
+        ).select_related('account', 'assigned_to')
 
     def get_serializer_class(self):
         if self.action == 'list':
@@ -373,6 +373,41 @@ class IncomingEmailViewSet(viewsets.ReadOnlyModelViewSet):
         email.is_read = False
         email.save(update_fields=['is_read'])
         return Response({'success': True})
+
+    @action(detail=False, methods=['post'])
+    def compose(self, request):
+        """Send a new email from one of the user's own mailboxes — the "New
+        mail" button. Without this the mail page can only ever reply."""
+        to_email = (request.data.get('to') or '').strip()
+        subject = (request.data.get('subject') or '').strip()
+        body = request.data.get('body') or ''
+        account_id = request.data.get('account')
+
+        if not to_email:
+            return Response({'error': 'A recipient is required'}, status=status.HTTP_400_BAD_REQUEST)
+        if not body.strip() and not subject:
+            return Response({'error': 'Write a subject or a message'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Only send from a mailbox this user is allowed to use.
+        from django.db.models import Q as _Q
+        allowed = EmailAccount.objects.filter(is_active=True).filter(
+            _Q(owner_user=request.user) | _Q(is_shared=True)
+        )
+        account = allowed.filter(id=account_id).first() if account_id else allowed.first()
+
+        from .services.email_outbound_service import EmailOutboundService
+        if account:
+            result = EmailOutboundService.send_via_account(
+                account=account, to_email=to_email, subject=subject, body=body,
+            )
+        else:
+            result = EmailOutboundService.send(
+                to_email=to_email, subject=subject, body=body,
+            )
+        if not result.get('success', True):
+            return Response({'error': result.get('error', 'Failed to send')},
+                            status=status.HTTP_502_BAD_GATEWAY)
+        return Response({'success': True, 'from': account.email_address if account else None})
 
     @action(detail=True, methods=['post'])
     def assign(self, request, pk=None):

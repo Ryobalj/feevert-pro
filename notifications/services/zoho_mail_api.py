@@ -212,11 +212,27 @@ def _sync_one(refresh_token, limit, fetch_bodies, only_address=None,
                 )
                 logger.info('Created EmailAccount for %s (unassigned — map an owner or mark shared)', primary)
 
-        try:
-            messages = list_messages(token, account_id, limit=limit)
-        except Exception as e:
-            logger.warning('Zoho list_messages failed for %s: %s', primary or account_id, e)
-            continue
+        # Mirror the standard folders, not just the inbox, so the mail page can
+        # offer Sent/Drafts/Spam/Trash the way a mail client does.
+        targets = []
+        for f in get_folders(token, account_id):
+            name = (f.get('folderName') or '').strip().lower()
+            mapped = FOLDER_MAP.get(name)
+            fid = f.get('folderId') or f.get('folderID')
+            if mapped and fid:
+                targets.append((mapped, fid))
+        if not targets:
+            targets = [('inbox', None)]
+
+        messages = []
+        for folder_name, folder_id in targets:
+            try:
+                for m in list_messages(token, account_id, limit=limit, folder_id=folder_id):
+                    m['_folder'] = folder_name
+                    messages.append(m)
+            except Exception as e:
+                logger.warning('Zoho list_messages failed for %s/%s: %s',
+                               primary or account_id, folder_name, e)
 
         for msg in messages:
             mid = str(msg.get('messageId') or msg.get('messageID') or '')
@@ -249,7 +265,7 @@ def _sync_one(refresh_token, limit, fetch_bodies, only_address=None,
                         received_at=_parse_ts(msg.get('receivedTime') or msg.get('sentDateInGMT')),
                         has_attachments=str(msg.get('hasAttachment')) in ('1', 'true', 'True'),
                         source='zoho_api',
-                        folder='inbox',
+                        folder=msg.get('_folder', 'inbox'),
                     ),
                 )
                 if was_created:

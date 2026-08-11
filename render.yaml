@@ -50,6 +50,9 @@ services:
         sync: false
       - key: DEFAULT_FROM_EMAIL
         value: support@feevert.co.tz
+      # Contact-form submissions land on the support desk
+      - key: CONTACT_FORM_EMAIL
+        value: support@feevert.co.tz
       - key: EMAIL_TIMEOUT
         value: 8
       - key: EMAIL_SYNC_CRON_SECRET

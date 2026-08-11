@@ -228,7 +228,7 @@ const Navbar = () => {
     { path: '/notifications', label: t('auth.notifications'), icon: '🔔', badge: totalUnreadNotifications },
     { action: 'chat', label: t('auth.messages'), icon: '💭', badge: totalUnreadMessages, onClick: () => { setActiveModal('chat'); setOpenDropdown(null) } },
     { action: 'support', label: t('auth.support'), icon: '🛟', onClick: () => { setActiveModal('support'); setOpenDropdown(null) } },
-    ...(isStaffRole ? [{ path: '/email-inbox', label: t('auth.email_inbox') || 'Email Inbox', icon: '📧' }] : []),
+    ...(isStaffRole ? [{ path: '/workspace', label: t('auth.workspace') || 'My Workspace', icon: '🧰' }, { path: '/email-inbox', label: t('auth.email_inbox') || 'Email Inbox', icon: '📧' }] : []),
     { divider: true },
     { path: '/settings', label: t('auth.settings'), icon: '⚙️' },
     { action: 'logout', label: t('auth.sign_out'), icon: '🚪', danger: true },
@@ -536,9 +536,22 @@ const Navbar = () => {
       {openDropdown && openDropdown !== 'user' && openDropdown !== 'services' && openDropdown !== 'projects' && createPortal(<DropdownContent items={getDropdownItems(openDropdown)} position={dropdownPosition} onClose={() => { setOpenDropdown(null); currentDropdownRef.current = null }} onMouseEnter={megaEnter} onMouseLeave={megaLeave} />, document.body)}
       {openDropdown === 'user' && createPortal(<UserDropdownMenu items={userMenuItems} position={dropdownPosition} onClose={() => { setOpenDropdown(null); currentDropdownRef.current = null }} onLogout={handleLogout} navigate={navigate} onMouseEnter={megaEnter} onMouseLeave={megaLeave} />, document.body)}
       
-      {/* Chat/Support Modals */}
-      {activeModal === 'chat' && <div className="chat-modal fixed bottom-24 right-6 z-50"><UserChatList isModal onClose={() => setActiveModal(null)} /></div>}
-      {activeModal === 'support' && <div className="chat-modal fixed bottom-24 right-6 z-50"><ChatBox recipientId={1} recipientName="FeeVert Support" onClose={() => setActiveModal(null)} /></div>}
+      {/* Chat/Support Modals — a backdrop so tapping outside closes the window
+          (previously the only way out was signing out) */}
+      {activeModal && (
+        <div className="fixed inset-0 bg-black/40 md:bg-transparent z-40"
+             onClick={() => setActiveModal(null)} aria-hidden="true" />
+      )}
+      {activeModal === 'chat' && (
+        <div className="chat-modal z-50" onClick={e => e.stopPropagation()}>
+          <UserChatList isModal onClose={() => setActiveModal(null)} />
+        </div>
+      )}
+      {activeModal === 'support' && (
+        <div className="chat-modal z-50" onClick={e => e.stopPropagation()}>
+          <ChatBox recipientId={1} recipientName="FeeVert Support" onClose={() => setActiveModal(null)} />
+        </div>
+      )}
     </>
   )
 }

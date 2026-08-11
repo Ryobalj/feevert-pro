@@ -16,6 +16,7 @@ from rest_framework_simplejwt.views import (
 
 # Staff-only admin helper views
 from core.admin_views import export_seed_download
+from core.workspace_api import TaskViewSet, StickyNoteViewSet, WorkDocumentViewSet
 
 # Import all viewset routers
 from accounts.views import UserViewSet, ProfileViewSet, RoleViewSet, UserActivityLogViewSet
@@ -100,6 +101,11 @@ router.register(r'notification-settings', UserNotificationSettingViewSet, basena
 router.register(r'notification-logs', NotificationLogViewSet, basename='notification-log')
 router.register(r'email-inbox', IncomingEmailViewSet, basename='incoming-email')
 router.register(r'email-accounts', EmailAccountViewSet, basename='email-account')
+
+# Staff workspace (tasks people are given, and their own notes)
+router.register(r'tasks', TaskViewSet, basename='task')
+router.register(r'sticky-notes', StickyNoteViewSet, basename='sticky-note')
+router.register(r'work-documents', WorkDocumentViewSet, basename='work-document')
 
 # Projects
 router.register(r'project-categories', ProjectCategoryViewSet, basename='project-category')
