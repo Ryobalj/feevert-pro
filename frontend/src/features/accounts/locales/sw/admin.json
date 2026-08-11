@@ -2,7 +2,7 @@
   "title": "Msimamizi",
   "dashboard_title": "Dashibodi",
   "subtitle": "Muhtasari na usimamizi wa mfumo",
-  "loading": "Inapakia dashibodi...",
+  "loading": "Inapakia nafasi yako ya kazi...",
   "welcome_back": "Karibu tena",
   "total_users": "Watumiaji Wote",
   "pending_consultations": "Ushauri Unaosubiri",
@@ -177,5 +177,37 @@
       "footer_copyright_text": "Maandishi ya Hakimiliki",
       "footer_about_text": "Maandishi ya Kuhusu"
     }
-  }
+  },
+  "workspace": {
+    "title": "Nafasi Yangu ya Kazi",
+    "inbox": "Kikasha",
+    "new_task": "Jukumu jipya",
+    "open_tasks": "Fungua kazi",
+    "overdue": "Imepitwa na wakati",
+    "my_jobs": "Kazi zangu",
+    "unread_mail": "Barua ambazo hazijasomwa",
+    "no_tasks": "Bado hakuna majukumu",
+    "pinned_notes": "Vidokezo",
+    "add_note": "Ongeza kidokezo",
+    "tasks": "Kazi",
+    "task_title": "Nini kinahitaji kufanywa?",
+    "task_details": "Maelezo (ya hiari)",
+    "today": "Leo",
+    "bookings": "Uhifadhi",
+    "jobs": "Ajira za mteja",
+    "notes": "Vidokezo vinavyonata",
+    "no_notes": "Bado hakuna madokezo",
+    "note_placeholder": "Andika kitu...",
+    "documents": "Nyaraka",
+    "documents_hint": "Fanya kazi kwenye faili katika Word au Excel, kisha upakie toleo lililokamilika kwenye kazi ili mteja aweze kuipakua.",
+    "no_jobs": "Hakuna kazi bado",
+    "files": "faili",
+    "upload_hint": "Pakia zinazoletwa kutoka kwenye orodha yako ya kazi ya dashibodi (Kazi Zangu).",
+    "tasks_done": "Majukumu yamekamilika",
+    "tasks_open": "Kazi zimefunguliwa",
+    "jobs_assigned": "Kazi ulizopewa",
+    "jobs_by_status": "Kazi zangu kwa hatua"
+  },
+  "cancel": "Ghairi",
+  "save": "Hifadhi"
 }

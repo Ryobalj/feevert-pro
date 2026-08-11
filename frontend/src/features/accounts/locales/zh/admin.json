@@ -2,7 +2,7 @@
   "title": "管理员",
   "dashboard_title": "仪表板",
   "subtitle": "系统概览和管理",
-  "loading": "正在加载仪表板...",
+  "loading": "正在加载您的工作区...",
   "welcome_back": "欢迎回来",
   "total_users": "用户总数",
   "pending_consultations": "待处理咨询",
@@ -177,5 +177,37 @@
       "footer_copyright_text": "版权文字",
       "footer_about_text": "关于我们文字"
     }
-  }
+  },
+  "workspace": {
+    "title": "我的工作区",
+    "inbox": "收件箱",
+    "new_task": "新任务",
+    "open_tasks": "开放任务",
+    "overdue": "逾期",
+    "my_jobs": "我的职位",
+    "unread_mail": "未读邮件",
+    "no_tasks": "还没有任务",
+    "pinned_notes": "笔记",
+    "add_note": "添加备注",
+    "tasks": "任务",
+    "task_title": "需要做什么？",
+    "task_details": "详细信息（可选）",
+    "today": "今天",
+    "bookings": "预订",
+    "jobs": "客户职位",
+    "notes": "便利贴",
+    "no_notes": "还没有笔记",
+    "note_placeholder": "写点东西……",
+    "documents": "文件",
+    "documents_hint": "在 Word 或 Excel 中处理文件，然后将完成的版本上传到作业，以便客户可以下载。",
+    "no_jobs": "还没有职位",
+    "files": "文件",
+    "upload_hint": "从您的仪表板作业列表（我的作业）上传可交付成果。",
+    "tasks_done": "任务完成",
+    "tasks_open": "任务开放",
+    "jobs_assigned": "分配的工作",
+    "jobs_by_status": "我的工作按阶段划分"
+  },
+  "cancel": "取消",
+  "save": "节省"
 }

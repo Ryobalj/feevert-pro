@@ -2,7 +2,7 @@
   "title": "Admin",
   "dashboard_title": "Dashboard",
   "subtitle": "System overview and management",
-  "loading": "Loading dashboard...",
+  "loading": "Loading your workspace…",
   "welcome_back": "Welcome back",
   "total_users": "Total Users",
   "pending_consultations": "Pending Consultations",
@@ -177,5 +177,37 @@
       "footer_copyright_text": "Copyright Text",
       "footer_about_text": "About Text"
     }
-  }
+  },
+  "workspace": {
+    "title": "My Workspace",
+    "inbox": "Inbox",
+    "new_task": "New task",
+    "open_tasks": "Open tasks",
+    "overdue": "Overdue",
+    "my_jobs": "My jobs",
+    "unread_mail": "Unread mail",
+    "no_tasks": "No tasks yet",
+    "pinned_notes": "Notes",
+    "add_note": "Add note",
+    "tasks": "Tasks",
+    "task_title": "What needs doing?",
+    "task_details": "Details (optional)",
+    "today": "Today",
+    "bookings": "Bookings",
+    "jobs": "Client jobs",
+    "notes": "Sticky notes",
+    "no_notes": "No notes yet",
+    "note_placeholder": "Write something…",
+    "documents": "Documents",
+    "documents_hint": "Work on files in Word or Excel, then upload the finished version to the job so the client can download it.",
+    "no_jobs": "No jobs yet",
+    "files": "files",
+    "upload_hint": "Upload deliverables from your dashboard job list (My Jobs).",
+    "tasks_done": "Tasks completed",
+    "tasks_open": "Tasks open",
+    "jobs_assigned": "Jobs assigned",
+    "jobs_by_status": "My jobs by stage"
+  },
+  "cancel": "Cancel",
+  "save": "Save"
 }

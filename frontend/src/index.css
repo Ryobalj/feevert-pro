@@ -1577,3 +1577,124 @@ select option {
 }
 .dark-surface .mail-body a { color: #0d5c3e; }
 .dark-surface .mail-body table { max-width: 100%; }
+
+/* ============================================================
+   LIGHT THEME — make the whole app read bright
+   ============================================================
+   The components were written dark-first: text-white/40, bg-white/[0.03],
+   border-white/5 and so on. On the light theme only headings and paragraphs
+   were being corrected, so most text stayed near-white on near-white — the
+   washed-out look. Map those utilities to proper light-theme values instead,
+   everywhere, so a card is white, its text is dark, and edges are visible.
+   .landing-page keeps its own dark hero treatment. */
+
+/* --- text: three contrast steps, matching the alpha the component asked for */
+[data-theme="white"] [class*="text-white"]:not(.landing-page *) {
+  color: #64708a !important;                 /* low-emphasis default */
+}
+[data-theme="white"] [class*="text-white/9"]:not(.landing-page *),
+[data-theme="white"] [class*="text-white/8"]:not(.landing-page *),
+[data-theme="white"] [class~="text-white"]:not(.landing-page *) {
+  color: #0f1b2d !important;                 /* primary text */
+}
+[data-theme="white"] [class*="text-white/7"]:not(.landing-page *),
+[data-theme="white"] [class*="text-white/6"]:not(.landing-page *),
+[data-theme="white"] [class*="text-white/5"]:not(.landing-page *) {
+  color: #3d4a5c !important;                 /* secondary text */
+}
+
+/* Buttons and badges that paint their own solid background keep white text */
+[data-theme="white"] .bg-emerald-500 [class*="text-white"],
+[data-theme="white"] [class*="bg-emerald-5"][class*="text-white"],
+[data-theme="white"] [class*="bg-emerald-6"][class*="text-white"],
+[data-theme="white"] .btn-primary,
+[data-theme="white"] .btn-primary * {
+  color: #ffffff !important;
+}
+
+/* --- surfaces: white cards, faint grey fills */
+[data-theme="white"] [class*="bg-white/[0.0"]:not(.landing-page *),
+[data-theme="white"] [class*="bg-white/5"]:not(.landing-page *),
+[data-theme="white"] [class*="bg-white/10"]:not(.landing-page *) {
+  background-color: #f4f6f8 !important;
+}
+[data-theme="white"] [class*="hover:bg-white"]:hover:not(.landing-page *) {
+  background-color: #eceff3 !important;
+}
+
+/* --- edges: visible, thin, neutral */
+[data-theme="white"] [class*="border-white"]:not(.landing-page *) {
+  border-color: #e3e8ee !important;
+}
+[data-theme="white"] [class*="divide-"]:not(.landing-page *) > * + * {
+  border-color: #e3e8ee !important;
+}
+
+/* --- placeholders */
+[data-theme="white"] [class*="placeholder:text-white"]::placeholder,
+[data-theme="white"] input::placeholder,
+[data-theme="white"] textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* --- the work surfaces (mail, chat, workspace) follow the light theme too:
+       a bright app everywhere, not a dark island inside a light site. */
+[data-theme="white"] .dark-surface {
+  background: transparent;
+  color: #0f1b2d;
+}
+[data-theme="white"] .dark-surface .glass-card {
+  background: #ffffff;
+  border: 1px solid #e3e8ee;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 4px 12px rgba(16, 24, 40, 0.04);
+}
+[data-theme="white"] .dark-surface .glass {
+  background: #f7f9fb;
+  border: 1px solid #e3e8ee;
+}
+[data-theme="white"] .dark-surface input,
+[data-theme="white"] .dark-surface textarea,
+[data-theme="white"] .dark-surface select {
+  color: #0f1b2d;
+}
+[data-theme="white"] .dark-surface .mail-body {
+  background: #ffffff;
+  padding: 0;
+}
+
+/* Page background: clean white, like a document app */
+[data-theme="white"] body {
+  background: #ffffff;
+}
+
+/* Anything painting its own coloured background keeps white text — buttons,
+   gradient avatars, solid badges. Without this the text-mapping above would
+   put dark text on a green button. */
+[data-theme="white"] [class*="bg-gradient"][class*="text-white"],
+[data-theme="white"] [class*="bg-gradient"] [class*="text-white"],
+[data-theme="white"] [class*="bg-emerald-4"][class*="text-white"],
+[data-theme="white"] [class*="bg-emerald-4"] [class*="text-white"],
+[data-theme="white"] [class*="bg-emerald-5"] [class*="text-white"],
+[data-theme="white"] [class*="bg-red-5"][class*="text-white"],
+[data-theme="white"] [class*="bg-blue-5"][class*="text-white"],
+[data-theme="white"] [class*="bg-amber-5"][class*="text-white"] {
+  color: #ffffff !important;
+}
+
+/* Accent-coloured text (emerald/amber/red on tinted chips) stays as authored —
+   it already has contrast and carries meaning. */
+[data-theme="white"] [class*="text-emerald-3"]:not(.landing-page *),
+[data-theme="white"] [class*="text-emerald-4"]:not(.landing-page *) {
+  color: #047857 !important;
+}
+[data-theme="white"] [class*="text-amber-2"]:not(.landing-page *),
+[data-theme="white"] [class*="text-amber-3"]:not(.landing-page *) {
+  color: #b45309 !important;
+}
+[data-theme="white"] [class*="text-red-3"]:not(.landing-page *) {
+  color: #b91c1c !important;
+}
+[data-theme="white"] [class*="text-blue-2"]:not(.landing-page *),
+[data-theme="white"] [class*="text-blue-3"]:not(.landing-page *) {
+  color: #1d4ed8 !important;
+}

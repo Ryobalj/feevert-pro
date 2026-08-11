@@ -2,7 +2,7 @@
   "title": "Admin",
   "dashboard_title": "Tableau de bord",
   "subtitle": "Aperçu et gestion du système",
-  "loading": "Chargement du tableau de bord...",
+  "loading": "Chargement de votre espace de travail…",
   "welcome_back": "Bon retour",
   "total_users": "Total des utilisateurs",
   "pending_consultations": "Consultations en attente",
@@ -177,5 +177,37 @@
       "footer_copyright_text": "Texte de copyright",
       "footer_about_text": "Texte à propos"
     }
-  }
+  },
+  "workspace": {
+    "title": "Mon espace de travail",
+    "inbox": "Boîte de réception",
+    "new_task": "Nouvelle tâche",
+    "open_tasks": "Tâches ouvertes",
+    "overdue": "En retard",
+    "my_jobs": "Mes emplois",
+    "unread_mail": "Courrier non lu",
+    "no_tasks": "Aucune tâche pour l'instant",
+    "pinned_notes": "Remarques",
+    "add_note": "Ajouter une remarque",
+    "tasks": "Tâches",
+    "task_title": "Que faut-il faire ?",
+    "task_details": "Détails (facultatif)",
+    "today": "Aujourd'hui",
+    "bookings": "Réservations",
+    "jobs": "Emplois clients",
+    "notes": "Notes autocollantes",
+    "no_notes": "Aucune note pour l'instant",
+    "note_placeholder": "Écrivez quelque chose…",
+    "documents": "Documents",
+    "documents_hint": "Travaillez sur des fichiers dans Word ou Excel, puis téléchargez la version finale sur le travail afin que le client puisse la télécharger.",
+    "no_jobs": "Pas encore d'emplois",
+    "files": "fichiers",
+    "upload_hint": "Téléchargez les livrables à partir de la liste de tâches de votre tableau de bord (Mes tâches).",
+    "tasks_done": "Tâches terminées",
+    "tasks_open": "Tâches ouvertes",
+    "jobs_assigned": "Emplois attribués",
+    "jobs_by_status": "Mes métiers par étape"
+  },
+  "cancel": "Annuler",
+  "save": "Sauvegarder"
 }
