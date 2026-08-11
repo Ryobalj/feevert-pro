@@ -1,5 +1,7 @@
 # notifications/views.py
 
+import logging
+
 from rest_framework import viewsets, status, generics
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
@@ -7,6 +9,8 @@ from rest_framework.response import Response
 from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
+
+logger = logging.getLogger(__name__)
 
 from accounts.permissions import IsAdminRole
 from .models import (
@@ -277,10 +281,12 @@ class IncomingEmailViewSet(viewsets.ReadOnlyModelViewSet):
     notifications/services/email_inbound_service.py). Staff-only: reading
     business email doesn't belong to a specific client.
 
-    Visibility: a shared mailbox (EmailAccount.owner_user is null, or
-    legacy rows with no account at all) is visible to any staff member;
-    a personal mailbox is visible only to its owner. Admins see everything
-    for oversight.
+    Visibility (TeamInbox-style):
+      * shared mailbox (is_shared, e.g. info@)  -> every staff member
+      * personal mailbox (owner_user set)       -> that owner only
+      * unassigned mailbox (neither)            -> admins only, so a mailbox
+        discovered by the Zoho sync never leaks before it's been mapped
+      * admins see everything, for oversight
     """
     queryset = IncomingEmail.objects.all()
     permission_classes = [IsAuthenticated]
@@ -295,7 +301,7 @@ class IncomingEmailViewSet(viewsets.ReadOnlyModelViewSet):
         if user.role_name == 'admin' or user.is_staff:
             return IncomingEmail.objects.all()
         return IncomingEmail.objects.filter(
-            Q(account__owner_user=user) | Q(account__owner_user__isnull=True) | Q(account__isnull=True)
+            Q(account__owner_user=user) | Q(account__is_shared=True)
         )
 
     def get_serializer_class(self):
@@ -358,11 +364,22 @@ class IncomingEmailViewSet(viewsets.ReadOnlyModelViewSet):
         from .services.email_inbound_service import EmailInboundService
 
         user = request.user
+        # The Zoho API sync pulls every mailbox in one call and files each
+        # message under its own account, so visibility is enforced on read
+        # (get_queryset) rather than by limiting the fetch.
+        try:
+            from .services import zoho_mail_api
+            if zoho_mail_api.is_configured():
+                saved = zoho_mail_api.sync()
+                return Response({'zoho_api': {'success': True, 'saved': saved}})
+        except Exception as e:
+            logger.warning(f'Zoho sync_now failed, falling back: {e}')
+
         if user.role_name == 'admin' or user.is_staff:
             results = EmailInboundService.fetch_all_sources()
         else:
             accounts = EmailAccount.objects.filter(is_active=True).filter(
-                Q(owner_user=user) | Q(owner_user__isnull=True)
+                Q(owner_user=user) | Q(is_shared=True)
             )
             results = EmailInboundService.fetch_all_accounts(accounts=accounts) if accounts.exists() else {}
         return Response(results)

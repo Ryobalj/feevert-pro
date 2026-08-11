@@ -127,6 +127,7 @@ class EmailAccount(BaseModel):
     PROVIDER_CHOICES = (
         ('imap', 'IMAP'),
         ('outlook', 'Outlook / Microsoft 365'),
+        ('zoho_api', 'Zoho Mail (API)'),
     )
 
     owner_user = models.ForeignKey(
@@ -140,6 +141,13 @@ class EmailAccount(BaseModel):
     email_address = models.EmailField(unique=True)
     provider = models.CharField(max_length=20, choices=PROVIDER_CHOICES, default='imap')
     is_active = models.BooleanField(default=True)
+    # A team inbox every staff member can read (e.g. info@). Personal mailboxes
+    # leave this off: with no owner AND not shared, only admins can see it, so a
+    # newly discovered mailbox never leaks to everyone by accident.
+    is_shared = models.BooleanField(
+        default=False,
+        help_text='Visible to all staff (team inbox). Leave off for personal mailboxes.'
+    )
 
     # IMAP (fetching)
     imap_host = models.CharField(max_length=255, blank=True)

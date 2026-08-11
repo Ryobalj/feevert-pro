@@ -58,9 +58,27 @@ def _auth(token):
 
 
 def get_accounts(token):
-    r = requests.get(f'{_mail_base()}/accounts', headers=_auth(token), timeout=20)
-    r.raise_for_status()
-    return r.json().get('data', []) or []
+    """Mailboxes this token can read.
+
+    With an organization scope (ZohoMail.organization.accounts.READ) an admin
+    token sees every mailbox in the org — that's what powers the per-staff
+    inboxes. Without it, Zoho returns just the authorising user's own mailbox,
+    which is still enough for a single shared inbox.
+    """
+    accounts = []
+    try:
+        r = requests.get(f'{_mail_base()}/organization/accounts',
+                         headers=_auth(token), timeout=20)
+        if r.ok:
+            accounts = r.json().get('data', []) or []
+    except Exception as e:
+        logger.info('Zoho org accounts unavailable (%s) — using own account', e)
+
+    if not accounts:
+        r = requests.get(f'{_mail_base()}/accounts', headers=_auth(token), timeout=20)
+        r.raise_for_status()
+        accounts = r.json().get('data', []) or []
+    return accounts
 
 
 def list_messages(token, account_id, limit=50):
@@ -112,7 +130,17 @@ def sync(limit=50, fetch_bodies=True):
                    or acc.get('incomingUserName') or '').lower()
         if not account_id:
             continue
-        ea = EmailAccount.objects.filter(email_address__iexact=primary).first() if primary else None
+        # Map every Zoho mailbox to an EmailAccount so mail lands in the right
+        # inbox. New mailboxes are created unassigned (not shared, no owner) —
+        # admin-only until someone maps them, so nothing leaks by default.
+        ea = None
+        if primary:
+            ea = EmailAccount.objects.filter(email_address__iexact=primary).first()
+            if ea is None:
+                ea = EmailAccount.objects.create(
+                    email_address=primary, provider='zoho_api', is_active=True, is_shared=False,
+                )
+                logger.info('Created EmailAccount for %s (unassigned — map an owner or mark shared)', primary)
 
         try:
             messages = list_messages(token, account_id, limit=limit)

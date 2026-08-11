@@ -304,6 +304,7 @@ class EmailAccountSerializer(serializers.ModelSerializer):
         model = EmailAccount
         fields = [
             'id', 'owner_user', 'owner_username', 'email_address', 'provider', 'is_active',
+            'is_shared',
             'imap_host', 'imap_port', 'imap_use_ssl', 'imap_password',
             'smtp_host', 'smtp_port', 'smtp_use_ssl', 'smtp_use_tls', 'smtp_password',
             'last_synced_at', 'last_sync_error', 'created_at',
