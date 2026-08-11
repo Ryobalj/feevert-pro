@@ -162,6 +162,11 @@ class EmailAccount(BaseModel):
     smtp_use_tls = models.BooleanField(default=False)
     smtp_password_encrypted = models.TextField(blank=True)
 
+    # Zoho OAuth, per mailbox. Zoho lets an org-admin token *list* every
+    # mailbox but only *read* its own owner's mail, so each mailbox we want in
+    # the in-app inbox connects once and stores its own refresh token here.
+    oauth_refresh_token = models.TextField(blank=True)
+
     last_synced_at = models.DateTimeField(null=True, blank=True)
     last_sync_error = models.TextField(blank=True)
 

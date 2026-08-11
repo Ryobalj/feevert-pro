@@ -37,10 +37,14 @@ def is_configured():
     ])
 
 
-def get_access_token():
-    """Exchange the stored refresh token for a short-lived access token."""
+def get_access_token(refresh_token=None):
+    """Exchange a refresh token for a short-lived access token.
+
+    Defaults to the org-wide token in settings; pass a mailbox's own token to
+    read that mailbox (Zoho only lets a token read its own owner's mail).
+    """
     r = requests.post(f'{_accounts_base()}/oauth/v2/token', data={
-        'refresh_token': settings.ZOHO_REFRESH_TOKEN,
+        'refresh_token': refresh_token or settings.ZOHO_REFRESH_TOKEN,
         'client_id': settings.ZOHO_CLIENT_ID,
         'client_secret': settings.ZOHO_CLIENT_SECRET,
         'grant_type': 'refresh_token',
@@ -108,16 +112,37 @@ def _parse_ts(ms):
 
 
 def sync(limit=50, fetch_bodies=True):
-    """Pull recent messages for every Zoho account and store new ones as
-    IncomingEmail rows (so the dashboard inbox shows them). Idempotent —
-    messages already stored (by message_id) are skipped. Returns count saved."""
+    """Pull recent messages into IncomingEmail rows (what the dashboard inbox
+    renders). Idempotent — messages already stored (by message_id) are skipped.
+
+    Zoho only lets a token read its own owner's mail, so this runs once per
+    token: the org token in settings (covers its own mailbox and discovers the
+    others), plus each mailbox that has connected its own refresh token.
+    Returns total saved."""
     if not is_configured():
         logger.warning('Zoho API not configured — skipping sync')
         return 0
 
+    from notifications.models import EmailAccount
+
+    total = _sync_one(None, limit, fetch_bodies)
+    for ea in EmailAccount.objects.exclude(oauth_refresh_token='').filter(is_active=True):
+        try:
+            total += _sync_one(ea.oauth_refresh_token, limit, fetch_bodies,
+                               only_address=ea.email_address.lower())
+        except Exception as e:
+            logger.warning('Zoho sync failed for %s: %s', ea.email_address, e)
+            EmailAccount.objects.filter(pk=ea.pk).update(last_sync_error=str(e)[:500])
+    logger.info('Zoho API sync: saved %d new email(s)', total)
+    return total
+
+
+def _sync_one(refresh_token, limit, fetch_bodies, only_address=None):
+    """Sync the mailboxes readable by one token. `only_address` restricts it to
+    that mailbox (used for per-mailbox tokens)."""
     from notifications.models import IncomingEmail, EmailAccount
 
-    token = get_access_token()
+    token = get_access_token(refresh_token)
     accounts = get_accounts(token)
     if not accounts:
         logger.warning('Zoho API returned no accounts')
@@ -129,6 +154,8 @@ def sync(limit=50, fetch_bodies=True):
         primary = (acc.get('primaryEmailAddress') or acc.get('mailboxAddress')
                    or acc.get('incomingUserName') or '').lower()
         if not account_id:
+            continue
+        if only_address and primary != only_address:
             continue
         # Map every Zoho mailbox to an EmailAccount so mail lands in the right
         # inbox. New mailboxes are created unassigned (not shared, no owner) —
@@ -181,5 +208,8 @@ def sync(limit=50, fetch_bodies=True):
             except Exception as e:
                 logger.warning('Zoho save failed for %s: %s', mid, e)
 
-    logger.info('Zoho API sync: saved %d new email(s)', saved)
+        if ea:
+            EmailAccount.objects.filter(pk=ea.pk).update(
+                last_synced_at=timezone.now(), last_sync_error='')
+
     return saved
