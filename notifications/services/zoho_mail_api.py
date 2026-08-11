@@ -86,11 +86,43 @@ def get_accounts(token):
     return accounts
 
 
-def list_messages(token, account_id, limit=50):
-    """Recent messages for the account (newest first)."""
+# Folders worth mirroring into the app, mapped to the names the UI uses.
+# Anything else in the mailbox (custom folders) is skipped.
+FOLDER_MAP = {
+    'inbox': 'inbox',
+    'sent': 'sent',
+    'drafts': 'drafts',
+    'draft': 'drafts',
+    'spam': 'spam',
+    'junk': 'spam',
+    'trash': 'trash',
+    'deleted': 'trash',
+    'archive': 'archive',
+}
+
+
+def get_folders(token, account_id):
+    """The account's folders, so the app can mirror Sent/Drafts/Spam/... and
+    not just the inbox."""
+    try:
+        r = requests.get(f'{_mail_base()}/accounts/{account_id}/folders',
+                         headers=_auth(token), timeout=20)
+        r.raise_for_status()
+        return r.json().get('data', []) or []
+    except Exception as e:
+        logger.info('Zoho folders unavailable for %s: %s', account_id, e)
+        return []
+
+
+def list_messages(token, account_id, limit=50, folder_id=None):
+    """Recent messages for the account (newest first), optionally in one
+    folder."""
+    params = {'limit': limit}
+    if folder_id:
+        params['folderId'] = folder_id
     r = requests.get(
         f'{_mail_base()}/accounts/{account_id}/messages/view',
-        headers=_auth(token), params={'limit': limit}, timeout=30,
+        headers=_auth(token), params=params, timeout=30,
     )
     r.raise_for_status()
     return r.json().get('data', []) or []

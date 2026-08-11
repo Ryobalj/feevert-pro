@@ -2,6 +2,7 @@
 
 import logging
 
+import django_filters
 from rest_framework import viewsets, status, generics
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
@@ -274,6 +275,24 @@ class EmailAccountViewSet(viewsets.ModelViewSet):
 # INCOMING EMAIL (UNIFIED INBOX) VIEWS
 # ============================================================
 
+class IncomingEmailFilter(django_filters.FilterSet):
+    """Same as filterset_fields, except `assigned_to` also accepts 'me' (the
+    logged-in user) and 'none' (unassigned) — the two views a team inbox is
+    built around, which a plain ModelChoiceFilter can't express."""
+    assigned_to = django_filters.CharFilter(method='filter_assigned_to')
+
+    class Meta:
+        model = IncomingEmail
+        fields = ['is_read', 'source', 'folder', 'account', 'is_archived', 'assigned_to']
+
+    def filter_assigned_to(self, queryset, name, value):
+        if value == 'me':
+            return queryset.filter(assigned_to=self.request.user)
+        if value in ('none', 'null', 'unassigned'):
+            return queryset.filter(assigned_to__isnull=True)
+        return queryset.filter(assigned_to_id=value)
+
+
 class IncomingEmailViewSet(viewsets.ReadOnlyModelViewSet):
     """
     Unified inbox for emails received at staff/shared mailboxes (via
@@ -291,7 +310,7 @@ class IncomingEmailViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = IncomingEmail.objects.all()
     permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-    filterset_fields = ['is_read', 'source', 'folder', 'account']
+    filterset_class = IncomingEmailFilter
     search_fields = ['sender', 'sender_name', 'subject', 'body']
     ordering = ['-received_at']
 
@@ -309,12 +328,116 @@ class IncomingEmailViewSet(viewsets.ReadOnlyModelViewSet):
             return IncomingEmailListSerializer
         return IncomingEmailSerializer
 
+    @action(detail=False, methods=['get'])
+    def mailboxes(self, request):
+        """The mailboxes this user can read, with unread counts — the sidebar
+        of the team inbox. Unlike /email-accounts/ (admin-only, and full of
+        credentials) this is safe for any staff member."""
+        from django.db.models import Count, Q as _Q
+        visible = self.get_queryset()
+        rows = []
+        seen = set()
+        for e in visible.select_related('account').values(
+            'account', 'account__email_address', 'account__is_shared',
+            'account__owner_user__username',
+        ).annotate(total=Count('id'), unread=Count('id', filter=_Q(is_read=False))):
+            key = e['account']
+            if key in seen:
+                continue
+            seen.add(key)
+            rows.append({
+                'id': key,
+                'email_address': e['account__email_address'] or 'Other',
+                'is_shared': bool(e['account__is_shared']),
+                'owner': e['account__owner_user__username'],
+                'total': e['total'],
+                'unread': e['unread'],
+            })
+        rows.sort(key=lambda r: (not r['is_shared'], r['email_address']))
+        return Response({
+            'mailboxes': rows,
+            'total': visible.count(),
+            'unread': visible.filter(is_read=False).count(),
+        })
+
     @action(detail=True, methods=['post'])
     def mark_read(self, request, pk=None):
         email = self.get_object()
         email.is_read = True
         email.save(update_fields=['is_read'])
         return Response({'success': True})
+
+    @action(detail=True, methods=['post'])
+    def mark_unread(self, request, pk=None):
+        email = self.get_object()
+        email.is_read = False
+        email.save(update_fields=['is_read'])
+        return Response({'success': True})
+
+    @action(detail=True, methods=['post'])
+    def assign(self, request, pk=None):
+        """Give this conversation an owner so the team can see who's on it.
+        Pass user_id, or omit it to take the conversation yourself; pass
+        user_id=null to unassign."""
+        from django.contrib.auth import get_user_model
+        email = self.get_object()
+        if 'user_id' in request.data:
+            uid = request.data.get('user_id')
+            if uid in (None, '', 'null'):
+                email.assigned_to = None
+            else:
+                user = get_user_model().objects.filter(id=uid, is_active=True).first()
+                if not user:
+                    return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+                email.assigned_to = user
+        else:
+            email.assigned_to = request.user
+        email.save(update_fields=['assigned_to'])
+        return Response(IncomingEmailSerializer(email, context={'request': request}).data)
+
+    @action(detail=True, methods=['post'])
+    def archive(self, request, pk=None):
+        """Clear a finished conversation out of the working views (reversible:
+        pass archived=false to bring it back)."""
+        email = self.get_object()
+        email.is_archived = str(request.data.get('archived', True)).lower() not in ('false', '0', 'no')
+        email.save(update_fields=['is_archived'])
+        return Response({'success': True, 'is_archived': email.is_archived})
+
+    @action(detail=True, methods=['post'])
+    def snooze(self, request, pk=None):
+        """Hide until a time (hours from now, or until=<iso datetime>);
+        hours=0 / until=null wakes it immediately."""
+        email = self.get_object()
+        until = request.data.get('until')
+        hours = request.data.get('hours')
+        if until in (None, '', 'null') and hours in (None, '', 0, '0'):
+            email.snoozed_until = None
+        elif until:
+            from django.utils.dateparse import parse_datetime
+            parsed = parse_datetime(until)
+            if not parsed:
+                return Response({'error': 'Invalid datetime'}, status=status.HTTP_400_BAD_REQUEST)
+            email.snoozed_until = parsed
+        else:
+            from datetime import timedelta
+            try:
+                email.snoozed_until = timezone.now() + timedelta(hours=float(hours))
+            except (TypeError, ValueError):
+                return Response({'error': 'Invalid hours'}, status=status.HTTP_400_BAD_REQUEST)
+        email.save(update_fields=['snoozed_until'])
+        return Response({'success': True, 'snoozed_until': email.snoozed_until})
+
+    @action(detail=True, methods=['post'])
+    def tag(self, request, pk=None):
+        """Set the conversation's tags (send the full list)."""
+        email = self.get_object()
+        tags = request.data.get('tags', [])
+        if not isinstance(tags, list):
+            return Response({'error': 'tags must be a list'}, status=status.HTTP_400_BAD_REQUEST)
+        email.tags = [str(t)[:40] for t in tags][:12]
+        email.save(update_fields=['tags'])
+        return Response({'success': True, 'tags': email.tags})
 
     @action(detail=True, methods=['post'])
     def reply(self, request, pk=None):

@@ -239,6 +239,19 @@ class IncomingEmail(BaseModel):
     folder = models.CharField(max_length=100, default='inbox')
     
     # Linking
+    # Team-inbox workflow: who owns this conversation, and whether it's still
+    # in the working view. A shared mailbox is only useful if the team can see
+    # who picked a message up and clear what's done.
+    assigned_to = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='assigned_emails',
+        help_text='Staff member handling this conversation',
+    )
+    is_archived = models.BooleanField(default=False)
+    snoozed_until = models.DateTimeField(null=True, blank=True)
+    tags = models.JSONField(default=list, blank=True)
+
     linked_message = models.ForeignKey(
         'home.ContactMessage',
         on_delete=models.SET_NULL,

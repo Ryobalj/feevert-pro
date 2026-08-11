@@ -248,12 +248,14 @@ class IncomingEmailListSerializer(serializers.ModelSerializer):
     """Preview-only serializer for the inbox list view"""
     body_preview = serializers.SerializerMethodField()
     account_email = serializers.CharField(source='account.email_address', read_only=True, default=None)
+    assigned_to_name = serializers.CharField(source='assigned_to.username', read_only=True, default=None)
 
     class Meta:
         model = IncomingEmail
         fields = [
             'id', 'account', 'account_email', 'sender', 'sender_name', 'subject', 'body_preview',
             'received_at', 'is_read', 'has_attachments', 'source', 'folder',
+            'assigned_to', 'assigned_to_name', 'is_archived', 'snoozed_until', 'tags',
         ]
 
     def get_body_preview(self, obj):
@@ -264,10 +266,12 @@ class IncomingEmailListSerializer(serializers.ModelSerializer):
 class IncomingEmailSerializer(serializers.ModelSerializer):
     """Full serializer for the email detail/reply view"""
     account_email = serializers.CharField(source='account.email_address', read_only=True, default=None)
+    assigned_to_name = serializers.CharField(source='assigned_to.username', read_only=True, default=None)
 
     class Meta:
         model = IncomingEmail
         fields = [
+            'assigned_to', 'assigned_to_name', 'is_archived', 'snoozed_until', 'tags',
             'id', 'account', 'account_email', 'sender', 'sender_name', 'recipient', 'subject',
             'body', 'body_html', 'message_id', 'thread_id', 'in_reply_to',
             'received_at', 'is_read', 'is_processed',
