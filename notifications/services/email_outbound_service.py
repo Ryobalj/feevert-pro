@@ -20,7 +20,30 @@ class EmailOutboundService:
         Send using one specific EmailAccount's own SMTP credentials, so the
         reply actually comes from that staff member's address (e.g.
         john@feevert.co.tz) instead of the site-wide DEFAULT_FROM_EMAIL.
+
+        Mailboxes discovered by the Zoho sync have no SMTP password of their
+        own — replying through them tried to authenticate with nothing and the
+        server answered "530 Authentication Required". When that's the case,
+        send over the site's own SMTP account instead and put the mailbox in
+        Reply-To, so the message still goes out and the answer comes back to
+        the right inbox.
         """
+        if not account.get_smtp_password() or not (account.smtp_host or account.imap_host):
+            logger.info(
+                'No SMTP credentials for %s — sending via the site account with Reply-To set',
+                account.email_address,
+            )
+            # send() answers with a bool; callers of send_via_account expect a
+            # dict, so normalise it here rather than at every call site.
+            ok = cls.send(
+                to_email=to_email, subject=subject, body=body, html_body=html_body,
+                reply_to=account.email_address,
+            )
+            return {'success': bool(ok)} if ok else {
+                'success': False,
+                'error': 'Could not send the message. Check the mail account settings.',
+            }
+
         try:
             connection = get_connection(
                 backend='django.core.mail.backends.smtp.EmailBackend',
@@ -53,8 +76,8 @@ class EmailOutboundService:
             return {'success': False, 'error': str(e)}
 
     @classmethod
-    def send(cls, to_email, subject, body, html_body=None, from_email=None, 
-             cc=None, bcc=None, attachments=None):
+    def send(cls, to_email, subject, body, html_body=None, from_email=None,
+             cc=None, bcc=None, attachments=None, reply_to=None):
         """
         Tuma email kupitia Django's send_mail.
         
@@ -64,6 +87,7 @@ class EmailOutboundService:
             body: Ujumbe (plain text)
             html_body: Ujumbe (HTML) - optional
             from_email: Email ya mtumaji - optional
+            reply_to: Anwani ya kujibia - optional (kwa mailbox zisizo na SMTP zao)
             cc: CC recipients - optional
             bcc: BCC recipients - optional
             attachments: List ya attachments - optional
@@ -83,6 +107,7 @@ class EmailOutboundService:
                     to=recipient_list,
                     cc=cc or [],
                     bcc=bcc or [],
+                    reply_to=[reply_to] if reply_to else None,
                 )
                 email.attach_alternative(html_body, "text/html")
 
@@ -93,6 +118,13 @@ class EmailOutboundService:
                         else:
                             email.attach(attachment)
 
+                result = email.send()
+            elif reply_to:
+                email = EmailMultiAlternatives(
+                    subject=subject, body=body, from_email=sender,
+                    to=recipient_list, cc=cc or [], bcc=bcc or [],
+                    reply_to=[reply_to],
+                )
                 result = email.send()
             else:
                 result = send_mail(

@@ -280,10 +280,19 @@ class IncomingEmailFilter(django_filters.FilterSet):
     logged-in user) and 'none' (unassigned) — the two views a team inbox is
     built around, which a plain ModelChoiceFilter can't express."""
     assigned_to = django_filters.CharFilter(method='filter_assigned_to')
+    # info@ receives mail for several aliases (asia.abdallah@, saidina@, …), so
+    # "which address was this actually sent to" is a different question from
+    # "which mailbox holds it" — filter on the recipient header for that.
+    to = django_filters.CharFilter(method='filter_to')
 
     class Meta:
         model = IncomingEmail
         fields = ['is_read', 'source', 'folder', 'account', 'is_archived', 'assigned_to']
+
+    def filter_to(self, queryset, name, value):
+        if not value:
+            return queryset
+        return queryset.filter(recipient__icontains=value)
 
     def filter_assigned_to(self, queryset, name, value):
         if value == 'me':
@@ -354,11 +363,56 @@ class IncomingEmailViewSet(viewsets.ReadOnlyModelViewSet):
                 'unread': e['unread'],
             })
         rows.sort(key=lambda r: (not r['is_shared'], r['email_address']))
+
+        # The addresses mail was actually sent to. A shared mailbox collects
+        # several aliases, and staff need to see "what came to saidina@" as a
+        # view of its own.
+        import html as _html
+        import re as _re
+        aliases = {}
+        for rec in visible.exclude(recipient='').values_list('recipient', flat=True):
+            # Recipient headers arrive HTML-escaped ("&lt;info@…&gt;"), so
+            # unescape before pulling the addresses out or every alias ends up
+            # with a stray "&gt" glued to it.
+            for addr in _re.findall(r'[\w.+-]+@[\w.-]+\.\w+', _html.unescape(str(rec))):
+                addr = addr.lower()
+                aliases[addr] = aliases.get(addr, 0) + 1
+        alias_rows = [{'address': a, 'count': c} for a, c in
+                      sorted(aliases.items(), key=lambda kv: -kv[1])][:25]
+
         return Response({
             'mailboxes': rows,
+            'aliases': alias_rows,
             'total': visible.count(),
             'unread': visible.filter(is_read=False).count(),
         })
+
+    @action(detail=False, methods=['get'])
+    def contacts(self, request):
+        """Everyone who has ever written in, newest first — the address book the
+        old cPanel mail was being kept around for."""
+        rows = {}
+        for e in self.get_queryset().exclude(sender='').values(
+            'sender', 'sender_name', 'received_at'
+        ).order_by('-received_at')[:3000]:
+            import html as _h
+            addr = _h.unescape((e['sender'] or '')).strip().strip('<>').lower()
+            if not addr or '@' not in addr:
+                continue
+            row = rows.get(addr)
+            if row:
+                row['messages'] += 1
+                if not row['name'] and e['sender_name']:
+                    row['name'] = e['sender_name']
+            else:
+                rows[addr] = {
+                    'email': addr,
+                    'name': e['sender_name'] or '',
+                    'messages': 1,
+                    'last_seen': e['received_at'],
+                }
+        contacts = sorted(rows.values(), key=lambda r: r['last_seen'] or '', reverse=True)
+        return Response({'count': len(contacts), 'contacts': contacts})
 
     @action(detail=True, methods=['post'])
     def mark_read(self, request, pk=None):

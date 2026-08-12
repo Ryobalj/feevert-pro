@@ -56,6 +56,9 @@ const EmailInboxPage = () => {
   const [search, setSearch] = useState('')
   const [showList, setShowList] = useState(true)
   const [compose, setCompose] = useState(null) // {to, subject, body, account}
+  const [alias, setAlias] = useState(null)      // filter by the address mail was sent to
+  const [aliases, setAliases] = useState([])
+  const [contacts, setContacts] = useState(null) // null = mail view, array = address book
 
   const loadEmails = useCallback(async () => {
     setLoading(true)
@@ -70,6 +73,7 @@ const EmailInboxPage = () => {
       if (teamView === 'unread') p.set('is_read', 'false')
       if (teamView === 'unassigned') p.set('assigned_to', 'none')
       if (teamView === 'mine') p.set('assigned_to', 'me')
+      if (alias) p.set('to', alias)
       const res = await api.get(`/email-inbox/?${p.toString()}`)
       setEmails(res.data?.results || res.data || [])
     } catch (error) {
@@ -77,12 +81,13 @@ const EmailInboxPage = () => {
     } finally {
       setLoading(false)
     }
-  }, [mailbox, search, folder, teamView])
+  }, [mailbox, search, folder, teamView, alias])
 
   const loadMailboxes = useCallback(async () => {
     try {
       const res = await api.get('/email-inbox/mailboxes/')
       setMailboxes(res.data?.mailboxes || [])
+      setAliases(res.data?.aliases || [])
       setCounts({ total: res.data?.total || 0, unread: res.data?.unread || 0 })
     } catch (error) {
       console.error('Error loading mailboxes:', error)
@@ -102,6 +107,16 @@ const EmailInboxPage = () => {
       .filter(b => out[b]?.length)
       .map(b => [b, out[b]])
   }, [emails])
+
+  const loadContacts = async () => {
+    try {
+      const res = await api.get('/email-inbox/contacts/')
+      setContacts(res.data?.contacts || [])
+    } catch (error) {
+      console.error('Error loading contacts:', error)
+      setContacts([])
+    }
+  }
 
   const openEmail = async (email) => {
     setShowList(false)
@@ -279,6 +294,31 @@ const EmailInboxPage = () => {
                   active={String(mailbox) === String(m.id)}
                   onClick={() => setMailbox(m.id)} />
               ))}
+
+              {/* A shared mailbox collects several aliases, so "what came to
+                  saidina@" needs to be its own view. */}
+              {aliases.length > 0 && (
+                <>
+                  <p className="px-3 pb-1 pt-4 text-[10px] uppercase tracking-wider text-white/30 font-bold">
+                    {t('inbox.sent_to', 'Sent to')}
+                  </p>
+                  <NavRow icon="📧" label={t('inbox.any_address', 'Any address')}
+                    active={!alias} onClick={() => setAlias(null)} />
+                  {aliases.map(a => (
+                    <NavRow key={a.address} icon="↪️" label={a.address.split('@')[0]}
+                      badge={a.count} title={a.address}
+                      active={alias === a.address}
+                      onClick={() => { setAlias(a.address); setContacts(null) }} />
+                  ))}
+                </>
+              )}
+
+              <p className="px-3 pb-1 pt-4 text-[10px] uppercase tracking-wider text-white/30 font-bold">
+                {t('inbox.address_book', 'Address book')}
+              </p>
+              <NavRow icon="📇" label={t('inbox.contacts', 'Contacts')}
+                active={contacts !== null}
+                onClick={() => (contacts === null ? loadContacts() : setContacts(null))} />
             </div>
           </aside>
 
@@ -287,7 +327,9 @@ const EmailInboxPage = () => {
             <div className="px-4 py-3 border-b border-white/5">
               <div className="flex items-center justify-between gap-2 mb-2">
                 <h2 className="text-base font-bold text-white truncate">
-                  {folderLabel}
+                  {contacts !== null
+                    ? `${t('inbox.contacts', 'Contacts')} (${contacts.length})`
+                    : alias || folderLabel}
                   {counts.unread > 0 && folder === 'inbox' && (
                     <span className="ml-2 text-[11px] font-semibold text-emerald-400">
                       {counts.unread} {t('inbox.unread', 'unread')}
@@ -310,7 +352,35 @@ const EmailInboxPage = () => {
             </div>
 
             <div className="flex-1 min-h-0 overflow-y-auto">
-              {loading ? (
+              {contacts !== null ? (
+                contacts.length === 0 ? (
+                  <div className="p-10 text-center text-white/40 text-sm">
+                    {t('inbox.no_contacts', 'No contacts yet')}
+                  </div>
+                ) : (
+                  contacts.map(c => (
+                    <div key={c.email}
+                      className="px-3 py-2.5 flex gap-3 border-b border-white/[0.04] hover:bg-white/[0.03]">
+                      <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-[10px] font-bold flex-shrink-0">
+                        {initials(c.name, c.email)}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[13px] font-semibold truncate">{c.name || c.email}</p>
+                        <p className="text-[11px] text-white/45 truncate">{c.email}</p>
+                        <p className="text-[10px] text-white/25">
+                          {c.messages} {t('inbox.messages_count', 'messages')}
+                          {c.last_seen ? ` · ${new Date(c.last_seen).toLocaleDateString()}` : ''}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => setCompose({ to: c.email, subject: '', body: '', account: mailbox })}
+                        className="self-center px-2.5 py-1.5 rounded-lg bg-emerald-500 text-white text-[11px] font-semibold hover:bg-emerald-400">
+                        {t('inbox.write', 'Write')}
+                      </button>
+                    </div>
+                  ))
+                )
+              ) : loading ? (
                 <div className="p-8 text-center text-white/40 text-sm">{t('inbox.loading', 'Loading…')}</div>
               ) : emails.length === 0 ? (
                 <div className="p-10 text-center">
