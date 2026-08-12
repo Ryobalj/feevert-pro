@@ -205,7 +205,7 @@ const BookingPage = () => {
               <option value="" style={optionStyle}>{t('booking.choose_consultant')}</option>
               {consultants.map(c => (
                 <option key={c.id} value={c.id} style={optionStyle}>
-                  {c.full_name || c.username} - {c.role_name || c.role?.name || 'Consultant'}
+                  {c.full_name || c.username}
                 </option>
               ))}
             </select>

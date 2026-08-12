@@ -142,7 +142,7 @@ const ProfilePage = () => {
                 {profile?.full_name || user?.username}
               </h3>
               <p className="text-xs font-semibold text-emerald-400/80 uppercase tracking-wider mb-4">
-                {user?.role_name || user?.role?.name || t('profile.client')}
+                {user?.full_name || user?.username || user?.email}
               </p>
 
               <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent mb-4" />

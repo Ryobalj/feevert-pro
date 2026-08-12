@@ -215,7 +215,7 @@ const WorkspacePage = () => {
                   {t('workspace.title', 'My Workspace')}
                 </h1>
                 <p className="text-white/45 text-sm mt-0.5">
-                  {user?.full_name || user?.username} · {user?.role_name || 'staff'}
+                  {user?.full_name || user?.username}
                 </p>
               </div>
               <div className="flex gap-2">
@@ -315,7 +315,7 @@ const WorkspacePage = () => {
                           className="px-3 py-2 glass text-white rounded-lg border-0 outline-none text-sm">
                           {assignables.map(u => (
                             <option key={u.id} value={u.id} style={{ backgroundColor: '#0d3320', color: '#fff' }}>
-                              {u.full_name || u.username}{u.role ? ` · ${u.role}` : ''}
+                              {u.full_name || u.username}
                             </option>
                           ))}
                         </select>
