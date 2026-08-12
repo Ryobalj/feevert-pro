@@ -118,10 +118,13 @@ def get_folders(token, account_id):
         return []
 
 
-def list_messages(token, account_id, limit=50, folder_id=None):
-    """Recent messages for the account (newest first), optionally in one
-    folder."""
-    params = {'limit': limit}
+# Zoho caps a single messages/view response; walk pages with `start` to read a
+# whole mailbox rather than just the most recent slice.
+PAGE_SIZE = 200
+
+
+def _list_page(token, account_id, start, limit, folder_id=None):
+    params = {'limit': limit, 'start': start}
     if folder_id:
         params['folderId'] = folder_id
     r = requests.get(
@@ -130,6 +133,26 @@ def list_messages(token, account_id, limit=50, folder_id=None):
     )
     r.raise_for_status()
     return r.json().get('data', []) or []
+
+
+def list_messages(token, account_id, limit=None, folder_id=None):
+    """Every message in the account (or one folder), newest first.
+
+    `limit` caps the total when you deliberately want a sample; left as None it
+    pages through the whole mailbox, because a business inbox mirrored into the
+    system should be complete, not a recent slice.
+    """
+    out, start = [], 1
+    while True:
+        want = PAGE_SIZE if limit is None else min(PAGE_SIZE, limit - len(out))
+        if want <= 0:
+            break
+        page = _list_page(token, account_id, start, want, folder_id)
+        out.extend(page)
+        if len(page) < want:       # last page
+            break
+        start += len(page)
+    return out
 
 
 def get_content(token, account_id, folder_id, message_id):
@@ -148,14 +171,17 @@ def _parse_ts(ms):
         return timezone.now()
 
 
-def sync(limit=50, fetch_bodies=True):
+def sync(limit=None, fetch_bodies=True):
     """Pull recent messages into IncomingEmail rows (what the dashboard inbox
     renders). Idempotent — messages already stored (by message_id) are skipped.
 
     Zoho only lets a token read its own owner's mail, so this runs once per
     token: the org token in settings (covers its own mailbox and discovers the
     others), plus each mailbox that has connected its own refresh token.
-    Returns total saved."""
+
+    `limit` is a deliberate sample size; by default every message is mirrored,
+    since the point of holding mail here is to have all of it. Returns total
+    saved."""
     if not is_configured():
         logger.warning('Zoho API not configured — skipping sync')
         return 0
@@ -183,7 +209,7 @@ def sync(limit=50, fetch_bodies=True):
     return total
 
 
-def _sync_one(refresh_token, limit, fetch_bodies, only_address=None,
+def _sync_one(refresh_token, limit=None, fetch_bodies=True, only_address=None,
               client_id=None, client_secret=None):
     """Sync the mailboxes readable by one token. `only_address` restricts it to
     that mailbox (used for per-mailbox tokens)."""

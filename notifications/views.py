@@ -582,7 +582,9 @@ class IncomingEmailViewSet(viewsets.ReadOnlyModelViewSet):
         try:
             from .services import zoho_mail_api
             if zoho_mail_api.is_configured():
-                saved = zoho_mail_api.sync()
+                # A button press should return promptly, so check recent mail
+                # here; the full mirror is `manage.py sync_zoho_inbox`.
+                saved = zoho_mail_api.sync(limit=200)
                 return Response({'zoho_api': {'success': True, 'saved': saved}})
         except Exception as e:
             logger.warning(f'Zoho sync_now failed, falling back: {e}')

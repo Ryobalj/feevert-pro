@@ -16,9 +16,9 @@ class Command(BaseCommand):
     help = 'Sync the in-app inbox from Zoho Mail via the REST API.'
 
     def add_arguments(self, parser):
-        parser.add_argument('--limit', type=int, default=100,
-                            help='Max recent messages per mailbox to check (default 100; '
-                                 'raise it for a deeper backfill, e.g. --limit=500)')
+        parser.add_argument('--limit', type=int, default=None,
+                            help='Only check the N most recent messages per mailbox. '
+                                 'Omit it to mirror the whole mailbox (the default).')
         parser.add_argument('--diagnose', action='store_true',
                             help='Show what Zoho returns per mailbox (no saving)')
 
@@ -47,6 +47,8 @@ class Command(BaseCommand):
                 self.stdout.write(self.style.ERROR(f'Diagnose failed: {e}'))
             return
         try:
+            if opts['limit'] is None:
+                self.stdout.write('Mirroring every message in each mailbox — this can take a while.')
             n = zoho_mail_api.sync(limit=opts['limit'])
             self.stdout.write(self.style.SUCCESS(f'✅ Zoho sync complete — saved {n} new email(s).'))
         except Exception as e:
