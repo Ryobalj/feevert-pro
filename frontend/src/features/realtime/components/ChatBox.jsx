@@ -1,7 +1,7 @@
 // src/features/realtime/components/ChatBox.jsx
 
 import React, { useState, useEffect, useRef } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence, useDragControls } from 'framer-motion'
 import { useTranslation } from 'react-i18next' // ✅ Ongeza hii
 import api from '../../../app/api'
 import { useAuth } from '../../accounts/hooks/useAuth'
@@ -23,6 +23,9 @@ const ChatBox = ({ recipientId, recipientName, recipientAvatar, onClose, onNewMe
   const remoteTypingTimeoutRef = useRef(null)
   const inputRef = useRef(null)
   const fileInputRef = useRef(null)
+  // Drag by the header only, so scrolling the messages or typing never moves
+  // the window.
+  const dragControls = useDragControls()
 
   // Load message history
   useEffect(() => {
@@ -174,15 +177,25 @@ const ChatBox = ({ recipientId, recipientName, recipientAvatar, onClose, onNewMe
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={embedded ? undefined : { opacity: 0, y: 20, scale: 0.95 }}
       className={embedded
-        ? 'dark-surface flex-1 h-full glass-card !p-0 flex flex-col overflow-hidden min-w-0'
+        ? 'flex-1 h-full glass-card !p-0 flex flex-col overflow-hidden min-w-0'
         // Popup: near-fullscreen on phones (a fixed 380x520 box hung off the
         // edge of small screens, taking the close button with it), a docked
         // panel from md up.
-        : 'dark-surface fixed inset-x-2 bottom-2 top-16 md:inset-auto md:bottom-24 md:right-6 md:w-[380px] md:h-[520px] glass-card !p-0 z-50 flex flex-col overflow-hidden shadow-2xl'
+        : 'fixed inset-x-2 bottom-2 top-16 md:inset-auto md:bottom-24 md:right-6 md:w-[380px] md:h-[520px] glass-card !p-0 z-50 flex flex-col overflow-hidden shadow-2xl'
       }
+      drag={!embedded}
+      dragListener={false}
+      dragControls={dragControls}
+      dragMomentum={false}
+      dragElastic={0}
     >
-      {/* ============ HEADER ============ */}
-      <div className="p-4 border-b border-white/5 flex justify-between items-center bg-emerald-500/10">
+      {/* ============ HEADER (also the drag handle) ============ */}
+      <div
+        onPointerDown={(e) => { if (!embedded) dragControls.start(e) }}
+        className={`p-4 border-b border-white/5 flex justify-between items-center bg-emerald-500/10 ${
+          embedded ? '' : 'md:cursor-move select-none'
+        }`}
+      >
         <div className="flex items-center gap-3">
           {/* Avatar */}
           <div className="relative">
@@ -201,13 +214,17 @@ const ChatBox = ({ recipientId, recipientName, recipientAvatar, onClose, onNewMe
           </div>
         </div>
         {onClose && (
+          /* Solid red circle: the old faint glass button was easy to miss, and
+             people were signing out just to dismiss the chat. */
           <button
             onClick={onClose}
-            className="w-7 h-7 rounded-full glass flex items-center justify-center hover:border-red-400/50 hover:text-red-400 transition-all duration-300"
+            onPointerDown={(e) => e.stopPropagation()}
+            className="w-9 h-9 rounded-full bg-red-500 hover:bg-red-400 flex items-center justify-center text-white flex-shrink-0 shadow-md transition-colors"
+            title={t('chat.close', 'Close chat')}
             aria-label={t('chat.close', 'Close chat')}
           >
-            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         )}

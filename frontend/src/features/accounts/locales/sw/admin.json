@@ -206,7 +206,8 @@
     "tasks_done": "Majukumu yamekamilika",
     "tasks_open": "Kazi zimefunguliwa",
     "jobs_assigned": "Kazi ulizopewa",
-    "jobs_by_status": "Kazi zangu kwa hatua"
+    "jobs_by_status": "Kazi zangu kwa hatua",
+    "todays_work": "Kazi ya leo"
   },
   "cancel": "Ghairi",
   "save": "Hifadhi"

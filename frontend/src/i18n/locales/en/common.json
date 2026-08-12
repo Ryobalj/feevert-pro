@@ -1,4 +1,4 @@
-{
+﻿{
   "nav": {
     "home": "Home",
     "about": "About",
@@ -50,7 +50,8 @@
     "support": "Support",
     "settings": "Settings",
     "account": "Account",
-    "email_inbox": "Email Inbox"
+    "email_inbox": "Email Inbox",
+    "workspace": "My Workspace"
   },
   "buttons": {
     "learn_more": "Learn More",
@@ -99,11 +100,14 @@
     "grid_view": "Grid view",
     "list_view": "List view",
     "page": "Page",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "previous": "Previous",
+    "next": "Next"
   },
   "theme": {
     "choose_theme": "Choose Theme",
-    "current": "Current"
+    "current": "Current",
+    "disabled_on_landing": "Theme switching is disabled on this page"
   },
   "language": "English",
   "cta": {

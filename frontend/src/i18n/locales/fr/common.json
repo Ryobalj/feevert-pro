@@ -1,4 +1,4 @@
-{
+﻿{
   "nav": {
     "home": "Accueil",
     "about": "À propos",
@@ -50,7 +50,8 @@
     "support": "Support",
     "settings": "Paramètres",
     "account": "Compte",
-    "email_inbox": "Boîte de réception"
+    "email_inbox": "Boîte de réception",
+    "workspace": "Mon espace de travail"
   },
   "buttons": {
     "learn_more": "En savoir plus",
@@ -99,11 +100,14 @@
     "grid_view": "Vue en grille",
     "list_view": "Vue en liste",
     "page": "Page",
-    "loading": "Chargement..."
+    "loading": "Chargement...",
+    "previous": "Précédent",
+    "next": "Suivant"
   },
   "theme": {
     "choose_theme": "Choisir un thème",
-    "current": "Actuel"
+    "current": "Actuel",
+    "disabled_on_landing": "Le changement de thème est désactivé sur cette page"
   },
   "language": "Français",
   "cta": {

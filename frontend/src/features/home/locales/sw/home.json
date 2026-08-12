@@ -1,4 +1,4 @@
-{
+﻿{
   "cta": {
     "badge": "Tufanye Kazi Pamoja",
     "title": "Uko Tayari Kuanza?",
@@ -26,7 +26,8 @@
     "still_questions_title": "Bado una maswali?",
     "still_questions_message": "Haupati unachotafuta? Tuko hapa kukusaidia.",
     "contact_support": "Wasiliana na Msaada",
-    "view_all": "Tazama Maswali Yote"
+    "view_all": "Tazama Maswali Yote",
+    "still_have_questions": "Bado una maswali?"
   },
   "hero": {
     "badge": "Ushauri Unaotegemewa Tanzania",
@@ -81,7 +82,9 @@
     "no_reviews_message": "Kuwa wa kwanza kushiriki uzoefu wako nasi!",
     "share_title": "Shiriki Uzoefu Wako",
     "share_description": "Tunapenda kusikia kuhusu uzoefu wako na huduma zetu.",
-    "write_review": "Andika Maoni"
+    "write_review": "Andika Maoni",
+    "client_role": "Mteja",
+    "all_reviews": "Maoni yote"
   },
   "team": {
     "badge": "👥 Wataalamu Wetu",
@@ -209,6 +212,20 @@
   "explore_homepage": "Tazama Ukurasa wa Mwanzo",
   "view_services": "Tazama Huduma",
   "buttons": {
-    "contact_us": "Wasiliana Nasi"
+    "contact_us": "Wasiliana Nasi",
+    "sending": "Inatuma...",
+    "submit": "Wasilisha"
+  },
+  "what_we_do": {
+    "title": "Tunachofanya",
+    "badge": "Tunachofanya"
+  },
+  "home": {
+    "subtitle": "Utaalamu wa mazingira, usalama na ufugaji nyuki",
+    "welcome": "Karibu",
+    "explore_homepage": "Chunguza ukurasa wa nyumbani",
+    "view_services": "Tazama huduma",
+    "company": "Kampuni",
+    "loading": "Inapakia..."
   }
 }

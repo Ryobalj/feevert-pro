@@ -1,4 +1,4 @@
-{
+﻿{
   "cta": {
     "badge": "让我们一起合作",
     "title": "准备好开始了吗？",
@@ -26,7 +26,8 @@
     "still_questions_title": "还有问题吗？",
     "still_questions_message": "找不到您要找的内容？我们随时为您提供帮助。",
     "contact_support": "联系支持",
-    "view_all": "查看所有常见问题"
+    "view_all": "查看所有常见问题",
+    "still_have_questions": "还有疑问吗？"
   },
   "hero": {
     "badge": "坦桑尼亚值得信赖的咨询公司",
@@ -81,7 +82,9 @@
     "no_reviews_message": "成为第一个与我们分享您体验的人！",
     "share_title": "分享您的体验",
     "share_description": "我们很乐意听取您对我们服务的体验。",
-    "write_review": "写评价"
+    "write_review": "写评价",
+    "client_role": "客户",
+    "all_reviews": "所有评论"
   },
   "team": {
     "badge": "👥 我们的专家",
@@ -209,6 +212,20 @@
   "explore_homepage": "探索首页",
   "view_services": "查看服务",
   "buttons": {
-    "contact_us": "联系我们"
+    "contact_us": "联系我们",
+    "sending": "正在发送...",
+    "submit": "提交"
+  },
+  "what_we_do": {
+    "title": "我们做什么",
+    "badge": "我们做什么"
+  },
+  "home": {
+    "subtitle": "环境、安全和养蜂专业知识",
+    "welcome": "欢迎",
+    "explore_homepage": "探索主页",
+    "view_services": "查看服务",
+    "company": "公司",
+    "loading": "加载中…"
   }
 }

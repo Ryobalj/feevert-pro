@@ -68,7 +68,8 @@
     "invalid_message": "Ce lien de réinitialisation du mot de passe est invalide ou a expiré.",
     "invalid_token": "Jeton de réinitialisation invalide ou manquant",
     "request_new": "Demander un nouveau lien",
-    "failed": "Échec de la réinitialisation du mot de passe. Le lien a peut-être expiré."
+    "failed": "Échec de la réinitialisation du mot de passe. Le lien a peut-être expiré.",
+    "error": "Impossible de réinitialiser votre mot de passe. Veuillez réessayer."
   },
   "verify": {
     "no_token": "Aucun jeton de vérification fourni.",
@@ -81,7 +82,10 @@
     "login": "Se connecter",
     "go_to_login": "Aller à la connexion",
     "need_new_link": "Besoin d'un nouveau lien de vérification ?",
-    "resend": "Renvoyer"
+    "resend": "Renvoyer",
+    "subtitle": "Nous vous avons envoyé un lien de vérification",
+    "title": "Vérifiez votre email",
+    "resend_info": "Vous ne l'avez pas compris ? Vérifiez le spam ou renvoyez-le ci-dessous."
   },
   "buttons": {
     "sending": "Envoi en cours...",
@@ -163,7 +167,8 @@
     "register_failed": "L'inscription a échoué. Veuillez vérifier vos informations et réessayer.",
     "password_letter": "Le mot de passe doit contenir au moins une lettre",
     "password_number": "Le mot de passe doit contenir au moins un chiffre",
-    "password_letter_number": "Le mot de passe doit contenir au moins une lettre et un chiffre"
+    "password_letter_number": "Le mot de passe doit contenir au moins une lettre et un chiffre",
+    "password_complexity": "Utilisez au moins 8 caractères, avec des lettres et des chiffres"
   },
   "success": {
     "login": "Connecté avec succès !",

@@ -134,10 +134,10 @@ const UserChatList = ({ isModal, onClose, embedded = false, selectedUserId = nul
       {/* ============ CHAT PANEL (hidden in popup mode while a chat is open) ============ */}
       {(embedded || !activeChat) && (
       <div ref={panelRef} className={embedded
-        ? 'dark-surface w-full max-w-full h-full glass-card !p-0 overflow-hidden flex flex-col'
+        ? 'w-full max-w-full h-full glass-card !p-0 overflow-hidden flex flex-col'
         // Popup: fills the screen on phones so the header (and its close
         // button) is always reachable; a docked panel from md up.
-        : 'dark-surface fixed inset-x-2 bottom-2 top-16 md:inset-auto md:relative md:w-96 md:max-w-full md:h-auto glass-card !p-0 overflow-hidden flex flex-col'}>
+        : 'fixed inset-x-2 bottom-2 top-16 md:inset-auto md:relative md:w-96 md:max-w-full md:h-auto glass-card !p-0 overflow-hidden flex flex-col'}>
         {/* Header */}
         <div className="p-4 border-b border-white/5">
           <div className="flex items-center justify-between mb-3">
@@ -159,9 +159,11 @@ const UserChatList = ({ isModal, onClose, embedded = false, selectedUserId = nul
                 </Link>
               )}
               {onClose && (
-                <button onClick={onClose} className="w-7 h-7 rounded-full glass flex items-center justify-center hover:border-red-400/50 hover:text-red-400 transition-all duration-300">
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                /* Solid red circle: the faint glass button was easy to miss. */
+                <button onClick={onClose} title={t('chat.close', 'Close')}
+                  className="w-9 h-9 rounded-full bg-red-500 hover:bg-red-400 flex items-center justify-center text-white shadow-md transition-colors">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
               )}

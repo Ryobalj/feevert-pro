@@ -206,7 +206,8 @@
     "tasks_done": "اكتملت المهام",
     "tasks_open": "المهام مفتوحة",
     "jobs_assigned": "الوظائف المخصصة",
-    "jobs_by_status": "وظائفي حسب المرحلة"
+    "jobs_by_status": "وظائفي حسب المرحلة",
+    "todays_work": "عمل اليوم"
   },
   "cancel": "يلغي",
   "save": "يحفظ"

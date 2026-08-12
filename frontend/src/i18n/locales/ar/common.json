@@ -1,4 +1,4 @@
-{
+﻿{
   "nav": {
     "home": "الرئيسية",
     "about": "من نحن",
@@ -50,7 +50,8 @@
     "support": "الدعم",
     "settings": "الإعدادات",
     "account": "الحساب",
-    "email_inbox": "صندوق البريد"
+    "email_inbox": "صندوق البريد",
+    "workspace": "مساحة العمل الخاصة بي"
   },
   "buttons": {
     "learn_more": "اعرف المزيد",
@@ -99,11 +100,14 @@
     "grid_view": "عرض شبكي",
     "list_view": "عرض قائمة",
     "page": "صفحة",
-    "loading": "جاري التحميل..."
+    "loading": "جاري التحميل...",
+    "previous": "سابق",
+    "next": "التالي"
   },
   "theme": {
     "choose_theme": "اختر المظهر",
-    "current": "الحالي"
+    "current": "الحالي",
+    "disabled_on_landing": "تم تعطيل تبديل الموضوع في هذه الصفحة"
   },
   "language": "العربية",
   "cta": {

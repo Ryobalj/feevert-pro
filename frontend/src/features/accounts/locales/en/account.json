@@ -68,7 +68,8 @@
     "invalid_message": "This password reset link is invalid or has expired.",
     "invalid_token": "Invalid or missing reset token",
     "request_new": "Request New Link",
-    "failed": "Failed to reset password. The link may be expired."
+    "failed": "Failed to reset password. The link may be expired.",
+    "error": "Could not reset your password. Please try again."
   },
   "verify": {
     "no_token": "No verification token provided.",
@@ -81,7 +82,10 @@
     "login": "Sign In",
     "go_to_login": "Go to Login",
     "need_new_link": "Need a new verification link?",
-    "resend": "Resend"
+    "resend": "Resend",
+    "subtitle": "We sent you a verification link",
+    "title": "Verify your email",
+    "resend_info": "Didn't get it? Check spam, or resend below."
   },
   "buttons": {
     "sending": "Sending...",
@@ -163,7 +167,8 @@
     "register_failed": "Registration failed. Please check your information and try again.",
     "password_letter": "Password must contain at least one letter",
     "password_number": "Password must contain at least one number",
-    "password_letter_number": "Password must contain at least one letter and one number"
+    "password_letter_number": "Password must contain at least one letter and one number",
+    "password_complexity": "Use at least 8 characters, with letters and numbers"
   },
   "success": {
     "login": "Logged in successfully!",

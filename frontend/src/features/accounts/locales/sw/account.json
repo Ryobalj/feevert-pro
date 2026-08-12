@@ -68,7 +68,8 @@
     "invalid_message": "Kiungo hiki cha kuweka upya nenosiri ni batili au kimeisha muda wake.",
     "invalid_token": "Kiungo batili au hakipo cha kuweka upya",
     "request_new": "Omba Kiungo Kipya",
-    "failed": "Imeshindwa kuweka upya nenosiri. Kiungo kinaweza kuwa kimeisha muda."
+    "failed": "Imeshindwa kuweka upya nenosiri. Kiungo kinaweza kuwa kimeisha muda.",
+    "error": "Haikuweza kuweka upya nenosiri lako. Tafadhali jaribu tena."
   },
   "verify": {
     "no_token": "Hakuna tokeni ya uthibitishaji iliyotolewa.",
@@ -81,7 +82,10 @@
     "login": "Ingia",
     "go_to_login": "Nenda Kuingia",
     "need_new_link": "Unahitaji kiungo kipya cha uthibitishaji?",
-    "resend": "Tuma Tena"
+    "resend": "Tuma Tena",
+    "subtitle": "Tulikutumia kiungo cha uthibitishaji",
+    "title": "Thibitisha barua pepe yako",
+    "resend_info": "Hukuipata? Angalia barua taka, au utume tena hapa chini."
   },
   "buttons": {
     "sending": "Inatuma...",
@@ -163,7 +167,8 @@
     "register_failed": "Usajili umeshindwa. Tafadhali angalia taarifa zako na jaribu tena.",
     "password_letter": "Nenosiri lazima liwe na angalau herufi moja",
     "password_number": "Nenosiri lazima liwe na angalau nambari moja",
-    "password_letter_number": "Nenosiri lazima liwe na angalau herufi moja na nambari moja"
+    "password_letter_number": "Nenosiri lazima liwe na angalau herufi moja na nambari moja",
+    "password_complexity": "Tumia angalau herufi 8, zenye herufi na nambari"
   },
   "success": {
     "login": "Umeingia kwa mafanikio!",

@@ -68,7 +68,8 @@
     "invalid_message": "此密码重置链接无效或已过期。",
     "invalid_token": "无效或缺少重置令牌",
     "request_new": "请求新链接",
-    "failed": "重置密码失败。链接可能已过期。"
+    "failed": "重置密码失败。链接可能已过期。",
+    "error": "无法重置您的密码。请再试一次。"
   },
   "verify": {
     "no_token": "未提供验证令牌。",
@@ -81,7 +82,10 @@
     "login": "登录",
     "go_to_login": "前往登录",
     "need_new_link": "需要新的验证链接？",
-    "resend": "重新发送"
+    "resend": "重新发送",
+    "subtitle": "我们向您发送了验证链接",
+    "title": "验证您的电子邮件",
+    "resend_info": "没明白吗？检查垃圾邮件，或在下面重新发送。"
   },
   "buttons": {
     "sending": "发送中...",
@@ -163,7 +167,8 @@
     "register_failed": "注册失败。请检查您的信息并重试。",
     "password_letter": "密码必须包含至少一个字母",
     "password_number": "密码必须包含至少一个数字",
-    "password_letter_number": "密码必须包含至少一个字母和一个数字"
+    "password_letter_number": "密码必须包含至少一个字母和一个数字",
+    "password_complexity": "至少使用 8 个字符，包含字母和数字"
   },
   "success": {
     "login": "登录成功！",

@@ -206,7 +206,8 @@
     "tasks_done": "Tasks completed",
     "tasks_open": "Tasks open",
     "jobs_assigned": "Jobs assigned",
-    "jobs_by_status": "My jobs by stage"
+    "jobs_by_status": "My jobs by stage",
+    "todays_work": "Today's work"
   },
   "cancel": "Cancel",
   "save": "Save"

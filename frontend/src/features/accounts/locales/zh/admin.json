@@ -206,7 +206,8 @@
     "tasks_done": "任务完成",
     "tasks_open": "任务开放",
     "jobs_assigned": "分配的工作",
-    "jobs_by_status": "我的工作按阶段划分"
+    "jobs_by_status": "我的工作按阶段划分",
+    "todays_work": "今天的工作"
   },
   "cancel": "取消",
   "save": "节省"

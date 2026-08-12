@@ -190,7 +190,7 @@ const WorkspacePage = () => {
   }
 
   return (
-    <div className="dark-surface min-h-screen py-5 md:py-8">
+    <div className="min-h-screen py-5 md:py-8">
       <div className="container-main max-w-[1500px]">
         <div className="flex gap-4">
 

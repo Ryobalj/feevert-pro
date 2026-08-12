@@ -1,4 +1,4 @@
-{
+﻿{
   "cta": {
     "badge": "دعونا نعمل معاً",
     "title": "هل أنت مستعد للبدء؟",
@@ -26,7 +26,8 @@
     "still_questions_title": "لا تزال لديك أسئلة؟",
     "still_questions_message": "لا تجد ما تبحث عنه؟ نحن هنا للمساعدة.",
     "contact_support": "اتصل بالدعم",
-    "view_all": "عرض جميع الأسئلة"
+    "view_all": "عرض جميع الأسئلة",
+    "still_have_questions": "لا تزال لديك أسئلة؟"
   },
   "hero": {
     "badge": "الاستشارات الموثوقة في تنزانيا",
@@ -81,7 +82,9 @@
     "no_reviews_message": "كن أول من يشارك تجربته معنا!",
     "share_title": "شارك تجربتك",
     "share_description": "نحن نحب أن نسمع عن تجربتك مع خدماتنا.",
-    "write_review": "اكتب تقييماً"
+    "write_review": "اكتب تقييماً",
+    "client_role": "عميل",
+    "all_reviews": "جميع التقييمات"
   },
   "team": {
     "badge": "👥 خبراؤنا",
@@ -209,6 +212,20 @@
   "explore_homepage": "استكشاف الصفحة الرئيسية",
   "view_services": "عرض الخدمات",
   "buttons": {
-    "contact_us": "اتصل بنا"
+    "contact_us": "اتصل بنا",
+    "sending": "إرسال…",
+    "submit": "يُقدِّم"
+  },
+  "what_we_do": {
+    "title": "ماذا نفعل",
+    "badge": "ماذا نفعل"
+  },
+  "home": {
+    "subtitle": "الخبرة في مجال البيئة والسلامة وتربية النحل",
+    "welcome": "مرحباً",
+    "explore_homepage": "استكشاف الصفحة الرئيسية",
+    "view_services": "عرض الخدمات",
+    "company": "شركة",
+    "loading": "تحميل…"
   }
 }

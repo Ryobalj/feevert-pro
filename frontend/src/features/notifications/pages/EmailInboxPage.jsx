@@ -233,7 +233,7 @@ const EmailInboxPage = () => {
   const folderLabel = FOLDERS.find(f => f.key === folder)?.label || 'Inbox'
 
   return (
-    <div className="dark-surface min-h-screen py-5 md:py-8">
+    <div className="min-h-screen py-5 md:py-8">
       <div className="container-main max-w-[1600px]">
         <div className="flex gap-3" style={{ height: 'calc(100vh - 150px)', minHeight: 560 }}>
 
@@ -474,7 +474,7 @@ const EmailInboxPage = () => {
         <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/50 p-0 md:p-6"
           onClick={() => setCompose(null)}>
           <form onSubmit={sendCompose} onClick={e => e.stopPropagation()}
-            className="dark-surface glass-card !p-0 w-full md:max-w-2xl overflow-hidden">
+            className="glass-card !p-0 w-full md:max-w-2xl overflow-hidden">
             <div className="px-5 py-3 border-b border-white/5 flex items-center justify-between">
               <h3 className="text-sm font-bold text-white">{t('inbox.new_mail', 'New Mail')}</h3>
               <button type="button" onClick={() => setCompose(null)} className="text-white/40 hover:text-red-400">✕</button>

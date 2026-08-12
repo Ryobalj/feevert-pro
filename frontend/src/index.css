@@ -1512,71 +1512,16 @@ select option {
 .what-we-do-section .slide-overlay {
   background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.2) 50%, transparent 100%);
 }
-/* ============================================================
-   DARK WORK SURFACES (mail, chat, workspace)
-   ============================================================
-   These screens are designed dark — white text on dark cards — and they opt
-   out of the white-theme overrides via .dark-surface. That exclusion alone
-   left them with a white card behind white text, i.e. invisible. So give
-   .dark-surface a real dark surface of its own, in every theme. */
-.dark-surface {
-  background: #071c12;
-  color: #ffffff;
-  border-radius: inherit;
-}
-
-.dark-surface .glass-card,
-[data-theme="white"] .dark-surface .glass-card,
-[data-theme="brand"] .dark-surface .glass-card {
-  background: rgba(255, 255, 255, 0.055);
-  border: 1px solid rgba(255, 255, 255, 0.10);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-}
-
-.dark-surface .glass-card:hover,
-[data-theme="white"] .dark-surface .glass-card:hover {
-  background: rgba(255, 255, 255, 0.075);
-  border-color: rgba(52, 211, 153, 0.35);
-}
-
-.dark-surface .glass,
-[data-theme="white"] .dark-surface .glass,
-[data-theme="brand"] .dark-surface .glass {
-  background: rgba(255, 255, 255, 0.07);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-}
-
-.dark-surface .glass:hover,
-[data-theme="white"] .dark-surface .glass:hover {
-  background: rgba(255, 255, 255, 0.10);
-  border-color: rgba(52, 211, 153, 0.35);
-}
-
-/* Inputs inside a dark surface must stay light-on-dark whatever the theme */
-.dark-surface input,
-.dark-surface textarea,
-.dark-surface select {
-  color: #ffffff;
-}
-.dark-surface input::placeholder,
-.dark-surface textarea::placeholder {
-  color: rgba(255, 255, 255, 0.3);
-}
-
 /* Mail bodies arrive as sender-authored HTML with its own (usually dark-on-
    white) colours; render them on a white sheet so they stay readable. */
-.dark-surface .mail-body {
+.mail-body {
   background: #ffffff;
   color: #111827;
   border-radius: 0.75rem;
   padding: 1rem;
 }
-.dark-surface .mail-body a { color: #0d5c3e; }
-.dark-surface .mail-body table { max-width: 100%; }
+.mail-body a { color: #0d5c3e; }
+.mail-body table { max-width: 100%; }
 
 /* ============================================================
    LIGHT THEME — make the whole app read bright
@@ -1589,17 +1534,17 @@ select option {
    .landing-page keeps its own dark hero treatment. */
 
 /* --- text: three contrast steps, matching the alpha the component asked for */
-[data-theme="white"] [class*="text-white"]:not(.landing-page *) {
+[data-theme="white"] [class*="text-white"]:not(.landing-page *):not(.dark-surface *):not(.dark-surface) {
   color: #64708a !important;                 /* low-emphasis default */
 }
-[data-theme="white"] [class*="text-white/9"]:not(.landing-page *),
-[data-theme="white"] [class*="text-white/8"]:not(.landing-page *),
-[data-theme="white"] [class~="text-white"]:not(.landing-page *) {
+[data-theme="white"] [class*="text-white/9"]:not(.landing-page *):not(.dark-surface *),
+[data-theme="white"] [class*="text-white/8"]:not(.landing-page *):not(.dark-surface *),
+[data-theme="white"] [class~="text-white"]:not(.landing-page *):not(.dark-surface *):not(.dark-surface) {
   color: #0f1b2d !important;                 /* primary text */
 }
-[data-theme="white"] [class*="text-white/7"]:not(.landing-page *),
-[data-theme="white"] [class*="text-white/6"]:not(.landing-page *),
-[data-theme="white"] [class*="text-white/5"]:not(.landing-page *) {
+[data-theme="white"] [class*="text-white/7"]:not(.landing-page *):not(.dark-surface *),
+[data-theme="white"] [class*="text-white/6"]:not(.landing-page *):not(.dark-surface *),
+[data-theme="white"] [class*="text-white/5"]:not(.landing-page *):not(.dark-surface *):not(.dark-surface) {
   color: #3d4a5c !important;                 /* secondary text */
 }
 
@@ -1613,17 +1558,17 @@ select option {
 }
 
 /* --- surfaces: white cards, faint grey fills */
-[data-theme="white"] [class*="bg-white/[0.0"]:not(.landing-page *),
-[data-theme="white"] [class*="bg-white/5"]:not(.landing-page *),
-[data-theme="white"] [class*="bg-white/10"]:not(.landing-page *) {
+[data-theme="white"] [class*="bg-white/[0.0"]:not(.landing-page *):not(.dark-surface *),
+[data-theme="white"] [class*="bg-white/5"]:not(.landing-page *):not(.dark-surface *),
+[data-theme="white"] [class*="bg-white/10"]:not(.landing-page *):not(.dark-surface *):not(.dark-surface) {
   background-color: #f4f6f8 !important;
 }
-[data-theme="white"] [class*="hover:bg-white"]:hover:not(.landing-page *) {
+[data-theme="white"] [class*="hover:bg-white"]:hover:not(.landing-page *):not(.dark-surface *):not(.dark-surface) {
   background-color: #eceff3 !important;
 }
 
 /* --- edges: visible, thin, neutral */
-[data-theme="white"] [class*="border-white"]:not(.landing-page *) {
+[data-theme="white"] [class*="border-white"]:not(.landing-page *):not(.dark-surface *):not(.dark-surface) {
   border-color: #e3e8ee !important;
 }
 [data-theme="white"] [class*="divide-"]:not(.landing-page *) > * + * {
@@ -1635,31 +1580,6 @@ select option {
 [data-theme="white"] input::placeholder,
 [data-theme="white"] textarea::placeholder {
   color: #94a3b8 !important;
-}
-
-/* --- the work surfaces (mail, chat, workspace) follow the light theme too:
-       a bright app everywhere, not a dark island inside a light site. */
-[data-theme="white"] .dark-surface {
-  background: transparent;
-  color: #0f1b2d;
-}
-[data-theme="white"] .dark-surface .glass-card {
-  background: #ffffff;
-  border: 1px solid #e3e8ee;
-  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 4px 12px rgba(16, 24, 40, 0.04);
-}
-[data-theme="white"] .dark-surface .glass {
-  background: #f7f9fb;
-  border: 1px solid #e3e8ee;
-}
-[data-theme="white"] .dark-surface input,
-[data-theme="white"] .dark-surface textarea,
-[data-theme="white"] .dark-surface select {
-  color: #0f1b2d;
-}
-[data-theme="white"] .dark-surface .mail-body {
-  background: #ffffff;
-  padding: 0;
 }
 
 /* Page background: clean white, like a document app */
@@ -1683,18 +1603,18 @@ select option {
 
 /* Accent-coloured text (emerald/amber/red on tinted chips) stays as authored —
    it already has contrast and carries meaning. */
-[data-theme="white"] [class*="text-emerald-3"]:not(.landing-page *),
-[data-theme="white"] [class*="text-emerald-4"]:not(.landing-page *) {
+[data-theme="white"] [class*="text-emerald-3"]:not(.landing-page *):not(.dark-surface *),
+[data-theme="white"] [class*="text-emerald-4"]:not(.landing-page *):not(.dark-surface *):not(.dark-surface) {
   color: #047857 !important;
 }
-[data-theme="white"] [class*="text-amber-2"]:not(.landing-page *),
-[data-theme="white"] [class*="text-amber-3"]:not(.landing-page *) {
+[data-theme="white"] [class*="text-amber-2"]:not(.landing-page *):not(.dark-surface *),
+[data-theme="white"] [class*="text-amber-3"]:not(.landing-page *):not(.dark-surface *):not(.dark-surface) {
   color: #b45309 !important;
 }
-[data-theme="white"] [class*="text-red-3"]:not(.landing-page *) {
+[data-theme="white"] [class*="text-red-3"]:not(.landing-page *):not(.dark-surface *):not(.dark-surface) {
   color: #b91c1c !important;
 }
-[data-theme="white"] [class*="text-blue-2"]:not(.landing-page *),
-[data-theme="white"] [class*="text-blue-3"]:not(.landing-page *) {
+[data-theme="white"] [class*="text-blue-2"]:not(.landing-page *):not(.dark-surface *),
+[data-theme="white"] [class*="text-blue-3"]:not(.landing-page *):not(.dark-surface *):not(.dark-surface) {
   color: #1d4ed8 !important;
 }

@@ -206,7 +206,8 @@
     "tasks_done": "Tâches terminées",
     "tasks_open": "Tâches ouvertes",
     "jobs_assigned": "Emplois attribués",
-    "jobs_by_status": "Mes métiers par étape"
+    "jobs_by_status": "Mes métiers par étape",
+    "todays_work": "Le travail d'aujourd'hui"
   },
   "cancel": "Annuler",
   "save": "Sauvegarder"

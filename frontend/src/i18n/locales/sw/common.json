@@ -1,4 +1,4 @@
-{
+﻿{
   "nav": {
     "home": "Nyumbani",
     "about": "Kuhusu Sisi",
@@ -50,7 +50,8 @@
     "support": "Msaada",
     "settings": "Mipangilio",
     "account": "Akaunti",
-    "email_inbox": "Barua Pepe"
+    "email_inbox": "Barua Pepe",
+    "workspace": "Nafasi Yangu ya Kazi"
   },
   "buttons": {
     "learn_more": "Jifunze Zaidi",
@@ -99,11 +100,14 @@
     "grid_view": "Mpangilio wa gridi",
     "list_view": "Mpangilio wa orodha",
     "page": "Ukurasa",
-    "loading": "Inapakia..."
+    "loading": "Inapakia...",
+    "previous": "Iliyotangulia",
+    "next": "Inayofuata"
   },
   "theme": {
     "choose_theme": "Chagua Mandhari",
-    "current": "Sasa"
+    "current": "Sasa",
+    "disabled_on_landing": "Kubadilisha mandhari kumezimwa kwenye ukurasa huu"
   },
   "language": "Kiswahili",
   "cta": {

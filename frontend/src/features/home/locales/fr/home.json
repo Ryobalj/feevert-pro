@@ -1,4 +1,4 @@
-{
+﻿{
   "cta": {
     "badge": "Travaillons Ensemble",
     "title": "Prêt à Commencer ?",
@@ -26,7 +26,8 @@
     "still_questions_title": "Vous avez encore des questions ?",
     "still_questions_message": "Vous ne trouvez pas ce que vous cherchez ? Nous sommes là pour vous aider.",
     "contact_support": "Contacter le support",
-    "view_all": "Voir toutes les FAQ"
+    "view_all": "Voir toutes les FAQ",
+    "still_have_questions": "Vous avez encore des questions ?"
   },
   "hero": {
     "badge": "Cabinet de conseil de confiance en Tanzanie",
@@ -81,7 +82,9 @@
     "no_reviews_message": "Soyez le premier à partager votre expérience avec nous !",
     "share_title": "Partagez Votre Expérience",
     "share_description": "Nous aimerions connaître votre expérience avec nos services.",
-    "write_review": "Écrire un avis"
+    "write_review": "Écrire un avis",
+    "client_role": "Client",
+    "all_reviews": "Tous les avis"
   },
   "team": {
     "badge": "👥 Nos Experts",
@@ -209,6 +212,20 @@
   "explore_homepage": "Explorer la page d'accueil",
   "view_services": "Voir les services",
   "buttons": {
-    "contact_us": "Contactez-nous"
+    "contact_us": "Contactez-nous",
+    "sending": "Envoi…",
+    "submit": "Soumettre"
+  },
+  "what_we_do": {
+    "title": "Ce que nous faisons",
+    "badge": "Ce que nous faisons"
+  },
+  "home": {
+    "subtitle": "Expertise en environnement, sécurité et apiculture",
+    "welcome": "Accueillir",
+    "explore_homepage": "Explorer la page d'accueil",
+    "view_services": "Voir les prestations",
+    "company": "Entreprise",
+    "loading": "Chargement…"
   }
 }

@@ -1,4 +1,4 @@
-{
+﻿{
   "cta": {
     "badge": "Let's Work Together",
     "title": "Ready to Get Started?",
@@ -26,7 +26,8 @@
     "still_questions_title": "Still have questions?",
     "still_questions_message": "Can't find what you're looking for? We're here to help.",
     "contact_support": "Contact Support",
-    "view_all": "View All FAQs"
+    "view_all": "View All FAQs",
+    "still_have_questions": "Still have questions?"
   },
   "hero": {
     "badge": "Tanzania's Trusted Consultancy",
@@ -81,7 +82,9 @@
     "no_reviews_message": "Be the first to share your experience with us!",
     "share_title": "Share Your Experience",
     "share_description": "We'd love to hear about your experience with our services.",
-    "write_review": "Write a Review"
+    "write_review": "Write a Review",
+    "client_role": "Client",
+    "all_reviews": "All reviews"
   },
   "team": {
     "badge": "👥 Our Experts",
@@ -209,6 +212,20 @@
   "explore_homepage": "Explore Homepage",
   "view_services": "View Services",
   "buttons": {
-    "contact_us": "Contact Us"
+    "contact_us": "Contact Us",
+    "sending": "Sending…",
+    "submit": "Submit"
+  },
+  "what_we_do": {
+    "title": "What We Do",
+    "badge": "What we do"
+  },
+  "home": {
+    "subtitle": "Environmental, safety and beekeeping expertise",
+    "welcome": "Welcome",
+    "explore_homepage": "Explore homepage",
+    "view_services": "View services",
+    "company": "Company",
+    "loading": "Loading…"
   }
 }
