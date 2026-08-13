@@ -10,10 +10,13 @@ import { useTranslation } from 'react-i18next'
 import api from '../../../app/api'
 import { useAuth } from '../hooks/useAuth'
 import DraftTools from '../components/workspace/DraftTools'
+import FinancePanel from '../components/workspace/FinancePanel'
 import Calculator from '../components/workspace/Calculator'
 
 const SECTIONS = [
   { key: 'overview', label: 'Overview',  icon: '📊' },
+  // Shown only to the accountant — see canFinance below.
+  { key: 'finance',  label: 'Finance',   icon: '💰', financeOnly: true },
   { key: 'tasks',    label: 'Tasks',     icon: '✅' },
   { key: 'calendar', label: 'Calendar',  icon: '📅' },
   { key: 'notes',    label: 'Notes',     icon: '📝' },
@@ -42,6 +45,15 @@ const WorkspacePage = () => {
   const { t } = useTranslation('admin')
   const { user } = useAuth()
   const [section, setSection] = useState('overview')
+  const [canFinance, setCanFinance] = useState(false)
+
+  // Who sees the money is a backend decision; ask it rather than guessing from
+  // a role name here.
+  useEffect(() => {
+    api.get('/workspace/finance/?days=1')
+      .then(() => setCanFinance(true))
+      .catch(() => setCanFinance(false))
+  }, [])
   const [tasks, setTasks] = useState([])
   const [notes, setNotes] = useState([])
   const [jobs, setJobs] = useState([])
@@ -196,7 +208,7 @@ const WorkspacePage = () => {
 
           {/* ---------- icon rail ---------- */}
           <aside className="hidden md:flex w-[86px] flex-shrink-0 flex-col gap-1 glass-card !p-2 h-fit sticky top-24">
-            {SECTIONS.map(s => (
+            {SECTIONS.filter(s => !s.financeOnly || canFinance).map(s => (
               <button key={s.key} onClick={() => setSection(s.key)}
                 className={`flex flex-col items-center gap-1 py-3 rounded-xl transition-colors ${
                   section === s.key ? 'bg-emerald-500/15 text-emerald-300' : 'text-white/50 hover:text-white hover:bg-white/[0.05]'
@@ -231,7 +243,7 @@ const WorkspacePage = () => {
 
             {/* mobile section tabs */}
             <div className="md:hidden flex gap-1 overflow-x-auto pb-3 mb-2">
-              {SECTIONS.map(s => (
+              {SECTIONS.filter(s => !s.financeOnly || canFinance).map(s => (
                 <button key={s.key} onClick={() => setSection(s.key)}
                   className={`px-3 py-2 rounded-lg text-xs font-semibold whitespace-nowrap ${
                     section === s.key ? 'bg-emerald-500 text-white' : 'bg-white/[0.06] text-white/60'
@@ -465,6 +477,8 @@ const WorkspacePage = () => {
             )}
 
             {/* ---------- DRAFTS (quick doc / sheet) ---------- */}
+            {section === 'finance' && canFinance && <FinancePanel />}
+
             {section === 'drafts' && <DraftTools />}
 
             {/* ---------- CALCULATOR ---------- */}

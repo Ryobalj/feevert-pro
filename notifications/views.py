@@ -398,28 +398,33 @@ class IncomingEmailViewSet(viewsets.ReadOnlyModelViewSet):
             })
         rows.sort(key=lambda r: (not r['is_shared'], r['email_address']))
 
-        # The addresses mail was actually sent to. A shared mailbox collects
-        # several aliases, and staff need to see "what came to saidina@" as a
-        # view of its own.
+        # "Sent to" answers one question: what came to *my* addresses? Scanning
+        # every recipient in view listed colleagues too (their names appear in
+        # the To/Cc of mail sitting in a shared mailbox), which is neither mine
+        # nor useful. Build the list from the addresses I actually answer to.
         import html as _html
         import re as _re
-        from django.conf import settings as _settings
-        own_domain = (getattr(_settings, 'DEFAULT_FROM_EMAIL', '') or '@feevert.co.tz').split('@')[-1].lower()
-        aliases = {}
+
+        my_addresses = []
+        for acc in EmailAccount.objects.filter(
+                Q(owner_user=user) | Q(is_shared=True)).order_by('email_address'):
+            my_addresses.append(acc.email_address.lower())
+            my_addresses += [str(a).lower() for a in (acc.aliases or [])]
+        # An alias of a colleague's mailbox is theirs, even if it reads as
+        # shared mail — leave it out.
+        colleagues = self._colleague_addresses(user)
+        my_addresses = [a for a in dict.fromkeys(my_addresses) if a not in colleagues]
+
+        counts = {a: 0 for a in my_addresses}
         for rec in visible.exclude(recipient='').values_list('recipient', flat=True):
             # Recipient headers arrive HTML-escaped ("&lt;info@…&gt;"), so
-            # unescape before pulling the addresses out or every alias ends up
-            # with a stray "&gt" glued to it.
-            for addr in _re.findall(r'[\w.+-]+@[\w.-]+\.\w+', _html.unescape(str(rec))):
-                addr = addr.lower()
-                # Only our own addresses: this view answers "what came to
-                # saidina@ / info@", so a client's own address in a To/Cc line
-                # is noise here (they belong in Contacts instead).
-                if not addr.endswith('@' + own_domain):
-                    continue
-                aliases[addr] = aliases.get(addr, 0) + 1
+            # unescape before matching or every address keeps a stray "&gt".
+            found = {x.lower() for x in _re.findall(r'[\w.+-]+@[\w.-]+\.\w+', _html.unescape(str(rec)))}
+            for a in my_addresses:
+                if a in found:
+                    counts[a] += 1
         alias_rows = [{'address': a, 'count': c} for a, c in
-                      sorted(aliases.items(), key=lambda kv: -kv[1])][:25]
+                      sorted(counts.items(), key=lambda kv: -kv[1]) if c]
 
         return Response({
             'mailboxes': rows,

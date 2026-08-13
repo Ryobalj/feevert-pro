@@ -16,7 +16,9 @@ from rest_framework_simplejwt.views import (
 
 # Staff-only admin helper views
 from core.admin_views import export_seed_download
-from core.workspace_api import TaskViewSet, StickyNoteViewSet, WorkDocumentViewSet
+from core.workspace_api import (
+    TaskViewSet, StickyNoteViewSet, WorkDocumentViewSet, finance_summary,
+)
 
 # Import all viewset routers
 from accounts.views import UserViewSet, ProfileViewSet, RoleViewSet, UserActivityLogViewSet
@@ -217,6 +219,9 @@ urlpatterns = [
     path('', api_root, name='api-root'),
     path('api/language/', include('home.urls')),
     
+    # The accountant's numbers (staff-only; see core.workspace_api.is_finance_user)
+    path('api/v1/workspace/finance/', finance_summary, name='workspace-finance'),
+
     # Admin — custom staff-only views must precede admin.site.urls so they resolve first
     path('feevert-admin/export-seed/', export_seed_download, name='admin-export-seed'),
     path('feevert-admin/', admin.site.urls),

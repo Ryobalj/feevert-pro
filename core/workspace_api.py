@@ -4,7 +4,7 @@
 from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import serializers, viewsets, status
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -166,3 +166,83 @@ class WorkDocumentViewSet(viewsets.ModelViewSet):
         if instance.owner_id != self.request.user.id:
             raise serializers.ValidationError('Only the owner can delete this draft.')
         instance.delete()
+
+
+# ============================================================
+# FINANCE — the accountant's view of the business
+# ============================================================
+def is_finance_user(user):
+    """Prisila keeps the books; admins oversee them. Everyone else has no
+    business reading the company's money."""
+    from accounts.roles import is_admin_role
+    if is_admin_role(user):
+        return True
+    role = (getattr(user, 'role_name', '') or '').strip().lower()
+    if role in ('accountant', 'finance', 'muhasibu'):
+        return True
+    # Whoever reads accounts@ is the accountant, whatever their role is called.
+    from notifications.models import EmailAccount
+    return EmailAccount.objects.filter(
+        owner_user=user, email_address__istartswith='accounts@'
+    ).exists()
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def finance_summary(request):
+    """Money in, money owed, and what it came from — the numbers an accountant
+    opens the day with, rather than the generic staff workspace."""
+    from django.db.models import Sum, Count, Q as _Q
+    from datetime import timedelta
+
+    if not is_finance_user(request.user):
+        return Response({'error': 'Not available for this account'}, status=403)
+
+    from payments.models import PaymentTransaction
+    from consultations.models import ConsultationRequest
+    from bookings.models import Booking
+
+    days = int(request.query_params.get('days', 30) or 30)
+    since = timezone.now() - timedelta(days=days)
+
+    tx = PaymentTransaction.objects.all()
+    recent = tx.filter(created_at__gte=since)
+
+    def money(qs):
+        return float(qs.aggregate(s=Sum('amount'))['s'] or 0)
+
+    by_status = {
+        row['status']: {'count': row['n'], 'amount': float(row['total'] or 0)}
+        for row in tx.values('status').annotate(n=Count('id'), total=Sum('amount'))
+    }
+
+    return Response({
+        'period_days': days,
+        'currency': (tx.first().currency if tx.exists() else 'TZS'),
+        'received': money(tx.filter(status='completed')),
+        'received_period': money(recent.filter(status='completed')),
+        'pending': money(tx.filter(status='pending')),
+        'by_status': by_status,
+        'transactions': [
+            {
+                'id': str(t.id),
+                'invoice_number': t.invoice_number,
+                'customer': t.customer_name or (t.user.get_username() if t.user_id else ''),
+                'customer_email': t.customer_email,
+                'amount': float(t.amount),
+                'currency': t.currency,
+                'status': t.status,
+                'gateway': t.gateway,
+                'created_at': t.created_at,
+            }
+            for t in tx.select_related('user').order_by('-created_at')[:50]
+        ],
+        'work': {
+            # What is in flight, so the accountant knows what is about to bill.
+            'requests_open': ConsultationRequest.objects.exclude(
+                status__in=['completed', 'delivered', 'cancelled']).count(),
+            'requests_delivered': ConsultationRequest.objects.filter(status='delivered').count(),
+            'bookings_upcoming': Booking.objects.filter(
+                status__in=['pending', 'confirmed']).count(),
+        },
+    })
