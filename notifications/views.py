@@ -369,7 +369,8 @@ class IncomingEmailViewSet(viewsets.ReadOnlyModelViewSet):
         # view of its own.
         import html as _html
         import re as _re
-        own_domain = (getattr(settings, 'DEFAULT_FROM_EMAIL', '') or '@feevert.co.tz').split('@')[-1].lower()
+        from django.conf import settings as _settings
+        own_domain = (getattr(_settings, 'DEFAULT_FROM_EMAIL', '') or '@feevert.co.tz').split('@')[-1].lower()
         aliases = {}
         for rec in visible.exclude(recipient='').values_list('recipient', flat=True):
             # Recipient headers arrive HTML-escaped ("&lt;info@…&gt;"), so
