@@ -328,9 +328,43 @@ class IncomingEmailViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         from django.db.models import Q
         user = self.request.user
-        return IncomingEmail.objects.filter(
+        qs = IncomingEmail.objects.filter(
             Q(account__owner_user=user) | Q(account__is_shared=True)
         ).select_related('account', 'assigned_to')
+
+        # Several aliases (nicole.abbas@, prisila.neema@, …) all land in the
+        # shared info@ mailbox. A message addressed to a colleague by name is
+        # theirs, not the team's, so keep it out of everyone else's shared view;
+        # what stays shared is mail nobody was singled out for (info@,
+        # allstaff@). Mail addressed to *you* is of course still yours.
+        for addr in self._colleague_addresses(user):
+            qs = qs.exclude(Q(account__is_shared=True) & Q(recipient__icontains=addr))
+        return qs
+
+    @staticmethod
+    def _colleague_addresses(user):
+        """Addresses that identify someone other than `user` — their login
+        address and any mailbox they own."""
+        from django.contrib.auth import get_user_model
+
+        mine = {(user.email or '').lower()}
+        mine |= {a.lower() for a in EmailAccount.objects
+                 .filter(owner_user=user).values_list('email_address', flat=True)}
+
+        theirs = set()
+        for addr in get_user_model().objects.exclude(pk=user.pk).exclude(
+                email='').values_list('email', flat=True):
+            theirs.add(addr.lower())
+        for acc in EmailAccount.objects.filter(owner_user__isnull=False).exclude(owner_user=user):
+            theirs.add(acc.email_address.lower())
+            for alias in (acc.aliases or []):
+                theirs.add(str(alias).lower())
+        # ...and my own aliases stay mine
+        for acc in EmailAccount.objects.filter(owner_user=user):
+            for alias in (acc.aliases or []):
+                mine.add(str(alias).lower())
+
+        return {a for a in theirs if a and a not in mine}
 
     def get_serializer_class(self):
         if self.action == 'list':

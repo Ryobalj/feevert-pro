@@ -32,10 +32,16 @@ class Command(BaseCommand):
         parser.add_argument('--unassign', action='store_true', help='Clear owner and shared (admins only)')
         parser.add_argument('--create', action='store_true',
                             help="Create the mailbox row if the sync hasn't discovered it yet")
+        parser.add_argument('--aliases', default=None,
+                            help='Comma list of other addresses that deliver here '
+                                 '(e.g. prisila.neema@feevert.co.tz). Mail to these '
+                                 "counts as this owner's, not the team's.")
 
     def _describe(self, a):
         if a.owner_user_id:
             who = f'personal -> {a.owner_user.username}'
+            if a.aliases:
+                who += f" (also: {', '.join(a.aliases)})"
         elif a.is_shared:
             who = 'shared (all staff)'
         else:
@@ -64,6 +70,14 @@ class Command(BaseCommand):
                 email_address=o['email'], provider='zoho_api', is_active=True, is_shared=False,
             )
             self.stdout.write(f'Created mailbox row for {account.email_address}')
+
+        if o['aliases'] is not None:
+            account.aliases = [a.strip().lower() for a in o['aliases'].split(',') if a.strip()]
+            account.save(update_fields=['aliases'])
+            self.stdout.write(self.style.SUCCESS(
+                f"{account.email_address} also answers to: {', '.join(account.aliases) or '(none)'}"))
+            if not (o['unassign'] or o['shared'] or o['owner']):
+                return
 
         if o['unassign']:
             account.owner_user = None

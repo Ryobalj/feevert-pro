@@ -148,6 +148,10 @@ class EmailAccount(BaseModel):
         default=False,
         help_text='Visible to all staff (team inbox). Leave off for personal mailboxes.'
     )
+    # Other addresses that deliver into this mailbox (prisila.neema@ -> accounts@).
+    # Mail addressed to one of these belongs to this mailbox's owner, so it
+    # doesn't sit in everyone's view of the shared inbox.
+    aliases = models.JSONField(default=list, blank=True)
 
     # IMAP (fetching)
     imap_host = models.CharField(max_length=255, blank=True)
