@@ -33,9 +33,18 @@ class Command(BaseCommand):
 
     def handle(self, *a, **o):
         if o['list'] or not o['email']:
+            from django.conf import settings
+            platform = (getattr(settings, 'EMAIL_HOST_USER', '') or '').lower()
             self.stdout.write(self.style.SUCCESS('Mailboxes:'))
             for acc in EmailAccount.objects.all():
-                own = 'sends as itself' if acc.get_smtp_password() else 'sends via the platform account'
+                if acc.get_smtp_password():
+                    own = 'sends as itself'
+                elif acc.email_address.lower() == platform:
+                    # This *is* the platform account, so "via the platform
+                    # account" already means as itself — say so plainly.
+                    own = 'sends as itself (the platform account)'
+                else:
+                    own = f'sends as {platform or "the platform account"}, Reply-To itself'
                 self.stdout.write(f'  {acc.email_address:34} {own}')
             if not o['email']:
                 return
