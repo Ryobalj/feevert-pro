@@ -102,6 +102,16 @@ class EmailOutboundService:
             recipient_list = to_email if isinstance(to_email, list) else [to_email]
             sender = from_email or getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@feevert.co.tz')
 
+            # A provider only lets you send as the address you authenticated
+            # with (Zoho answers "553 Sender is not allowed to relay emails"
+            # otherwise). Send as that address and put the intended mailbox in
+            # Reply-To, so the reply still lands in the right inbox.
+            smtp_user = getattr(settings, 'EMAIL_HOST_USER', '')
+            if smtp_user and sender and sender.lower() != smtp_user.lower():
+                logger.info('Sending as %s (authenticated) with Reply-To %s', smtp_user, sender)
+                reply_to = reply_to or sender
+                sender = smtp_user
+
             if html_body:
                 email = EmailMultiAlternatives(
                     subject=subject,
