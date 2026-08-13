@@ -57,7 +57,14 @@
     "subject": "Sujet",
     "message": "Écrivez votre message…",
     "cancel": "Annuler",
-    "send": "Envoyer"
+    "send": "Envoyer",
+    "sent_to": "Envoyé à",
+    "any_address": "N'importe quelle adresse",
+    "address_book": "Carnet d'adresses",
+    "contacts": "Contacts",
+    "no_contacts": "Aucun contact pour l'instant",
+    "messages_count": "messages",
+    "write": "Écrire"
   },
   "email_accounts": {
     "title": "Boîtes mail du personnel",

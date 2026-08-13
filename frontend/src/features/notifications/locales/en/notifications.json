@@ -57,7 +57,14 @@
     "subject": "Subject",
     "message": "Write your message…",
     "cancel": "Cancel",
-    "send": "Send"
+    "send": "Send",
+    "sent_to": "Sent to",
+    "any_address": "Any address",
+    "address_book": "Address book",
+    "contacts": "Contacts",
+    "no_contacts": "No contacts yet",
+    "messages_count": "messages",
+    "write": "Write"
   },
   "email_accounts": {
     "title": "Staff Mailboxes",

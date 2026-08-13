@@ -57,7 +57,14 @@
     "subject": "主题",
     "message": "写下您的留言...",
     "cancel": "取消",
-    "send": "发送"
+    "send": "发送",
+    "sent_to": "发送至",
+    "any_address": "任何地址",
+    "address_book": "地址簿",
+    "contacts": "联系方式",
+    "no_contacts": "还没有联系方式",
+    "messages_count": "消息",
+    "write": "写"
   },
   "email_accounts": {
     "title": "员工邮箱",

@@ -57,7 +57,14 @@
     "subject": "Somo",
     "message": "Andika ujumbe wako...",
     "cancel": "Ghairi",
-    "send": "Tuma"
+    "send": "Tuma",
+    "sent_to": "Imetumwa kwa",
+    "any_address": "Anwani yoyote",
+    "address_book": "Kitabu cha anwani",
+    "contacts": "Anwani",
+    "no_contacts": "Bado hakuna anwani",
+    "messages_count": "ujumbe",
+    "write": "Andika"
   },
   "email_accounts": {
     "title": "Barua Pepe za Wafanyakazi",

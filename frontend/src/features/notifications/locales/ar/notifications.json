@@ -57,7 +57,14 @@
     "subject": "موضوع",
     "message": "اكتب رسالتك...",
     "cancel": "يلغي",
-    "send": "يرسل"
+    "send": "يرسل",
+    "sent_to": "أرسلت إلى",
+    "any_address": "أي عنوان",
+    "address_book": "دفتر العناوين",
+    "contacts": "اتصالات",
+    "no_contacts": "لا توجد اتصالات حتى الآن",
+    "messages_count": "رسائل",
+    "write": "يكتب"
   },
   "email_accounts": {
     "title": "صناديق بريد الموظفين",
