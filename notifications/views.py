@@ -369,6 +369,7 @@ class IncomingEmailViewSet(viewsets.ReadOnlyModelViewSet):
         # view of its own.
         import html as _html
         import re as _re
+        own_domain = (getattr(settings, 'DEFAULT_FROM_EMAIL', '') or '@feevert.co.tz').split('@')[-1].lower()
         aliases = {}
         for rec in visible.exclude(recipient='').values_list('recipient', flat=True):
             # Recipient headers arrive HTML-escaped ("&lt;info@…&gt;"), so
@@ -376,6 +377,11 @@ class IncomingEmailViewSet(viewsets.ReadOnlyModelViewSet):
             # with a stray "&gt" glued to it.
             for addr in _re.findall(r'[\w.+-]+@[\w.-]+\.\w+', _html.unescape(str(rec))):
                 addr = addr.lower()
+                # Only our own addresses: this view answers "what came to
+                # saidina@ / info@", so a client's own address in a To/Cc line
+                # is noise here (they belong in Contacts instead).
+                if not addr.endswith('@' + own_domain):
+                    continue
                 aliases[addr] = aliases.get(addr, 0) + 1
         alias_rows = [{'address': a, 'count': c} for a, c in
                       sorted(aliases.items(), key=lambda kv: -kv[1])][:25]

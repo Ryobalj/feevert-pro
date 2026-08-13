@@ -8,6 +8,7 @@ logger = logging.getLogger(__name__)
 
 
 class EmailOutboundService:
+    last_error = ''
     """
     Service ya kutuma emails kupitia njia mbalimbali:
     - Django send_mail (SMTP) - kwa Gmail, Titan, Custom SMTP
@@ -39,9 +40,11 @@ class EmailOutboundService:
                 to_email=to_email, subject=subject, body=body, html_body=html_body,
                 reply_to=account.email_address,
             )
-            return {'success': bool(ok)} if ok else {
+            if ok:
+                return {'success': True}
+            return {
                 'success': False,
-                'error': 'Could not send the message. Check the mail account settings.',
+                'error': cls.last_error or 'Could not send the message. Check the mail account settings.',
             }
 
         try:
@@ -139,7 +142,11 @@ class EmailOutboundService:
             return result > 0
 
         except Exception as e:
+            # Keep the real SMTP error (e.g. "530 Authentication Required")
+            # rather than swallowing it — "check the mail account settings"
+            # tells nobody which setting is wrong.
             logger.error(f"Failed to send email to {to_email}: {e}")
+            cls.last_error = str(e)
             return False
 
     @classmethod
