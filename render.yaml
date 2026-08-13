@@ -103,6 +103,34 @@ services:
         name: Cache-Control
         value: no-cache
 
+  # ============================================
+  # EMAIL SYNC (scheduled)
+  # ============================================
+  # New mail should appear on its own; the Sync button was the only way to pull
+  # it in. Checks recent messages every 10 minutes — a full mirror is the
+  # `sync_zoho_inbox` command with no --limit.
+  - type: cron
+    name: feevert-email-sync
+    runtime: python
+    schedule: "*/10 * * * *"
+    buildCommand: pip install -r requirements.txt
+    startCommand: python manage.py sync_zoho_inbox --limit=200
+    envVars:
+      - key: SECRET_KEY
+        sync: false
+      - key: DEBUG
+        value: false
+      - key: ZOHO_CLIENT_ID
+        sync: false
+      - key: ZOHO_CLIENT_SECRET
+        sync: false
+      - key: ZOHO_REFRESH_TOKEN
+        sync: false
+      - key: DATABASE_URL
+        fromDatabase:
+          name: feevert-db
+          property: connectionString
+
 # ============================================
 # DATABASE (PostgreSQL)
 # ============================================

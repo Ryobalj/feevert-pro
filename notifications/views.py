@@ -398,10 +398,15 @@ class IncomingEmailViewSet(viewsets.ReadOnlyModelViewSet):
     def contacts(self, request):
         """Everyone who has ever written in, newest first — the address book the
         old cPanel mail was being kept around for."""
+        from django.db.models import Q as _Q
+        term = (request.query_params.get('search') or '').strip()
+        qs = self.get_queryset().exclude(sender='')
+        if term:
+            qs = qs.filter(_Q(sender__icontains=term) | _Q(sender_name__icontains=term))
         rows = {}
-        for e in self.get_queryset().exclude(sender='').values(
+        for e in qs.values(
             'sender', 'sender_name', 'received_at'
-        ).order_by('-received_at')[:3000]:
+        ).order_by('-received_at')[:5000]:
             import html as _h
             addr = _h.unescape((e['sender'] or '')).strip().strip('<>').lower()
             if not addr or '@' not in addr:
@@ -785,6 +790,12 @@ def cron_sync_emails(request):
     expected = getattr(settings, 'EMAIL_SYNC_CRON_SECRET', '')
     if not expected or not hmac.compare_digest(str(provided), str(expected)):
         return Response({'error': 'Invalid or missing secret'}, status=403)
+
+    from .services import zoho_mail_api
+    if zoho_mail_api.is_configured():
+        # IMAP is geo-blocked from Render; the API path is the one that works.
+        saved = zoho_mail_api.sync(limit=200)
+        return Response({'zoho_api': {'success': True, 'saved': saved}})
 
     results = EmailInboundService.fetch_all_sources()
     return Response(results)

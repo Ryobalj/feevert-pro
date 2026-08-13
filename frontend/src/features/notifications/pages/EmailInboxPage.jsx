@@ -108,15 +108,25 @@ const EmailInboxPage = () => {
       .map(b => [b, out[b]])
   }, [emails])
 
-  const loadContacts = async () => {
+  // The address book is ~900 messages deep, so it has to be searchable —
+  // reuse the same search box the mail list uses.
+  const loadContacts = useCallback(async (term = '') => {
     try {
-      const res = await api.get('/email-inbox/contacts/')
+      const q = term.trim() ? `?search=${encodeURIComponent(term.trim())}` : ''
+      const res = await api.get(`/email-inbox/contacts/${q}`)
       setContacts(res.data?.contacts || [])
     } catch (error) {
       console.error('Error loading contacts:', error)
       setContacts([])
     }
-  }
+  }, [])
+
+  // Typing in the search box while the address book is open re-queries it.
+  useEffect(() => {
+    if (contacts === null) return
+    const id = setTimeout(() => loadContacts(search), 300)
+    return () => clearTimeout(id)
+  }, [search])
 
   const openEmail = async (email) => {
     setShowList(false)
