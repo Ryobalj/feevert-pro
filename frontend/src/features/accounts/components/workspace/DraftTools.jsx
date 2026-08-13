@@ -83,23 +83,33 @@ const DraftTools = () => {
   }
 
   const save = async (patch = {}) => {
-    if (!active) return
+    // Read the latest document from state: typing in a cell and clicking away
+    // fires the update and the save in the same tick, and the closure here can
+    // still hold the previous version — which would save stale cells.
+    const doc = await new Promise(resolve => setActive(cur => { resolve(cur); return cur }))
+    if (!doc) return
     setSaving(true)
     try {
       const body = {
-        title: active.title,
-        content: active.kind === 'doc' ? (editorRef.current?.innerHTML ?? active.content) : active.content,
-        data: active.data,
-        external_url: active.external_url || '',
-        is_shared: !!active.is_shared,
+        title: doc.title,
+        content: doc.kind === 'doc' ? (editorRef.current?.innerHTML ?? doc.content) : (doc.content || ''),
+        data: doc.data ?? [],
+        external_url: doc.external_url || '',
+        is_shared: !!doc.is_shared,
         ...patch,
       }
-      const res = await api.patch(`/work-documents/${active.id}/`, body)
+      const res = await api.patch(`/work-documents/${doc.id}/`, body)
       setActive(res.data)
       setDocs(prev => prev.map(d => d.id === res.data.id ? res.data : d))
       setSavedAt(new Date())
     } catch (e) {
-      alert(e.response?.data?.detail || 'Could not save')
+      // Say what the server actually objected to — "Could not save" names
+      // nothing and leaves the person guessing.
+      const d = e.response?.data
+      const detail = typeof d === 'string' ? d
+        : d?.detail || (d && Object.entries(d).map(([k, v]) => `${k}: ${[].concat(v).join(', ')}`).join(' · '))
+      console.error('Save failed', e.response?.status, d)
+      alert(detail || `Could not save (${e.response?.status || e.message || 'no response'})`)
     } finally { setSaving(false) }
   }
 
