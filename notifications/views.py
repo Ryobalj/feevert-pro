@@ -794,7 +794,9 @@ def cron_sync_emails(request):
     from .services import zoho_mail_api
     if zoho_mail_api.is_configured():
         # IMAP is geo-blocked from Render; the API path is the one that works.
-        saved = zoho_mail_api.sync(limit=200)
+        # Runs every few minutes, so check a short window — the deep backfill
+        # is `manage.py sync_zoho_inbox` with no --limit.
+        saved = zoho_mail_api.sync(limit=50)
         return Response({'zoho_api': {'success': True, 'saved': saved}})
 
     results = EmailInboundService.fetch_all_sources()
