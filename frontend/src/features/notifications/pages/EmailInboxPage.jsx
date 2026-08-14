@@ -62,6 +62,8 @@ const EmailInboxPage = () => {
   const [folderCounts, setFolderCounts] = useState({})
   const [fromOptions, setFromOptions] = useState([])
   const [replyFrom, setReplyFrom] = useState('')
+  const [taskForm, setTaskForm] = useState(null)   // {title, assigned_to, due_date}
+  const [assignables, setAssignables] = useState([])
 
   const loadEmails = useCallback(async () => {
     setLoading(true)
@@ -101,6 +103,14 @@ const EmailInboxPage = () => {
 
   useEffect(() => { loadEmails() }, [loadEmails])
   useEffect(() => { loadMailboxes() }, [loadMailboxes])
+
+  // Who this person may hand work to — empty for staff who can't delegate,
+  // which is how the button knows to stay hidden.
+  useEffect(() => {
+    api.get('/tasks/assignable_users/')
+      .then(res => setAssignables(res.data?.users || res.data || []))
+      .catch(() => setAssignables([]))
+  }, [])
 
   const grouped = useMemo(() => {
     const out = {}
@@ -220,6 +230,36 @@ const EmailInboxPage = () => {
       alert(error.response?.data?.error || 'Failed to send')
     } finally {
       setSendingReply(false)
+    }
+  }
+
+  // Turning a mail into work: the task keeps a link to the message, so the
+  // person doing it has the original rather than a retyped summary.
+  const startTask = () => {
+    if (!selected) return
+    setTaskForm({
+      title: selected.subject || 'Follow up on email',
+      description: `From: ${selected.sender_name || ''} <${selected.sender}>`,
+      assigned_to: '',
+      due_date: '',
+    })
+  }
+
+  const createTask = async (e) => {
+    e.preventDefault()
+    if (!taskForm?.title?.trim() || !taskForm.assigned_to) return
+    try {
+      await api.post('/tasks/', {
+        title: taskForm.title.trim(),
+        description: taskForm.description || '',
+        assigned_to: taskForm.assigned_to,
+        due_date: taskForm.due_date || null,
+        related_email: selected.id,
+      })
+      setTaskForm(null)
+      alert(t('inbox.task_created', 'Task created and assigned.'))
+    } catch (err) {
+      alert(err.response?.data?.detail || t('inbox.task_failed', 'Could not create the task'))
     }
   }
 
@@ -495,6 +535,12 @@ const EmailInboxPage = () => {
                     className="px-2.5 py-1.5 rounded-lg bg-white/[0.06] text-white/70 text-[11px] font-semibold hover:bg-white/10">
                     ↪️ {t('inbox.forward', 'Forward')}
                   </button>
+                  {assignables.length > 0 && (
+                    <button onClick={startTask}
+                      className="px-2.5 py-1.5 rounded-lg bg-white/[0.06] text-white/70 text-[11px] font-semibold hover:bg-white/10">
+                      ✅ {t('inbox.create_task', 'Create task')}
+                    </button>
+                  )}
                   <button onClick={() => markUnread(selected)}
                     className="ml-auto text-[11px] text-white/40 hover:text-emerald-400 whitespace-nowrap">
                     {t('inbox.mark_unread', 'Mark unread')}
@@ -568,6 +614,52 @@ const EmailInboxPage = () => {
           </section>
         </div>
       </div>
+
+      {/* ================= TASK FROM EMAIL ================= */}
+      {taskForm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+          onClick={() => setTaskForm(null)}>
+          <form onSubmit={createTask} onClick={e => e.stopPropagation()}
+            className="glass-card !p-0 w-full max-w-lg overflow-hidden">
+            <div className="px-5 py-3 border-b border-white/5 flex items-center justify-between">
+              <h3 className="text-sm font-bold text-white">{t('inbox.create_task', 'Create task')}</h3>
+              <button type="button" onClick={() => setTaskForm(null)} className="text-white/40 hover:text-red-400">✕</button>
+            </div>
+            <div className="p-4 space-y-2">
+              <input value={taskForm.title} onChange={e => setTaskForm({ ...taskForm, title: e.target.value })}
+                placeholder={t('inbox.task_title', 'What needs doing?')} required
+                className="w-full px-3 py-2.5 glass text-white placeholder:text-white/25 rounded-xl border-0 outline-none text-sm" />
+              <select value={taskForm.assigned_to} required
+                onChange={e => setTaskForm({ ...taskForm, assigned_to: e.target.value })}
+                className="w-full px-3 py-2.5 glass text-white rounded-xl border-0 outline-none text-sm">
+                <option value="">{t('inbox.assign_to', 'Assign to…')}</option>
+                {assignables.map(u => (
+                  <option key={u.id} value={u.id}>{u.full_name || u.username}</option>
+                ))}
+              </select>
+              <label className="block text-[11px] text-white/40 pt-1">
+                {t('inbox.due_by', 'Feedback due by')}
+              </label>
+              <input type="date" value={taskForm.due_date}
+                onChange={e => setTaskForm({ ...taskForm, due_date: e.target.value })}
+                className="w-full px-3 py-2.5 glass text-white rounded-xl border-0 outline-none text-sm" />
+              <p className="text-[11px] text-white/35 pt-1">
+                ✉️ {selected?.subject} — {t('inbox.task_keeps_email', 'the assignee gets this email with the task')}
+              </p>
+            </div>
+            <div className="px-4 pb-4 flex justify-end gap-2">
+              <button type="button" onClick={() => setTaskForm(null)}
+                className="px-4 py-2 rounded-xl bg-white/[0.06] text-white/70 text-sm font-semibold hover:bg-white/10">
+                {t('inbox.cancel', 'Cancel')}
+              </button>
+              <button type="submit"
+                className="px-6 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white text-sm font-semibold">
+                {t('inbox.assign', 'Assign')}
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
 
       {/* ================= COMPOSE ================= */}
       {compose && (

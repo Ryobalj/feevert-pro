@@ -39,6 +39,7 @@ const Navbar = () => {
   const [activeModal, setActiveModal] = useState(null)
   const [totalUnreadNotifications, setTotalUnreadNotifications] = useState(0)
   const [totalUnreadMessages, setTotalUnreadMessages] = useState(0)
+  const [unreadEmails, setUnreadEmails] = useState(0)
   const [isThemeDropdownOpen, setIsThemeDropdownOpen] = useState(false)
   const closeTimeoutRef = useRef(null)
   const buttonRefs = useRef({})
@@ -84,17 +85,20 @@ const Navbar = () => {
     if (!isAuthenticated) {
       setTotalUnreadNotifications(0)
       setTotalUnreadMessages(0)
+      setUnreadEmails(0)
       return
     }
 
     const fetchCounts = async () => {
       try {
-        const [n, m] = await Promise.all([
+        const [n, m, e] = await Promise.all([
           api.get('/notification-counts/unread/').catch(() => ({ data: { unread_count: 0 } })),
-          api.get('/realtime/unread-count/').catch(() => ({ data: { unread_count: 0 } }))
+          api.get('/realtime/unread-count/').catch(() => ({ data: { unread_count: 0 } })),
+          api.get('/email-inbox/mailboxes/').catch(() => ({ data: { unread: 0 } }))
         ])
         setTotalUnreadNotifications(n.data?.unread_count || 0)
         setTotalUnreadMessages(m.data?.unread_count || 0)
+        setUnreadEmails(e.data?.unread || 0)
       } catch (e) {
         console.error('Error fetching unread counts:', e)
       }
@@ -110,12 +114,14 @@ const Navbar = () => {
     if (lastMessage && isAuthenticated) {
       const refreshCounts = async () => {
         try {
-          const [n, m] = await Promise.all([
+          const [n, m, mail] = await Promise.all([
             api.get('/notification-counts/unread/').catch(() => ({ data: { unread_count: 0 } })),
-            api.get('/realtime/unread-count/').catch(() => ({ data: { unread_count: 0 } }))
+            api.get('/realtime/unread-count/').catch(() => ({ data: { unread_count: 0 } })),
+            api.get('/email-inbox/mailboxes/').catch(() => ({ data: { unread: 0 } }))
           ])
           setTotalUnreadNotifications(n.data?.unread_count || 0)
           setTotalUnreadMessages(m.data?.unread_count || 0)
+          setUnreadEmails(mail.data?.unread || 0)
         } catch (e) { /* silent */ }
       }
       refreshCounts()
@@ -228,7 +234,7 @@ const Navbar = () => {
     { path: '/notifications', label: t('auth.notifications'), icon: '🔔', badge: totalUnreadNotifications },
     { action: 'chat', label: t('auth.messages'), icon: '💭', badge: totalUnreadMessages, onClick: () => { setActiveModal('chat'); setOpenDropdown(null) } },
     { action: 'support', label: t('auth.support'), icon: '🛟', onClick: () => { setActiveModal('support'); setOpenDropdown(null) } },
-    ...(isStaffRole ? [{ path: '/workspace', label: t('auth.workspace') || 'My Workspace', icon: '🧰' }, { path: '/email-inbox', label: t('auth.email_inbox') || 'Email Inbox', icon: '📧' }] : []),
+    ...(isStaffRole ? [{ path: '/workspace', label: t('auth.workspace') || 'My Workspace', icon: '🧰' }, { path: '/email-inbox', label: t('auth.email_inbox') || 'Email Inbox', icon: '📧', badge: unreadEmails }] : []),
     { divider: true },
     { path: '/settings', label: t('auth.settings'), icon: '⚙️' },
     { action: 'logout', label: t('auth.sign_out'), icon: '🚪', danger: true },
@@ -246,7 +252,7 @@ const Navbar = () => {
     }
   }
 
-  const totalBadge = totalUnreadNotifications + totalUnreadMessages
+  const totalBadge = totalUnreadNotifications + totalUnreadMessages + unreadEmails
 
   return (
     <>
