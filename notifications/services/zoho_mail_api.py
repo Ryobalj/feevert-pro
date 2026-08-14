@@ -16,6 +16,7 @@ from datetime import datetime, timezone as dt_timezone
 
 import requests
 from django.conf import settings
+from django.db.models import Q as models_Q
 from django.utils import timezone
 
 logger = logging.getLogger(__name__)
@@ -204,9 +205,35 @@ def sync(limit=None, fetch_bodies=True):
                                client_secret=ea.oauth_client_secret or None)
         except Exception as e:
             logger.warning('Zoho sync failed for %s: %s', ea.email_address, e)
+            # Tell someone the first time a mailbox breaks. A dead token is
+            # otherwise silent — mail simply stops arriving, and the first sign
+            # is a colleague asking where their messages went.
+            if not ea.last_sync_error:
+                _alert_admins(ea.email_address, str(e))
             EmailAccount.objects.filter(pk=ea.pk).update(last_sync_error=str(e)[:500])
     logger.info('Zoho API sync: saved %d new email(s)', total)
     return total
+
+
+def _alert_admins(mailbox, error):
+    """Raise an in-app notice for admins when a mailbox stops syncing."""
+    try:
+        from django.contrib.auth import get_user_model
+        from notifications.models import Notification
+        reconnect = ('Reconnect with: python manage.py zoho_connect_mailbox '
+                     f'--email={mailbox} --code=… --client-id=… --client-secret=…')
+        for admin in get_user_model().objects.filter(is_active=True).filter(
+                models_Q(is_superuser=True) | models_Q(role__name__iexact='admin')).distinct():
+            Notification.objects.create(
+                recipient=admin, notification_type='system',
+                title=f'{mailbox} stopped syncing',
+                message=f'{error[:200]}
+
+{reconnect}',
+                related_link='/email-inbox',
+            )
+    except Exception as e:
+        logger.warning('Could not raise mailbox alert: %s', e)
 
 
 def _sync_one(refresh_token, limit=None, fetch_bodies=True, only_address=None,
