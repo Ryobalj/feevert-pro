@@ -38,6 +38,17 @@ class Command(BaseCommand):
                                  "counts as this owner's, not the team's.")
 
     def _describe(self, a):
+        # A dead refresh token is silent otherwise: the mailbox just stops
+        # bringing mail in, and nothing on screen says why.
+        if not a.oauth_refresh_token:
+            health = 'NOT CONNECTED'
+        elif a.last_sync_error:
+            health = f'BROKEN — {a.last_sync_error[:60]}'
+        elif a.last_synced_at:
+            health = f'ok, synced {a.last_synced_at:%Y-%m-%d %H:%M}'
+        else:
+            health = 'connected, never synced'
+
         if a.owner_user_id:
             who = f'personal -> {a.owner_user.username}'
             if a.aliases:
@@ -46,7 +57,7 @@ class Command(BaseCommand):
             who = 'shared (all staff)'
         else:
             who = 'unassigned (admins only)'
-        return f'  {a.email_address:35} {who}'
+        return f'  {a.email_address:32} {who}\n      reading: {health}'
 
     def handle(self, *args, **o):
         if o['list'] or not o['email']:
