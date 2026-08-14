@@ -257,3 +257,52 @@ class ReplyAsTests(TestCase):
         outsider = User.objects.create_user(
             username='gmail', email='someone@gmail.com', password='x')
         self.assertNotIn('someone@gmail.com', self._options(outsider))
+
+
+class SharedMailboxPrivacyTests(TestCase):
+    """info@ is read by the whole team, but a message addressed to one of them
+    by name is theirs. This is the rule the directors asked for."""
+
+    def setUp(self):
+        self.saidina = User.objects.create_user(
+            username='saidina', email='saidina@feevert.co.tz', password='x')
+        self.nicole = User.objects.create_user(
+            username='nicole', email='nicole.abbas@feevert.co.tz', password='x')
+        self.shared = EmailAccount.objects.create(
+            email_address='info@feevert.co.tz', is_shared=True, is_active=True)
+
+    def _mail(self, subject, recipient):
+        return IncomingEmail.objects.create(
+            account=self.shared, sender='client@example.com', subject=subject,
+            recipient=recipient, message_id=f'id-{subject}',
+            received_at=timezone.now(), folder='inbox',
+        )
+
+    def _subjects_for(self, user):
+        api = APIClient()
+        api.force_authenticate(user)
+        rows = api.get('/api/v1/email-inbox/?page_size=100').data
+        return {r['subject'] for r in rows.get('results', rows)}
+
+    def test_mail_addressed_to_saidina_is_his_alone(self):
+        self._mail('For Saidina', 'saidina@feevert.co.tz')
+        self.assertIn('For Saidina', self._subjects_for(self.saidina))
+        self.assertNotIn('For Saidina', self._subjects_for(self.nicole))
+
+    def test_mail_to_the_team_address_is_everyones(self):
+        self._mail('For the team', 'info@feevert.co.tz')
+        self.assertIn('For the team', self._subjects_for(self.saidina))
+        self.assertIn('For the team', self._subjects_for(self.nicole))
+
+    def test_a_message_naming_him_in_a_longer_header_is_still_his(self):
+        """Real headers arrive as 'Info <info@…>, Saidina <saidina@…>'."""
+        self._mail('Cc test', 'info@feevert.co.tz, saidina@feevert.co.tz')
+        self.assertIn('Cc test', self._subjects_for(self.saidina))
+        self.assertNotIn('Cc test', self._subjects_for(self.nicole))
+
+    def test_mail_with_no_recipient_header_stays_with_the_team(self):
+        """Nothing says who it was for, so nobody can claim it — it belongs to
+        whoever reads the shared box."""
+        self._mail('Unaddressed', '')
+        self.assertIn('Unaddressed', self._subjects_for(self.saidina))
+        self.assertIn('Unaddressed', self._subjects_for(self.nicole))

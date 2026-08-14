@@ -183,41 +183,71 @@ class StickyNoteViewSet(viewsets.ModelViewSet):
 
 
 class WorkDocumentSerializer(serializers.ModelSerializer):
-    owner_name = serializers.CharField(source='owner.username', read_only=True)
+    owner_name = serializers.SerializerMethodField()
+    shared_with_names = serializers.SerializerMethodField()
 
     class Meta:
         model = WorkDocument
         fields = [
             'id', 'title', 'kind', 'content', 'data', 'external_url',
-            'is_shared', 'related_request', 'owner', 'owner_name',
-            'created_at', 'updated_at',
+            'shared_with', 'shared_with_names', 'related_request',
+            'owner', 'owner_name', 'created_at', 'updated_at',
         ]
         read_only_fields = ['id', 'owner', 'created_at', 'updated_at']
 
+    @staticmethod
+    def _name(user):
+        full = f'{user.first_name} {user.last_name}'.strip()
+        return full or user.get_username()
+
+    def get_owner_name(self, obj):
+        return self._name(obj.owner) if obj.owner_id else None
+
+    def get_shared_with_names(self, obj):
+        return [self._name(u) for u in obj.shared_with.all()]
+
 
 class WorkDocumentViewSet(viewsets.ModelViewSet):
-    """Drafts: your own, plus anything a colleague marked as shared."""
+    """Drafts: your own, plus the ones a colleague named you on.
+
+    Private is the default. There is no "everyone" — a draft is either yours
+    or shared with the specific people you chose.
+    """
     serializer_class = WorkDocumentSerializer
     permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-    filterset_fields = ['kind', 'is_shared', 'related_request']
+    filterset_fields = ['kind', 'related_request']
     search_fields = ['title', 'content']
     ordering_fields = ['updated_at', 'title']
 
     def get_queryset(self):
         from django.db.models import Q
+        user = self.request.user
         return WorkDocument.objects.filter(
-            Q(owner=self.request.user) | Q(is_shared=True)
-        ).select_related('owner')
+            Q(owner=user) | Q(shared_with=user)
+        ).select_related('owner').prefetch_related('shared_with').distinct()
 
     def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
+        doc = serializer.save(owner=self.request.user)
+        self._tell_the_tagged(doc, set())
 
     def perform_update(self, serializer):
-        # Only the owner can change a draft, even a shared one.
+        # Only the owner can change a draft, including who else may read it.
         if serializer.instance.owner_id != self.request.user.id:
             raise serializers.ValidationError('Only the owner can edit this draft.')
-        serializer.save()
+        before = set(serializer.instance.shared_with.values_list('pk', flat=True))
+        doc = serializer.save()
+        self._tell_the_tagged(doc, before)
+
+    def _tell_the_tagged(self, doc, already_knew):
+        """Being given someone's draft is only useful if you are told."""
+        for person in doc.shared_with.all():
+            if person.pk in already_knew or person.pk == doc.owner_id:
+                continue
+            TaskViewSet._notify(
+                person, f'{doc.title} was shared with you',
+                f'{self.request.user.get_username()} shared a {doc.get_kind_display().lower()} with you.',
+            )
 
     def perform_destroy(self, instance):
         if instance.owner_id != self.request.user.id:
@@ -435,3 +465,28 @@ def send_due_reminders(limit=50):
             )
         sent += 1
     return sent
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def colleagues(request):
+    """The staff you can name — on a draft you're sharing, or an appointment.
+
+    Separate from /tasks/assignable_users/, which is deliberately empty for
+    people who can't delegate: naming a colleague on your own work is not
+    delegating, and everyone needs to be able to do it.
+    """
+    from django.contrib.auth import get_user_model
+
+    people = [
+        u for u in get_user_model().objects.filter(is_active=True).order_by('first_name', 'username')
+        if is_staff_role(u) and u.pk != request.user.pk
+    ]
+    return Response([
+        {
+            'id': u.id,
+            'username': u.get_username(),
+            'full_name': (f'{u.first_name} {u.last_name}'.strip() or u.get_username()),
+        }
+        for u in people
+    ])

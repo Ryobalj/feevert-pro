@@ -50,6 +50,8 @@ const DraftTools = () => {
   const { user } = useAuth()
   const [docs, setDocs] = useState([])
   const [active, setActive] = useState(null)
+  const [sharing, setSharing] = useState(false)
+  const [people, setPeople] = useState([])
   const [saving, setSaving] = useState(false)
   const [savedAt, setSavedAt] = useState(null)
   const editorRef = useRef(null)
@@ -62,6 +64,14 @@ const DraftTools = () => {
   }, [])
 
   useEffect(() => { load() }, [load])
+
+  // Everyone can name a colleague on their own work, so this is not the
+  // delegation list — see workspace_api.colleagues.
+  useEffect(() => {
+    api.get('/workspace/colleagues/')
+      .then(res => setPeople(res.data || []))
+      .catch(() => setPeople([]))
+  }, [])
 
   // Load the document body into the editor only when the document changes —
   // rewriting it on every keystroke would fight the caret.
@@ -101,7 +111,7 @@ const DraftTools = () => {
         content: doc.kind === 'doc' ? (editorRef.current?.innerHTML ?? doc.content) : (doc.content || ''),
         data: doc.data ?? [],
         external_url: doc.external_url || '',
-        is_shared: !!doc.is_shared,
+        shared_with: doc.shared_with || [],
         ...patch,
       }
       const res = await api.patch(`/work-documents/${doc.id}/`, body)
@@ -221,13 +231,53 @@ const DraftTools = () => {
                   className="px-3.5 py-2 rounded-lg bg-white/[0.06] text-white/75 text-xs font-semibold hover:bg-white/10">
                   ⬇ {active.kind === 'doc' ? 'Download (.doc)' : 'Download (.csv)'}
                 </button>
-                <label className="flex items-center gap-1.5 text-[11px] text-white/50 cursor-pointer">
-                  <input type="checkbox" checked={!!active.is_shared}
-                    onChange={e => save({ is_shared: e.target.checked })} />
-                  Share with team
-                </label>
+                {isMine && (
+                  <button onClick={() => setSharing(v => !v)}
+                    className={`px-3.5 py-2 rounded-lg text-xs font-semibold ${
+                      (active.shared_with || []).length > 0
+                        ? 'bg-emerald-500/20 text-emerald-300' : 'bg-white/[0.06] text-white/75'
+                    }`}>
+                    👥 {(active.shared_with || []).length > 0
+                      ? `Shared with ${(active.shared_with || []).length}`
+                      : 'Share'}
+                  </button>
+                )}
                 {savedAt && <span className="text-[10px] text-white/25">saved {savedAt.toLocaleTimeString()}</span>}
               </div>
+
+              {/* Who else may read it. Nobody, unless named here — a draft is
+                  private until its author decides otherwise. */}
+              {sharing && isMine && (
+                <div className="mb-3 p-3 rounded-xl bg-white/[0.03] border border-white/10">
+                  <p className="text-[11px] text-white/45 mb-2">
+                    Only the people you name here can open this draft.
+                  </p>
+                  {people.length === 0 ? (
+                    <p className="text-[11px] text-white/30">No colleagues to share with yet.</p>
+                  ) : (
+                    <div className="flex flex-wrap gap-1.5">
+                      {people.map(p => {
+                        const on = (active.shared_with || []).includes(p.id)
+                        return (
+                          <button key={p.id}
+                            onClick={() => {
+                              const next = on
+                                ? (active.shared_with || []).filter(x => x !== p.id)
+                                : [...(active.shared_with || []), p.id]
+                              setActive({ ...active, shared_with: next })
+                              save({ shared_with: next })
+                            }}
+                            className={`px-2.5 py-1 rounded-full text-[11px] ${
+                              on ? 'bg-emerald-500 text-white' : 'bg-white/[0.06] text-white/60'
+                            }`}>
+                            {on ? '✓ ' : ''}{p.full_name}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* link to the real file, if it lives in Google/Office */}
               <input value={active.external_url || ''}

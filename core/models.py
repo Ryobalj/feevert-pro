@@ -159,8 +159,13 @@ class WorkDocument(BaseModel):
     data = models.JSONField(default=list, blank=True)  # sheet: [[cell, ...], ...]
     # Somewhere the real file lives (Google Docs / Office 365 / SharePoint)
     external_url = models.URLField(blank=True)
-    is_shared = models.BooleanField(
-        default=False, help_text='Visible to all staff, not just the owner')
+    # A draft is private. Sharing means naming the colleagues who should see
+    # it — and only they do. It used to be a single "share with the team"
+    # switch, which meant the whole company read a half-written quote.
+    shared_with = models.ManyToManyField(
+        settings.AUTH_USER_MODEL, blank=True, related_name='shared_documents',
+        help_text='Colleagues who can read this draft',
+    )
     related_request = models.ForeignKey(
         'consultations.ConsultationRequest', on_delete=models.SET_NULL,
         null=True, blank=True, related_name='drafts',

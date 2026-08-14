@@ -127,3 +127,85 @@ class ReminderTests(TestCase):
                   {'starts_at': (timezone.now() + timedelta(days=3)).isoformat()}, format='json')
         event.refresh_from_db()
         self.assertIsNone(event.reminded_at)
+
+
+class DraftSharingTests(TestCase):
+    """A draft is private. Sharing means naming people — and only they see it."""
+
+    def setUp(self):
+        # An account with no role isn't staff (see accounts.roles), and the
+        # colleague list is staff-only — so give them the role they'd have.
+        from accounts.models import Role
+        staff = Role.objects.create(name='Normal Employee')
+        self.owner = User.objects.create_user(
+            username='writer', email='w@feevert.co.tz', password='x', role=staff)
+        self.mate = User.objects.create_user(
+            username='mate', email='m@feevert.co.tz', password='x', role=staff)
+        self.stranger = User.objects.create_user(
+            username='stranger', email='s@feevert.co.tz', password='x', role=staff)
+        self.api = APIClient()
+        self.api.force_authenticate(self.owner)
+
+    def _titles_for(self, user):
+        api = APIClient()
+        api.force_authenticate(user)
+        rows = api.get('/api/v1/work-documents/').data
+        return {r['title'] for r in rows.get('results', rows)}
+
+    def _new(self, title='Quote', shared=()):
+        res = self.api.post('/api/v1/work-documents/',
+                            {'title': title, 'kind': 'doc',
+                             'shared_with': [u.id for u in shared]}, format='json')
+        self.assertEqual(res.status_code, 201, res.data)
+        return res.data
+
+    def test_a_new_draft_is_private(self):
+        self._new('Half-written quote')
+        self.assertIn('Half-written quote', self._titles_for(self.owner))
+        self.assertNotIn('Half-written quote', self._titles_for(self.mate))
+        self.assertNotIn('Half-written quote', self._titles_for(self.stranger))
+
+    def test_only_the_named_colleague_sees_it(self):
+        self._new('Tender draft', shared=[self.mate])
+        self.assertIn('Tender draft', self._titles_for(self.mate))
+        self.assertNotIn('Tender draft', self._titles_for(self.stranger))
+
+    def test_the_person_named_is_told(self):
+        self._new('Report', shared=[self.mate])
+        self.assertTrue(Notification.objects.filter(
+            recipient=self.mate, title__icontains='Report').exists())
+
+    def test_sharing_later_works_the_same_way(self):
+        doc = self._new('Later')
+        self.assertNotIn('Later', self._titles_for(self.mate))
+        self.api.patch(f"/api/v1/work-documents/{doc['id']}/",
+                       {'shared_with': [self.mate.id]}, format='json')
+        self.assertIn('Later', self._titles_for(self.mate))
+
+    def test_unsharing_takes_it_back(self):
+        doc = self._new('Recalled', shared=[self.mate])
+        self.api.patch(f"/api/v1/work-documents/{doc['id']}/",
+                       {'shared_with': []}, format='json')
+        self.assertNotIn('Recalled', self._titles_for(self.mate))
+
+    def test_a_named_colleague_reads_but_cannot_edit(self):
+        doc = self._new('Read only', shared=[self.mate])
+        mate_api = APIClient()
+        mate_api.force_authenticate(self.mate)
+        res = mate_api.patch(f"/api/v1/work-documents/{doc['id']}/",
+                             {'title': 'Rewritten'}, format='json')
+        self.assertEqual(res.status_code, 400)
+        self.assertEqual(self._titles_for(self.owner), {'Read only'})
+
+    def test_a_named_colleague_cannot_delete_it(self):
+        doc = self._new('Keep', shared=[self.mate])
+        mate_api = APIClient()
+        mate_api.force_authenticate(self.mate)
+        mate_api.delete(f"/api/v1/work-documents/{doc['id']}/")
+        self.assertIn('Keep', self._titles_for(self.owner))
+
+    def test_the_colleague_list_excludes_yourself(self):
+        rows = self.api.get('/api/v1/workspace/colleagues/').data
+        ids = {r['id'] for r in rows}
+        self.assertNotIn(self.owner.id, ids)
+        self.assertIn(self.mate.id, ids)

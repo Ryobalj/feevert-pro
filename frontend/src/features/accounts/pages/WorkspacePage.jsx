@@ -63,6 +63,7 @@ const WorkspacePage = () => {
   const [loading, setLoading] = useState(true)
   const [newTask, setNewTask] = useState(null)
   const [appointments, setAppointments] = useState([])
+  const [people, setPeople] = useState([])      // colleagues you can invite
   const [dayPanel, setDayPanel] = useState(null)   // { date: Date, form: {...}|null }
   const [savingEvent, setSavingEvent] = useState(false)
 
@@ -96,6 +97,12 @@ const WorkspacePage = () => {
   }, [])
 
   useEffect(() => { load() }, [load])
+
+  useEffect(() => {
+    api.get('/workspace/colleagues/')
+      .then(res => setPeople(res.data || []))
+      .catch(() => setPeople([]))
+  }, [])
 
   const myTasks = useMemo(
     () => tasks.filter(t => String(t.assigned_to) === String(user?.id)),
@@ -680,13 +687,13 @@ const WorkspacePage = () => {
                           onChange={e => setDayPanel(p => ({ ...p, form: { ...p.form, location: e.target.value } }))}
                           placeholder={t('workspace.event_location', 'Where? (optional)')}
                           className="w-full px-3 py-2.5 glass text-white placeholder:text-white/25 rounded-lg border-0 outline-none text-sm" />
-                        {assignables.length > 0 && (
+                        {people.length > 0 && (
                           <div>
                             <p className="text-[11px] text-white/40 mb-1">
                               {t('workspace.event_with', 'With (optional)')}
                             </p>
                             <div className="flex flex-wrap gap-1.5">
-                              {assignables.filter(u => String(u.id) !== String(user?.id)).map(u => {
+                              {people.map(u => {
                                 const on = dayPanel.form.attendees.includes(u.id)
                                 return (
                                   <button type="button" key={u.id}
