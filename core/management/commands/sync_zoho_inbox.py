@@ -55,7 +55,13 @@ class Command(BaseCommand):
             self.stdout.write(self.style.SUCCESS('Per-mailbox connections:'))
             for acc in EmailAccount.objects.all().order_by('email_address'):
                 if not acc.oauth_refresh_token:
-                    self.stdout.write(f'  {acc.email_address:34} not connected')
+                    from django.conf import settings as _s
+                    platform = (getattr(_s, 'EMAIL_HOST_USER', '') or '').lower()
+                    if acc.email_address.lower() == platform:
+                        self.stdout.write(self.style.SUCCESS(
+                            f'  {acc.email_address:34} OK — read through the org token in settings'))
+                    else:
+                        self.stdout.write(f'  {acc.email_address:34} not connected')
                     continue
                 try:
                     tok = zoho_mail_api.get_access_token(
