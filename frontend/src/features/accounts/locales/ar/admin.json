@@ -1,4 +1,4 @@
-﻿{
+{
   "title": "المشرف",
   "dashboard_title": "لوحة التحكم",
   "subtitle": "نظرة عامة وإدارة النظام",
@@ -207,8 +207,32 @@
     "tasks_open": "المهام مفتوحة",
     "jobs_assigned": "الوظائف المخصصة",
     "jobs_by_status": "وظائفي حسب المرحلة",
-    "todays_work": "عمل اليوم"
+    "todays_work": "عمل اليوم",
+    "approve": "اعتماد",
+    "loading": "جارٍ التحميل…",
+    "return_task": "إعادة",
+    "submit_review": "إرسال للمراجعة"
   },
   "cancel": "يلغي",
-  "save": "يحفظ"
+  "save": "يحفظ",
+  "finance": {
+    "amount": "المبلغ",
+    "bookings": "حجوزات",
+    "customer": "العميل",
+    "date": "التاريخ",
+    "in_period": "خلال آخر",
+    "in_progress": "قيد التنفيذ",
+    "invoice": "فاتورة",
+    "last": "آخر",
+    "no_transactions": "لا توجد معاملات بعد",
+    "pending": "في انتظار الدفع",
+    "received": "تم الاستلام",
+    "search": "ابحث عن عميل أو فاتورة…",
+    "status": "الحالة",
+    "to_bill": "أعمال بانتظار الفوترة",
+    "transactions": "المعاملات",
+    "unavailable": "البيانات المالية غير متاحة لهذا الحساب."
+  },
+  "inbox": "صندوق الوارد",
+  "workspace_link": "مساحة العمل"
 }

@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 from accounts.permissions import IsAdminRole
 from .models import (
     Notification, NotificationTemplate, UserNotificationSetting, NotificationLog,
-    IncomingEmail, EmailAccount
+    IncomingEmail, EmailAccount, OutgoingEmail
 )
 from .serializers import (
     NotificationSerializer,
@@ -37,6 +37,7 @@ from .serializers import (
     IncomingEmailListSerializer,
     EmailReplySerializer,
     EmailAccountSerializer,
+    OutgoingEmailSerializer,
 )
 
 
@@ -495,6 +496,39 @@ class IncomingEmailViewSet(viewsets.ReadOnlyModelViewSet):
         return Response({'success': True})
 
     @action(detail=False, methods=['post'])
+    def bulk(self, request):
+        """Act on several messages at once — ticking a few boxes, or "select
+        all" on the folder you're looking at.
+
+        Pass `ids` for a specific set, or `all: true` to mean every message in
+        the current view. "All" is resolved through the same filters the list
+        used (folder, search, assignment), never the whole database, so
+        selecting all in Spam can't touch the Inbox.
+        """
+        what = (request.data.get('action') or '').strip()
+        ids = request.data.get('ids') or []
+        take_all = bool(request.data.get('all'))
+
+        actions = {
+            'read': {'is_read': True},
+            'unread': {'is_read': False},
+            'archive': {'is_archived': True},
+            'unarchive': {'is_archived': False},
+        }
+        if what not in actions:
+            return Response({'error': f'Unknown action "{what}"'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        if not ids and not take_all:
+            return Response({'error': 'Select at least one message'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        qs = self.filter_queryset(self.get_queryset())
+        if not take_all:
+            qs = qs.filter(id__in=ids)
+        count = qs.update(**actions[what])
+        return Response({'success': True, 'action': what, 'updated': count})
+
+    @action(detail=False, methods=['post'])
     def compose(self, request):
         """Send a new email from one of the user's own mailboxes — the "New
         mail" button. Without this the mail page can only ever reply."""
@@ -514,19 +548,21 @@ class IncomingEmailViewSet(viewsets.ReadOnlyModelViewSet):
         )
         account = allowed.filter(id=account_id).first() if account_id else allowed.first()
 
-        from .services.email_outbound_service import EmailOutboundService
-        if account:
-            result = EmailOutboundService.send_via_account(
-                account=account, to_email=to_email, subject=subject, body=body,
-            )
-        else:
-            result = EmailOutboundService.send(
-                to_email=to_email, subject=subject, body=body,
-            )
-        if not result.get('success', True):
-            return Response({'error': result.get('error', 'Failed to send')},
-                            status=status.HTTP_502_BAD_GATEWAY)
-        return Response({'success': True, 'from': account.email_address if account else None})
+        # Recorded before it's sent, so a refusal by the mail server becomes a
+        # scheduled retry instead of a lost message.
+        from .services import outgoing_mail
+        out = outgoing_mail.send_now(
+            to_email=to_email, subject=subject, body=body,
+            account=account, user=request.user,
+        )
+        return Response({
+            'success': out.status == 'sent',
+            'queued': out.status in ('queued', 'failed'),
+            'status': out.status,
+            'error': out.last_error or None,
+            'outgoing_id': str(out.id),
+            'from': account.email_address if account else None,
+        })
 
     @action(detail=True, methods=['post'])
     def assign(self, request, pk=None):
@@ -624,29 +660,26 @@ class IncomingEmailViewSet(viewsets.ReadOnlyModelViewSet):
                 return Response({'error': 'You cannot send from that address.'}, status=403)
             send_account = match
 
-        if send_account:
-            from .services.email_outbound_service import EmailOutboundService
-            result = EmailOutboundService.send_via_account(
-                account=send_account,
-                to_email=email.sender,
-                subject=reply_subject,
-                body=serializer.validated_data['body'],
-                html_body=serializer.validated_data.get('body_html'),
-            )
-        else:
-            from .services.email_outbound_service import EmailOutboundService
-            result = EmailOutboundService.send(
-                to_email=email.sender,
-                subject=reply_subject,
-                body=serializer.validated_data['body'],
-                html_body=serializer.validated_data.get('body_html'),
-            )
-        if not result.get('success', True):
-            return Response({'error': result.get('error', 'Failed to send reply')}, status=502)
+        from .services import outgoing_mail
+        out = outgoing_mail.send_now(
+            to_email=email.sender,
+            subject=reply_subject,
+            body=serializer.validated_data['body'],
+            html_body=serializer.validated_data.get('body_html'),
+            account=send_account,
+            user=request.user,
+            reply_to_email=email,
+        )
 
         email.is_processed = True
         email.save(update_fields=['is_processed'])
-        return Response({'success': True})
+        return Response({
+            'success': out.status == 'sent',
+            'queued': out.status in ('queued', 'failed'),
+            'status': out.status,
+            'error': out.last_error or None,
+            'outgoing_id': str(out.id),
+        })
 
     @action(detail=False, methods=['post'])
     def sync_now(self, request):
@@ -679,6 +712,97 @@ class IncomingEmailViewSet(viewsets.ReadOnlyModelViewSet):
             )
             results = EmailInboundService.fetch_all_accounts(accounts=accounts) if accounts.exists() else {}
         return Response(results)
+
+
+# ============================================================
+# OUTGOING EMAIL (delivery tracking)
+# ============================================================
+
+class OutgoingEmailViewSet(viewsets.ReadOnlyModelViewSet):
+    """What became of the mail we sent: accepted by the server, opened by the
+    recipient, or refused and waiting for its next retry.
+
+    Same visibility rule as the inbox — your own sends, plus anything sent
+    from a mailbox you can read.
+    """
+    serializer_class = OutgoingEmailSerializer
+    permission_classes = [IsAuthenticated]
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_fields = ['status', 'account']
+    search_fields = ['to_email', 'subject']
+    ordering = ['-created_at']
+
+    def get_queryset(self):
+        user = self.request.user
+        return OutgoingEmail.objects.filter(
+            Q(sent_by=user) | Q(account__owner_user=user) | Q(account__is_shared=True)
+        ).select_related('account', 'sent_by', 'reply_to_email').distinct()
+
+    @action(detail=False, methods=['get'])
+    def stats(self, request):
+        qs = self.get_queryset()
+        counts = {row['status']: row['n'] for row in
+                  qs.values('status').annotate(n=Count('id'))}
+        return Response({
+            'total': qs.count(),
+            'sent': counts.get('sent', 0),
+            'opened': counts.get('opened', 0),
+            'queued': counts.get('queued', 0),
+            'failed': counts.get('failed', 0),
+            'gave_up': counts.get('gave_up', 0),
+            # What still needs a human: the ones that stopped retrying.
+            'needs_attention': counts.get('gave_up', 0),
+        })
+
+    @action(detail=True, methods=['post'])
+    def retry(self, request, pk=None):
+        """Send it again now — including messages that had given up, since a
+        fixed password or a corrected address deserves a fresh start."""
+        from .services import outgoing_mail
+
+        out = self.get_object()
+        if out.status in ('sent', 'opened'):
+            return Response({'error': 'That message already went out.'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        if out.status == 'gave_up':
+            out.attempts = 0
+            out.status = 'queued'
+            out.save(update_fields=['attempts', 'status'])
+        ok = outgoing_mail.attempt(out)
+        out.refresh_from_db()
+        return Response({'success': ok, 'status': out.status,
+                         'error': out.last_error or None})
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def track_email_open(request, tracking_id):
+    """The 1x1 image at the bottom of every message we send. Loading it is
+    what turns "sent" into "opened".
+
+    Public by design — it's fetched by the recipient's mail client, which
+    carries none of our credentials. The id is a random UUID, so it reveals
+    nothing and can't be guessed; the response is the same tiny GIF whether
+    the id is known or not, so nobody can probe it for valid ids.
+    """
+    from django.http import HttpResponse
+
+    from .services import outgoing_mail
+
+    try:
+        ip = (request.META.get('HTTP_X_FORWARDED_FOR', '').split(',')[0].strip()
+              or request.META.get('REMOTE_ADDR', ''))
+        outgoing_mail.mark_opened(tracking_id, ip)
+    except Exception as e:
+        logger.warning('Open-tracking failed for %s: %s', tracking_id, e)
+
+    # 43-byte transparent GIF
+    pixel = (b'GIF89a\x01\x00\x01\x00\x80\x00\x00\x00\x00\x00\x00\x00\x00!\xf9\x04'
+             b'\x01\x00\x00\x00\x00,\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02D'
+             b'\x01\x00;')
+    response = HttpResponse(pixel, content_type='image/gif')
+    response['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    return response
 
 
 # ============================================================
@@ -860,13 +984,19 @@ def cron_sync_emails(request):
     if not expected or not hmac.compare_digest(str(provided), str(expected)):
         return Response({'error': 'Invalid or missing secret'}, status=403)
 
+    # Mail that the server refused earlier is retried on the same tick, so a
+    # brief outage costs a few minutes rather than the message.
+    from .services import outgoing_mail
+    retried = outgoing_mail.retry_pending()
+
     from .services import zoho_mail_api
     if zoho_mail_api.is_configured():
         # IMAP is geo-blocked from Render; the API path is the one that works.
         # Runs every few minutes, so check a short window — the deep backfill
         # is `manage.py sync_zoho_inbox` with no --limit.
         saved = zoho_mail_api.sync(limit=50)
-        return Response({'zoho_api': {'success': True, 'saved': saved}})
+        return Response({'zoho_api': {'success': True, 'saved': saved},
+                         'outgoing_retry': retried})
 
     results = EmailInboundService.fetch_all_sources()
-    return Response(results)
+    return Response({**results, 'outgoing_retry': retried})

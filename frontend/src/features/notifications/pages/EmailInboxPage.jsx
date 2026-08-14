@@ -64,6 +64,8 @@ const EmailInboxPage = () => {
   const [replyFrom, setReplyFrom] = useState('')
   const [taskForm, setTaskForm] = useState(null)   // {title, assigned_to, due_date}
   const [assignables, setAssignables] = useState([])
+  const [picked, setPicked] = useState([])          // ids ticked for a bulk action
+  const [outbox, setOutbox] = useState(null)        // null = mail view, array = delivery view
 
   const loadEmails = useCallback(async () => {
     setLoading(true)
@@ -103,6 +105,10 @@ const EmailInboxPage = () => {
 
   useEffect(() => { loadEmails() }, [loadEmails])
   useEffect(() => { loadMailboxes() }, [loadMailboxes])
+
+  // A tick belongs to the list it was made in — changing folder, mailbox or
+  // view must not leave a selection pointing at messages nobody can see.
+  useEffect(() => { setPicked([]) }, [folder, teamView, mailbox, alias, search])
 
   // Who this person may hand work to — empty for staff who can't delegate,
   // which is how the button knows to stay hidden.
@@ -174,6 +180,51 @@ const EmailInboxPage = () => {
     }
   }
 
+  // ---- ticking several messages at once ----------------------------------
+  // Working through a folder one message at a time is what people were doing;
+  // this is the "tick a few, or tick the lot" path.
+  const togglePick = (id) => setPicked(prev =>
+    prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])
+  const allPicked = emails.length > 0 && picked.length === emails.length
+  const togglePickAll = () => setPicked(allPicked ? [] : emails.map(e => e.id))
+
+  const bulkAction = async (what) => {
+    if (picked.length === 0) return
+    setActing(true)
+    try {
+      await api.post('/email-inbox/bulk/', { action: what, ids: picked })
+      setPicked([])
+      await Promise.all([loadEmails(), loadMailboxes()])
+    } catch (error) {
+      alert(error.response?.data?.error || t('inbox.bulk_failed', 'Could not update those messages'))
+    } finally {
+      setActing(false)
+    }
+  }
+
+  // ---- what happened to the mail we sent ---------------------------------
+  const loadOutbox = useCallback(async () => {
+    try {
+      const res = await api.get('/sent-mail/?page_size=100')
+      setOutbox(res.data?.results || res.data || [])
+    } catch (error) {
+      console.error('Error loading sent mail:', error)
+      setOutbox([])
+    }
+  }, [])
+
+  const retrySend = async (row) => {
+    setActing(true)
+    try {
+      await api.post(`/sent-mail/${row.id}/retry/`)
+      await loadOutbox()
+    } catch (error) {
+      alert(error.response?.data?.error || t('inbox.retry_failed', 'Could not send it again'))
+    } finally {
+      setActing(false)
+    }
+  }
+
   const assignToMe = (e) => runAction(e, 'assign')
   const unassign = (e) => runAction(e, 'assign', { user_id: null })
   const archive = (e, archived = true) => runAction(e, 'archive', { archived })
@@ -201,14 +252,20 @@ const EmailInboxPage = () => {
     if (!replyText.trim() || !selected) return
     setSendingReply(true)
     try {
-      await api.post(`/email-inbox/${selected.id}/reply/`, {
+      const res = await api.post(`/email-inbox/${selected.id}/reply/`, {
         body: replyText.trim(),
         ...(replyFrom ? { from_address: replyFrom } : {}),
       })
       setSelected(prev => ({ ...prev, is_processed: true }))
       setReplyText('')
+      // A refused message is no longer lost — say so plainly instead of
+      // reporting a success the recipient never saw.
+      if (res.data && res.data.success === false) {
+        alert(`${t('inbox.queued_notice', 'The mail server refused it for now — it will be retried automatically. Track it under Delivery.')}\n\n${res.data.error || ''}`)
+      }
+      if (outbox !== null) loadOutbox()
     } catch (error) {
-      alert(error.response?.data?.error || 'Failed to send reply')
+      alert(error.response?.data?.error || t('inbox.reply_failed', 'Failed to send reply'))
     } finally {
       setSendingReply(false)
     }
@@ -219,15 +276,19 @@ const EmailInboxPage = () => {
     if (!compose?.to?.trim()) return
     setSendingReply(true)
     try {
-      await api.post('/email-inbox/compose/', {
+      const res = await api.post('/email-inbox/compose/', {
         to: compose.to.trim(),
         subject: compose.subject || '',
         body: compose.body || '',
         account: compose.account || mailbox || undefined,
       })
       setCompose(null)
+      if (res.data && res.data.success === false) {
+        alert(`${t('inbox.queued_notice', 'The mail server refused it for now — it will be retried automatically. Track it under Delivery.')}\n\n${res.data.error || ''}`)
+      }
+      if (outbox !== null) loadOutbox()
     } catch (error) {
-      alert(error.response?.data?.error || 'Failed to send')
+      alert(error.response?.data?.error || t('inbox.send_failed', 'Failed to send'))
     } finally {
       setSendingReply(false)
     }
@@ -374,12 +435,25 @@ const EmailInboxPage = () => {
                 </>
               )}
 
+              {/* Sending used to end at "sent" — this is where a message that
+                  never left, or one the recipient opened, becomes visible. */}
+              <p className="px-3 pb-1 pt-4 text-[10px] uppercase tracking-wider text-white/30 font-bold">
+                {t('inbox.delivery', 'Delivery')}
+              </p>
+              <NavRow icon="📮" label={t('inbox.sent_status', 'Sent mail status')}
+                active={outbox !== null}
+                onClick={() => {
+                  if (outbox === null) { setContacts(null); loadOutbox() } else setOutbox(null)
+                }} />
+
               <p className="px-3 pb-1 pt-4 text-[10px] uppercase tracking-wider text-white/30 font-bold">
                 {t('inbox.address_book', 'Address book')}
               </p>
               <NavRow icon="📇" label={t('inbox.contacts', 'Contacts')}
                 active={contacts !== null}
-                onClick={() => (contacts === null ? loadContacts() : setContacts(null))} />
+                onClick={() => {
+                  if (contacts === null) { setOutbox(null); loadContacts() } else setContacts(null)
+                }} />
             </div>
           </aside>
 
@@ -388,9 +462,11 @@ const EmailInboxPage = () => {
             <div className="px-4 py-3 border-b border-white/5">
               <div className="flex items-center justify-between gap-2 mb-2">
                 <h2 className="text-base font-bold text-white truncate">
-                  {contacts !== null
-                    ? `${t('inbox.contacts', 'Contacts')} (${contacts.length})`
-                    : alias || folderLabel}
+                  {outbox !== null
+                    ? `${t('inbox.sent_status', 'Sent mail status')} (${outbox.length})`
+                    : contacts !== null
+                      ? `${t('inbox.contacts', 'Contacts')} (${contacts.length})`
+                      : alias || folderLabel}
                   {counts.unread > 0 && folder === 'inbox' && (
                     <span className="ml-2 text-[11px] font-semibold text-emerald-400">
                       {counts.unread} {t('inbox.unread', 'unread')}
@@ -402,6 +478,42 @@ const EmailInboxPage = () => {
                   {syncing ? (t('inbox.syncing', 'Syncing…')) : (t('inbox.sync_now', 'Sync'))}
                 </button>
               </div>
+              {/* Select-all sits on the header row so it reads as "this list",
+                  and the actions only appear once something is ticked. */}
+              {contacts === null && outbox === null && emails.length > 0 && (
+                <div className="flex items-center gap-2 mb-2 flex-wrap">
+                  <label className="flex items-center gap-1.5 text-[11px] text-white/50 cursor-pointer select-none">
+                    <input type="checkbox" checked={allPicked} onChange={togglePickAll}
+                      className="w-3.5 h-3.5 accent-emerald-500 cursor-pointer" />
+                    {picked.length > 0
+                      ? `${picked.length} ${t('inbox.selected', 'selected')}`
+                      : t('inbox.select_all', 'Select all')}
+                  </label>
+                  {picked.length > 0 && (
+                    <>
+                      <button onClick={() => bulkAction('read')} disabled={acting}
+                        className="text-[11px] px-2 py-1 rounded-lg bg-white/[0.06] text-white/70 hover:bg-white/10 disabled:opacity-40">
+                        ✓ {t('inbox.mark_read', 'Mark read')}
+                      </button>
+                      <button onClick={() => bulkAction('unread')} disabled={acting}
+                        className="text-[11px] px-2 py-1 rounded-lg bg-white/[0.06] text-white/70 hover:bg-white/10 disabled:opacity-40">
+                        ● {t('inbox.mark_unread', 'Mark unread')}
+                      </button>
+                      <button onClick={() => bulkAction(teamView === 'archived' ? 'unarchive' : 'archive')}
+                        disabled={acting}
+                        className="text-[11px] px-2 py-1 rounded-lg bg-white/[0.06] text-white/70 hover:bg-white/10 disabled:opacity-40">
+                        🗄️ {teamView === 'archived'
+                          ? t('inbox.unarchive', 'Unarchive')
+                          : t('inbox.archive', 'Archive')}
+                      </button>
+                      <button onClick={() => setPicked([])}
+                        className="text-[11px] px-2 py-1 rounded-lg text-white/40 hover:text-white/70">
+                        {t('inbox.clear', 'Clear')}
+                      </button>
+                    </>
+                  )}
+                </div>
+              )}
               <div className="relative">
                 <input value={search} onChange={e => setSearch(e.target.value)}
                   placeholder={t('inbox.search', 'Search mail…')}
@@ -413,7 +525,69 @@ const EmailInboxPage = () => {
             </div>
 
             <div className="flex-1 min-h-0 overflow-y-auto">
-              {contacts !== null ? (
+              {outbox !== null ? (
+                outbox.length === 0 ? (
+                  <div className="p-10 text-center text-white/40 text-sm">
+                    {t('inbox.no_sent', 'Nothing sent from here yet')}
+                  </div>
+                ) : (
+                  outbox.map(row => {
+                    // Deliberately four states, not two: "sent" is the mail
+                    // server accepting it, "opened" is the only evidence a
+                    // person saw it, and a failure says whether it is still
+                    // trying or has stopped.
+                    const chip = {
+                      opened:  { icon: '👁️', text: t('inbox.st_opened', 'Opened'),   cls: 'bg-emerald-500/20 text-emerald-300' },
+                      sent:    { icon: '✓',  text: t('inbox.st_sent', 'Sent'),       cls: 'bg-sky-500/20 text-sky-300' },
+                      queued:  { icon: '🕓', text: t('inbox.st_queued', 'Waiting'),  cls: 'bg-amber-500/20 text-amber-300' },
+                      failed:  { icon: '↻',  text: t('inbox.st_retry', 'Retrying'),  cls: 'bg-amber-500/20 text-amber-300' },
+                      gave_up: { icon: '⚠️', text: t('inbox.st_failed', 'Not sent'), cls: 'bg-red-500/20 text-red-300' },
+                    }[row.status] || { icon: '•', text: row.status, cls: 'bg-white/10 text-white/50' }
+                    return (
+                      <div key={row.id} className="px-3 py-2.5 border-b border-white/[0.04] hover:bg-white/[0.03]">
+                        <div className="flex items-center gap-2">
+                          <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-semibold ${chip.cls}`}>
+                            {chip.icon} {chip.text}
+                          </span>
+                          <span className="ml-auto text-[10px] text-white/30">
+                            {time(row.sent_at || row.created_at)}
+                          </span>
+                        </div>
+                        <p className="text-[13px] font-semibold truncate mt-1">{row.subject || '(no subject)'}</p>
+                        <p className="text-[11px] text-white/45 truncate">
+                          {t('inbox.to_label', 'To')}: {row.to_email}
+                        </p>
+                        <div className="flex items-center gap-2 mt-1 flex-wrap">
+                          {row.from_address && (
+                            <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-white/5 text-white/35">
+                              {row.from_address.split('@')[0]}
+                            </span>
+                          )}
+                          {row.open_count > 0 && (
+                            <span className="text-[9px] text-white/35">
+                              {t('inbox.opened_times', 'opened')} ×{row.open_count}
+                            </span>
+                          )}
+                          {row.attempts > 1 && (
+                            <span className="text-[9px] text-white/35">
+                              {t('inbox.attempts', 'attempts')}: {row.attempts}
+                            </span>
+                          )}
+                        </div>
+                        {row.last_error && (
+                          <p className="text-[10px] text-red-300/70 mt-1 line-clamp-2">{row.last_error}</p>
+                        )}
+                        {row.status !== 'sent' && row.status !== 'opened' && (
+                          <button onClick={() => retrySend(row)} disabled={acting}
+                            className="mt-1.5 text-[10px] px-2 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30 disabled:opacity-40">
+                            ↻ {t('inbox.retry_now', 'Send again now')}
+                          </button>
+                        )}
+                      </div>
+                    )
+                  })
+                )
+              ) : contacts !== null ? (
                 contacts.length === 0 ? (
                   <div className="p-10 text-center text-white/40 text-sm">
                     {t('inbox.no_contacts', 'No contacts yet')}
@@ -456,10 +630,17 @@ const EmailInboxPage = () => {
                       {bucket}
                     </div>
                     {items.map(email => (
-                      <button key={email.id} onClick={() => openEmail(email)}
-                        className={`w-full text-left px-3 py-2.5 flex gap-3 border-b border-white/[0.04] transition-colors ${
-                          selected?.id === email.id ? 'bg-emerald-500/10' : 'hover:bg-white/[0.03]'
+                      <div key={email.id}
+                        className={`w-full flex items-start gap-2 pl-2 pr-3 border-b border-white/[0.04] transition-colors ${
+                          selected?.id === email.id ? 'bg-emerald-500/10'
+                            : picked.includes(email.id) ? 'bg-emerald-500/[0.07]' : 'hover:bg-white/[0.03]'
                         }`}>
+                      <input type="checkbox" checked={picked.includes(email.id)}
+                        onChange={() => togglePick(email.id)}
+                        aria-label={t('inbox.select_message', 'Select this message')}
+                        className="mt-4 w-3.5 h-3.5 accent-emerald-500 cursor-pointer flex-shrink-0" />
+                      <button onClick={() => openEmail(email)}
+                        className="flex-1 min-w-0 text-left py-2.5 flex gap-3">
                         <div className={`w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 ${
                           email.is_read ? 'bg-white/10 text-white/50' : 'bg-gradient-to-br from-emerald-400 to-green-600 text-white'
                         }`}>
@@ -492,6 +673,7 @@ const EmailInboxPage = () => {
                           </div>
                         </div>
                       </button>
+                      </div>
                     ))}
                   </div>
                 ))

@@ -3,7 +3,7 @@
 from rest_framework import serializers
 from .models import (
     Notification, NotificationLog, NotificationTemplate, UserNotificationSetting,
-    IncomingEmail, EmailAccount
+    IncomingEmail, EmailAccount, OutgoingEmail
 )
 
 
@@ -358,3 +358,34 @@ class CommunicationSerializer(serializers.Serializer):
         choices=[('email', 'Email'), ('sms', 'SMS'), ('in_app', 'In App')],
         default='email'
     )
+
+# ============================================================
+# OUTGOING EMAIL (delivery tracking)
+# ============================================================
+
+class OutgoingEmailSerializer(serializers.ModelSerializer):
+    """What happened to a message we sent. `status_label` is the phrase the
+    inbox shows; the raw status is kept for styling."""
+    account_email = serializers.CharField(source='account.email_address', read_only=True, default=None)
+    sent_by_name = serializers.SerializerMethodField()
+    status_label = serializers.CharField(source='get_status_display', read_only=True)
+    can_retry = serializers.BooleanField(read_only=True)
+    reply_to_subject = serializers.CharField(source='reply_to_email.subject', read_only=True, default=None)
+
+    class Meta:
+        model = OutgoingEmail
+        fields = [
+            'id', 'account', 'account_email', 'from_address', 'to_email',
+            'subject', 'body', 'sent_by', 'sent_by_name',
+            'status', 'status_label', 'attempts', 'last_error', 'next_retry_at',
+            'sent_at', 'opened_at', 'open_count', 'can_retry',
+            'reply_to_email', 'reply_to_subject', 'created_at',
+        ]
+        read_only_fields = fields
+
+    def get_sent_by_name(self, obj):
+        user = obj.sent_by
+        if not user:
+            return None
+        full = f'{user.first_name} {user.last_name}'.strip()
+        return full or user.username

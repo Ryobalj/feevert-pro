@@ -1,5 +1,7 @@
 # notifications/models.py
 
+import uuid
+
 from django.db import models
 from django.conf import settings
 from core.models import BaseModel
@@ -278,3 +280,95 @@ class IncomingEmail(BaseModel):
     
     def __str__(self):
         return f"{self.sender} - {self.subject[:50] if self.subject else '(No Subject)'}"
+
+class OutgoingEmail(BaseModel):
+    """
+    Every message the platform sends out, and what became of it.
+
+    Sending used to be fire-and-forget: if the mail server refused the
+    message the sender saw an error and that was the end of it — nothing
+    was kept, nothing was retried, and nobody could answer "did that
+    tender reply ever reach them?". This is the record that answers it.
+
+    The lifecycle a message actually has:
+        queued  -> handed to us, not yet accepted by the mail server
+        sent    -> the server accepted it for delivery
+        opened  -> the recipient loaded the message (tracking pixel)
+        failed  -> refused; a retry is scheduled
+        gave_up -> refused MAX_ATTEMPTS times; needs a human
+
+    Note what "sent" can and cannot promise: SMTP tells us the server took
+    responsibility for the message, not that it landed in an inbox. Only
+    `opened` is proof a person saw it, and only if their mail client loads
+    images. Nothing here should be presented as a delivery guarantee.
+    """
+
+    STATUS_CHOICES = [
+        ('queued', 'Queued'),
+        ('sent', 'Sent'),
+        ('opened', 'Opened'),
+        ('failed', 'Failed — will retry'),
+        ('gave_up', 'Failed — needs attention'),
+    ]
+
+    MAX_ATTEMPTS = 5
+    # Minutes to wait before each retry: a mail server that just refused us
+    # is often back within minutes, but a misconfigured one never is — so
+    # back off quickly at first, then leave it alone.
+    RETRY_BACKOFF = [2, 10, 30, 120]
+
+    account = models.ForeignKey(
+        EmailAccount,
+        on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='outgoing_emails',
+        help_text='Mailbox this was sent from',
+    )
+    sent_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='sent_emails',
+    )
+    reply_to_email = models.ForeignKey(
+        IncomingEmail,
+        on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='replies',
+        help_text='The message this was a reply to, if any',
+    )
+
+    from_address = models.EmailField(blank=True)
+    to_email = models.TextField(help_text='Comma-separated recipients')
+    subject = models.CharField(max_length=500, blank=True)
+    body = models.TextField(blank=True)
+    body_html = models.TextField(blank=True)
+
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='queued')
+    attempts = models.PositiveIntegerField(default=0)
+    last_error = models.TextField(blank=True)
+    next_retry_at = models.DateTimeField(null=True, blank=True)
+    sent_at = models.DateTimeField(null=True, blank=True)
+
+    # Read tracking: a 1x1 image whose URL carries this id. Loading it is
+    # the only signal a mail server ever gives us that a human opened the
+    # message, and plenty of clients block it — so no opens means unknown,
+    # not unread.
+    tracking_id = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
+    opened_at = models.DateTimeField(null=True, blank=True)
+    open_count = models.PositiveIntegerField(default=0)
+    last_opened_ip = models.CharField(max_length=64, blank=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['status', 'next_retry_at']),
+            models.Index(fields=['-created_at']),
+            models.Index(fields=['tracking_id']),
+        ]
+        verbose_name = 'Outgoing Email'
+        verbose_name_plural = 'Outgoing Emails'
+
+    def __str__(self):
+        return f'{self.to_email} - {self.subject[:50] or "(No Subject)"} [{self.status}]'
+
+    @property
+    def can_retry(self):
+        return self.status in ('queued', 'failed') and self.attempts < self.MAX_ATTEMPTS

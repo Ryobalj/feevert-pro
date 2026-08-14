@@ -1,4 +1,4 @@
-﻿{
+{
   "title": "Admin",
   "dashboard_title": "Tableau de bord",
   "subtitle": "Aperçu et gestion du système",
@@ -207,8 +207,32 @@
     "tasks_open": "Tâches ouvertes",
     "jobs_assigned": "Emplois attribués",
     "jobs_by_status": "Mes métiers par étape",
-    "todays_work": "Le travail d'aujourd'hui"
+    "todays_work": "Le travail d'aujourd'hui",
+    "approve": "Approuver",
+    "loading": "Chargement…",
+    "return_task": "Renvoyer",
+    "submit_review": "Soumettre pour révision"
   },
   "cancel": "Annuler",
-  "save": "Sauvegarder"
+  "save": "Sauvegarder",
+  "finance": {
+    "amount": "Montant",
+    "bookings": "réservations",
+    "customer": "Client",
+    "date": "Date",
+    "in_period": "sur les",
+    "in_progress": "en cours",
+    "invoice": "Facture",
+    "last": "Derniers",
+    "no_transactions": "Aucune transaction pour le moment",
+    "pending": "En attente de paiement",
+    "received": "Reçu",
+    "search": "Rechercher un client ou une facture…",
+    "status": "Statut",
+    "to_bill": "Travaux à facturer",
+    "transactions": "Transactions",
+    "unavailable": "Les données financières ne sont pas disponibles pour ce compte."
+  },
+  "inbox": "Boîte de réception",
+  "workspace_link": "Espace de travail"
 }

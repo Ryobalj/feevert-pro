@@ -1,4 +1,4 @@
-﻿{
+{
   "title": "Admin",
   "dashboard_title": "Dashboard",
   "subtitle": "System overview and management",
@@ -207,8 +207,32 @@
     "tasks_open": "Tasks open",
     "jobs_assigned": "Jobs assigned",
     "jobs_by_status": "My jobs by stage",
-    "todays_work": "Today's work"
+    "todays_work": "Today's work",
+    "approve": "Approve",
+    "loading": "Loading…",
+    "return_task": "Return",
+    "submit_review": "Submit for review"
   },
   "cancel": "Cancel",
-  "save": "Save"
+  "save": "Save",
+  "finance": {
+    "amount": "Amount",
+    "bookings": "bookings",
+    "customer": "Customer",
+    "date": "Date",
+    "in_period": "in the last",
+    "in_progress": "in progress",
+    "invoice": "Invoice",
+    "last": "Last",
+    "no_transactions": "No transactions yet",
+    "pending": "Awaiting payment",
+    "received": "Received",
+    "search": "Search customer or invoice…",
+    "status": "Status",
+    "to_bill": "Work to bill",
+    "transactions": "Transactions",
+    "unavailable": "Financial data is not available for this account."
+  },
+  "inbox": "Inbox",
+  "workspace_link": "Workspace"
 }

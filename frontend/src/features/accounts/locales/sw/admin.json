@@ -1,4 +1,4 @@
-﻿{
+{
   "title": "Msimamizi",
   "dashboard_title": "Dashibodi",
   "subtitle": "Muhtasari na usimamizi wa mfumo",
@@ -207,8 +207,32 @@
     "tasks_open": "Kazi zimefunguliwa",
     "jobs_assigned": "Kazi ulizopewa",
     "jobs_by_status": "Kazi zangu kwa hatua",
-    "todays_work": "Kazi ya leo"
+    "todays_work": "Kazi ya leo",
+    "approve": "Idhinisha",
+    "loading": "Inapakia…",
+    "return_task": "Rudisha",
+    "submit_review": "Wasilisha kwa ukaguzi"
   },
   "cancel": "Ghairi",
-  "save": "Hifadhi"
+  "save": "Hifadhi",
+  "finance": {
+    "amount": "Kiasi",
+    "bookings": "miadi",
+    "customer": "Mteja",
+    "date": "Tarehe",
+    "in_period": "katika",
+    "in_progress": "inaendelea",
+    "invoice": "Ankara",
+    "last": "Za mwisho",
+    "no_transactions": "Hakuna miamala bado",
+    "pending": "Inasubiri malipo",
+    "received": "Imepokelewa",
+    "search": "Tafuta mteja au ankara…",
+    "status": "Hali",
+    "to_bill": "Kazi ya kudai malipo",
+    "transactions": "Miamala",
+    "unavailable": "Taarifa za fedha hazipatikani kwa akaunti hii."
+  },
+  "inbox": "Barua pepe",
+  "workspace_link": "Eneo la kazi"
 }

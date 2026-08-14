@@ -1,4 +1,4 @@
-﻿{
+{
   "title": "管理员",
   "dashboard_title": "仪表板",
   "subtitle": "系统概览和管理",
@@ -207,8 +207,32 @@
     "tasks_open": "任务开放",
     "jobs_assigned": "分配的工作",
     "jobs_by_status": "我的工作按阶段划分",
-    "todays_work": "今天的工作"
+    "todays_work": "今天的工作",
+    "approve": "批准",
+    "loading": "加载中…",
+    "return_task": "退回",
+    "submit_review": "提交审核"
   },
   "cancel": "取消",
-  "save": "节省"
+  "save": "节省",
+  "finance": {
+    "amount": "金额",
+    "bookings": "预约",
+    "customer": "客户",
+    "date": "日期",
+    "in_period": "在最近",
+    "in_progress": "进行中",
+    "invoice": "发票",
+    "last": "最近",
+    "no_transactions": "暂无交易",
+    "pending": "等待付款",
+    "received": "已收到",
+    "search": "搜索客户或发票…",
+    "status": "状态",
+    "to_bill": "待开票工作",
+    "transactions": "交易",
+    "unavailable": "此账户无法查看财务数据。"
+  },
+  "inbox": "收件箱",
+  "workspace_link": "工作区"
 }

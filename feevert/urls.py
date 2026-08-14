@@ -37,7 +37,8 @@ from notifications.views import (
     UserNotificationSettingViewSet, NotificationLogViewSet,
     TestEndpointViewSet, get_unread_count, mark_all_as_read,
     mark_as_read, get_notification_stats, IncomingEmailViewSet,
-    EmailAccountViewSet, cron_sync_emails
+    EmailAccountViewSet, cron_sync_emails, OutgoingEmailViewSet,
+    track_email_open
 )
 from projects.views import (
     ProjectCategoryViewSet, ProjectTagViewSet, ProjectViewSet,
@@ -103,6 +104,7 @@ router.register(r'notification-settings', UserNotificationSettingViewSet, basena
 router.register(r'notification-logs', NotificationLogViewSet, basename='notification-log')
 router.register(r'email-inbox', IncomingEmailViewSet, basename='incoming-email')
 router.register(r'email-accounts', EmailAccountViewSet, basename='email-account')
+router.register(r'sent-mail', OutgoingEmailViewSet, basename='outgoing-email')
 
 # Staff workspace (tasks people are given, and their own notes)
 router.register(r'tasks', TaskViewSet, basename='task')
@@ -255,6 +257,10 @@ urlpatterns = [
 
     # Cron (external scheduler, e.g. cron-job.org - see notifications/views.py:cron_sync_emails)
     path('api/cron/sync-emails/', cron_sync_emails, name='cron-sync-emails'),
+
+    # Read-tracking pixel for outgoing mail. Fetched by the recipient's mail
+    # client, so it sits outside /api/v1/ and outside authentication.
+    path('api/mail/open/<uuid:tracking_id>.gif', track_email_open, name='track-email-open'),
     
     # Homepage
     path('api/homepage/', get_homepage_data, name='homepage-data'),
