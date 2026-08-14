@@ -45,6 +45,34 @@ class Command(BaseCommand):
                             f'  {addr:35} accountId={aid} ERROR: {str(e)[:120]}'))
             except Exception as e:
                 self.stdout.write(self.style.ERROR(f'Diagnose failed: {e}'))
+
+            # The org token can list every mailbox but only read its own
+            # owner's mail, so the run above says nothing about the rest.
+            # Test each mailbox's own token — that's what actually brings
+            # their mail in, and a dead one is otherwise silent.
+            from notifications.models import EmailAccount
+            self.stdout.write('')
+            self.stdout.write(self.style.SUCCESS('Per-mailbox connections:'))
+            for acc in EmailAccount.objects.all().order_by('email_address'):
+                if not acc.oauth_refresh_token:
+                    self.stdout.write(f'  {acc.email_address:34} not connected')
+                    continue
+                try:
+                    tok = zoho_mail_api.get_access_token(
+                        acc.oauth_refresh_token,
+                        acc.oauth_client_id or None,
+                        acc.oauth_client_secret or None,
+                    )
+                    own = zoho_mail_api.get_accounts(tok)
+                    reach = ', '.join(
+                        (a.get('primaryEmailAddress') or a.get('mailboxAddress') or '?')
+                        for a in own) or 'nothing'
+                    self.stdout.write(self.style.SUCCESS(f'  {acc.email_address:34} OK — can read: {reach}'))
+                except Exception as e:
+                    self.stdout.write(self.style.ERROR(
+                        f'  {acc.email_address:34} BROKEN — {str(e)[:80]}'))
+                    self.stdout.write('      reconnect: python manage.py zoho_connect_mailbox '
+                                      f'--email={acc.email_address} --code=… --client-id=… --client-secret=…')
             return
         try:
             if opts['limit'] is None:
