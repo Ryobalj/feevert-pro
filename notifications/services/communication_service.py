@@ -10,6 +10,8 @@ Matumizi:
     CommunicationService.send_welcome(user)
 """
 
+from django.conf import settings
+
 from .notification_dispatcher import NotificationDispatcher
 
 

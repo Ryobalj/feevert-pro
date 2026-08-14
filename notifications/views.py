@@ -376,6 +376,7 @@ class IncomingEmailViewSet(viewsets.ReadOnlyModelViewSet):
         """The mailboxes this user can read, with unread counts — the sidebar
         of the team inbox. Unlike /email-accounts/ (admin-only, and full of
         credentials) this is safe for any staff member."""
+        user = request.user
         visible = self.get_queryset()
         rows = []
         seen = set()
