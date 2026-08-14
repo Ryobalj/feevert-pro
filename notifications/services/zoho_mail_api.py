@@ -227,9 +227,7 @@ def _alert_admins(mailbox, error):
             Notification.objects.create(
                 recipient=admin, notification_type='system',
                 title=f'{mailbox} stopped syncing',
-                message=f'{error[:200]}
-
-{reconnect}',
+                message=f'{error[:200]}\n\n{reconnect}',
                 related_link='/email-inbox',
             )
     except Exception as e:
