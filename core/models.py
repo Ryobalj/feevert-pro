@@ -55,9 +55,13 @@ class Task(BaseModel):
     internal to-do that admins and consultants hand out ("prepare the tender
     summary", "call the client back") and everyone can track.
     """
+    # Work comes back for review before it counts as done, so whoever handed
+    # it out sees the result instead of just a ticked box.
     STATUS_CHOICES = (
         ('todo', 'To do'),
         ('in_progress', 'In progress'),
+        ('submitted', 'Submitted for review'),
+        ('returned', 'Returned for changes'),
         ('done', 'Done'),
         ('cancelled', 'Cancelled'),
     )
@@ -88,6 +92,13 @@ class Task(BaseModel):
         null=True, blank=True, related_name='tasks',
     )
     attachment = models.FileField(upload_to='task_files/', blank=True, null=True)
+    # The email that carried the work, so the assignee has the original to hand
+    related_email = models.ForeignKey(
+        'notifications.IncomingEmail', on_delete=models.SET_NULL,
+        null=True, blank=True, related_name='tasks',
+    )
+    submitted_at = models.DateTimeField(null=True, blank=True)
+    review_notes = models.TextField(blank=True)
 
     class Meta:
         ordering = ['status', '-priority', 'due_date', '-created_at']

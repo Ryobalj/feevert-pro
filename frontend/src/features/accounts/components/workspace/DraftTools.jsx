@@ -6,6 +6,7 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react'
 import api from '../../../../app/api'
+import { useAuth } from '../../hooks/useAuth'
 
 const EXTERNAL = [
   { label: 'Google Docs',   icon: '📘', url: 'https://docs.new' },
@@ -46,6 +47,7 @@ const emptyGrid = (rows = 8, cols = 5) =>
   Array.from({ length: rows }, () => Array.from({ length: cols }, () => ''))
 
 const DraftTools = () => {
+  const { user } = useAuth()
   const [docs, setDocs] = useState([])
   const [active, setActive] = useState(null)
   const [saving, setSaving] = useState(false)
@@ -82,7 +84,11 @@ const DraftTools = () => {
     } catch (e) { alert('Could not create the draft') }
   }
 
+  // A shared draft belongs to whoever made it; everyone else reads it.
+  const isMine = !active || !user?.id || active.owner === user.id || active.owner_name === user.username
+
   const save = async (patch = {}) => {
+    if (!isMine) return
     // Read the latest document from state: typing in a cell and clicking away
     // fires the update and the save in the same tick, and the closure here can
     // still hold the previous version — which would save stale cells.
@@ -169,7 +175,7 @@ const DraftTools = () => {
       <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-4">
         {/* list */}
         <div className="glass-card p-3 h-fit">
-          <p className="px-2 pb-2 text-[10px] uppercase tracking-wider text-white/30 font-bold">My drafts</p>
+          <p className="px-2 pb-2 text-[10px] uppercase tracking-wider text-white/30 font-bold">Drafts</p>
           {docs.length === 0 ? (
             <p className="text-white/30 text-xs px-2 py-4">Nothing yet</p>
           ) : docs.map(d => (
@@ -179,6 +185,10 @@ const DraftTools = () => {
               }`}
               onClick={() => setActive(d)}>
               <span>{d.kind === 'sheet' ? '📊' : '📝'}</span>
+              {user?.id && d.owner !== user.id && (
+                <span className="text-[9px] px-1 py-0.5 rounded bg-white/10 text-white/40 flex-shrink-0"
+                  title={`Shared by ${d.owner_name || 'a colleague'} — read only`}>👁</span>
+              )}
               <span className="text-sm truncate flex-1">{d.title}</span>
               <button onClick={(e) => { e.stopPropagation(); remove(d) }}
                 className="text-white/25 hover:text-red-300 text-xs">✕</button>

@@ -59,6 +59,9 @@ const EmailInboxPage = () => {
   const [alias, setAlias] = useState(null)      // filter by the address mail was sent to
   const [aliases, setAliases] = useState([])
   const [contacts, setContacts] = useState(null) // null = mail view, array = address book
+  const [folderCounts, setFolderCounts] = useState({})
+  const [fromOptions, setFromOptions] = useState([])
+  const [replyFrom, setReplyFrom] = useState('')
 
   const loadEmails = useCallback(async () => {
     setLoading(true)
@@ -88,6 +91,8 @@ const EmailInboxPage = () => {
       const res = await api.get('/email-inbox/mailboxes/')
       setMailboxes(res.data?.mailboxes || [])
       setAliases(res.data?.aliases || [])
+      setFolderCounts(res.data?.folders || {})
+      setFromOptions(res.data?.from_options || [])
       setCounts({ total: res.data?.total || 0, unread: res.data?.unread || 0 })
     } catch (error) {
       console.error('Error loading mailboxes:', error)
@@ -186,7 +191,10 @@ const EmailInboxPage = () => {
     if (!replyText.trim() || !selected) return
     setSendingReply(true)
     try {
-      await api.post(`/email-inbox/${selected.id}/reply/`, { body: replyText.trim() })
+      await api.post(`/email-inbox/${selected.id}/reply/`, {
+        body: replyText.trim(),
+        ...(replyFrom ? { from_address: replyFrom } : {}),
+      })
       setSelected(prev => ({ ...prev, is_processed: true }))
       setReplyText('')
     } catch (error) {
@@ -239,7 +247,7 @@ const EmailInboxPage = () => {
     return (parts.length >= 2 ? parts[0][0] + parts[1][0] : s.slice(0, 2)).toUpperCase()
   }
 
-  const NavRow = ({ active, onClick, icon, label, badge, title }) => (
+  const NavRow = ({ active, onClick, icon, label, badge, count, title }) => (
     <button
       onClick={onClick}
       title={title}
@@ -249,9 +257,11 @@ const EmailInboxPage = () => {
     >
       <span className="text-[13px]">{icon}</span>
       <span className="truncate">{label}</span>
-      {badge > 0 && (
+      {badge > 0 ? (
         <span className="ml-auto text-[10px] bg-emerald-500 text-white rounded-full px-1.5 py-0.5 font-bold">{badge}</span>
-      )}
+      ) : count > 0 ? (
+        <span className="ml-auto text-[10px] text-white/35">{count}</span>
+      ) : null}
     </button>
   )
 
@@ -279,7 +289,8 @@ const EmailInboxPage = () => {
               {FOLDERS.map(f => (
                 <NavRow key={f.key} icon={f.icon} label={f.label}
                   active={folder === f.key}
-                  badge={f.key === 'inbox' ? counts.unread : 0}
+                  badge={folderCounts[f.key]?.unread || 0}
+                  count={folderCounts[f.key]?.total || 0}
                   onClick={() => { setFolder(f.key); setTeamView('all') }} />
               ))}
 
@@ -526,9 +537,18 @@ const EmailInboxPage = () => {
                     placeholder={t('inbox.reply_placeholder', 'Write a reply…')}
                     className="w-full px-4 py-3 glass text-white placeholder:text-white/25 rounded-xl border-0 outline-none focus:ring-2 focus:ring-emerald-400/40 text-sm resize-none" />
                   <div className="flex items-center justify-between mt-2">
-                    <span className="text-[11px] text-white/30">
-                      {t('inbox.replying_from', 'From')} {selected.account_email || 'default address'}
-                    </span>
+                    {/* Reply as: a person who reads accounts@ may need to answer
+                        as prisila.neema@ */}
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <span className="text-[11px] text-white/30 flex-shrink-0">
+                        {t('inbox.reply_as', 'Reply as')}
+                      </span>
+                      <select value={replyFrom} onChange={e => setReplyFrom(e.target.value)}
+                        className="text-[11px] glass rounded-lg px-2 py-1 border-0 outline-none max-w-[220px] truncate">
+                        <option value="">{selected.account_email || t('inbox.from_default', 'default address')}</option>
+                        {fromOptions.map(a => <option key={a} value={a}>{a}</option>)}
+                      </select>
+                    </div>
                     <button type="submit" disabled={sendingReply || !replyText.trim()}
                       className="px-5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white text-sm font-semibold disabled:opacity-40">
                       {sendingReply ? (t('inbox.sending', 'Sending…')) : (t('inbox.send_reply', 'Reply'))}

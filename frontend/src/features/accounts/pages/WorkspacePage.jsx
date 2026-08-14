@@ -120,6 +120,23 @@ const WorkspacePage = () => {
     }
   }
 
+  // Work goes back to whoever handed it out before it counts as done.
+  const submitTask = async (task) => {
+    try {
+      const res = await api.post(`/tasks/${task.id}/submit/`)
+      setTasks(prev => prev.map(t => t.id === task.id ? res.data : t))
+    } catch (e) { alert(e.response?.data?.error || 'Could not submit') }
+  }
+
+  const reviewTask = async (task, approve) => {
+    const notes = approve ? '' : (window.prompt('What still needs doing?') || '')
+    if (!approve && !notes.trim()) return
+    try {
+      const res = await api.post(`/tasks/${task.id}/review/`, { approve, notes })
+      setTasks(prev => prev.map(t => t.id === task.id ? res.data : t))
+    } catch (e) { alert(e.response?.data?.error || 'Could not review') }
+  }
+
   const setTaskStatus = async (task, status) => {
     try {
       await api.patch(`/tasks/${task.id}/`, { status })
@@ -372,14 +389,44 @@ const WorkspacePage = () => {
                               {tk.status_display}
                             </span>
                             <span className="text-[10px] text-white/30">👤 {tk.assigned_to_name}</span>
+                            {tk.email_subject && (
+                              <span className="text-[10px] text-white/30 truncate max-w-[180px]" title={tk.email_subject}>
+                                ✉️ {tk.email_subject}
+                              </span>
+                            )}
                             {tk.due_date && (
                               <span className={`text-[10px] ${tk.is_overdue ? 'text-red-300' : 'text-white/30'}`}>
                                 📅 {new Date(tk.due_date).toLocaleDateString()}
                               </span>
                             )}
                           </div>
+                          {tk.status === 'returned' && tk.review_notes && (
+                            <p className="text-[11px] text-amber-300/90 mt-1">↩ {tk.review_notes}</p>
+                          )}
                         </div>
-                        {tk.status !== 'done' && (
+                        {tk.status === 'submitted' && (tk.assigned_by === user?.id || canDelegate) ? (
+                          <div className="flex items-center gap-1.5 flex-shrink-0">
+                            <button onClick={() => reviewTask(tk, true)}
+                              className="text-[11px] px-2.5 py-1 rounded-lg bg-emerald-500 text-white font-semibold hover:bg-emerald-400 whitespace-nowrap">
+                              ✓ {t('workspace.approve', 'Approve')}
+                            </button>
+                            <button onClick={() => reviewTask(tk, false)}
+                              className="text-[11px] px-2.5 py-1 rounded-lg bg-white/[0.06] text-white/70 hover:bg-white/10 whitespace-nowrap">
+                              ↩ {t('workspace.return_task', 'Return')}
+                            </button>
+                          </div>
+                        ) : tk.status !== 'done' && tk.status !== 'submitted' && tk.assigned_to === user?.id ? (
+                          <div className="flex items-center gap-1.5 flex-shrink-0">
+                            <button onClick={() => setTaskStatus(tk, tk.status === 'in_progress' ? 'todo' : 'in_progress')}
+                              className="text-[11px] px-2 py-1 rounded-lg bg-white/[0.06] text-white/60 hover:bg-white/10">
+                              {tk.status === 'in_progress' ? '⏸' : '▶'}
+                            </button>
+                            <button onClick={() => submitTask(tk)}
+                              className="text-[11px] px-2.5 py-1 rounded-lg bg-emerald-500 text-white font-semibold hover:bg-emerald-400 whitespace-nowrap">
+                              {t('workspace.submit_review', 'Submit for review')}
+                            </button>
+                          </div>
+                        ) : tk.status !== 'done' && (
                           <button onClick={() => setTaskStatus(tk, tk.status === 'in_progress' ? 'todo' : 'in_progress')}
                             className="text-[11px] px-2 py-1 rounded-lg bg-white/[0.06] text-white/60 hover:bg-white/10 whitespace-nowrap">
                             {tk.status === 'in_progress' ? '⏸' : '▶'}

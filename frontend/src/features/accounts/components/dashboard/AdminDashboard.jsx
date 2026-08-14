@@ -197,6 +197,13 @@ const AdminDashboard = ({ user, darkMode }) => {
             <Link to="/admin/email-accounts" className="glass px-6 py-3 rounded-full text-white font-semibold text-sm hover:border-emerald-400/40 hover:text-emerald-400 transition-all duration-300">
               📧 Staff Mailboxes
             </Link>
+            {/* Mail is daily work, not an admin setting — reach it from here too */}
+            <Link to="/email-inbox" className="glass px-6 py-3 rounded-full text-white font-semibold text-sm hover:border-emerald-400/40 hover:text-emerald-400 transition-all duration-300">
+              📥 {t('inbox', 'Inbox')}
+            </Link>
+            <Link to="/workspace" className="glass px-6 py-3 rounded-full text-white font-semibold text-sm hover:border-emerald-400/40 hover:text-emerald-400 transition-all duration-300">
+              🗂️ {t('workspace_link', 'Workspace')}
+            </Link>
           </div>
         </motion.div>
       </div>

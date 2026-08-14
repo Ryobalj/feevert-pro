@@ -21,6 +21,8 @@ class TaskSerializer(serializers.ModelSerializer):
     priority_display = serializers.CharField(source='get_priority_display', read_only=True)
     is_overdue = serializers.BooleanField(read_only=True)
     attachment_url = serializers.SerializerMethodField()
+    email_subject = serializers.CharField(source='related_email.subject', read_only=True, default=None)
+    email_sender = serializers.CharField(source='related_email.sender', read_only=True, default=None)
 
     class Meta:
         model = Task
@@ -30,9 +32,12 @@ class TaskSerializer(serializers.ModelSerializer):
             'status', 'status_display', 'priority', 'priority_display',
             'due_date', 'completed_at', 'is_overdue',
             'related_request', 'attachment', 'attachment_url',
+            'related_email', 'email_subject', 'email_sender',
+            'submitted_at', 'review_notes',
             'created_at', 'updated_at',
         ]
-        read_only_fields = ['id', 'assigned_by', 'completed_at', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'assigned_by', 'completed_at', 'submitted_at',
+                            'created_at', 'updated_at']
 
     def get_attachment_url(self, obj):
         if not obj.attachment:
@@ -87,6 +92,57 @@ class TaskViewSet(viewsets.ModelViewSet):
         elif task.status != 'done' and task.completed_at:
             task.completed_at = None
             task.save(update_fields=['completed_at'])
+
+    @action(detail=True, methods=['post'])
+    def submit(self, request, pk=None):
+        """Assignee hands the work back for review."""
+        task = self.get_object()
+        if task.assigned_to_id != request.user.id:
+            return Response({'error': 'Only the person doing the work can submit it.'}, status=403)
+        task.status = 'submitted'
+        task.submitted_at = timezone.now()
+        task.save(update_fields=['status', 'submitted_at'])
+        self._notify(task.assigned_by, 'Work submitted for review',
+                     f'{request.user.username} submitted: {task.title}')
+        return Response(self.get_serializer(task).data)
+
+    @action(detail=True, methods=['post'])
+    def review(self, request, pk=None):
+        """Whoever handed the task out accepts it, or sends it back with a
+        note saying what still needs doing."""
+        task = self.get_object()
+        user = request.user
+        if not (task.assigned_by_id == user.id or self._can_delegate(user)):
+            return Response({'error': 'Only the person who assigned this can review it.'}, status=403)
+
+        approve = str(request.data.get('approve', True)).lower() not in ('false', '0', 'no')
+        task.review_notes = request.data.get('notes', '') or ''
+        if approve:
+            task.status = 'done'
+            task.completed_at = timezone.now()
+            message = f'Approved: {task.title}'
+        else:
+            task.status = 'returned'
+            task.completed_at = None
+            message = f'Sent back for changes: {task.title}'
+            if task.review_notes:
+                message += f' — {task.review_notes}'
+        task.save()
+        self._notify(task.assigned_to, 'Task reviewed', message)
+        return Response(self.get_serializer(task).data)
+
+    @staticmethod
+    def _notify(recipient, title, message):
+        if not recipient:
+            return
+        try:
+            from notifications.models import Notification
+            Notification.objects.create(
+                recipient=recipient, notification_type='system',
+                title=title, message=message, related_link='/workspace',
+            )
+        except Exception:
+            pass
 
     @action(detail=False, methods=['get'])
     def assignable_users(self, request):

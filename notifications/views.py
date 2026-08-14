@@ -426,9 +426,25 @@ class IncomingEmailViewSet(viewsets.ReadOnlyModelViewSet):
         alias_rows = [{'address': a, 'count': c} for a, c in
                       sorted(counts.items(), key=lambda kv: -kv[1]) if c]
 
+        folder_rows = {
+            r['folder']: {'total': r['total'], 'unread': r['unread']}
+            for r in visible.values('folder').annotate(
+                total=Count('id'), unread=Count('id', filter=_Q(is_read=False)))
+        }
+
+        # The addresses this person may answer as — their own mailboxes and
+        # any alias recorded on them.
+        from_options = []
+        for acc in EmailAccount.objects.filter(is_active=True).filter(
+                _Q(owner_user=request.user) | _Q(is_shared=True)):
+            from_options.append(acc.email_address)
+            from_options.extend(acc.aliases or [])
+
         return Response({
             'mailboxes': rows,
             'aliases': alias_rows,
+            'folders': folder_rows,
+            'from_options': sorted(set(a.lower() for a in from_options if a)),
             'total': visible.count(),
             'unread': visible.filter(is_read=False).count(),
         })
@@ -592,10 +608,28 @@ class IncomingEmailViewSet(viewsets.ReadOnlyModelViewSet):
 
         reply_subject = email.subject if email.subject.lower().startswith('re:') else f'Re: {email.subject}'
 
-        if email.account:
+        # Answer as whichever of the user's own addresses fits — a person who
+        # reads accounts@ may need to reply as prisila.neema@.
+        from_address = (request.data.get('from_address') or '').strip().lower()
+        send_account = email.account
+        if from_address:
+            allowed = EmailAccount.objects.filter(is_active=True).filter(
+                Q(owner_user=request.user) | Q(is_shared=True)
+            )
+            match = next(
+                (a for a in allowed
+                 if a.email_address.lower() == from_address
+                 or from_address in [x.lower() for x in (a.aliases or [])]),
+                None,
+            )
+            if not match:
+                return Response({'error': 'You cannot send from that address.'}, status=403)
+            send_account = match
+
+        if send_account:
             from .services.email_outbound_service import EmailOutboundService
             result = EmailOutboundService.send_via_account(
-                account=email.account,
+                account=send_account,
                 to_email=email.sender,
                 subject=reply_subject,
                 body=serializer.validated_data['body'],
