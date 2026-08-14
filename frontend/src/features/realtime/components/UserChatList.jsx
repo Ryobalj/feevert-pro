@@ -135,9 +135,11 @@ const UserChatList = ({ isModal, onClose, embedded = false, selectedUserId = nul
       {(embedded || !activeChat) && (
       <div ref={panelRef} className={embedded
         ? 'w-full max-w-full h-full glass-card !p-0 overflow-hidden flex flex-col'
-        // Popup: fills the screen on phones so the header (and its close
-        // button) is always reachable; a docked panel from md up.
-        : 'fixed inset-x-2 bottom-2 top-16 md:inset-auto md:relative md:w-96 md:max-w-full md:h-auto glass-card !p-0 overflow-hidden flex flex-col'}>
+        // Popup: centred on screen like the chat window it opens, so the
+        // header and its close button are always in view. `md:relative` used
+        // to hand positioning back to the navbar, which has no positioning of
+        // its own — that's how this ended up in odd places on desktop.
+        : 'fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[60] w-[min(94vw,420px)] h-[min(82vh,600px)] glass-card !p-0 overflow-hidden flex flex-col shadow-2xl'}>
         {/* Header */}
         <div className="p-4 border-b border-white/5">
           <div className="flex items-center justify-between mb-3">

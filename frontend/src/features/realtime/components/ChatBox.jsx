@@ -26,6 +26,7 @@ const ChatBox = ({ recipientId, recipientName, recipientAvatar, onClose, onNewMe
   // Drag by the header only, so scrolling the messages or typing never moves
   // the window.
   const dragControls = useDragControls()
+  const boundsRef = useRef(null)
 
   // Load message history
   useEffect(() => {
@@ -171,21 +172,23 @@ const ChatBox = ({ recipientId, recipientName, recipientAvatar, onClose, onNewMe
 
   const messageGroups = groupMessagesByDate(messages)
 
-  return (
+  const panel = (
     <motion.div
       initial={embedded ? false : { opacity: 0, y: 20, scale: 0.95 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={embedded ? undefined : { opacity: 0, y: 20, scale: 0.95 }}
       className={embedded
         ? 'flex-1 h-full glass-card !p-0 flex flex-col overflow-hidden min-w-0'
-        // Popup: near-fullscreen on phones (a fixed 380x520 box hung off the
-        // edge of small screens, taking the close button with it), a docked
-        // panel from md up.
-        : 'fixed inset-x-2 bottom-2 top-16 md:inset-auto md:bottom-24 md:right-6 md:w-[380px] md:h-[520px] glass-card !p-0 z-50 flex flex-col overflow-hidden shadow-2xl'
+        // Popup: centred, and sized off the viewport so the header — and the
+        // close button in it — is always on screen. It used to dock to the
+        // bottom-right corner, where a long page or a small screen could push
+        // it half out of view.
+        : 'pointer-events-auto w-[min(94vw,420px)] h-[min(82vh,600px)] glass-card !p-0 flex flex-col overflow-hidden shadow-2xl'
       }
       drag={!embedded}
       dragListener={false}
       dragControls={dragControls}
+      dragConstraints={boundsRef}
       dragMomentum={false}
       dragElastic={0}
     >
@@ -359,6 +362,17 @@ const ChatBox = ({ recipientId, recipientName, recipientAvatar, onClose, onNewMe
         </div>
       </form>
     </motion.div>
+  )
+
+  if (embedded) return panel
+
+  // The centring frame is also what the drag is bounded by, so the window can
+  // be moved anywhere on screen but never off it.
+  return (
+    <div ref={boundsRef}
+      className="fixed inset-0 z-[60] flex items-center justify-center p-3 pointer-events-none">
+      {panel}
+    </div>
   )
 }
 

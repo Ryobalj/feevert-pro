@@ -544,19 +544,19 @@ const Navbar = () => {
       
       {/* Chat/Support Modals — a backdrop so tapping outside closes the window
           (previously the only way out was signing out) */}
+      {/* The windows centre themselves (position: fixed, z-60), so the wrapper
+          here is only a backdrop. `chat-modal` was a class with no CSS behind
+          it, which left desktop placement to whatever the navbar happened to
+          do. */}
       {activeModal && (
-        <div className="fixed inset-0 bg-black/40 md:bg-transparent z-40"
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-[2px] z-50"
              onClick={() => setActiveModal(null)} aria-hidden="true" />
       )}
       {activeModal === 'chat' && (
-        <div className="chat-modal z-50" onClick={e => e.stopPropagation()}>
-          <UserChatList isModal onClose={() => setActiveModal(null)} />
-        </div>
+        <UserChatList isModal onClose={() => setActiveModal(null)} />
       )}
       {activeModal === 'support' && (
-        <div className="chat-modal z-50" onClick={e => e.stopPropagation()}>
-          <ChatBox recipientId={1} recipientName="FeeVert Support" onClose={() => setActiveModal(null)} />
-        </div>
+        <ChatBox recipientId={1} recipientName="FeeVert Support" onClose={() => setActiveModal(null)} />
       )}
     </>
   )
