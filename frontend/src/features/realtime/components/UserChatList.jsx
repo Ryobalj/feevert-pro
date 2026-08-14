@@ -1,6 +1,7 @@
 // src/features/realtime/components/UserChatList.jsx
 
 import React, { useState, useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next' // ✅ Ongeza hii
 import { Link } from 'react-router-dom'
@@ -123,6 +124,11 @@ const UserChatList = ({ isModal, onClose, embedded = false, selectedUserId = nul
     return new Date(ts).toLocaleDateString()
   }
 
+  // The popup renders into <body>, never inside the navbar: a fixed element is
+  // positioned against the nearest ancestor carrying a transform or a
+  // backdrop-filter, and the navbar is built out of both.
+  const portalIfPopup = (node) => (embedded ? node : createPortal(node, document.body))
+
   const getInitials = (name) => {
     if (!name) return '?'
     const parts = name.split(' ')
@@ -132,7 +138,7 @@ const UserChatList = ({ isModal, onClose, embedded = false, selectedUserId = nul
   return (
     <>
       {/* ============ CHAT PANEL (hidden in popup mode while a chat is open) ============ */}
-      {(embedded || !activeChat) && (
+      {(embedded || !activeChat) && portalIfPopup(
       <div ref={panelRef} className={embedded
         ? 'w-full max-w-full h-full glass-card !p-0 overflow-hidden flex flex-col'
         // Popup: centred on screen like the chat window it opens, so the

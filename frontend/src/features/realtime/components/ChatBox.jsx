@@ -1,6 +1,7 @@
 // src/features/realtime/components/ChatBox.jsx
 
 import React, { useState, useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { motion, AnimatePresence, useDragControls } from 'framer-motion'
 import { useTranslation } from 'react-i18next' // ✅ Ongeza hii
 import api from '../../../app/api'
@@ -368,11 +369,18 @@ const ChatBox = ({ recipientId, recipientName, recipientAvatar, onClose, onNewMe
 
   // The centring frame is also what the drag is bounded by, so the window can
   // be moved anywhere on screen but never off it.
-  return (
+  //
+  // Rendered into <body> like the navbar's menus: `position: fixed` is measured
+  // against the nearest ancestor with a transform, filter or backdrop-filter —
+  // and this tree sits under a navbar full of them. In the body it is measured
+  // against the viewport, which is the only thing "centre of the screen" can
+  // honestly mean.
+  return createPortal(
     <div ref={boundsRef}
       className="fixed inset-0 z-[60] flex items-center justify-center p-3 pointer-events-none">
       {panel}
-    </div>
+    </div>,
+    document.body,
   )
 }
 
