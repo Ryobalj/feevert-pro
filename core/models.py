@@ -1,5 +1,7 @@
 # core/models.py
 
+from datetime import timedelta
+
 from django.db import models
 from django.conf import settings
 
@@ -169,3 +171,68 @@ class WorkDocument(BaseModel):
 
     def __str__(self):
         return f'{self.title} ({self.kind})'
+
+
+class CalendarEvent(BaseModel):
+    """An appointment or event someone puts on the workspace calendar.
+
+    Client bookings and task deadlines already appear there, but there was no
+    way to write down "meet the tender committee on Thursday" — the calendar
+    could only be read, never added to. This is that missing piece, and it is
+    what the reminders are sent for.
+    """
+
+    KIND_CHOICES = (
+        ('appointment', 'Appointment'),
+        ('meeting', 'Meeting'),
+        ('deadline', 'Deadline'),
+        ('reminder', 'Reminder'),
+        ('other', 'Other'),
+    )
+
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='calendar_events',
+    )
+    # Anyone else who should see it on their own calendar and be reminded.
+    attendees = models.ManyToManyField(
+        settings.AUTH_USER_MODEL, blank=True, related_name='invited_events',
+    )
+
+    title = models.CharField(max_length=300)
+    description = models.TextField(blank=True)
+    location = models.CharField(max_length=300, blank=True)
+    kind = models.CharField(max_length=20, choices=KIND_CHOICES, default='appointment')
+
+    starts_at = models.DateTimeField()
+    ends_at = models.DateTimeField(null=True, blank=True)
+    all_day = models.BooleanField(default=False)
+
+    # Reminders: how long before it starts, and whether that has been sent.
+    # `reminded_at` is what stops the cron sending the same reminder every
+    # time it runs.
+    remind_minutes = models.PositiveIntegerField(
+        default=30, help_text='Minutes before the start to send a reminder; 0 = no reminder')
+    reminded_at = models.DateTimeField(null=True, blank=True)
+
+    related_request = models.ForeignKey(
+        'consultations.ConsultationRequest', on_delete=models.SET_NULL,
+        null=True, blank=True, related_name='calendar_events',
+    )
+
+    class Meta:
+        ordering = ['starts_at']
+        indexes = [
+            models.Index(fields=['starts_at']),
+            models.Index(fields=['reminded_at', 'starts_at']),
+        ]
+        verbose_name = 'Calendar Event'
+        verbose_name_plural = 'Calendar Events'
+
+    def __str__(self):
+        return f'{self.title} — {self.starts_at:%Y-%m-%d %H:%M}'
+
+    @property
+    def remind_at(self):
+        if not self.remind_minutes:
+            return None
+        return self.starts_at - timedelta(minutes=self.remind_minutes)

@@ -62,6 +62,9 @@ const WorkspacePage = () => {
   const [assignables, setAssignables] = useState([])
   const [loading, setLoading] = useState(true)
   const [newTask, setNewTask] = useState(null)
+  const [appointments, setAppointments] = useState([])
+  const [dayPanel, setDayPanel] = useState(null)   // { date: Date, form: {...}|null }
+  const [savingEvent, setSavingEvent] = useState(false)
 
   const canDelegate = useMemo(() => {
     const role = (user?.role_name || user?.role?.name || '').toLowerCase()
@@ -100,6 +103,20 @@ const WorkspacePage = () => {
   )
   const openTasks = myTasks.filter(t => t.status !== 'done' && t.status !== 'cancelled')
   const overdue = myTasks.filter(t => t.is_overdue)
+
+  // Handing work out is for admins and consultants. For everybody else the
+  // Tasks section only earns its place if they were actually given something —
+  // they still need it to submit work for review.
+  const visibleSections = useMemo(() => SECTIONS.filter(s => {
+    if (s.financeOnly) return canFinance
+    if (s.key === 'tasks') return canDelegate || myTasks.length > 0
+    return true
+  }), [canFinance, canDelegate, myTasks])
+
+  // Never leave someone stranded on a section that just disappeared.
+  useEffect(() => {
+    if (!loading && !visibleSections.some(s => s.key === section)) setSection('overview')
+  }, [visibleSections, section, loading])
 
   // ---- task actions
   const saveTask = async (e) => {
@@ -167,6 +184,84 @@ const WorkspacePage = () => {
 
   // ---- calendar (this month)
   const [month, setMonth] = useState(() => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), 1) })
+
+  // Appointments are fetched a month at a time, following the arrows, rather
+  // than pulling a year nobody is looking at.
+  const loadAppointments = useCallback(async () => {
+    const from = new Date(month.getFullYear(), month.getMonth(), 1)
+    const to = new Date(month.getFullYear(), month.getMonth() + 1, 0, 23, 59, 59)
+    try {
+      const res = await api.get(
+        `/calendar-events/?from=${from.toISOString()}&to=${to.toISOString()}&page_size=200`)
+      setAppointments(res.data?.results || res.data || [])
+    } catch (e) {
+      console.error('calendar load failed', e)
+      setAppointments([])
+    }
+  }, [month])
+
+  useEffect(() => { loadAppointments() }, [loadAppointments])
+
+  const openDay = (day) => {
+    const date = new Date(month.getFullYear(), month.getMonth(), day)
+    setDayPanel({ date, form: null })
+  }
+
+  const startEvent = () => {
+    const d = dayPanel?.date || new Date()
+    setDayPanel(prev => ({
+      ...prev,
+      form: {
+        title: '',
+        kind: 'appointment',
+        time: '09:00',
+        duration: 60,
+        location: '',
+        description: '',
+        remind_minutes: 30,
+        attendees: [],
+      },
+    }))
+  }
+
+  const saveEvent = async (e) => {
+    e.preventDefault()
+    const form = dayPanel?.form
+    if (!form?.title.trim()) return
+    setSavingEvent(true)
+    try {
+      const d = dayPanel.date
+      const [hh, mm] = (form.time || '09:00').split(':').map(Number)
+      const starts = new Date(d.getFullYear(), d.getMonth(), d.getDate(), hh || 0, mm || 0)
+      const ends = new Date(starts.getTime() + (Number(form.duration) || 60) * 60000)
+      await api.post('/calendar-events/', {
+        title: form.title.trim(),
+        description: form.description || '',
+        location: form.location || '',
+        kind: form.kind,
+        starts_at: starts.toISOString(),
+        ends_at: ends.toISOString(),
+        remind_minutes: Number(form.remind_minutes) || 0,
+        attendees: form.attendees,
+      })
+      setDayPanel(prev => ({ ...prev, form: null }))
+      await loadAppointments()
+    } catch (err) {
+      alert(err.response?.data?.detail || t('workspace.event_failed', 'Could not save the appointment'))
+    } finally {
+      setSavingEvent(false)
+    }
+  }
+
+  const deleteEvent = async (ev) => {
+    if (!window.confirm(t('workspace.delete_event_confirm', 'Delete this appointment?'))) return
+    try {
+      await api.delete(`/calendar-events/${ev.id}/`)
+      await loadAppointments()
+    } catch (err) {
+      alert(err.response?.data?.error || t('workspace.event_delete_failed', 'Could not delete it'))
+    }
+  }
   const calendar = useMemo(() => {
     const first = new Date(month.getFullYear(), month.getMonth(), 1)
     const startPad = first.getDay()
@@ -181,8 +276,14 @@ const WorkspacePage = () => {
     bookings.forEach(b => add(b.slot_info ? b.created_at : b.created_at, { kind: 'booking', label: b.service_name || b.category_name || 'Booking' }))
     jobs.forEach(j => add(j.preferred_date, { kind: 'job', label: j.item_name || j.service_name || 'Job' }))
     myTasks.forEach(tk => add(tk.due_date, { kind: 'task', label: tk.title }))
+    appointments.forEach(ev => add(ev.starts_at, {
+      kind: 'event',
+      label: ev.all_day ? ev.title
+        : `${new Date(ev.starts_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} ${ev.title}`,
+      event: ev,
+    }))
     return { startPad, days, events }
-  }, [month, bookings, jobs, myTasks])
+  }, [month, bookings, jobs, myTasks, appointments])
 
   const Stat = ({ icon, label, value, tone = 'emerald', to }) => {
     const tones = {
@@ -225,7 +326,7 @@ const WorkspacePage = () => {
 
           {/* ---------- icon rail ---------- */}
           <aside className="hidden md:flex w-[86px] flex-shrink-0 flex-col gap-1 glass-card !p-2 h-fit sticky top-24">
-            {SECTIONS.filter(s => !s.financeOnly || canFinance).map(s => (
+            {visibleSections.map(s => (
               <button key={s.key} onClick={() => setSection(s.key)}
                 className={`flex flex-col items-center gap-1 py-3 rounded-xl transition-colors ${
                   section === s.key ? 'bg-emerald-500/15 text-emerald-300' : 'text-white/50 hover:text-white hover:bg-white/[0.05]'
@@ -251,16 +352,20 @@ const WorkspacePage = () => {
                 <Link to="/email-inbox" className="px-4 py-2.5 rounded-xl bg-white/[0.06] text-white/80 text-sm font-semibold hover:bg-white/10">
                   📥 {t('workspace.inbox', 'Inbox')}{mailUnread > 0 && <span className="ml-1.5 text-emerald-400">{mailUnread}</span>}
                 </Link>
-                <button onClick={() => { setSection('tasks'); setNewTask({ title: '', assigned_to: user?.id, priority: 'medium' }) }}
-                  className="px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white text-sm font-semibold">
-                  ➕ {t('workspace.new_task', 'New task')}
-                </button>
+                {/* Only admins and consultants hand work out, so this is the
+                    one place it can be started from. */}
+                {canDelegate && (
+                  <button onClick={() => { setSection('tasks'); setNewTask({ title: '', assigned_to: user?.id, priority: 'medium' }) }}
+                    className="px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white text-sm font-semibold">
+                    ➕ {t('workspace.new_task', 'New task')}
+                  </button>
+                )}
               </div>
             </div>
 
             {/* mobile section tabs */}
             <div className="md:hidden flex gap-1 overflow-x-auto pb-3 mb-2">
-              {SECTIONS.filter(s => !s.financeOnly || canFinance).map(s => (
+              {visibleSections.map(s => (
                 <button key={s.key} onClick={() => setSection(s.key)}
                   className={`px-3 py-2 rounded-lg text-xs font-semibold whitespace-nowrap ${
                     section === s.key ? 'bg-emerald-500 text-white' : 'bg-white/[0.06] text-white/60'
@@ -323,11 +428,15 @@ const WorkspacePage = () => {
             {section === 'tasks' && (
               <div className="glass-card p-5">
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-base font-bold text-white">{t('workspace.tasks', 'Tasks')}</h2>
-                  <button onClick={() => setNewTask({ title: '', assigned_to: user?.id, priority: 'medium' })}
-                    className="px-3 py-1.5 rounded-lg bg-emerald-500 text-white text-xs font-semibold hover:bg-emerald-400">
-                    ➕ {t('workspace.new_task', 'New task')}
-                  </button>
+                  <h2 className="text-base font-bold text-white">
+                    {canDelegate ? t('workspace.tasks', 'Tasks') : t('workspace.my_tasks', 'My tasks')}
+                  </h2>
+                  {canDelegate && (
+                    <button onClick={() => setNewTask({ title: '', assigned_to: user?.id, priority: 'medium' })}
+                      className="px-3 py-1.5 rounded-lg bg-emerald-500 text-white text-xs font-semibold hover:bg-emerald-400">
+                      ➕ {t('workspace.new_task', 'New task')}
+                    </button>
+                  )}
                 </div>
 
                 {newTask && (
@@ -466,28 +575,186 @@ const WorkspacePage = () => {
                     const day = i + 1
                     const evts = calendar.events[day] || []
                     const isToday = new Date().toDateString() === new Date(month.getFullYear(), month.getMonth(), day).toDateString()
+                    const picked = dayPanel && dayPanel.date.getDate() === day
+                      && dayPanel.date.getMonth() === month.getMonth()
                     return (
-                      <div key={day} className={`min-h-[74px] rounded-lg p-1.5 border text-left ${
-                        isToday ? 'border-emerald-400/50 bg-emerald-500/10' : 'border-white/[0.06] bg-white/[0.02]'
-                      }`}>
+                      /* Clicking a day is how an appointment gets made — the
+                         calendar used to be read-only. */
+                      <button key={day} onClick={() => openDay(day)}
+                        title={t('workspace.add_on_day', 'Open this day')}
+                        className={`min-h-[74px] w-full rounded-lg p-1.5 border text-left transition-colors hover:border-emerald-400/40 ${
+                          picked ? 'border-emerald-400 bg-emerald-500/15'
+                            : isToday ? 'border-emerald-400/50 bg-emerald-500/10'
+                            : 'border-white/[0.06] bg-white/[0.02]'
+                        }`}>
                         <div className={`text-[11px] font-bold ${isToday ? 'text-emerald-300' : 'text-white/50'}`}>{day}</div>
                         {evts.slice(0, 2).map((e, idx) => (
                           <div key={idx} className={`mt-0.5 text-[9px] px-1 py-0.5 rounded truncate ${
                             e.kind === 'task' ? 'bg-amber-500/20 text-amber-200'
                               : e.kind === 'booking' ? 'bg-blue-500/20 text-blue-200'
+                              : e.kind === 'event' ? 'bg-purple-500/25 text-purple-200'
                               : 'bg-emerald-500/20 text-emerald-200'
                           }`}>{e.label}</div>
                         ))}
                         {evts.length > 2 && <div className="text-[9px] text-white/30 mt-0.5">+{evts.length - 2}</div>}
-                      </div>
+                      </button>
                     )
                   })}
                 </div>
-                <div className="flex gap-3 mt-3 text-[10px] text-white/40">
+                <div className="flex flex-wrap gap-3 mt-3 text-[10px] text-white/40">
+                  <span>🟪 {t('workspace.appointments', 'Appointments')}</span>
                   <span>🟨 {t('workspace.tasks', 'Tasks')}</span>
                   <span>🟦 {t('workspace.bookings', 'Bookings')}</span>
                   <span>🟩 {t('workspace.jobs', 'Client jobs')}</span>
                 </div>
+
+                {/* ---------- the day you clicked ---------- */}
+                {dayPanel && (
+                  <div className="mt-4 p-4 rounded-xl bg-white/[0.03] border border-white/10">
+                    <div className="flex items-center justify-between gap-2 mb-3">
+                      <h3 className="text-sm font-bold text-white">
+                        {dayPanel.date.toLocaleDateString([], {
+                          weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
+                        })}
+                      </h3>
+                      <div className="flex gap-2">
+                        {!dayPanel.form && (
+                          <button onClick={startEvent}
+                            className="px-3 py-1.5 rounded-lg bg-emerald-500 text-white text-xs font-semibold hover:bg-emerald-400">
+                            ➕ {t('workspace.add_appointment', 'Add appointment')}
+                          </button>
+                        )}
+                        <button onClick={() => setDayPanel(null)}
+                          className="w-7 h-7 rounded-lg bg-white/[0.06] text-white/60 hover:text-white text-sm">✕</button>
+                      </div>
+                    </div>
+
+                    {dayPanel.form ? (
+                      <form onSubmit={saveEvent} className="space-y-2">
+                        <input autoFocus value={dayPanel.form.title}
+                          onChange={e => setDayPanel(p => ({ ...p, form: { ...p.form, title: e.target.value } }))}
+                          placeholder={t('workspace.event_title', 'What is the appointment?')}
+                          className="w-full px-3 py-2.5 glass text-white placeholder:text-white/25 rounded-lg border-0 outline-none focus:ring-2 focus:ring-emerald-400/40 text-sm" />
+                        <div className="flex flex-wrap gap-2">
+                          <input type="time" value={dayPanel.form.time}
+                            onChange={e => setDayPanel(p => ({ ...p, form: { ...p.form, time: e.target.value } }))}
+                            className="px-3 py-2 glass text-white rounded-lg border-0 outline-none text-sm"
+                            style={{ colorScheme: 'dark' }} />
+                          <select value={dayPanel.form.duration}
+                            onChange={e => setDayPanel(p => ({ ...p, form: { ...p.form, duration: e.target.value } }))}
+                            className="px-3 py-2 glass text-white rounded-lg border-0 outline-none text-sm">
+                            {[30, 60, 90, 120, 240].map(m => (
+                              <option key={m} value={m} style={{ backgroundColor: '#0d3320', color: '#fff' }}>
+                                {m} {t('workspace.minutes', 'min')}
+                              </option>
+                            ))}
+                          </select>
+                          <select value={dayPanel.form.kind}
+                            onChange={e => setDayPanel(p => ({ ...p, form: { ...p.form, kind: e.target.value } }))}
+                            className="px-3 py-2 glass text-white rounded-lg border-0 outline-none text-sm">
+                            {[
+                              ['appointment', t('workspace.k_appointment', 'Appointment')],
+                              ['meeting', t('workspace.k_meeting', 'Meeting')],
+                              ['deadline', t('workspace.k_deadline', 'Deadline')],
+                              ['reminder', t('workspace.k_reminder', 'Reminder')],
+                            ].map(([v, l]) => (
+                              <option key={v} value={v} style={{ backgroundColor: '#0d3320', color: '#fff' }}>{l}</option>
+                            ))}
+                          </select>
+                          {/* How long before it starts everyone gets told. */}
+                          <select value={dayPanel.form.remind_minutes}
+                            onChange={e => setDayPanel(p => ({ ...p, form: { ...p.form, remind_minutes: e.target.value } }))}
+                            className="px-3 py-2 glass text-white rounded-lg border-0 outline-none text-sm">
+                            {[
+                              [0, t('workspace.no_reminder', 'No reminder')],
+                              [15, `15 ${t('workspace.min_before', 'min before')}`],
+                              [30, `30 ${t('workspace.min_before', 'min before')}`],
+                              [60, `1 ${t('workspace.hour_before', 'hour before')}`],
+                              [1440, `1 ${t('workspace.day_before', 'day before')}`],
+                            ].map(([v, l]) => (
+                              <option key={v} value={v} style={{ backgroundColor: '#0d3320', color: '#fff' }}>{l}</option>
+                            ))}
+                          </select>
+                        </div>
+                        <input value={dayPanel.form.location}
+                          onChange={e => setDayPanel(p => ({ ...p, form: { ...p.form, location: e.target.value } }))}
+                          placeholder={t('workspace.event_location', 'Where? (optional)')}
+                          className="w-full px-3 py-2.5 glass text-white placeholder:text-white/25 rounded-lg border-0 outline-none text-sm" />
+                        {assignables.length > 0 && (
+                          <div>
+                            <p className="text-[11px] text-white/40 mb-1">
+                              {t('workspace.event_with', 'With (optional)')}
+                            </p>
+                            <div className="flex flex-wrap gap-1.5">
+                              {assignables.filter(u => String(u.id) !== String(user?.id)).map(u => {
+                                const on = dayPanel.form.attendees.includes(u.id)
+                                return (
+                                  <button type="button" key={u.id}
+                                    onClick={() => setDayPanel(p => ({
+                                      ...p,
+                                      form: {
+                                        ...p.form,
+                                        attendees: on
+                                          ? p.form.attendees.filter(x => x !== u.id)
+                                          : [...p.form.attendees, u.id],
+                                      },
+                                    }))}
+                                    className={`px-2.5 py-1 rounded-full text-[11px] ${
+                                      on ? 'bg-emerald-500 text-white' : 'bg-white/[0.06] text-white/60'
+                                    }`}>
+                                    {u.full_name || u.username}
+                                  </button>
+                                )
+                              })}
+                            </div>
+                          </div>
+                        )}
+                        <div className="flex gap-2 justify-end">
+                          <button type="button" onClick={() => setDayPanel(p => ({ ...p, form: null }))}
+                            className="px-3 py-2 rounded-lg bg-white/[0.06] text-white/70 text-sm">
+                            {t('cancel', 'Cancel')}
+                          </button>
+                          <button type="submit" disabled={savingEvent}
+                            className="px-4 py-2 rounded-lg bg-emerald-500 text-white text-sm font-semibold disabled:opacity-40">
+                            {savingEvent ? t('workspace.saving', 'Saving…') : t('save', 'Save')}
+                          </button>
+                        </div>
+                      </form>
+                    ) : (
+                      <div className="space-y-1.5">
+                        {(calendar.events[dayPanel.date.getDate()] || []).length === 0 ? (
+                          <p className="text-white/30 text-xs py-3 text-center">
+                            {t('workspace.nothing_on_day', 'Nothing on this day yet')}
+                          </p>
+                        ) : (
+                          (calendar.events[dayPanel.date.getDate()] || []).map((item, idx) => (
+                            <div key={idx} className="flex items-center gap-2 p-2 rounded-lg bg-white/[0.03]">
+                              <span className="text-xs">
+                                {item.kind === 'event' ? '📌' : item.kind === 'task' ? '✅'
+                                  : item.kind === 'booking' ? '📘' : '📗'}
+                              </span>
+                              <div className="min-w-0 flex-1">
+                                <p className="text-xs text-white/85 truncate">{item.label}</p>
+                                {item.event?.location && (
+                                  <p className="text-[10px] text-white/35 truncate">📍 {item.event.location}</p>
+                                )}
+                                {item.event?.attendee_names?.length > 0 && (
+                                  <p className="text-[10px] text-white/35 truncate">
+                                    👥 {item.event.attendee_names.join(', ')}
+                                  </p>
+                                )}
+                              </div>
+                              {item.event && String(item.event.owner) === String(user?.id) && (
+                                <button onClick={() => deleteEvent(item.event)}
+                                  className="text-white/30 hover:text-red-300 text-xs px-1">✕</button>
+                              )}
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             )}
 

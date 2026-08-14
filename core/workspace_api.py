@@ -2,6 +2,7 @@
 """API for the staff workspace: tasks people are given, and their own notes."""
 
 from django.utils import timezone
+from django.utils.dateparse import parse_datetime
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import serializers, viewsets, status
 from rest_framework.decorators import action, api_view, permission_classes
@@ -10,7 +11,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from accounts.roles import is_staff_role
-from .models import Task, StickyNote, WorkDocument
+from .models import Task, StickyNote, WorkDocument, CalendarEvent
 
 
 # ---------------------------------------------------------------- serializers
@@ -302,3 +303,135 @@ def finance_summary(request):
                 status__in=['pending', 'confirmed']).count(),
         },
     })
+
+
+# ============================================================
+# CALENDAR EVENTS
+# ============================================================
+
+class CalendarEventSerializer(serializers.ModelSerializer):
+    owner_name = serializers.SerializerMethodField()
+    attendee_names = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CalendarEvent
+        fields = [
+            'id', 'title', 'description', 'location', 'kind',
+            'starts_at', 'ends_at', 'all_day', 'remind_minutes', 'reminded_at',
+            'owner', 'owner_name', 'attendees', 'attendee_names',
+            'related_request', 'created_at', 'updated_at',
+        ]
+        read_only_fields = ['id', 'owner', 'reminded_at', 'created_at', 'updated_at']
+
+    @staticmethod
+    def _name(user):
+        full = f'{user.first_name} {user.last_name}'.strip()
+        return full or user.get_username()
+
+    def get_owner_name(self, obj):
+        return self._name(obj.owner) if obj.owner_id else None
+
+    def get_attendee_names(self, obj):
+        return [self._name(u) for u in obj.attendees.all()]
+
+
+class CalendarEventViewSet(viewsets.ModelViewSet):
+    """Appointments people put on their own calendar, plus the ones they were
+    invited to. `?from=` and `?to=` (ISO dates) fetch one month at a time so
+    the grid doesn't pull a year of history."""
+    serializer_class = CalendarEventSerializer
+    permission_classes = [IsAuthenticated]
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_fields = ['kind']
+    search_fields = ['title', 'description', 'location']
+    ordering_fields = ['starts_at', 'created_at']
+    ordering = ['starts_at']
+
+    def get_queryset(self):
+        from django.db.models import Q
+
+        user = self.request.user
+        qs = CalendarEvent.objects.filter(
+            Q(owner=user) | Q(attendees=user)
+        ).select_related('owner').prefetch_related('attendees').distinct()
+
+        # A '+' in a query string arrives as a space, so "2026-08-13T00:00+00:00"
+        # reaches us mangled and Django raises rather than filtering. Parse the
+        # bounds here and ignore what can't be read — a bad date should narrow
+        # nothing, not return a 500.
+        for param, lookup in (('from', 'starts_at__gte'), ('to', 'starts_at__lte')):
+            raw = (self.request.query_params.get(param) or '').strip()
+            if not raw:
+                continue
+            moment = parse_datetime(raw.replace(' ', '+'))
+            if moment is None:
+                moment = parse_datetime(raw)
+            if moment is None:
+                continue
+            if timezone.is_naive(moment):
+                moment = timezone.make_aware(moment)
+            qs = qs.filter(**{lookup: moment})
+        return qs
+
+    def perform_create(self, serializer):
+        event = serializer.save(owner=self.request.user)
+        # Being invited is news; tell them now rather than at reminder time.
+        for person in event.attendees.exclude(pk=self.request.user.pk):
+            TaskViewSet._notify(
+                person, f'Invitation: {event.title}',
+                f'{event.starts_at:%d %b %Y, %H:%M}'
+                + (f' · {event.location}' if event.location else ''),
+            )
+
+    def perform_update(self, serializer):
+        # A moved appointment must be able to remind people again.
+        event = serializer.instance
+        old_start = event.starts_at
+        event = serializer.save()
+        if event.starts_at != old_start and event.reminded_at:
+            event.reminded_at = None
+            event.save(update_fields=['reminded_at'])
+
+    def destroy(self, request, *args, **kwargs):
+        event = self.get_object()
+        if event.owner_id != request.user.id:
+            return Response({'error': 'Only the person who created it can delete it.'},
+                            status=status.HTTP_403_FORBIDDEN)
+        return super().destroy(request, *args, **kwargs)
+
+    @action(detail=False, methods=['get'])
+    def upcoming(self, request):
+        """The next few appointments — what the workspace shows at a glance."""
+        now = timezone.now()
+        rows = self.get_queryset().filter(starts_at__gte=now)[:10]
+        return Response(self.get_serializer(rows, many=True).data)
+
+
+def send_due_reminders(limit=50):
+    """Notify people about appointments that are about to start.
+
+    Called from the mail cron, which already runs every couple of minutes.
+    `reminded_at` is stamped first so a slow run can't send the same reminder
+    twice, and events whose reminder time passed while nobody was looking are
+    still sent once — late is better than silent.
+    """
+    now = timezone.now()
+    sent = 0
+    due = CalendarEvent.objects.filter(
+        reminded_at__isnull=True, remind_minutes__gt=0, starts_at__gte=now,
+    ).prefetch_related('attendees').select_related('owner')[:limit]
+
+    for event in due:
+        if event.remind_at and event.remind_at > now:
+            continue          # still too early
+        event.reminded_at = now
+        event.save(update_fields=['reminded_at'])
+        when = event.starts_at.strftime('%d %b %Y, %H:%M')
+        people = [event.owner] + [u for u in event.attendees.all() if u.pk != event.owner_id]
+        for person in people:
+            TaskViewSet._notify(
+                person, f'Coming up: {event.title}',
+                f'{when}' + (f' · {event.location}' if event.location else ''),
+            )
+        sent += 1
+    return sent

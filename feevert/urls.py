@@ -18,6 +18,7 @@ from rest_framework_simplejwt.views import (
 from core.admin_views import export_seed_download
 from core.workspace_api import (
     TaskViewSet, StickyNoteViewSet, WorkDocumentViewSet, finance_summary,
+    CalendarEventViewSet,
 )
 
 # Import all viewset routers
@@ -110,6 +111,7 @@ router.register(r'sent-mail', OutgoingEmailViewSet, basename='outgoing-email')
 router.register(r'tasks', TaskViewSet, basename='task')
 router.register(r'sticky-notes', StickyNoteViewSet, basename='sticky-note')
 router.register(r'work-documents', WorkDocumentViewSet, basename='work-document')
+router.register(r'calendar-events', CalendarEventViewSet, basename='calendar-event')
 
 # Projects
 router.register(r'project-categories', ProjectCategoryViewSet, basename='project-category')

@@ -407,6 +407,10 @@ class IncomingEmailViewSet(viewsets.ReadOnlyModelViewSet):
         import re as _re
 
         my_addresses = []
+        if user.email:
+            # Mail addressed to me by name is mine wherever it landed, and it
+            # is the first thing people look for here.
+            my_addresses.append(user.email.strip().lower())
         for acc in EmailAccount.objects.filter(
                 Q(owner_user=user) | Q(is_shared=True)).order_by('email_address'):
             my_addresses.append(acc.email_address.lower())
@@ -433,13 +437,27 @@ class IncomingEmailViewSet(viewsets.ReadOnlyModelViewSet):
                 total=Count('id'), unread=Count('id', filter=Q(is_read=False)))
         }
 
-        # The addresses this person may answer as — their own mailboxes and
-        # any alias recorded on them.
+        # The addresses this person may answer as: their own mailboxes with
+        # every alias on them, plus a shared mailbox's own address.
+        #
+        # A shared mailbox's aliases belong to individual people (nicole.abbas@
+        # and saidina@ both land in info@), so only the one that is this
+        # person's own address is offered — otherwise everyone with access to
+        # the team inbox could write as any colleague.
+        my_login = (user.email or '').strip().lower()
         from_options = []
         for acc in EmailAccount.objects.filter(is_active=True).filter(
-                Q(owner_user=request.user) | Q(is_shared=True)):
+                Q(owner_user=user) | Q(is_shared=True)):
             from_options.append(acc.email_address)
-            from_options.extend(acc.aliases or [])
+            for a in (acc.aliases or []):
+                if acc.owner_user_id == user.id or str(a).strip().lower() == my_login:
+                    from_options.append(a)
+        # Their own work address is theirs to answer as even if nobody has
+        # recorded it as an alias yet — provided it is on the same domain as a
+        # mailbox they can already send from.
+        domains = {a.split('@')[-1].lower() for a in from_options if '@' in a}
+        if my_login and my_login.split('@')[-1] in domains:
+            from_options.append(my_login)
 
         return Response({
             'mailboxes': rows,
@@ -989,6 +1007,16 @@ def cron_sync_emails(request):
     from .services import outgoing_mail
     retried = outgoing_mail.retry_pending()
 
+    # The same tick is also when appointment reminders go out — there is no
+    # second scheduler, and adding one for this would be a lot of moving parts
+    # for a notification.
+    try:
+        from core.workspace_api import send_due_reminders
+        reminders = send_due_reminders()
+    except Exception as e:
+        logger.warning('Calendar reminders failed: %s', e)
+        reminders = 0
+
     from .services import zoho_mail_api
     if zoho_mail_api.is_configured():
         # IMAP is geo-blocked from Render; the API path is the one that works.
@@ -996,7 +1024,7 @@ def cron_sync_emails(request):
         # is `manage.py sync_zoho_inbox` with no --limit.
         saved = zoho_mail_api.sync(limit=50)
         return Response({'zoho_api': {'success': True, 'saved': saved},
-                         'outgoing_retry': retried})
+                         'outgoing_retry': retried, 'reminders_sent': reminders})
 
     results = EmailInboundService.fetch_all_sources()
-    return Response({**results, 'outgoing_retry': retried})
+    return Response({**results, 'outgoing_retry': retried, 'reminders_sent': reminders})

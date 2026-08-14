@@ -204,3 +204,56 @@ class OutgoingMailTests(TestCase):
         res = api.get('/api/v1/sent-mail/stats/')
         self.assertEqual(res.data['sent'], 1)
         self.assertEqual(res.data['failed'], 1)
+
+
+class ReplyAsTests(TestCase):
+    """Who may answer as which address. A shared mailbox carries several
+    people's aliases, so this is a privacy boundary, not a convenience."""
+
+    def setUp(self):
+        self.nicole = User.objects.create_user(
+            username='nicole', email='nicole.abbas@feevert.co.tz', password='x')
+        self.prisila = User.objects.create_user(
+            username='prisila', email='accounts@feevert.co.tz', password='x')
+        self.shared = EmailAccount.objects.create(
+            email_address='info@feevert.co.tz', is_shared=True, is_active=True,
+            aliases=['nicole.abbas@feevert.co.tz', 'saidina@feevert.co.tz'])
+        self.personal = EmailAccount.objects.create(
+            email_address='accounts@feevert.co.tz', owner_user=self.prisila, is_active=True,
+            aliases=['prisila.neema@feevert.co.tz', 'finance@feevert.co.tz'])
+
+    def _options(self, user):
+        api = APIClient()
+        api.force_authenticate(user)
+        return api.get('/api/v1/email-inbox/mailboxes/').data['from_options']
+
+    def test_a_team_member_gets_the_shared_address_and_their_own(self):
+        options = self._options(self.nicole)
+        self.assertIn('info@feevert.co.tz', options)
+        self.assertIn('nicole.abbas@feevert.co.tz', options)
+
+    def test_a_colleagues_alias_on_the_shared_mailbox_is_not_offered(self):
+        self.assertNotIn('saidina@feevert.co.tz', self._options(self.nicole))
+
+    def test_the_owner_of_a_mailbox_gets_all_of_its_aliases(self):
+        options = self._options(self.prisila)
+        for addr in ('accounts@feevert.co.tz', 'prisila.neema@feevert.co.tz',
+                     'finance@feevert.co.tz'):
+            self.assertIn(addr, options)
+
+    def test_a_personal_mailbox_is_not_offered_to_others(self):
+        options = self._options(self.nicole)
+        self.assertNotIn('accounts@feevert.co.tz', options)
+        self.assertNotIn('prisila.neema@feevert.co.tz', options)
+
+    def test_own_work_address_is_offered_even_before_it_is_recorded(self):
+        """Nicole could not answer as herself because nobody had written her
+        alias down yet — the address is hers either way."""
+        self.shared.aliases = []
+        self.shared.save(update_fields=['aliases'])
+        self.assertIn('nicole.abbas@feevert.co.tz', self._options(self.nicole))
+
+    def test_an_outside_address_is_never_offered(self):
+        outsider = User.objects.create_user(
+            username='gmail', email='someone@gmail.com', password='x')
+        self.assertNotIn('someone@gmail.com', self._options(outsider))
