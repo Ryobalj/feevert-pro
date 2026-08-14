@@ -7,6 +7,7 @@ from rest_framework import viewsets, status, generics
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from rest_framework.response import Response
+from django.db.models import Count, Q
 from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
@@ -326,7 +327,6 @@ class IncomingEmailViewSet(viewsets.ReadOnlyModelViewSet):
     ordering = ['-received_at']
 
     def get_queryset(self):
-        from django.db.models import Q
         user = self.request.user
         qs = IncomingEmail.objects.filter(
             Q(account__owner_user=user) | Q(account__is_shared=True)
@@ -376,14 +376,13 @@ class IncomingEmailViewSet(viewsets.ReadOnlyModelViewSet):
         """The mailboxes this user can read, with unread counts — the sidebar
         of the team inbox. Unlike /email-accounts/ (admin-only, and full of
         credentials) this is safe for any staff member."""
-        from django.db.models import Count, Q as _Q
         visible = self.get_queryset()
         rows = []
         seen = set()
         for e in visible.select_related('account').values(
             'account', 'account__email_address', 'account__is_shared',
             'account__owner_user__username',
-        ).annotate(total=Count('id'), unread=Count('id', filter=_Q(is_read=False))):
+        ).annotate(total=Count('id'), unread=Count('id', filter=Q(is_read=False))):
             key = e['account']
             if key in seen:
                 continue
@@ -429,14 +428,14 @@ class IncomingEmailViewSet(viewsets.ReadOnlyModelViewSet):
         folder_rows = {
             r['folder']: {'total': r['total'], 'unread': r['unread']}
             for r in visible.values('folder').annotate(
-                total=Count('id'), unread=Count('id', filter=_Q(is_read=False)))
+                total=Count('id'), unread=Count('id', filter=Q(is_read=False)))
         }
 
         # The addresses this person may answer as — their own mailboxes and
         # any alias recorded on them.
         from_options = []
         for acc in EmailAccount.objects.filter(is_active=True).filter(
-                _Q(owner_user=request.user) | _Q(is_shared=True)):
+                Q(owner_user=request.user) | Q(is_shared=True)):
             from_options.append(acc.email_address)
             from_options.extend(acc.aliases or [])
 
@@ -453,11 +452,10 @@ class IncomingEmailViewSet(viewsets.ReadOnlyModelViewSet):
     def contacts(self, request):
         """Everyone who has ever written in, newest first — the address book the
         old cPanel mail was being kept around for."""
-        from django.db.models import Q as _Q
         term = (request.query_params.get('search') or '').strip()
         qs = self.get_queryset().exclude(sender='')
         if term:
-            qs = qs.filter(_Q(sender__icontains=term) | _Q(sender_name__icontains=term))
+            qs = qs.filter(Q(sender__icontains=term) | Q(sender_name__icontains=term))
         rows = {}
         for e in qs.values(
             'sender', 'sender_name', 'received_at'
@@ -510,9 +508,8 @@ class IncomingEmailViewSet(viewsets.ReadOnlyModelViewSet):
             return Response({'error': 'Write a subject or a message'}, status=status.HTTP_400_BAD_REQUEST)
 
         # Only send from a mailbox this user is allowed to use.
-        from django.db.models import Q as _Q
         allowed = EmailAccount.objects.filter(is_active=True).filter(
-            _Q(owner_user=request.user) | _Q(is_shared=True)
+            Q(owner_user=request.user) | Q(is_shared=True)
         )
         account = allowed.filter(id=account_id).first() if account_id else allowed.first()
 
@@ -656,7 +653,6 @@ class IncomingEmailViewSet(viewsets.ReadOnlyModelViewSet):
         allowed to see. Until a scheduled job (Render Cron Job or Celery
         beat) is set up, this button is how new emails actually arrive in
         the unified inbox."""
-        from django.db.models import Q
         from .models import EmailAccount
         from .services.email_inbound_service import EmailInboundService
 
@@ -826,7 +822,6 @@ def mark_as_read(request, notification_id):
 @permission_classes([IsAdminUser])
 def get_notification_stats(request):
     """Pata statistics za notifications (Admin pekee)"""
-    from django.db.models import Count
 
     total = Notification.objects.count()
     unread = Notification.objects.filter(is_read=False).count()
