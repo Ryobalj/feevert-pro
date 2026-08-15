@@ -10,6 +10,7 @@ import { useAuth } from '../../features/accounts/hooks/useAuth'
 import { useWebSocket } from '../../features/realtime/hooks/useWebSocket'
 import UserDropdownMenu from './UserDropdownMenu'
 import ChatBox from '../../features/realtime/components/ChatBox'
+import TextSize from '../ui/TextSize'
 import UserChatList from '../../features/realtime/components/UserChatList'
 import api from '../../app/api'
 import DropdownButton from './navbar/DropdownButton'
@@ -296,6 +297,10 @@ const Navbar = () => {
             
             {/* ============ RIGHT ACTIONS ============ */}
             <div className="flex items-center gap-1 flex-shrink-0">
+              {/* Bigger text for whoever wants it — see components/ui/TextSize */}
+              <div className="hidden sm:flex mr-0.5">
+                <TextSize />
+              </div>
               {/* 🆕 THEME SWITCHER - FIXED DROPDOWN (Inaonekana chini) */}
               <div className="relative" ref={themeDropdownRef}>
                 <button
@@ -435,6 +440,15 @@ const Navbar = () => {
               transition={{ duration: 0.25, ease: 'easeInOut' }}
             >
               <div className="px-4 py-4 space-y-1 max-h-[75vh] overflow-y-auto">
+                {/* Text size sits at the top of the phone menu: it is the first
+                    thing someone struggling to read the page will look for. */}
+                <div className="flex items-center justify-between px-4 py-2 mb-1 rounded-xl bg-[var(--g-liquid-secondary)]">
+                  <span className="text-sm text-[var(--g-text-secondary)]">
+                    {t('text_size.title', 'Text size')}
+                  </span>
+                  <TextSize compact />
+                </div>
+
                 {/* Mobile Menu Items */}
                 <Link to="/home" className="block px-4 py-3 rounded-xl text-[var(--g-text-secondary)] hover:text-[var(--g-color-primary)] hover:bg-[var(--g-liquid-secondary)]" onClick={() => setIsOpen(false)}>
                   {t('nav.home')}

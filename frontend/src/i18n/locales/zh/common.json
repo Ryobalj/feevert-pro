@@ -1,4 +1,4 @@
-﻿{
+{
   "nav": {
     "home": "首页",
     "about": "关于我们",
@@ -121,5 +121,11 @@
       "quick_response": "快速响应",
       "confidential": "保密"
     }
+  },
+  "text_size": {
+    "title": "文字大小",
+    "smaller": "缩小文字",
+    "normal": "标准大小",
+    "bigger": "放大文字"
   }
 }

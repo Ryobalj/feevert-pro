@@ -1,4 +1,4 @@
-﻿{
+{
   "nav": {
     "home": "الرئيسية",
     "about": "من نحن",
@@ -121,5 +121,11 @@
       "quick_response": "رد سريع",
       "confidential": "سري"
     }
+  },
+  "text_size": {
+    "title": "حجم النص",
+    "smaller": "نص أصغر",
+    "normal": "الحجم العادي",
+    "bigger": "نص أكبر"
   }
 }

@@ -1,4 +1,4 @@
-﻿{
+{
   "nav": {
     "home": "Home",
     "about": "About",
@@ -121,5 +121,11 @@
       "quick_response": "Quick Response",
       "confidential": "Confidential"
     }
+  },
+  "text_size": {
+    "title": "Text size",
+    "smaller": "Smaller text",
+    "normal": "Normal text size",
+    "bigger": "Bigger text"
   }
 }

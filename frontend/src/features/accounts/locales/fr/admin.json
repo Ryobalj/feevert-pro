@@ -241,7 +241,9 @@
     "search_people": "Rechercher un employé ou un client par nom ou e-mail…",
     "client_tag": "client",
     "no_match": "Aucun compte ne correspond — écrivez plutôt le nom ci-dessous.",
-    "guests": "Personnes sans compte (ex. M. Kileo, TANESCO)"
+    "guests": "Personnes sans compte (ex. M. Kileo, TANESCO)",
+    "calculator": "Calculatrice",
+    "close": "Fermer"
   },
   "cancel": "Annuler",
   "save": "Sauvegarder",

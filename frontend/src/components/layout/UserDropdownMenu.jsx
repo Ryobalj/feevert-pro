@@ -14,15 +14,22 @@ const UserDropdownMenu = ({
 }) => {
   const dropdownRef = useRef(null)
 
-  // How much room is left below the button, in real pixels. Measured rather
-  // than written as `calc(100vh - …)` because the menu is placed from a
-  // measurement already, and pixels stay right when the window is resized
-  // mid-session — which is exactly what changing display scaling does.
-  const roomBelow = () => Math.max(180, window.innerHeight - position.top - 16)
-  const [maxHeight, setMaxHeight] = React.useState(roomBelow)
+  // How much room is left below the button.
+  //
+  // Two ways of asking, and the smaller answer wins. The pixel figure comes
+  // from the same measurement that placed the menu, divided by the page zoom
+  // (the text-size control sets `zoom` on <html>, and window.innerHeight does
+  // not follow it while element rectangles do). `70vh` is the safety net: if
+  // that arithmetic is ever off, a menu that is a little short still scrolls,
+  // while one that is too tall goes back to hiding Sign out.
+  const roomBelow = () => {
+    const zoom = parseFloat(getComputedStyle(document.documentElement).zoom) || 1
+    return Math.max(180, Math.round(window.innerHeight / zoom - position.top - 16))
+  }
+  const [maxHeight, setMaxHeight] = React.useState(() => `min(70vh, ${roomBelow()}px)`)
 
   useEffect(() => {
-    const recalc = () => setMaxHeight(roomBelow())
+    const recalc = () => setMaxHeight(`min(70vh, ${roomBelow()}px)`)
     recalc()
     window.addEventListener('resize', recalc)
     return () => window.removeEventListener('resize', recalc)

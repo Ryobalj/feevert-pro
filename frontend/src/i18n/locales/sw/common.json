@@ -1,4 +1,4 @@
-﻿{
+{
   "nav": {
     "home": "Nyumbani",
     "about": "Kuhusu Sisi",
@@ -121,5 +121,11 @@
       "quick_response": "Majibu ya Haraka",
       "confidential": "Siri"
     }
+  },
+  "text_size": {
+    "title": "Ukubwa wa maandishi",
+    "smaller": "Maandishi madogo",
+    "normal": "Ukubwa wa kawaida",
+    "bigger": "Maandishi makubwa"
   }
 }

@@ -241,7 +241,9 @@
     "search_people": "Tafuta mfanyakazi au mteja kwa jina au barua pepe…",
     "client_tag": "mteja",
     "no_match": "Hakuna mwenye akaunti anayelingana — andika jina hapo chini badala yake.",
-    "guests": "Asiye na akaunti (mfano Bw. Kileo, TANESCO)"
+    "guests": "Asiye na akaunti (mfano Bw. Kileo, TANESCO)",
+    "calculator": "Kikokotoo",
+    "close": "Funga"
   },
   "cancel": "Ghairi",
   "save": "Hifadhi",

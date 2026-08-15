@@ -241,7 +241,9 @@
     "search_people": "Search staff or client by name or email…",
     "client_tag": "client",
     "no_match": "Nobody with an account matches — write the name below instead.",
-    "guests": "Anyone without an account (e.g. Mr Kileo, TANESCO)"
+    "guests": "Anyone without an account (e.g. Mr Kileo, TANESCO)",
+    "calculator": "Calculator",
+    "close": "Close"
   },
   "cancel": "Cancel",
   "save": "Save",

@@ -241,7 +241,9 @@
     "search_people": "按姓名或邮箱搜索员工或客户…",
     "client_tag": "客户",
     "no_match": "没有匹配的账户 — 请在下方直接输入姓名。",
-    "guests": "没有账户的人（例如 Kileo 先生，TANESCO）"
+    "guests": "没有账户的人（例如 Kileo 先生，TANESCO）",
+    "calculator": "计算器",
+    "close": "关闭"
   },
   "cancel": "取消",
   "save": "节省",
