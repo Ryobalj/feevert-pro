@@ -385,8 +385,10 @@ class ConsultationDocumentViewSet(viewsets.ModelViewSet):
     queryset = ConsultationDocument.objects.all()
     serializer_class = ConsultationDocumentSerializer
     permission_classes = [IsAuthenticated]
-    filter_backends = [DjangoFilterBackend, OrderingFilter]
+    filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
     filterset_fields = ['document_type', 'request', 'is_deliverable']
+    # Attaching a file to a reply means finding it by name, not by scrolling.
+    search_fields = ['title', 'description']
 
     def get_queryset(self):
         user = self.request.user

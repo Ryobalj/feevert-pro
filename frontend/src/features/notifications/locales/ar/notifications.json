@@ -96,7 +96,11 @@
     "task_keeps_email": "سيحصل المكلّف على هذه الرسالة مع المهمة",
     "task_title": "ما المطلوب إنجازه؟",
     "to_label": "إلى",
-    "attach": "إرفاق"
+    "attach": "إرفاق",
+    "from_job_files": "من ملفات العمل",
+    "from_job_files_hint": "إرفاق ملف موجود بالفعل في عمل العميل",
+    "search_job_files": "ابحث في ملفات العمل…",
+    "no_job_files": "لا توجد ملفات في أعمالك بعد"
   },
   "email_accounts": {
     "title": "صناديق بريد الموظفين",

@@ -546,6 +546,17 @@ class IncomingEmailViewSet(viewsets.ReadOnlyModelViewSet):
         count = qs.update(**actions[what])
         return Response({'success': True, 'action': what, 'updated': count})
 
+    @staticmethod
+    def _document_ids(request):
+        """Files already on a client job that should ride along.
+
+        Multipart repeats the field; JSON sends a list. Accept both rather
+        than making the caller know which."""
+        ids = request.data.getlist('document_ids') if hasattr(request.data, 'getlist')             else request.data.get('document_ids')
+        if isinstance(ids, str):
+            ids = [ids]
+        return [i for i in (ids or []) if i]
+
     @action(detail=False, methods=['post'])
     def compose(self, request):
         """Send a new email from one of the user's own mailboxes — the "New
@@ -573,6 +584,7 @@ class IncomingEmailViewSet(viewsets.ReadOnlyModelViewSet):
             to_email=to_email, subject=subject, body=body,
             account=account, user=request.user,
             attachments=request.FILES.getlist('attachments'),
+            document_ids=self._document_ids(request),
         )
         return Response({
             'success': out.status == 'sent',
@@ -689,8 +701,9 @@ class IncomingEmailViewSet(viewsets.ReadOnlyModelViewSet):
             user=request.user,
             reply_to_email=email,
             # A client sees a document when it is sent to them, so this is the
-            # only door files go out of.
+            # only door files go out of — from a laptop, or straight off the job.
             attachments=request.FILES.getlist('attachments'),
+            document_ids=self._document_ids(request),
         )
 
         email.is_processed = True

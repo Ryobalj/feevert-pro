@@ -96,7 +96,11 @@
     "task_keeps_email": "la personne assignée reçoit cet e-mail avec la tâche",
     "task_title": "Que faut-il faire ?",
     "to_label": "À",
-    "attach": "Joindre"
+    "attach": "Joindre",
+    "from_job_files": "Depuis les fichiers du dossier",
+    "from_job_files_hint": "Joindre un fichier déjà présent sur un dossier client",
+    "search_job_files": "Rechercher dans les fichiers…",
+    "no_job_files": "Aucun fichier sur vos dossiers"
   },
   "email_accounts": {
     "title": "Boîtes mail du personnel",

@@ -67,6 +67,9 @@ const EmailInboxPage = () => {
   const [fromOptions, setFromOptions] = useState([])
   const [replyFrom, setReplyFrom] = useState('')
   const [replyFiles, setReplyFiles] = useState([])   // files going out with the reply
+  const [replyDocs, setReplyDocs] = useState([])     // files already on a client job
+  const [docPicker, setDocPicker] = useState(null)   // null = closed, '' or a search term
+  const [docHits, setDocHits] = useState([])
   const [taskForm, setTaskForm] = useState(null)   // {title, assigned_to, due_date}
   const [assignables, setAssignables] = useState([])
   const [picked, setPicked] = useState([])          // ids ticked for a bulk action
@@ -153,6 +156,19 @@ const EmailInboxPage = () => {
     const id = setTimeout(() => loadContacts(search), 300)
     return () => clearTimeout(id)
   }, [search])
+
+  // Files already held against a client job: sending one shouldn't mean
+  // hunting for it on a laptop again.
+  useEffect(() => {
+    if (docPicker === null) return
+    const term = docPicker.trim()
+    const id = setTimeout(() => {
+      api.get(`/consultation-documents/?page_size=20${term ? `&search=${encodeURIComponent(term)}` : ''}`)
+        .then(res => setDocHits(res.data?.results || res.data || []))
+        .catch(() => setDocHits([]))
+    }, 250)
+    return () => clearTimeout(id)
+  }, [docPicker])
 
   const openEmail = async (email) => {
     setShowList(false)
@@ -261,11 +277,12 @@ const EmailInboxPage = () => {
       // This is the only door a document leaves by: a file uploaded to a job
       // stays internal until someone sends it.
       let res
-      if (replyFiles.length > 0) {
+      if (replyFiles.length > 0 || replyDocs.length > 0) {
         const form = new FormData()
         form.append('body', replyText.trim())
         if (replyFrom) form.append('from_address', replyFrom)
         replyFiles.forEach(f => form.append('attachments', f))
+        replyDocs.forEach(d => form.append('document_ids', d.id))
         res = await api.post(`/email-inbox/${selected.id}/reply/`, form,
           { headers: { 'Content-Type': 'multipart/form-data' } })
       } else {
@@ -277,6 +294,8 @@ const EmailInboxPage = () => {
       setSelected(prev => ({ ...prev, is_processed: true }))
       setReplyText('')
       setReplyFiles([])
+      setReplyDocs([])
+      setDocPicker(null)
       // A refused message is no longer lost — say so plainly instead of
       // reporting a success the recipient never saw.
       if (res.data && res.data.success === false) {
@@ -798,26 +817,73 @@ const EmailInboxPage = () => {
                     className="w-full px-4 py-3 glass text-white placeholder:text-white/25 rounded-xl border-0 outline-none focus:ring-2 focus:ring-emerald-400/40 text-sm resize-none" />
                   {/* Attachments: the only way a document reaches a client —
                       files uploaded to a job stay internal until they are sent. */}
-                  {replyFiles.length > 0 && (
+                  {(replyFiles.length > 0 || replyDocs.length > 0) && (
                     <div className="flex flex-wrap gap-1.5 mt-2">
                       {replyFiles.map((f, i) => (
-                        <span key={i} className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-emerald-500/15 text-emerald-200 text-[11px]">
+                        <span key={`f${i}`} className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-emerald-500/15 text-emerald-200 text-[11px]">
                           📎 <span className="truncate max-w-[160px]">{f.name}</span>
                           <button type="button" onClick={() => setReplyFiles(list => list.filter((_, x) => x !== i))}
                             className="text-emerald-300/60 hover:text-red-300">✕</button>
                         </span>
                       ))}
+                      {replyDocs.map(d => (
+                        <span key={d.id} className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-sky-500/15 text-sky-200 text-[11px]">
+                          📁 <span className="truncate max-w-[160px]">{d.title}</span>
+                          <button type="button" onClick={() => setReplyDocs(list => list.filter(x => x.id !== d.id))}
+                            className="text-sky-300/60 hover:text-red-300">✕</button>
+                        </span>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Files already on a client job — no need to find them on a
+                      laptop again just to send them. */}
+                  {docPicker !== null && (
+                    <div className="mt-2 p-2 rounded-xl bg-white/[0.03] border border-white/10">
+                      <input autoFocus value={docPicker} onChange={e => setDocPicker(e.target.value)}
+                        placeholder={t('inbox.search_job_files', 'Search the job files…')}
+                        className="w-full px-3 py-2 glass text-white placeholder:text-white/25 rounded-lg border-0 outline-none text-xs mb-1.5" />
+                      <div className="max-h-40 overflow-y-auto">
+                        {docHits.length === 0 ? (
+                          <p className="text-[11px] text-white/30 px-1 py-2">
+                            {t('inbox.no_job_files', 'No files on your jobs yet')}
+                          </p>
+                        ) : docHits.map(d => (
+                          <button type="button" key={d.id}
+                            onClick={() => {
+                              setReplyDocs(list => list.some(x => x.id === d.id) ? list : [...list, d])
+                              setDocPicker(null)
+                            }}
+                            className="w-full text-left px-2 py-1.5 rounded-lg hover:bg-white/[0.06]">
+                            <p className="text-[12px] text-white/85 truncate">📁 {d.title}</p>
+                            <p className="text-[10px] text-white/35 truncate">
+                              {d.file_size_display || ''} {d.uploaded_by_name ? `· ${d.uploaded_by_name}` : ''}
+                            </p>
+                          </button>
+                        ))}
+                      </div>
+                      <button type="button" onClick={() => setDocPicker(null)}
+                        className="mt-1 text-[10px] text-white/40 hover:text-white/70">
+                        {t('inbox.cancel', 'Cancel')}
+                      </button>
                     </div>
                   )}
                   <div className="flex items-center justify-between mt-2 gap-2 flex-wrap">
-                    <label className="text-[11px] px-2.5 py-1.5 rounded-lg bg-white/[0.06] text-white/70 hover:bg-white/10 cursor-pointer flex-shrink-0">
-                      📎 {t('inbox.attach', 'Attach')}
-                      <input type="file" multiple className="hidden"
-                        onChange={e => {
-                          setReplyFiles(list => [...list, ...Array.from(e.target.files || [])])
-                          e.target.value = ''
-                        }} />
-                    </label>
+                    <div className="flex items-center gap-1.5 flex-shrink-0">
+                      <label className="text-[11px] px-2.5 py-1.5 rounded-lg bg-white/[0.06] text-white/70 hover:bg-white/10 cursor-pointer">
+                        📎 {t('inbox.attach', 'Attach')}
+                        <input type="file" multiple className="hidden"
+                          onChange={e => {
+                            setReplyFiles(list => [...list, ...Array.from(e.target.files || [])])
+                            e.target.value = ''
+                          }} />
+                      </label>
+                      <button type="button" onClick={() => setDocPicker(docPicker === null ? '' : null)}
+                        title={t('inbox.from_job_files_hint', 'Attach a file already held on a client job')}
+                        className="text-[11px] px-2.5 py-1.5 rounded-lg bg-white/[0.06] text-white/70 hover:bg-white/10">
+                        📁 {t('inbox.from_job_files', 'From job files')}
+                      </button>
+                    </div>
                     {/* Reply as: a person who reads accounts@ may need to answer
                         as prisila.neema@ */}
                     <div className="flex items-center gap-1.5 min-w-0">

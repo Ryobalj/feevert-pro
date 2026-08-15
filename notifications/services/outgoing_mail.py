@@ -77,6 +77,41 @@ def _store_attachments(files):
     return saved
 
 
+def _job_documents(document_ids, user):
+    """Attach files already held against a client job.
+
+    The file is on the job because someone uploaded it there; sending it
+    should not mean finding it on a laptop again. Nothing is copied — the
+    message points at the file where it already lives.
+
+    Only documents this person is allowed to see can be attached: the same
+    queryset the documents API uses, not a raw id lookup.
+    """
+    import mimetypes
+
+    if not document_ids:
+        return []
+
+    from accounts.roles import is_staff_role
+    from consultations.models import ConsultationDocument
+
+    qs = ConsultationDocument.objects.all()
+    if not is_staff_role(user):
+        qs = qs.filter(request__client=user)
+
+    rows = []
+    for doc in qs.filter(id__in=document_ids):
+        if not doc.file:
+            continue
+        name = doc.title or doc.file.name.rsplit('/', 1)[-1]
+        rows.append({
+            'name': name,
+            'path': doc.file.name,
+            'content_type': mimetypes.guess_type(name)[0] or 'application/octet-stream',
+        })
+    return rows
+
+
 def _load_attachments(rows):
     """Read them back as (name, bytes, content_type) for the mail message."""
     from django.core.files.storage import default_storage
@@ -96,11 +131,11 @@ def _load_attachments(rows):
 
 
 def queue(to_email, subject, body, html_body=None, account=None, user=None,
-          reply_to_email=None, attachments=None):
+          reply_to_email=None, attachments=None, document_ids=None):
     """Record a message we intend to send. Nothing goes out yet."""
     recipients = to_email if isinstance(to_email, str) else ', '.join(to_email)
     return OutgoingEmail.objects.create(
-        attachments=_store_attachments(attachments),
+        attachments=_store_attachments(attachments) + _job_documents(document_ids, user),
         account=account,
         sent_by=user if getattr(user, 'is_authenticated', False) else None,
         reply_to_email=reply_to_email,
@@ -163,11 +198,11 @@ def attempt(out):
 
 
 def send_now(to_email, subject, body, html_body=None, account=None, user=None,
-             reply_to_email=None, attachments=None):
+             reply_to_email=None, attachments=None, document_ids=None):
     """Record and try to send immediately. Returns the OutgoingEmail either
     way — a failure here is scheduled for retry, not lost."""
     out = queue(to_email, subject, body, html_body, account, user, reply_to_email,
-                attachments)
+                attachments, document_ids)
     attempt(out)
     return out
 

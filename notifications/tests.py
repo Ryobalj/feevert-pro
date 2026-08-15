@@ -390,3 +390,94 @@ class OutgoingAttachmentTests(TestCase):
                                 {'body': 'No attachment here'}, format='json')
         self.assertEqual(res.status_code, 200, res.data)
         self.assertEqual(OutgoingEmail.objects.get().attachments, [])
+
+
+class JobFileAttachmentTests(TestCase):
+    """Sending a file that is already on the job — without going to find it
+    on a laptop again."""
+
+    def setUp(self):
+        from accounts.models import Role
+        from consultations.models import ConsultationRequest, ConsultationDocument
+        from django.core.files.uploadedfile import SimpleUploadedFile
+
+        staff_role = Role.objects.create(name='Normal Employee')
+        client_role = Role.objects.create(name='Client')
+        self.staff = User.objects.create_user(
+            username='staff', email='staff@feevert.co.tz', password='x', role=staff_role)
+        self.client_user = User.objects.create_user(
+            username='client', email='c@example.com', password='x', role=client_role)
+
+        self.account = EmailAccount.objects.create(
+            email_address='info@feevert.co.tz', is_shared=True, is_active=True)
+        self.email = make_email(self.account, 'Send me the report')
+
+        self.job = ConsultationRequest.objects.create(
+            client=self.client_user, preferred_date=timezone.now(),
+            message='Water study',
+        )
+        self.doc = ConsultationDocument.objects.create(
+            request=self.job, title='Water study final.pdf',
+            file=SimpleUploadedFile('final.pdf', b'%PDF the study', content_type='application/pdf'),
+            uploaded_by=self.staff, is_deliverable=False,
+        )
+        self.api = APIClient()
+        self.api.force_authenticate(self.staff)
+
+    def test_a_job_file_can_be_sent_without_re_uploading_it(self):
+        sent = {}
+        with patch('notifications.services.email_outbound_service.EmailOutboundService'
+                   '.send_via_account',
+                   side_effect=lambda **kw: (sent.update(kw), {'success': True})[1]):
+            res = self.api.post(f'/api/v1/email-inbox/{self.email.id}/reply/',
+                                {'body': 'Attached', 'document_ids': [str(self.doc.id)]},
+                                format='multipart')
+        self.assertEqual(res.status_code, 200, res.data)
+        name, content, content_type = sent['attachments'][0]
+        self.assertEqual(name, 'Water study final.pdf')
+        self.assertEqual(content, b'%PDF the study')
+        self.assertEqual(content_type, 'application/pdf')
+
+    def test_the_file_is_not_copied_just_pointed_at(self):
+        with patch('notifications.services.email_outbound_service.EmailOutboundService'
+                   '.send_via_account', return_value={'success': True}):
+            self.api.post(f'/api/v1/email-inbox/{self.email.id}/reply/',
+                          {'body': 'Attached', 'document_ids': [str(self.doc.id)]},
+                          format='multipart')
+        stored = OutgoingEmail.objects.get().attachments[0]
+        self.assertEqual(stored['path'], self.doc.file.name)
+
+    def test_a_client_cannot_attach_someone_elses_job_file(self):
+        from consultations.models import ConsultationRequest, ConsultationDocument
+        from django.core.files.uploadedfile import SimpleUploadedFile
+
+        other_client = User.objects.create_user(
+            username='other', email='o@example.com', password='x',
+            role=self.client_user.role)
+        other_job = ConsultationRequest.objects.create(
+            client=other_client, preferred_date=timezone.now(), message='Private',
+        )
+        theirs = ConsultationDocument.objects.create(
+            request=other_job, title='Private.pdf',
+            file=SimpleUploadedFile('p.pdf', b'secret', content_type='application/pdf'),
+        )
+
+        from notifications.services.outgoing_mail import _job_documents
+        self.assertEqual(_job_documents([str(theirs.id)], self.client_user), [])
+        # ...while staff, who work the jobs, may attach it.
+        self.assertEqual(len(_job_documents([str(theirs.id)], self.staff)), 1)
+
+    def test_uploaded_and_job_files_can_go_together(self):
+        from django.core.files.uploadedfile import SimpleUploadedFile
+
+        sent = {}
+        with patch('notifications.services.email_outbound_service.EmailOutboundService'
+                   '.send_via_account',
+                   side_effect=lambda **kw: (sent.update(kw), {'success': True})[1]):
+            self.api.post(f'/api/v1/email-inbox/{self.email.id}/reply/', {
+                'body': 'Both',
+                'attachments': SimpleUploadedFile('note.txt', b'note', content_type='text/plain'),
+                'document_ids': [str(self.doc.id)],
+            }, format='multipart')
+        self.assertEqual([a[0] for a in sent['attachments']],
+                         ['note.txt', 'Water study final.pdf'])
