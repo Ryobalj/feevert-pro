@@ -96,6 +96,9 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.locale.LocaleMiddleware',
+    # Stamps User.last_seen so "last activity" is a real answer, not a guess
+    # from the login time - see core/middleware.py
+    'core.middleware.LastSeenMiddleware',
 ]
 
 # ===========================

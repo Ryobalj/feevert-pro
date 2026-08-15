@@ -10,6 +10,23 @@ const emptyForm = {
   smtp_host: '', smtp_port: 465, smtp_use_ssl: true, smtp_use_tls: false, smtp_password: '',
 }
 
+// "3 hours ago" answers the question better than a timestamp does; the exact
+// time is kept on hover for when it matters.
+const when = (iso) => {
+  if (!iso) return '—'
+  const then = new Date(iso)
+  const mins = Math.floor((Date.now() - then.getTime()) / 60000)
+  if (mins < 1) return 'just now'
+  if (mins < 60) return `${mins} min ago`
+  const hours = Math.floor(mins / 60)
+  if (hours < 24) return `${hours} h ago`
+  const days = Math.floor(hours / 24)
+  if (days < 7) return `${days} d ago`
+  return then.toLocaleDateString()
+}
+
+const isRecent = (iso) => iso && (Date.now() - new Date(iso).getTime()) < 15 * 60 * 1000
+
 const AdminEmailAccountsPage = () => {
   const { t } = useTranslation('notifications')
   const [accounts, setAccounts] = useState([])
@@ -19,16 +36,19 @@ const AdminEmailAccountsPage = () => {
   const [creating, setCreating] = useState(false)
   const [error, setError] = useState('')
   const [syncingId, setSyncingId] = useState(null)
+  const [activity, setActivity] = useState([])
 
   const loadData = useCallback(async () => {
     setLoading(true)
     try {
-      const [accRes, usersRes] = await Promise.all([
+      const [accRes, usersRes, activityRes] = await Promise.all([
         api.get('/email-accounts/'),
         api.get('/users/'),
+        api.get('/workspace/staff-activity/').catch(() => ({ data: [] })),
       ])
       setAccounts(accRes.data?.results || accRes.data || [])
       setUsers(usersRes.data?.results || usersRes.data || [])
+      setActivity(activityRes.data || [])
     } catch (err) {
       console.error('Error loading email accounts:', err)
     } finally {
@@ -178,6 +198,54 @@ const AdminEmailAccountsPage = () => {
               </div>
             </div>
           ))}
+          {/* Who has been in, and what they last did. Three separate
+              answers on purpose: signing in is not the same as working, and
+              neither says what was actually done. */}
+          {activity.length > 0 && (
+            <div className="glass-card p-5 mb-4">
+              <h2 className="font-bold text-white mb-1">
+                {t('email_accounts.activity_title', 'Staff activity')}
+              </h2>
+              <p className="text-xs text-white/40 mb-3">
+                {t('email_accounts.activity_hint',
+                  'Signing in is not the same as working — the last action is what was actually done.')}
+              </p>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm min-w-[560px]">
+                  <thead>
+                    <tr className="text-left text-[11px] uppercase tracking-wider text-white/35">
+                      <th className="py-2 pr-3 font-bold">{t('email_accounts.person', 'Person')}</th>
+                      <th className="py-2 pr-3 font-bold">{t('email_accounts.last_signin', 'Last sign-in')}</th>
+                      <th className="py-2 pr-3 font-bold">{t('email_accounts.last_active', 'Last active')}</th>
+                      <th className="py-2 font-bold">{t('email_accounts.last_action', 'Last action')}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {activity.map(row => (
+                      <tr key={row.id} className="border-t border-white/[0.06]">
+                        <td className="py-2.5 pr-3">
+                          <div className="font-semibold text-white/90">{row.full_name}</div>
+                          <div className="text-[11px] text-white/35">{row.email}</div>
+                        </td>
+                        <td className="py-2.5 pr-3 text-white/60 text-xs">{when(row.last_login)}</td>
+                        <td className="py-2.5 pr-3 text-xs">
+                          <span className={isRecent(row.last_seen) ? 'text-emerald-400 font-semibold' : 'text-white/60'}>
+                            {when(row.last_seen)}
+                          </span>
+                        </td>
+                        <td className="py-2.5 text-xs text-white/60">
+                          {row.last_action
+                            ? <>{row.last_action}<span className="text-white/30"> · {when(row.last_action_at)}</span></>
+                            : <span className="text-white/25">{t('email_accounts.nothing_yet', 'nothing yet')}</span>}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
           {accounts.length === 0 && (
             <div className="glass-card p-10 text-center text-white/30">{t('email_accounts.no_mailboxes') || 'No mailboxes connected yet.'}</div>
           )}

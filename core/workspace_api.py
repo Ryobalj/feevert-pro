@@ -508,3 +508,97 @@ def colleagues(request):
         }
         for u in people
     ])
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def staff_activity(request):
+    """Who signed in when, and what they last actually did.
+
+    `last_login` alone is misleading — someone can sign in on Monday and be
+    idle all week, or work all day on a session opened yesterday. So three
+    separate answers are given and never conflated:
+
+      last_login   when they last signed in
+      last_seen    when a request of theirs last reached the server
+      last_action  the newest real piece of work, named
+
+    "Real work" is read from the records the system already keeps rather than
+    from a new audit log: mail sent, tasks handed out or finished, drafts
+    edited, notes written, appointments booked, and the account log's own
+    entries (sign-in, password change).
+
+    Admins only: this is oversight of colleagues, not something the whole
+    team should hold.
+    """
+    from django.contrib.auth import get_user_model
+
+    from accounts.models import UserActivityLog
+    from accounts.roles import is_admin_role
+    from notifications.models import OutgoingEmail
+
+    if not is_admin_role(request.user):
+        return Response({'error': 'Admins only.'}, status=status.HTTP_403_FORBIDDEN)
+
+    User = get_user_model()
+    people = [u for u in User.objects.filter(is_active=True).select_related('role')
+              if is_staff_role(u)]
+    ids = [u.pk for u in people]
+
+    def newest(qs, user_field, time_field, label):
+        """The most recent row per user, as {user_id: (when, label)}."""
+        out = {}
+        rows = (qs.filter(**{f'{user_field}__in': ids})
+                  .values(user_field, time_field)
+                  .order_by(f'-{time_field}')[:400])
+        for row in rows:
+            uid = row[user_field]
+            when = row[time_field]
+            if when and uid not in out:
+                out[uid] = (when, label)
+        return out
+
+    sources = [
+        newest(OutgoingEmail.objects.exclude(sent_by=None), 'sent_by', 'created_at', 'sent an email'),
+        newest(Task.objects.all(), 'assigned_by', 'updated_at', 'assigned a task'),
+        newest(Task.objects.all(), 'assigned_to', 'updated_at', 'worked on a task'),
+        newest(WorkDocument.objects.all(), 'owner', 'updated_at', 'edited a draft'),
+        newest(StickyNote.objects.all(), 'owner', 'updated_at', 'wrote a note'),
+        newest(CalendarEvent.objects.all(), 'owner', 'created_at', 'booked an appointment'),
+    ]
+
+    # The account log covers what the other tables can't see — signing in,
+    # changing a password.
+    log_rows = {}
+    for row in (UserActivityLog.objects.filter(user__in=ids)
+                .values('user', 'action', 'details', 'created_at')
+                .order_by('-created_at')[:400]):
+        if row['user'] not in log_rows:
+            action = (row['action'] or '').replace('_', ' ').lower()
+            log_rows[row['user']] = (row['created_at'], action or 'account activity')
+    sources.append(log_rows)
+
+    rows = []
+    for u in people:
+        latest = None
+        for source in sources:
+            found = source.get(u.pk)
+            if found and (latest is None or found[0] > latest[0]):
+                latest = found
+        rows.append({
+            'id': u.pk,
+            'username': u.get_username(),
+            'full_name': (f'{u.first_name} {u.last_name}'.strip() or u.get_username()),
+            'email': u.email or '',
+            'role': getattr(u, 'role_name', '') or '',
+            'last_login': u.last_login,
+            'last_seen': getattr(u, 'last_seen', None),
+            'last_action': latest[1] if latest else None,
+            'last_action_at': latest[0] if latest else None,
+        })
+
+    # Most recently active first — the question is usually "who is working".
+    from datetime import datetime, timezone as dt_timezone
+    never = datetime.min.replace(tzinfo=dt_timezone.utc)
+    rows.sort(key=lambda r: (r['last_seen'] or r['last_login'] or never), reverse=True)
+    return Response(rows)

@@ -125,7 +125,14 @@
     "active": "Actif",
     "paused": "En pause",
     "remove": "Supprimer",
-    "no_mailboxes": "Aucune boîte mail connectée pour le moment."
+    "no_mailboxes": "Aucune boîte mail connectée pour le moment.",
+    "activity_title": "Activité du personnel",
+    "activity_hint": "Se connecter n'est pas travailler — la dernière action est ce qui a réellement été fait.",
+    "person": "Personne",
+    "last_signin": "Dernière connexion",
+    "last_active": "Dernière activité",
+    "last_action": "Dernière action",
+    "nothing_yet": "rien encore"
   },
   "list": {
     "title": "Notifications",

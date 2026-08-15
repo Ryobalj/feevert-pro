@@ -125,7 +125,14 @@
     "active": "活跃",
     "paused": "已暂停",
     "remove": "移除",
-    "no_mailboxes": "尚未连接任何邮箱。"
+    "no_mailboxes": "尚未连接任何邮箱。",
+    "activity_title": "员工活动",
+    "activity_hint": "登录不等于工作 — 最后的操作才是真正做过的事。",
+    "person": "人员",
+    "last_signin": "最后登录",
+    "last_active": "最后活跃",
+    "last_action": "最后操作",
+    "nothing_yet": "暂无"
   },
   "list": {
     "title": "通知",

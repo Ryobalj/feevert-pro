@@ -10,7 +10,7 @@ from rest_framework.test import APIClient
 
 from notifications.models import Notification
 
-from .models import CalendarEvent
+from .models import CalendarEvent, WorkDocument
 from .workspace_api import send_due_reminders
 
 User = get_user_model()
@@ -265,3 +265,77 @@ class PeopleSearchTests(TestCase):
         }, format='json')
         self.assertEqual(res.status_code, 201, res.data)
         self.assertEqual(CalendarEvent.objects.get().guests, 'Mr Kileo, TANESCO')
+
+
+class StaffActivityTests(TestCase):
+    """Who signed in, who is actually working, and what they last did — three
+    different questions, kept apart."""
+
+    def setUp(self):
+        from accounts.models import Role
+        admin_role = Role.objects.create(name='admin')
+        staff_role = Role.objects.create(name='Normal Employee')
+        self.admin = User.objects.create_user(
+            username='boss', email='boss@feevert.co.tz', password='x',
+            first_name='The', last_name='Boss', role=admin_role)
+        self.worker = User.objects.create_user(
+            username='worker', email='worker@feevert.co.tz', password='x', role=staff_role)
+        self.api = APIClient()
+        self.api.force_authenticate(self.admin)
+
+    def _row(self, username):
+        rows = self.api.get('/api/v1/workspace/staff-activity/').data
+        return next(r for r in rows if r['username'] == username)
+
+    def test_only_admins_may_look(self):
+        worker_api = APIClient()
+        worker_api.force_authenticate(self.worker)
+        self.assertEqual(
+            worker_api.get('/api/v1/workspace/staff-activity/').status_code, 403)
+
+    def test_the_last_sign_in_is_reported(self):
+        when = timezone.now() - timedelta(days=2)
+        User.objects.filter(pk=self.worker.pk).update(last_login=when)
+        self.assertIsNotNone(self._row('worker')['last_login'])
+
+    def test_someone_who_has_never_signed_in_shows_nothing_rather_than_a_guess(self):
+        row = self._row('worker')
+        self.assertIsNone(row['last_login'])
+        self.assertIsNone(row['last_action'])
+
+    def test_real_work_is_named(self):
+        WorkDocument.objects.create(owner=self.worker, title='Tender draft', kind='doc')
+        row = self._row('worker')
+        self.assertEqual(row['last_action'], 'edited a draft')
+        self.assertIsNotNone(row['last_action_at'])
+
+    def test_the_newest_action_wins(self):
+        doc = WorkDocument.objects.create(owner=self.worker, title='Old', kind='doc')
+        # Back-date the draft: two rows written in the same instant get the
+        # same auto stamp (the clock's granularity is coarser than the gap),
+        # and then "newest" has no answer to give.
+        WorkDocument.objects.filter(pk=doc.pk).update(
+            updated_at=timezone.now() - timedelta(hours=1))
+        CalendarEvent.objects.create(
+            owner=self.worker, title='Meeting', starts_at=timezone.now() + timedelta(days=1))
+        self.assertEqual(self._row('worker')['last_action'], 'booked an appointment')
+
+    def test_signing_in_counts_as_activity_when_nothing_else_has_happened(self):
+        from accounts.models import UserActivityLog
+        UserActivityLog.log_action(user=self.worker, action='LOGIN', description='signed in')
+        self.assertEqual(self._row('worker')['last_action'], 'login')
+
+    def test_clients_are_not_listed(self):
+        from accounts.models import Role
+        client_role = Role.objects.create(name='Client')
+        User.objects.create_user(username='buyer', email='b@example.com',
+                                 password='x', role=client_role)
+        rows = self.api.get('/api/v1/workspace/staff-activity/').data
+        self.assertNotIn('buyer', {r['username'] for r in rows})
+
+    def test_last_seen_is_stamped_by_the_middleware(self):
+        """The field existed for months and nothing ever wrote to it."""
+        User.objects.filter(pk=self.admin.pk).update(last_seen=None)
+        self.api.get('/api/v1/workspace/colleagues/')
+        self.admin.refresh_from_db()
+        self.assertIsNotNone(self.admin.last_seen)

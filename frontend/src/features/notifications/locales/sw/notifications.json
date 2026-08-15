@@ -125,7 +125,14 @@
     "active": "Hai",
     "paused": "Imesimamishwa",
     "remove": "Ondoa",
-    "no_mailboxes": "Hakuna barua pepe zilizounganishwa bado."
+    "no_mailboxes": "Hakuna barua pepe zilizounganishwa bado.",
+    "activity_title": "Shughuli za wafanyakazi",
+    "activity_hint": "Kuingia si sawa na kufanya kazi — kitendo cha mwisho ndicho kilichofanyika kweli.",
+    "person": "Mtu",
+    "last_signin": "Aliingia mwisho",
+    "last_active": "Alionekana mwisho",
+    "last_action": "Kitendo cha mwisho",
+    "nothing_yet": "hakuna bado"
   },
   "list": {
     "title": "Arifa",

@@ -18,7 +18,7 @@ from rest_framework_simplejwt.views import (
 from core.admin_views import export_seed_download
 from core.workspace_api import (
     TaskViewSet, StickyNoteViewSet, WorkDocumentViewSet, finance_summary,
-    CalendarEventViewSet, colleagues,
+    CalendarEventViewSet, colleagues, staff_activity,
 )
 
 # Import all viewset routers
@@ -228,6 +228,9 @@ urlpatterns = [
 
     # Who you can name on a draft or an appointment (any staff member)
     path('api/v1/workspace/colleagues/', colleagues, name='workspace-colleagues'),
+
+    # Who signed in when, and what they last did (admins only)
+    path('api/v1/workspace/staff-activity/', staff_activity, name='workspace-staff-activity'),
 
     # Admin — custom staff-only views must precede admin.site.urls so they resolve first
     path('feevert-admin/export-seed/', export_seed_download, name='admin-export-seed'),

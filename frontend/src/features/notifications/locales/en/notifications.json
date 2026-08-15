@@ -125,7 +125,14 @@
     "active": "Active",
     "paused": "Paused",
     "remove": "Remove",
-    "no_mailboxes": "No mailboxes connected yet."
+    "no_mailboxes": "No mailboxes connected yet.",
+    "activity_title": "Staff activity",
+    "activity_hint": "Signing in is not the same as working — the last action is what was actually done.",
+    "person": "Person",
+    "last_signin": "Last sign-in",
+    "last_active": "Last active",
+    "last_action": "Last action",
+    "nothing_yet": "nothing yet"
   },
   "list": {
     "title": "Notifications",
