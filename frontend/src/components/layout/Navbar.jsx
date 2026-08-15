@@ -269,9 +269,15 @@ const Navbar = () => {
               ) : <span className="text-xl font-bold gradient-text">FeeVert</span>}
             </Link>
             
-            {/* Desktop Nav */}
-            <div className="hidden md:flex flex-1 mx-2 justify-center">
-              <nav className="flex items-center gap-1">
+            {/* Desktop Nav
+                `min-w-0` + a scrolling strip: a phone asking for the desktop
+                site gets a viewport just wide enough to trip the md breakpoint
+                but not wide enough for the links, and without this the row
+                grew past the screen and pushed the account menu off the right
+                edge. The links scroll sideways now; the logo and the account
+                menu stay put. */}
+            <div className="hidden md:flex flex-1 min-w-0 mx-2 justify-center">
+              <nav className="flex items-center gap-1 max-w-full overflow-x-auto no-scrollbar whitespace-nowrap">
                 <Link to="/home" className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-300 ${location.pathname === '/home' ? 'text-[var(--g-color-primary)] bg-[var(--g-liquid-primary)]' : 'text-[var(--g-text-secondary)] hover:text-[var(--g-color-primary)] hover:bg-[var(--g-liquid-secondary)]'}`}>
                   {t('nav.home')}
                 </Link>

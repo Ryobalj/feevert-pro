@@ -1618,3 +1618,17 @@ select option {
 [data-theme="white"] [class*="text-blue-3"]:not(.landing-page *):not(.dark-surface *):not(.dark-surface) {
   color: #1d4ed8 !important;
 }
+
+/* ============================================================
+   SCROLLING STRIPS (nav links on narrow screens)
+   A row that has to scroll sideways shouldn't also grow a scrollbar
+   across the middle of the navbar - the fade at the edge is hint
+   enough, and the row keeps its height.
+   ============================================================ */
+.no-scrollbar {
+  scrollbar-width: none;          /* Firefox */
+  -ms-overflow-style: none;       /* old Edge */
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;                  /* Chrome, Safari */
+}

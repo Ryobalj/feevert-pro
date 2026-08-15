@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import api from '../../../app/api'
+import useAutoRefresh from '../../../app/useAutoRefresh'
 
 const emptyForm = {
   owner_user: '', email_address: '', provider: 'imap', is_active: true,
@@ -28,6 +29,9 @@ const when = (iso) => {
 const isRecent = (iso) => iso && (Date.now() - new Date(iso).getTime()) < 15 * 60 * 1000
 
 const AdminEmailAccountsPage = () => {
+  // Sync times and "last active" go stale the moment you stop looking, so
+  // this page refetches on its own rather than waiting for a reload.
+  const refresh = useAutoRefresh()
   const { t } = useTranslation('notifications')
   const [accounts, setAccounts] = useState([])
   const [users, setUsers] = useState([])
@@ -56,7 +60,7 @@ const AdminEmailAccountsPage = () => {
     }
   }, [])
 
-  useEffect(() => { loadData() }, [loadData])
+  useEffect(() => { loadData() }, [loadData, refresh])
 
   const handleChange = (name, value) => {
     setForm(prev => ({ ...prev, [name]: value }))
