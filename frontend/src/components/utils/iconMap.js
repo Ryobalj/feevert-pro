@@ -296,6 +296,58 @@ export const BUSINESS_ICONS = getIconsByCategory(ICON_CATEGORIES.BUSINESS);
 export const SERVICE_ICONS = getIconsByCategory(ICON_CATEGORIES.SERVICE);
 export const ADDITIONAL_ICONS = getIconsByCategory(ICON_CATEGORIES.ADDITIONAL);
 
+
+// ============================================================
+// ICON BY NAME - for records that were never given one
+// ============================================================
+
+/**
+ * Pick an icon that suits a category's name.
+ *
+ * Project categories in the database carry no icon, so every one of them
+ * rendered as the default pin - five identical pins telling the reader
+ * nothing. Rather than making someone fill in an icon field for each, the
+ * name itself is usually enough to choose well.
+ *
+ * Order matters: the first pattern that matches wins, so the specific ones
+ * come before the general.
+ */
+const NAME_ICONS = [
+  [/bee|apiar|honey|nyuki/i, '🐝'],
+  [/agri|farm|crop|kilimo|horticult/i, '🌾'],
+  [/livestock|animal|mifugo|veterin/i, '🐄'],
+  [/forest|tree|misitu|afforest/i, '🌳'],
+  [/water|maji|hydro|irrigat|sanitation/i, '💧'],
+  [/waste|taka|recycl|pollution/i, '♻️'],
+  [/climate|carbon|tabianchi|emission/i, '🌍'],
+  [/safety|ohs|occupational|usalama|hazard/i, '🦺'],
+  [/health|afya|medical|clinic/i, '🏥'],
+  [/environment|mazingira|eia|ecolog|conservat/i, '🌿'],
+  [/construct|building|ujenzi|infrastructure|civil/i, '🏗️'],
+  [/mining|madini|quarry|geolog/i, '⛏️'],
+  [/energy|solar|power|nishati|electric/i, '⚡'],
+  [/train|capacity|elimu|educat|course|workshop/i, '🎓'],
+  [/research|study|utafiti|survey|assessment|lab/i, '🔬'],
+  [/audit|complian|inspect|ukaguzi|certif/i, '📋'],
+  [/plan|design|mpango|strateg|policy/i, '🗺️'],
+  [/tourism|utalii|wildlife|park/i, '🦒'],
+  [/community|jamii|social|gender/i, '🤝'],
+  [/report|document|ripoti/i, '📄'],
+];
+
+/**
+ * @param {string} name - the record's name, e.g. "Occupational Health & Safety"
+ * @param {string} fallback - used when nothing matches; a folder reads better
+ *                            than a pin for a category of work
+ */
+export const iconForName = (name, fallback = '🗂️') => {
+  if (!name) return fallback;
+  for (const [pattern, icon] of NAME_ICONS) {
+    if (pattern.test(name)) return icon;
+  }
+  return fallback;
+};
+
 // ============================================================
 // DEFAULT EXPORT
 // ============================================================

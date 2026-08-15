@@ -27,7 +27,8 @@
     "faq": "FAQ",
     "partners": "Partners",
     "reviews": "Reviews",
-    "company_profile": "Company Profile"
+    "company_profile": "Company Profile",
+    "request_service": "Request a service"
   },
   "footer": {
     "copyright": "All rights reserved.",
@@ -51,7 +52,9 @@
     "settings": "Settings",
     "account": "Account",
     "email_inbox": "Email Inbox",
-    "workspace": "My Workspace"
+    "workspace": "My Workspace",
+    "client_jobs": "Client jobs",
+    "staff_mailboxes": "Staff mailboxes"
   },
   "buttons": {
     "learn_more": "Learn More",

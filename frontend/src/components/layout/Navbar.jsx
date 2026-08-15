@@ -218,31 +218,71 @@ const Navbar = () => {
     { path: '/shop/orders', label: `📦 ${t('nav.my_orders')}`, icon: '📦' },
   ]
 
-  // ✅ User Menu - ZINATAFSIRIWA
-  const roleName = (user?.role_name || user?.role || '').toLowerCase()
-  const isStaffRole = ['admin', 'consultant', 'normal employee'].includes(roleName)
+  // ---- Account menu -------------------------------------------------------
+  // Three different people open this menu, and they were all being shown the
+  // same thing: staff had "My bookings", "Payment history" and "My orders" —
+  // a client's shopping history, on a consultant's account.
+  //
+  // Role names are edited in the admin and drift ("Normal Employee"), so the
+  // test matches the backend's: anyone who is not a client is staff.
+  const roleName = (user?.role_name || user?.role?.name || user?.role || '')
+    .toString().trim().toLowerCase()
+  const CLIENT_ROLES = ['client', 'customer', 'guest']
+  const isStaffRole = isAuthenticated && !!roleName && roleName !== 'no role'
+    && !CLIENT_ROLES.includes(roleName)
+  const isAdminRole = roleName === 'admin' || user?.is_superuser
 
-  const userMenuItems = isAuthenticated ? [
+  const accountHeader = [
     { label: user?.full_name || user?.username || 'User', type: 'header', email: user?.email },
     { divider: true },
-    { path: '/profile', label: t('auth.profile'), icon: '👤' },
-    { path: '/dashboard', label: t('auth.dashboard'), icon: '📊' },
-    { divider: true },
-    { path: '/my-bookings', label: t('auth.my_bookings'), icon: '📅' },
-    { path: '/consultations', label: t('auth.my_consultations'), icon: '💬' },
-    { path: '/payment-history', label: t('auth.payment_history'), icon: '💳' },
-    { path: '/shop/orders', label: t('nav.my_orders'), icon: '📦' },
+  ]
+
+  // What everyone signed in has, whoever they are.
+  const commonItems = [
     { path: '/notifications', label: t('auth.notifications'), icon: '🔔', badge: totalUnreadNotifications },
     { action: 'chat', label: t('auth.messages'), icon: '💭', badge: totalUnreadMessages, onClick: () => { setActiveModal('chat'); setOpenDropdown(null) } },
-    { action: 'support', label: t('auth.support'), icon: '🛟', onClick: () => { setActiveModal('support'); setOpenDropdown(null) } },
-    ...(isStaffRole ? [{ path: '/workspace', label: t('auth.workspace') || 'My Workspace', icon: '🧰' }, { path: '/email-inbox', label: t('auth.email_inbox') || 'Email Inbox', icon: '📧', badge: unreadEmails }] : []),
     { divider: true },
+    { path: '/profile', label: t('auth.profile'), icon: '👤' },
     { path: '/settings', label: t('auth.settings'), icon: '⚙️' },
     { action: 'logout', label: t('auth.sign_out'), icon: '🚪', danger: true },
-  ] : [
+  ]
+
+  // Staff: the day's work — no basket, no payment history.
+  const staffItems = [
+    ...accountHeader,
+    { path: '/dashboard', label: t('auth.dashboard'), icon: '📊' },
+    { path: '/workspace', label: t('auth.workspace', 'My Workspace'), icon: '🧰' },
+    { path: '/email-inbox', label: t('auth.email_inbox', 'Email Inbox'), icon: '📧', badge: unreadEmails },
+    { path: '/consultations', label: t('auth.client_jobs', 'Client jobs'), icon: '📁' },
+    ...(isAdminRole ? [{ path: '/admin/email-accounts', label: t('auth.staff_mailboxes', 'Staff mailboxes'), icon: '📮' }] : []),
+    { divider: true },
+    ...commonItems,
+  ]
+
+  // Clients: their own dealings with us, and a way to reach us.
+  const clientItems = [
+    ...accountHeader,
+    { path: '/dashboard', label: t('auth.dashboard'), icon: '📊' },
+    { path: '/my-bookings', label: t('auth.my_bookings'), icon: '📅' },
+    { path: '/consultations', label: t('auth.my_consultations'), icon: '💬' },
+    { path: '/shop/orders', label: t('nav.my_orders'), icon: '📦' },
+    { path: '/payment-history', label: t('auth.payment_history'), icon: '💳' },
+    { action: 'support', label: t('auth.support'), icon: '🛟', onClick: () => { setActiveModal('support'); setOpenDropdown(null) } },
+    { divider: true },
+    ...commonItems,
+  ]
+
+  // Visitors: signing in is not the only thing they came for.
+  const guestItems = [
     { path: '/login', label: t('auth.sign_in'), icon: '🔐' },
     { path: '/register', label: t('auth.sign_up'), icon: '📝' },
+    { divider: true },
+    { path: '/request-consultation', label: t('nav.request_service', 'Request a service'), icon: '📝' },
+    { path: '/book-appointment', label: t('nav.book_appointment', 'Book an appointment'), icon: '📅' },
+    { path: '/contact', label: t('nav.contact'), icon: '✉️' },
   ]
+
+  const userMenuItems = !isAuthenticated ? guestItems : (isStaffRole ? staffItems : clientItems)
 
   const getDropdownItems = (name) => {
     switch(name) {
@@ -510,32 +550,38 @@ const Navbar = () => {
                   <>
                     <div className="px-4 py-2 text-sm font-semibold text-[var(--g-text-primary)]">{user?.full_name || user?.username}</div>
                     <div className="px-4 py-1 text-xs text-[var(--g-text-tertiary)] mb-2">{user?.email}</div>
-                    {[
-                      { path: '/profile', label: t('auth.profile'), icon: '👤' },
-                      { path: '/dashboard', label: t('auth.dashboard'), icon: '📊' },
-                      { path: '/my-bookings', label: t('auth.my_bookings'), icon: '📅' },
-                      { path: '/consultations', label: t('auth.my_consultations'), icon: '💬' },
-                      { path: '/payment-history', label: t('auth.payment_history'), icon: '💳' }
-                    ].map((item) => (
-                      <Link key={item.path} to={item.path} className="block px-4 py-3 rounded-xl text-[var(--g-text-secondary)] hover:text-[var(--g-color-primary)] hover:bg-[var(--g-liquid-secondary)]" onClick={() => setIsOpen(false)}>
-                        {item.icon} {item.label}
-                      </Link>
-                    ))}
-                    <Link to="/notifications" className="block px-4 py-3 rounded-xl text-[var(--g-text-secondary)] hover:text-[var(--g-color-primary)] hover:bg-[var(--g-liquid-secondary)]" onClick={() => setIsOpen(false)}>
-                      🔔 {t('auth.notifications')} {totalUnreadNotifications > 0 && <span className="ml-2 bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">{totalUnreadNotifications}</span>}
-                    </Link>
-                    <button onClick={() => { setActiveModal('chat'); setIsOpen(false) }} className="w-full text-left px-4 py-3 rounded-xl text-[var(--g-text-secondary)] hover:text-[var(--g-color-primary)] hover:bg-[var(--g-liquid-secondary)] flex items-center gap-3">
-                      💭 {t('auth.messages')} {totalUnreadMessages > 0 && <span className="bg-blue-600 text-white text-xs px-2 py-0.5 rounded-full">{totalUnreadMessages}</span>}
-                    </button>
-                    <button onClick={() => { setActiveModal('support'); setIsOpen(false) }} className="w-full text-left px-4 py-3 rounded-xl text-[var(--g-text-secondary)] hover:text-[var(--g-color-primary)] hover:bg-[var(--g-liquid-secondary)] flex items-center gap-3">
-                      🛟 {t('auth.support')}
-                    </button>
-                    <Link to="/settings" className="block px-4 py-3 rounded-xl text-[var(--g-text-secondary)]" onClick={() => setIsOpen(false)}>
-                      ⚙️ {t('auth.settings')}
-                    </Link>
-                    <button onClick={() => { handleLogout(); setIsOpen(false) }} className="w-full text-left px-4 py-3 text-red-500 hover:bg-red-500/10 rounded-xl mt-2 font-medium">
-                      🚪 {t('auth.sign_out')}
-                    </button>
+                    {/* The same list the desktop menu uses, so a staff member
+                        is never shown a client's basket on one and not the
+                        other. */}
+                    {userMenuItems.map((item, idx) => {
+                      if (item.type === 'header') return null
+                      if (item.divider) return <div key={`d${idx}`} className="divider-glass my-2" />
+                      const badge = item.badge > 0 ? (
+                        <span className="ml-2 bg-emerald-500 text-white text-xs px-2 py-0.5 rounded-full">{item.badge}</span>
+                      ) : null
+                      if (item.action === 'logout') {
+                        return (
+                          <button key={`a${idx}`} onClick={() => { handleLogout(); setIsOpen(false) }}
+                            className="w-full text-left px-4 py-3 text-red-500 hover:bg-red-500/10 rounded-xl mt-2 font-medium">
+                            {item.icon} {item.label}
+                          </button>
+                        )
+                      }
+                      if (item.onClick) {
+                        return (
+                          <button key={`a${idx}`} onClick={() => { item.onClick(); setIsOpen(false) }}
+                            className="w-full text-left px-4 py-3 rounded-xl text-[var(--g-text-secondary)] hover:text-[var(--g-color-primary)] hover:bg-[var(--g-liquid-secondary)]">
+                            {item.icon} {item.label} {badge}
+                          </button>
+                        )
+                      }
+                      return (
+                        <Link key={item.path} to={item.path} onClick={() => setIsOpen(false)}
+                          className="block px-4 py-3 rounded-xl text-[var(--g-text-secondary)] hover:text-[var(--g-color-primary)] hover:bg-[var(--g-liquid-secondary)]">
+                          {item.icon} {item.label} {badge}
+                        </Link>
+                      )
+                    })}
                   </>
                 ) : (
                   <>

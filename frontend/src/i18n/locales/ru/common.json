@@ -27,7 +27,8 @@
     "faq": "Вопросы",
     "partners": "Партнёры",
     "reviews": "Отзывы",
-    "company_profile": "Профиль компании"
+    "company_profile": "Профиль компании",
+    "request_service": "Заказать услугу"
   },
   "footer": {
     "copyright": "Все права защищены.",
@@ -51,7 +52,9 @@
     "settings": "Настройки",
     "account": "Аккаунт",
     "email_inbox": "Почтовый ящик",
-    "workspace": "Мое рабочее пространство"
+    "workspace": "Мое рабочее пространство",
+    "client_jobs": "Работы клиентов",
+    "staff_mailboxes": "Почтовые ящики персонала"
   },
   "buttons": {
     "learn_more": "Узнать больше",

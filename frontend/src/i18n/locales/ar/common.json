@@ -27,7 +27,8 @@
     "faq": "الأسئلة الشائعة",
     "partners": "الشركاء",
     "reviews": "التقييمات",
-    "company_profile": "الملف التعريفي للشركة"
+    "company_profile": "الملف التعريفي للشركة",
+    "request_service": "اطلب خدمة"
   },
   "footer": {
     "copyright": "جميع الحقوق محفوظة.",
@@ -51,7 +52,9 @@
     "settings": "الإعدادات",
     "account": "الحساب",
     "email_inbox": "صندوق البريد",
-    "workspace": "مساحة العمل الخاصة بي"
+    "workspace": "مساحة العمل الخاصة بي",
+    "client_jobs": "أعمال العملاء",
+    "staff_mailboxes": "صناديق الموظفين"
   },
   "buttons": {
     "learn_more": "اعرف المزيد",

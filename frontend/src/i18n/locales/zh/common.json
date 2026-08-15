@@ -27,7 +27,8 @@
     "faq": "常见问题",
     "partners": "合作伙伴",
     "reviews": "评价",
-    "company_profile": "公司简介"
+    "company_profile": "公司简介",
+    "request_service": "申请服务"
   },
   "footer": {
     "copyright": "版权所有。",
@@ -51,7 +52,9 @@
     "settings": "设置",
     "account": "账户",
     "email_inbox": "邮件收件箱",
-    "workspace": "我的工作区"
+    "workspace": "我的工作区",
+    "client_jobs": "客户项目",
+    "staff_mailboxes": "员工邮箱"
   },
   "buttons": {
     "learn_more": "了解更多",

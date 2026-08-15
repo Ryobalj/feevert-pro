@@ -4,6 +4,7 @@ import React, { useState, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import Icon from '../../ui/Icon'
+import { iconForName } from '../../utils/iconMap'
 import api from '../../../app/api'
 
 // The Projects menu mirrors the Services mega-menu, but its three columns are:
@@ -133,7 +134,7 @@ const ProjectsMegaMenu = ({ categories, onClose, onMouseEnter, onMouseLeave }) =
                     className={`w-full text-left px-3 py-3 text-sm rounded-lg transition-all duration-200 flex items-center gap-2 ${
                       activeCatId === cat.id ? 'text-[var(--g-color-primary)] bg-[var(--g-liquid-primary)] font-semibold' : 'text-[var(--g-text-secondary)] hover:text-[var(--g-color-primary)] hover:bg-[var(--g-liquid-secondary)]'
                     }`}>
-                    <Icon name={cat.icon} size="text-lg" className="flex-shrink-0" />
+                    <Icon name={cat.icon || iconForName(cat.name)} size="text-lg" className="flex-shrink-0" />
                     <span>{cat.name}</span>
                     <svg className="w-4 h-4 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
                   </button>
@@ -172,7 +173,7 @@ const ProjectsMegaMenu = ({ categories, onClose, onMouseEnter, onMouseLeave }) =
                     activeCatId === cat.id ? 'text-[var(--g-color-primary)] bg-[var(--g-liquid-primary)] font-semibold' : 'text-[var(--g-text-secondary)] hover:text-[var(--g-color-primary)] hover:bg-[var(--g-liquid-secondary)]'
                   }`}
                 >
-                  <Icon name={cat.icon} size="text-base" className="flex-shrink-0" />
+                  <Icon name={cat.icon || iconForName(cat.name)} size="text-base" className="flex-shrink-0" />
                   <span className="truncate">{cat.name}</span>
                 </button>
               ))}

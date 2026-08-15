@@ -27,7 +27,8 @@
     "faq": "Maswali",
     "partners": "Washirika",
     "reviews": "Maoni",
-    "company_profile": "Wasifu wa Kampuni"
+    "company_profile": "Wasifu wa Kampuni",
+    "request_service": "Omba huduma"
   },
   "footer": {
     "copyright": "Haki zote zimehifadhiwa.",
@@ -51,7 +52,9 @@
     "settings": "Mipangilio",
     "account": "Akaunti",
     "email_inbox": "Barua Pepe",
-    "workspace": "Nafasi Yangu ya Kazi"
+    "workspace": "Nafasi Yangu ya Kazi",
+    "client_jobs": "Kazi za wateja",
+    "staff_mailboxes": "Masanduku ya wafanyakazi"
   },
   "buttons": {
     "learn_more": "Jifunze Zaidi",

@@ -27,7 +27,8 @@
     "faq": "FAQ",
     "partners": "Partenaires",
     "reviews": "Avis",
-    "company_profile": "Profil de l'entreprise"
+    "company_profile": "Profil de l'entreprise",
+    "request_service": "Demander un service"
   },
   "footer": {
     "copyright": "Tous droits réservés.",
@@ -51,7 +52,9 @@
     "settings": "Paramètres",
     "account": "Compte",
     "email_inbox": "Boîte de réception",
-    "workspace": "Mon espace de travail"
+    "workspace": "Mon espace de travail",
+    "client_jobs": "Dossiers clients",
+    "staff_mailboxes": "Boîtes du personnel"
   },
   "buttons": {
     "learn_more": "En savoir plus",

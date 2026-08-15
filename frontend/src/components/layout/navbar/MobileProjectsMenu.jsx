@@ -4,6 +4,7 @@ import React, { useState, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { getIcon } from './IconMap'
+import { iconForName } from '../../utils/iconMap'
 import api from '../../../app/api'
 
 const CORE_SLUGS = ['beekeeping', 'environment', 'ohs']
@@ -68,7 +69,7 @@ const MobileProjectsMenu = ({ categories, onClose }) => {
                   onClick={() => setExpandedCat(expandedCat === cat.id ? null : cat.id)}
                   className="flex items-center justify-between w-full px-4 py-2.5 text-sm text-[var(--g-text-secondary)] hover:text-[var(--g-color-primary)] hover:bg-[var(--g-liquid-secondary)] rounded-lg"
                 >
-                  <span>{getIcon(cat.icon)} {cat.name}</span>
+                  <span>{cat.icon ? getIcon(cat.icon) : iconForName(cat.name)} {cat.name}</span>
                   <motion.span className="text-[10px]" animate={{ rotate: expandedCat === cat.id ? 180 : 0 }}>▼</motion.span>
                 </button>
 
