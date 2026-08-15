@@ -237,7 +237,11 @@
     "my_tasks": "Majukumu yangu",
     "no_reminder": "Bila kikumbusho",
     "nothing_on_day": "Hakuna kitu siku hii bado",
-    "saving": "Inahifadhi…"
+    "saving": "Inahifadhi…",
+    "search_people": "Tafuta mfanyakazi au mteja kwa jina au barua pepe…",
+    "client_tag": "mteja",
+    "no_match": "Hakuna mwenye akaunti anayelingana — andika jina hapo chini badala yake.",
+    "guests": "Asiye na akaunti (mfano Bw. Kileo, TANESCO)"
   },
   "cancel": "Ghairi",
   "save": "Hifadhi",

@@ -237,7 +237,11 @@
     "my_tasks": "Mes tâches",
     "no_reminder": "Pas de rappel",
     "nothing_on_day": "Rien ce jour-là pour l'instant",
-    "saving": "Enregistrement…"
+    "saving": "Enregistrement…",
+    "search_people": "Rechercher un employé ou un client par nom ou e-mail…",
+    "client_tag": "client",
+    "no_match": "Aucun compte ne correspond — écrivez plutôt le nom ci-dessous.",
+    "guests": "Personnes sans compte (ex. M. Kileo, TANESCO)"
   },
   "cancel": "Annuler",
   "save": "Sauvegarder",

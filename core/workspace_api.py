@@ -348,7 +348,7 @@ class CalendarEventSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'title', 'description', 'location', 'kind',
             'starts_at', 'ends_at', 'all_day', 'remind_minutes', 'reminded_at',
-            'owner', 'owner_name', 'attendees', 'attendee_names',
+            'owner', 'owner_name', 'attendees', 'attendee_names', 'guests',
             'related_request', 'created_at', 'updated_at',
         ]
         read_only_fields = ['id', 'owner', 'reminded_at', 'created_at', 'updated_at']
@@ -470,23 +470,41 @@ def send_due_reminders(limit=50):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def colleagues(request):
-    """The staff you can name — on a draft you're sharing, or an appointment.
+    """The people you can name — on a draft you're sharing, or an appointment.
+
+    Two different questions, so two behaviours:
+
+      no ?search=   the staff list. Short, and what sharing a draft needs.
+      ?search=ali   anyone with an account, staff or client, matched on name,
+                    username or email — because an appointment is often with a
+                    client, not a colleague.
 
     Separate from /tasks/assignable_users/, which is deliberately empty for
-    people who can't delegate: naming a colleague on your own work is not
+    people who can't delegate: naming someone on your own work is not
     delegating, and everyone needs to be able to do it.
     """
     from django.contrib.auth import get_user_model
+    from django.db.models import Q
 
-    people = [
-        u for u in get_user_model().objects.filter(is_active=True).order_by('first_name', 'username')
-        if is_staff_role(u) and u.pk != request.user.pk
-    ]
+    term = (request.query_params.get('search') or '').strip()
+    qs = get_user_model().objects.filter(is_active=True).exclude(pk=request.user.pk)
+
+    if term:
+        qs = qs.filter(
+            Q(first_name__icontains=term) | Q(last_name__icontains=term)
+            | Q(username__icontains=term) | Q(email__icontains=term)
+        )
+        people = list(qs.order_by('first_name', 'username')[:20])
+    else:
+        people = [u for u in qs.order_by('first_name', 'username') if is_staff_role(u)]
+
     return Response([
         {
             'id': u.id,
             'username': u.get_username(),
             'full_name': (f'{u.first_name} {u.last_name}'.strip() or u.get_username()),
+            'email': u.email or '',
+            'is_staff_member': is_staff_role(u),
         }
         for u in people
     ])

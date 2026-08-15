@@ -237,7 +237,11 @@
     "my_tasks": "My tasks",
     "no_reminder": "No reminder",
     "nothing_on_day": "Nothing on this day yet",
-    "saving": "Saving…"
+    "saving": "Saving…",
+    "search_people": "Search staff or client by name or email…",
+    "client_tag": "client",
+    "no_match": "Nobody with an account matches — write the name below instead.",
+    "guests": "Anyone without an account (e.g. Mr Kileo, TANESCO)"
   },
   "cancel": "Cancel",
   "save": "Save",

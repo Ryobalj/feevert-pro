@@ -202,6 +202,12 @@ class CalendarEvent(BaseModel):
     attendees = models.ManyToManyField(
         settings.AUTH_USER_MODEL, blank=True, related_name='invited_events',
     )
+    # Most clients have no account here. Their names are written down so the
+    # appointment says who it is with — they get no notification, because we
+    # have no way to reach them from this record.
+    guests = models.CharField(
+        max_length=500, blank=True,
+        help_text='People without an account, e.g. "Mr Kileo, TANESCO"')
 
     title = models.CharField(max_length=300)
     description = models.TextField(blank=True)

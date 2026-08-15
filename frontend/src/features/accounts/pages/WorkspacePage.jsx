@@ -63,7 +63,9 @@ const WorkspacePage = () => {
   const [loading, setLoading] = useState(true)
   const [newTask, setNewTask] = useState(null)
   const [appointments, setAppointments] = useState([])
-  const [people, setPeople] = useState([])      // colleagues you can invite
+  const [people, setPeople] = useState([])      // staff, shown by default
+  const [guestSearch, setGuestSearch] = useState('')
+  const [searchHits, setSearchHits] = useState(null)   // null = show the staff list
   const [dayPanel, setDayPanel] = useState(null)   // { date: Date, form: {...}|null }
   const [savingEvent, setSavingEvent] = useState(false)
 
@@ -209,6 +211,19 @@ const WorkspacePage = () => {
 
   useEffect(() => { loadAppointments() }, [loadAppointments])
 
+  // Typing searches every account — an appointment is often with a client,
+  // not a colleague, and the staff list alone cannot answer that.
+  useEffect(() => {
+    const term = guestSearch.trim()
+    if (!term) { setSearchHits(null); return }
+    const id = setTimeout(() => {
+      api.get(`/workspace/colleagues/?search=${encodeURIComponent(term)}`)
+        .then(res => setSearchHits(res.data || []))
+        .catch(() => setSearchHits([]))
+    }, 300)
+    return () => clearTimeout(id)
+  }, [guestSearch])
+
   const openDay = (day) => {
     const date = new Date(month.getFullYear(), month.getMonth(), day)
     setDayPanel({ date, form: null })
@@ -227,6 +242,7 @@ const WorkspacePage = () => {
         description: '',
         remind_minutes: 30,
         attendees: [],
+        guests: '',
       },
     }))
   }
@@ -250,7 +266,9 @@ const WorkspacePage = () => {
         ends_at: ends.toISOString(),
         remind_minutes: Number(form.remind_minutes) || 0,
         attendees: form.attendees,
+        guests: form.guests || '',
       })
+      setGuestSearch('')
       setDayPanel(prev => ({ ...prev, form: null }))
       await loadAppointments()
     } catch (err) {
@@ -687,35 +705,70 @@ const WorkspacePage = () => {
                           onChange={e => setDayPanel(p => ({ ...p, form: { ...p.form, location: e.target.value } }))}
                           placeholder={t('workspace.event_location', 'Where? (optional)')}
                           className="w-full px-3 py-2.5 glass text-white placeholder:text-white/25 rounded-lg border-0 outline-none text-sm" />
-                        {people.length > 0 && (
-                          <div>
-                            <p className="text-[11px] text-white/40 mb-1">
-                              {t('workspace.event_with', 'With (optional)')}
-                            </p>
-                            <div className="flex flex-wrap gap-1.5">
-                              {people.map(u => {
-                                const on = dayPanel.form.attendees.includes(u.id)
+                        <div>
+                          <p className="text-[11px] text-white/40 mb-1">
+                            {t('workspace.event_with', 'With (optional)')}
+                          </p>
+
+                          {/* already chosen */}
+                          {dayPanel.form.attendees.length > 0 && (
+                            <div className="flex flex-wrap gap-1.5 mb-1.5">
+                              {dayPanel.form.attendees.map(id => {
+                                const person = [...people, ...(searchHits || [])].find(p => p.id === id)
                                 return (
-                                  <button type="button" key={u.id}
+                                  <button type="button" key={id}
                                     onClick={() => setDayPanel(p => ({
                                       ...p,
-                                      form: {
-                                        ...p.form,
-                                        attendees: on
-                                          ? p.form.attendees.filter(x => x !== u.id)
-                                          : [...p.form.attendees, u.id],
-                                      },
+                                      form: { ...p.form, attendees: p.form.attendees.filter(x => x !== id) },
                                     }))}
-                                    className={`px-2.5 py-1 rounded-full text-[11px] ${
-                                      on ? 'bg-emerald-500 text-white' : 'bg-white/[0.06] text-white/60'
-                                    }`}>
-                                    {u.full_name || u.username}
+                                    className="px-2.5 py-1 rounded-full text-[11px] bg-emerald-500 text-white">
+                                    {person?.full_name || `#${id}`} ✕
                                   </button>
                                 )
                               })}
                             </div>
+                          )}
+
+                          {/* Typing looks through every account, clients
+                              included — an appointment is as often with a
+                              client as with a colleague. */}
+                          <input value={guestSearch} onChange={e => setGuestSearch(e.target.value)}
+                            placeholder={t('workspace.search_people', 'Search staff or client by name or email…')}
+                            className="w-full px-3 py-2 glass text-white placeholder:text-white/25 rounded-lg border-0 outline-none text-xs mb-1.5" />
+
+                          <div className="flex flex-wrap gap-1.5">
+                            {(searchHits === null ? people : searchHits)
+                              .filter(u => !dayPanel.form.attendees.includes(u.id))
+                              .slice(0, 12)
+                              .map(u => (
+                                <button type="button" key={u.id}
+                                  title={u.email || ''}
+                                  onClick={() => setDayPanel(p => ({
+                                    ...p,
+                                    form: { ...p.form, attendees: [...p.form.attendees, u.id] },
+                                  }))}
+                                  className="px-2.5 py-1 rounded-full text-[11px] bg-white/[0.06] text-white/60 hover:bg-white/[0.12]">
+                                  {u.full_name}
+                                  {u.is_staff_member === false && (
+                                    <span className="ml-1 text-[9px] text-emerald-300/70">
+                                      {t('workspace.client_tag', 'client')}
+                                    </span>
+                                  )}
+                                </button>
+                              ))}
+                            {searchHits !== null && searchHits.length === 0 && (
+                              <span className="text-[11px] text-white/30">
+                                {t('workspace.no_match', 'Nobody with an account matches — write the name below instead.')}
+                              </span>
+                            )}
                           </div>
-                        )}
+
+                          {/* Most clients have no account at all. */}
+                          <input value={dayPanel.form.guests}
+                            onChange={e => setDayPanel(p => ({ ...p, form: { ...p.form, guests: e.target.value } }))}
+                            placeholder={t('workspace.guests', 'Anyone without an account (e.g. Mr Kileo, TANESCO)')}
+                            className="w-full mt-1.5 px-3 py-2 glass text-white placeholder:text-white/25 rounded-lg border-0 outline-none text-xs" />
+                        </div>
                         <div className="flex gap-2 justify-end">
                           <button type="button" onClick={() => setDayPanel(p => ({ ...p, form: null }))}
                             className="px-3 py-2 rounded-lg bg-white/[0.06] text-white/70 text-sm">
@@ -745,9 +798,10 @@ const WorkspacePage = () => {
                                 {item.event?.location && (
                                   <p className="text-[10px] text-white/35 truncate">📍 {item.event.location}</p>
                                 )}
-                                {item.event?.attendee_names?.length > 0 && (
+                                {(item.event?.attendee_names?.length > 0 || item.event?.guests) && (
                                   <p className="text-[10px] text-white/35 truncate">
-                                    👥 {item.event.attendee_names.join(', ')}
+                                    👥 {[...(item.event.attendee_names || []), item.event.guests]
+                                      .filter(Boolean).join(', ')}
                                   </p>
                                 )}
                               </div>

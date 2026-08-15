@@ -209,3 +209,59 @@ class DraftSharingTests(TestCase):
         ids = {r['id'] for r in rows}
         self.assertNotIn(self.owner.id, ids)
         self.assertIn(self.mate.id, ids)
+
+
+class PeopleSearchTests(TestCase):
+    """Naming someone on an appointment: staff by default, anyone by search —
+    because an appointment is as often with a client as with a colleague."""
+
+    def setUp(self):
+        from accounts.models import Role
+        staff = Role.objects.create(name='Normal Employee')
+        client_role = Role.objects.create(name='Client')
+        self.me = User.objects.create_user(
+            username='me', email='me@feevert.co.tz', password='x', role=staff)
+        self.saidina = User.objects.create_user(
+            username='saidina', email='saidina@feevert.co.tz', password='x',
+            first_name='Saidina', role=staff)
+        self.client_user = User.objects.create_user(
+            username='kileo', email='kileo@tanesco.co.tz', password='x',
+            first_name='Amani', last_name='Kileo', role=client_role)
+        self.api = APIClient()
+        self.api.force_authenticate(self.me)
+
+    def _names(self, url):
+        return {r['full_name'] for r in self.api.get(url).data}
+
+    def test_the_default_list_is_staff_only(self):
+        names = self._names('/api/v1/workspace/colleagues/')
+        self.assertIn('Saidina', names)
+        self.assertNotIn('Amani Kileo', names)
+
+    def test_every_staff_member_is_listed(self):
+        """Saidina was reported missing — he is staff, so he is in the list."""
+        rows = self.api.get('/api/v1/workspace/colleagues/').data
+        self.assertEqual({r['username'] for r in rows}, {'saidina'})
+
+    def test_searching_finds_a_client(self):
+        self.assertIn('Amani Kileo', self._names('/api/v1/workspace/colleagues/?search=kileo'))
+
+    def test_search_matches_an_email(self):
+        self.assertIn('Amani Kileo',
+                      self._names('/api/v1/workspace/colleagues/?search=tanesco'))
+
+    def test_a_client_is_labelled_as_one(self):
+        rows = self.api.get('/api/v1/workspace/colleagues/?search=kileo').data
+        self.assertFalse(rows[0]['is_staff_member'])
+
+    def test_you_never_appear_in_your_own_list(self):
+        self.assertNotIn('me', self._names('/api/v1/workspace/colleagues/?search=me'))
+
+    def test_guests_without_an_account_are_written_down(self):
+        res = self.api.post('/api/v1/calendar-events/', {
+            'title': 'Site meeting',
+            'starts_at': (timezone.now() + timedelta(days=1)).isoformat(),
+            'guests': 'Mr Kileo, TANESCO',
+        }, format='json')
+        self.assertEqual(res.status_code, 201, res.data)
+        self.assertEqual(CalendarEvent.objects.get().guests, 'Mr Kileo, TANESCO')
