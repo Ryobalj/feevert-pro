@@ -95,7 +95,8 @@
     "task_failed": "Imeshindwa kuunda jukumu",
     "task_keeps_email": "anayekabidhiwa atapata barua hii pamoja na jukumu",
     "task_title": "Kinachotakiwa kufanyika?",
-    "to_label": "Kwenda kwa"
+    "to_label": "Kwenda kwa",
+    "attach": "Ambatanisha"
   },
   "email_accounts": {
     "title": "Barua Pepe za Wafanyakazi",

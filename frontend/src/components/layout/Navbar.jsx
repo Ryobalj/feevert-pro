@@ -37,6 +37,7 @@ const Navbar = () => {
   const [servicesTree, setServicesTree] = useState([])
   const [projectCategories, setProjectCategories] = useState([])
   const [imgError, setImgError] = useState(false)
+  const [logoAttempt, setLogoAttempt] = useState(0)
   const [activeModal, setActiveModal] = useState(null)
   const [totalUnreadNotifications, setTotalUnreadNotifications] = useState(0)
   const [totalUnreadMessages, setTotalUnreadMessages] = useState(0)
@@ -234,6 +235,7 @@ const Navbar = () => {
 
   const accountHeader = [
     { label: user?.full_name || user?.username || 'User', type: 'header', email: user?.email },
+    { type: 'appearance' },
     { divider: true },
   ]
 
@@ -274,6 +276,8 @@ const Navbar = () => {
 
   // Visitors: signing in is not the only thing they came for.
   const guestItems = [
+    { type: 'appearance' },
+    { divider: true },
     { path: '/login', label: t('auth.sign_in'), icon: '🔐' },
     { path: '/register', label: t('auth.sign_up'), icon: '📝' },
     { divider: true },
@@ -305,8 +309,16 @@ const Navbar = () => {
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <Link to="/" className="flex items-center flex-shrink-0 mr-2">
+              {/* One failed load used to switch to the word "FeeVert" for the
+                  rest of the session — a hiccup during a deploy and the brand
+                  was gone until someone reloaded. Try again before giving up. */}
               {!imgError ? (
-                <img src="/logo-2520.png" alt="FeeVert" className="h-8 md:h-10 w-auto object-contain" onError={() => setImgError(true)} />
+                <img
+                  src={logoAttempt ? `/logo-2520.png?r=${logoAttempt}` : '/logo-2520.png'}
+                  alt="FeeVert"
+                  className="h-8 md:h-10 w-auto object-contain"
+                  onError={() => (logoAttempt < 2 ? setLogoAttempt(a => a + 1) : setImgError(true))}
+                />
               ) : <span className="text-xl font-bold gradient-text">FeeVert</span>}
             </Link>
             
@@ -337,84 +349,9 @@ const Navbar = () => {
             
             {/* ============ RIGHT ACTIONS ============ */}
             <div className="flex items-center gap-1 flex-shrink-0">
-              {/* Bigger text for whoever wants it — see components/ui/TextSize */}
-              <div className="hidden sm:flex mr-0.5">
-                <TextSize />
-              </div>
-              {/* 🆕 THEME SWITCHER - FIXED DROPDOWN (Inaonekana chini) */}
-              <div className="relative" ref={themeDropdownRef}>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    setIsThemeDropdownOpen(!isThemeDropdownOpen)
-                  }}
-                  className="btn-icon btn-circle btn-sm relative hover:bg-[var(--g-liquid-secondary)] transition-all duration-300"
-                  aria-label={t('nav.theme')}
-                >
-                  <span className="text-lg">
-                    {currentTheme === 'white' ? '☀️' : currentTheme === 'brand' ? '🌿' : '🌙'}
-                  </span>
-                </button>
-
-                {/* Theme Dropdown - Inaonekana CHINI ya button */}
-                <AnimatePresence>
-                  {isThemeDropdownOpen && (
-                    <motion.div
-                      initial={{ opacity: 0, y: -10, scale: 0.95 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                      transition={{ duration: 0.15 }}
-                      className="absolute right-0 mt-48 w-48 glass-card p-2 shadow-2xl shadow-black/30 border border-[var(--g-border)]"
-                      style={{
-                        top: '100%',
-                        backdropFilter: 'blur(24px) saturate(1.4)',
-                        WebkitBackdropFilter: 'blur(24px) saturate(1.4)',
-                        background: 'var(--g-background)',
-                        zIndex: 99999,
-                      }}
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      {themeOptions.map((option) => {
-                        const isActive = currentTheme === option.id
-                        const isDark = option.id === 'dark' || option.id === 'brand'
-                        
-                        return (
-                          <button
-                            key={option.id}
-                            onClick={() => {
-                              setTheme(option.id)
-                              setIsThemeDropdownOpen(false)
-                            }}
-                            className={`w-full text-left px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 flex items-center gap-3 ${
-                              isActive
-                                ? isDark
-                                  ? 'bg-emerald-500/20 text-emerald-400'
-                                  : 'bg-emerald-500/15 text-emerald-600'
-                                : isDark
-                                  ? 'text-[var(--g-text-secondary)] hover:text-[var(--g-text-primary)] hover:bg-[var(--g-liquid-secondary)]'
-                                  : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'
-                            }`}
-                          >
-                            <span className="text-base">{option.icon}</span>
-                            <span className="flex-1">{option.label}</span>
-                            <div 
-                              className={`w-4 h-4 rounded-full border-2 flex-shrink-0 ${
-                                isActive ? 'border-emerald-400' : 'border-transparent'
-                              }`}
-                              style={{ backgroundColor: option.color }}
-                            />
-                            {isActive && (
-                              <svg className="w-4 h-4 text-emerald-400 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
-                                <path fillRule="evenodd" d="M19.916 4.626a.75.75 0 01.208 1.04l-9 13.5a.75.75 0 01-1.154.114l-6-6a.75.75 0 011.06-1.06l5.353 5.353 8.493-12.739a.75.75 0 011.04-.208z" clipRule="evenodd" />
-                              </svg>
-                            )}
-                          </button>
-                        )
-                      })}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
+              {/* Text size and theme moved into the account menu — they were
+                  two more icons in a row that already had four, and they belong
+                  with the other things a person sets for themselves. */}
 
               {/* 🆕 SHOP - Cart Icon */}
               <button onClick={openCartDrawer} className="btn-icon btn-circle btn-sm relative" aria-label={t('nav.cart')}>

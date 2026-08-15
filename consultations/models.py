@@ -2,6 +2,7 @@
 
 from django.db import models
 from django.conf import settings
+from core.storage import any_file_storage
 from django.utils.text import slugify
 from core.models import BaseModel
 
@@ -394,7 +395,10 @@ class ConsultationDocument(BaseModel):
     )
     
     request = models.ForeignKey(ConsultationRequest, on_delete=models.CASCADE, related_name='documents')
-    file = models.FileField(upload_to='consultation_documents/')
+    file = models.FileField(
+        upload_to='consultation_documents/',
+        storage=any_file_storage(),          # reports and tenders are rarely images
+    )
     title = models.CharField(max_length=500)
     document_type = models.CharField(max_length=50, choices=DOCUMENT_TYPES, default='other')
     description = models.TextField(blank=True)

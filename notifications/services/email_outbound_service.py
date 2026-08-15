@@ -16,7 +16,8 @@ class EmailOutboundService:
     """
 
     @classmethod
-    def send_via_account(cls, account, to_email, subject, body, html_body=None):
+    def send_via_account(cls, account, to_email, subject, body, html_body=None,
+                         attachments=None):
         """
         Send using one specific EmailAccount's own SMTP credentials, so the
         reply actually comes from that staff member's address (e.g.
@@ -38,7 +39,7 @@ class EmailOutboundService:
             # dict, so normalise it here rather than at every call site.
             ok = cls.send(
                 to_email=to_email, subject=subject, body=body, html_body=html_body,
-                reply_to=account.email_address,
+                reply_to=account.email_address, attachments=attachments,
             )
             if ok:
                 return {'success': True}
@@ -59,18 +60,18 @@ class EmailOutboundService:
             )
             recipient_list = to_email if isinstance(to_email, list) else [to_email]
 
+            # One path for both, because an attachment needs a message object
+            # and send_mail() has nowhere to put one.
+            email = EmailMultiAlternatives(
+                subject=subject, body=body, from_email=account.email_address,
+                to=recipient_list, connection=connection,
+            )
             if html_body:
-                email = EmailMultiAlternatives(
-                    subject=subject, body=body, from_email=account.email_address,
-                    to=recipient_list, connection=connection,
-                )
                 email.attach_alternative(html_body, "text/html")
-                sent = email.send()
-            else:
-                sent = send_mail(
-                    subject=subject, message=body, from_email=account.email_address,
-                    recipient_list=recipient_list, connection=connection, fail_silently=False,
-                )
+            for att in (attachments or []):
+                if isinstance(att, (list, tuple)) and len(att) >= 3:
+                    email.attach(att[0], att[1], att[2])
+            sent = email.send()
 
             logger.info(f"Email sent via {account.email_address} to {recipient_list}: {subject}")
             return {'success': sent > 0}

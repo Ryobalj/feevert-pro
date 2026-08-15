@@ -95,7 +95,8 @@
     "task_failed": "تعذّر إنشاء المهمة",
     "task_keeps_email": "سيحصل المكلّف على هذه الرسالة مع المهمة",
     "task_title": "ما المطلوب إنجازه؟",
-    "to_label": "إلى"
+    "to_label": "إلى",
+    "attach": "إرفاق"
   },
   "email_accounts": {
     "title": "صناديق بريد الموظفين",

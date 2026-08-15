@@ -252,7 +252,8 @@
     "upload_client_note": "Uploaded files are visible to the client",
     "upload_failed": "Could not upload the file",
     "upload_file": "Upload a file",
-    "uploading": "Uploading…"
+    "uploading": "Uploading…",
+    "upload_internal_note": "Kept internal — the client sees a file only when you email it to them"
   },
   "cancel": "Cancel",
   "save": "Save",

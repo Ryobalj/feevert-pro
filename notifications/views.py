@@ -572,6 +572,7 @@ class IncomingEmailViewSet(viewsets.ReadOnlyModelViewSet):
         out = outgoing_mail.send_now(
             to_email=to_email, subject=subject, body=body,
             account=account, user=request.user,
+            attachments=request.FILES.getlist('attachments'),
         )
         return Response({
             'success': out.status == 'sent',
@@ -687,6 +688,9 @@ class IncomingEmailViewSet(viewsets.ReadOnlyModelViewSet):
             account=send_account,
             user=request.user,
             reply_to_email=email,
+            # A client sees a document when it is sent to them, so this is the
+            # only door files go out of.
+            attachments=request.FILES.getlist('attachments'),
         )
 
         email.is_processed = True

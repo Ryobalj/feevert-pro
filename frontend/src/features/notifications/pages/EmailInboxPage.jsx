@@ -66,6 +66,7 @@ const EmailInboxPage = () => {
   const [folderCounts, setFolderCounts] = useState({})
   const [fromOptions, setFromOptions] = useState([])
   const [replyFrom, setReplyFrom] = useState('')
+  const [replyFiles, setReplyFiles] = useState([])   // files going out with the reply
   const [taskForm, setTaskForm] = useState(null)   // {title, assigned_to, due_date}
   const [assignables, setAssignables] = useState([])
   const [picked, setPicked] = useState([])          // ids ticked for a bulk action
@@ -256,12 +257,26 @@ const EmailInboxPage = () => {
     if (!replyText.trim() || !selected) return
     setSendingReply(true)
     try {
-      const res = await api.post(`/email-inbox/${selected.id}/reply/`, {
-        body: replyText.trim(),
-        ...(replyFrom ? { from_address: replyFrom } : {}),
-      })
+      // Files can't ride in JSON, so a reply carrying them goes as form data.
+      // This is the only door a document leaves by: a file uploaded to a job
+      // stays internal until someone sends it.
+      let res
+      if (replyFiles.length > 0) {
+        const form = new FormData()
+        form.append('body', replyText.trim())
+        if (replyFrom) form.append('from_address', replyFrom)
+        replyFiles.forEach(f => form.append('attachments', f))
+        res = await api.post(`/email-inbox/${selected.id}/reply/`, form,
+          { headers: { 'Content-Type': 'multipart/form-data' } })
+      } else {
+        res = await api.post(`/email-inbox/${selected.id}/reply/`, {
+          body: replyText.trim(),
+          ...(replyFrom ? { from_address: replyFrom } : {}),
+        })
+      }
       setSelected(prev => ({ ...prev, is_processed: true }))
       setReplyText('')
+      setReplyFiles([])
       // A refused message is no longer lost — say so plainly instead of
       // reporting a success the recipient never saw.
       if (res.data && res.data.success === false) {
@@ -280,12 +295,25 @@ const EmailInboxPage = () => {
     if (!compose?.to?.trim()) return
     setSendingReply(true)
     try {
-      const res = await api.post('/email-inbox/compose/', {
-        to: compose.to.trim(),
-        subject: compose.subject || '',
-        body: compose.body || '',
-        account: compose.account || mailbox || undefined,
-      })
+      let res
+      if ((compose.files || []).length > 0) {
+        const form = new FormData()
+        form.append('to', compose.to.trim())
+        form.append('subject', compose.subject || '')
+        form.append('body', compose.body || '')
+        const acct = compose.account || mailbox
+        if (acct) form.append('account', acct)
+        compose.files.forEach(f => form.append('attachments', f))
+        res = await api.post('/email-inbox/compose/', form,
+          { headers: { 'Content-Type': 'multipart/form-data' } })
+      } else {
+        res = await api.post('/email-inbox/compose/', {
+          to: compose.to.trim(),
+          subject: compose.subject || '',
+          body: compose.body || '',
+          account: compose.account || mailbox || undefined,
+        })
+      }
       setCompose(null)
       if (res.data && res.data.success === false) {
         alert(`${t('inbox.queued_notice', 'The mail server refused it for now — it will be retried automatically. Track it under Delivery.')}\n\n${res.data.error || ''}`)
@@ -768,7 +796,28 @@ const EmailInboxPage = () => {
                   <textarea value={replyText} onChange={e => setReplyText(e.target.value)} rows="3"
                     placeholder={t('inbox.reply_placeholder', 'Write a reply…')}
                     className="w-full px-4 py-3 glass text-white placeholder:text-white/25 rounded-xl border-0 outline-none focus:ring-2 focus:ring-emerald-400/40 text-sm resize-none" />
-                  <div className="flex items-center justify-between mt-2">
+                  {/* Attachments: the only way a document reaches a client —
+                      files uploaded to a job stay internal until they are sent. */}
+                  {replyFiles.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 mt-2">
+                      {replyFiles.map((f, i) => (
+                        <span key={i} className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-emerald-500/15 text-emerald-200 text-[11px]">
+                          📎 <span className="truncate max-w-[160px]">{f.name}</span>
+                          <button type="button" onClick={() => setReplyFiles(list => list.filter((_, x) => x !== i))}
+                            className="text-emerald-300/60 hover:text-red-300">✕</button>
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  <div className="flex items-center justify-between mt-2 gap-2 flex-wrap">
+                    <label className="text-[11px] px-2.5 py-1.5 rounded-lg bg-white/[0.06] text-white/70 hover:bg-white/10 cursor-pointer flex-shrink-0">
+                      📎 {t('inbox.attach', 'Attach')}
+                      <input type="file" multiple className="hidden"
+                        onChange={e => {
+                          setReplyFiles(list => [...list, ...Array.from(e.target.files || [])])
+                          e.target.value = ''
+                        }} />
+                    </label>
                     {/* Reply as: a person who reads accounts@ may need to answer
                         as prisila.neema@ */}
                     <div className="flex items-center gap-1.5 min-w-0">
@@ -880,6 +929,25 @@ const EmailInboxPage = () => {
               <textarea value={compose.body} onChange={e => setCompose({ ...compose, body: e.target.value })}
                 rows="9" placeholder={t('inbox.message', 'Write your message…')}
                 className="w-full px-3 py-2.5 glass text-white placeholder:text-white/25 rounded-xl border-0 outline-none focus:ring-2 focus:ring-emerald-400/40 text-sm resize-none" />
+            </div>
+            <div className="px-4 pb-2 flex flex-wrap items-center gap-1.5">
+              <label className="text-[11px] px-2.5 py-1.5 rounded-lg bg-white/[0.06] text-white/70 hover:bg-white/10 cursor-pointer">
+                📎 {t('inbox.attach', 'Attach')}
+                <input type="file" multiple className="hidden"
+                  onChange={e => {
+                    const picked = Array.from(e.target.files || [])
+                    setCompose(c => ({ ...c, files: [...(c.files || []), ...picked] }))
+                    e.target.value = ''
+                  }} />
+              </label>
+              {(compose.files || []).map((f, i) => (
+                <span key={i} className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-emerald-500/15 text-emerald-200 text-[11px]">
+                  📎 <span className="truncate max-w-[160px]">{f.name}</span>
+                  <button type="button"
+                    onClick={() => setCompose(c => ({ ...c, files: c.files.filter((_, x) => x !== i) }))}
+                    className="text-emerald-300/60 hover:text-red-300">✕</button>
+                </span>
+              ))}
             </div>
             <div className="px-4 pb-4 flex justify-end gap-2">
               <button type="button" onClick={() => setCompose(null)}

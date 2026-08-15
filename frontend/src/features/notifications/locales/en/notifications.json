@@ -95,7 +95,8 @@
     "task_failed": "Could not create the task",
     "task_keeps_email": "the assignee gets this email with the task",
     "task_title": "What needs doing?",
-    "to_label": "To"
+    "to_label": "To",
+    "attach": "Attach"
   },
   "email_accounts": {
     "title": "Staff Mailboxes",

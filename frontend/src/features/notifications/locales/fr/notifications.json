@@ -95,7 +95,8 @@
     "task_failed": "Impossible de créer la tâche",
     "task_keeps_email": "la personne assignée reçoit cet e-mail avec la tâche",
     "task_title": "Que faut-il faire ?",
-    "to_label": "À"
+    "to_label": "À",
+    "attach": "Joindre"
   },
   "email_accounts": {
     "title": "Boîtes mail du personnel",

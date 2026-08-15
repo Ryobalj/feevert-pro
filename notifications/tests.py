@@ -306,3 +306,87 @@ class SharedMailboxPrivacyTests(TestCase):
         self._mail('Unaddressed', '')
         self.assertIn('Unaddressed', self._subjects_for(self.saidina))
         self.assertIn('Unaddressed', self._subjects_for(self.nicole))
+
+
+class OutgoingAttachmentTests(TestCase):
+    """A file reaches a client when it is emailed to them — so the reply has
+    to be able to carry one, and a retry has to still have it."""
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='staff', email='staff@feevert.co.tz', password='x')
+        self.account = EmailAccount.objects.create(
+            email_address='info@feevert.co.tz', is_shared=True, is_active=True)
+        self.email = make_email(self.account, 'Please send the report')
+        self.api = APIClient()
+        self.api.force_authenticate(self.user)
+
+    def _file(self, name='report.pdf', body=b'%PDF-1.4 report'):
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        return SimpleUploadedFile(name, body, content_type='application/pdf')
+
+    def test_a_reply_can_carry_a_document(self):
+        sent = {}
+
+        def fake_send(**kwargs):
+            sent.update(kwargs)
+            return {'success': True}
+
+        with patch('notifications.services.email_outbound_service.EmailOutboundService'
+                   '.send_via_account', side_effect=fake_send):
+            res = self.api.post(f'/api/v1/email-inbox/{self.email.id}/reply/',
+                                {'body': 'Here it is', 'attachments': self._file()},
+                                format='multipart')
+        self.assertEqual(res.status_code, 200, res.data)
+        self.assertEqual(len(sent['attachments']), 1)
+        name, content, content_type = sent['attachments'][0]
+        self.assertEqual(name, 'report.pdf')
+        self.assertEqual(content, b'%PDF-1.4 report')
+        self.assertEqual(content_type, 'application/pdf')
+
+    def test_the_file_survives_for_the_retry(self):
+        """The upload object is long gone by the time the cron retries."""
+        with patch('notifications.services.email_outbound_service.EmailOutboundService'
+                   '.send_via_account', return_value={'success': False, 'error': 'down'}):
+            self.api.post(f'/api/v1/email-inbox/{self.email.id}/reply/',
+                          {'body': 'Here it is', 'attachments': self._file()},
+                          format='multipart')
+
+        out = OutgoingEmail.objects.get()
+        self.assertEqual(out.status, 'failed')
+        self.assertEqual(len(out.attachments), 1)
+
+        sent = {}
+
+        def fake_send(**kwargs):
+            sent.update(kwargs)
+            return {'success': True}
+
+        out.next_retry_at = timezone.now()
+        out.save(update_fields=['next_retry_at'])
+        with patch('notifications.services.email_outbound_service.EmailOutboundService'
+                   '.send_via_account', side_effect=fake_send):
+            outgoing_mail.retry_pending()
+
+        out.refresh_from_db()
+        self.assertEqual(out.status, 'sent')
+        self.assertEqual(sent['attachments'][0][1], b'%PDF-1.4 report')
+
+    def test_several_files_at_once(self):
+        sent = {}
+        with patch('notifications.services.email_outbound_service.EmailOutboundService'
+                   '.send_via_account',
+                   side_effect=lambda **kw: (sent.update(kw), {'success': True})[1]):
+            self.api.post(f'/api/v1/email-inbox/{self.email.id}/reply/', {
+                'body': 'Both attached',
+                'attachments': [self._file('a.pdf'), self._file('b.pdf', b'second')],
+            }, format='multipart')
+        self.assertEqual([a[0] for a in sent['attachments']], ['a.pdf', 'b.pdf'])
+
+    def test_a_plain_reply_still_works(self):
+        with patch('notifications.services.email_outbound_service.EmailOutboundService'
+                   '.send_via_account', return_value={'success': True}):
+            res = self.api.post(f'/api/v1/email-inbox/{self.email.id}/reply/',
+                                {'body': 'No attachment here'}, format='json')
+        self.assertEqual(res.status_code, 200, res.data)
+        self.assertEqual(OutgoingEmail.objects.get().attachments, [])

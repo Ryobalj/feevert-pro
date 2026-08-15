@@ -225,6 +225,8 @@ const WorkspacePage = () => {
       form.append('file', file)
       form.append('title', file.name)
       form.append('document_type', 'deliverable')
+      // Internal by default. A client sees a file when it is emailed to
+      // them as an attachment, never because it was uploaded here.
       form.append('is_deliverable', forClient ? 'true' : 'false')
       await api.post('/consultation-documents/', form,
         { headers: { 'Content-Type': 'multipart/form-data' } })
@@ -1031,11 +1033,11 @@ const WorkspacePage = () => {
                               onChange={e => {
                                 const file = e.target.files?.[0]
                                 e.target.value = ''       // same file twice should still work
-                                uploadDeliverable(j, file, true)
+                                uploadDeliverable(j, file, false)
                               }} />
                           </label>
                           <span className="text-[10px] text-white/30">
-                            {t('workspace.upload_client_note', 'Uploaded files are visible to the client')}
+                            {t('workspace.upload_internal_note', 'Kept internal — the client sees a file only when you email it to them')}
                           </span>
                         </div>
                       </div>

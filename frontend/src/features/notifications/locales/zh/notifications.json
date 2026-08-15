@@ -95,7 +95,8 @@
     "task_failed": "无法创建任务",
     "task_keeps_email": "受理人将随任务收到此邮件",
     "task_title": "需要做什么？",
-    "to_label": "收件人"
+    "to_label": "收件人",
+    "attach": "附加"
   },
   "email_accounts": {
     "title": "员工邮箱",

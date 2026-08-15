@@ -2,6 +2,9 @@
 
 import React, { useRef, useEffect } from 'react'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
+import { useTheme } from '../../context/ThemeContext'
+import TextSize from '../ui/TextSize'
 
 const UserDropdownMenu = ({ 
   items, 
@@ -73,11 +76,61 @@ const UserDropdownMenu = ({
       {items.map((item, index) => {
         if (item.divider) return <div key={index} className="h-px bg-[var(--g-border-glass)] my-1" />
         if (item.type === 'header') return <HeaderItem key={index} item={item} />
+        if (item.type === 'appearance') return <AppearanceItem key={index} />
         if (item.action === 'logout') return <LogoutItem key={index} item={item} onLogout={onLogout} onClose={onClose} />
         if (item.action === 'chat' || item.action === 'support') return <ActionItem key={index} item={item} onClose={onClose} />
         return <MenuItem key={item.path || index} item={item} navigate={navigate} onClose={onClose} />
       })}
     </motion.div>
+  )
+}
+
+/**
+ * How the page looks, where a person looks for their own settings.
+ *
+ * Text size and theme used to be two more icons in a navbar that already had
+ * four, and on a narrow screen they were the first things pushed off the
+ * edge. They are the same kind of choice as language or sign-out — personal,
+ * occasional — so they live at the top of the account menu, for visitors and
+ * signed-in staff alike.
+ */
+const AppearanceItem = () => {
+  const { t } = useTranslation('common')
+  const { currentTheme, setTheme } = useTheme()
+
+  const themes = [
+    { id: 'white', icon: '☀️', label: t('nav.white', 'Light') },
+    { id: 'brand', icon: '🌿', label: t('nav.brand', 'Brand') },
+    { id: 'dark', icon: '🌙', label: t('nav.dark', 'Dark') },
+  ]
+
+  return (
+    <div className="px-3 py-2 space-y-2">
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-[11px] text-[var(--g-text-tertiary)]">
+          {t('text_size.title', 'Text size')}
+        </span>
+        <TextSize />
+      </div>
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-[11px] text-[var(--g-text-tertiary)]">
+          {t('nav.theme', 'Theme')}
+        </span>
+        <div className="flex items-center gap-1">
+          {themes.map(th => (
+            <button key={th.id} onClick={() => setTheme(th.id)} title={th.label}
+              aria-label={th.label}
+              className={`w-7 h-7 rounded-lg text-sm flex items-center justify-center transition-colors ${
+                currentTheme === th.id
+                  ? 'bg-emerald-500/20 ring-1 ring-emerald-400/60'
+                  : 'hover:bg-[var(--g-liquid-secondary)]'
+              }`}>
+              {th.icon}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
   )
 }
 

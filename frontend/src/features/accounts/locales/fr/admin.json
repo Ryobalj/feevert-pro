@@ -252,7 +252,8 @@
     "upload_client_note": "Les fichiers envoyés sont visibles par le client",
     "upload_failed": "Impossible d'envoyer le fichier",
     "upload_file": "Envoyer un fichier",
-    "uploading": "Envoi…"
+    "uploading": "Envoi…",
+    "upload_internal_note": "Reste interne — le client ne voit un fichier que lorsque vous le lui envoyez par e-mail"
   },
   "cancel": "Annuler",
   "save": "Sauvegarder",

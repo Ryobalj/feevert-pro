@@ -5,6 +5,8 @@ from datetime import timedelta
 from django.db import models
 from django.conf import settings
 
+from .storage import any_file_storage
+
 class BaseModel(models.Model):
     """
     Base model with common fields for all apps.
@@ -93,7 +95,10 @@ class Task(BaseModel):
         'consultations.ConsultationRequest', on_delete=models.SET_NULL,
         null=True, blank=True, related_name='tasks',
     )
-    attachment = models.FileField(upload_to='task_files/', blank=True, null=True)
+    attachment = models.FileField(
+        upload_to='task_files/', blank=True, null=True,
+        storage=any_file_storage(),          # PDFs and Word files, not just images
+    )
     # The email that carried the work, so the assignee has the original to hand
     related_email = models.ForeignKey(
         'notifications.IncomingEmail', on_delete=models.SET_NULL,

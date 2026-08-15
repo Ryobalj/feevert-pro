@@ -340,6 +340,9 @@ class OutgoingEmail(BaseModel):
     subject = models.CharField(max_length=500, blank=True)
     body = models.TextField(blank=True)
     body_html = models.TextField(blank=True)
+    # Files travel with the message. Stored rather than held in memory so a
+    # retry two hours later still has them: [{name, path, content_type}].
+    attachments = models.JSONField(default=list, blank=True)
 
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='queued')
     attempts = models.PositiveIntegerField(default=0)

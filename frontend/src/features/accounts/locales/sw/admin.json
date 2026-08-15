@@ -252,7 +252,8 @@
     "upload_client_note": "Faili zilizopakiwa zinaonekana kwa mteja",
     "upload_failed": "Imeshindwa kupakia faili",
     "upload_file": "Pakia faili",
-    "uploading": "Inapakia…"
+    "uploading": "Inapakia…",
+    "upload_internal_note": "Inabaki ndani — mteja anaona faili pale tu unapomtumia kwa barua pepe"
   },
   "cancel": "Ghairi",
   "save": "Hifadhi",

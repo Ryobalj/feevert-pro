@@ -51,11 +51,56 @@ def _with_pixel(out):
     return body_html + pixel
 
 
+def _store_attachments(files):
+    """Keep the uploaded files where a retry can still find them.
+
+    A retry can come two hours after the click, long after the upload objects
+    have gone, so the bytes are written to storage and the message remembers
+    where they are.
+    """
+    from django.core.files.storage import default_storage
+
+    from core.storage import any_file_storage
+
+    storage = any_file_storage() or default_storage
+    saved = []
+    for f in files or []:
+        try:
+            path = storage.save(f'outgoing_attachments/{f.name}', f)
+            saved.append({
+                'name': f.name,
+                'path': path,
+                'content_type': getattr(f, 'content_type', '') or 'application/octet-stream',
+            })
+        except Exception as e:
+            logger.error('Could not store attachment %s: %s', getattr(f, 'name', '?'), e)
+    return saved
+
+
+def _load_attachments(rows):
+    """Read them back as (name, bytes, content_type) for the mail message."""
+    from django.core.files.storage import default_storage
+
+    from core.storage import any_file_storage
+
+    storage = any_file_storage() or default_storage
+    out = []
+    for row in rows or []:
+        try:
+            with storage.open(row['path'], 'rb') as fh:
+                out.append((row.get('name') or 'attachment', fh.read(),
+                            row.get('content_type') or 'application/octet-stream'))
+        except Exception as e:
+            logger.error('Could not read attachment %s: %s', row.get('path'), e)
+    return out
+
+
 def queue(to_email, subject, body, html_body=None, account=None, user=None,
-          reply_to_email=None):
+          reply_to_email=None, attachments=None):
     """Record a message we intend to send. Nothing goes out yet."""
     recipients = to_email if isinstance(to_email, str) else ', '.join(to_email)
     return OutgoingEmail.objects.create(
+        attachments=_store_attachments(attachments),
         account=account,
         sent_by=user if getattr(user, 'is_authenticated', False) else None,
         reply_to_email=reply_to_email,
@@ -76,16 +121,18 @@ def attempt(out):
     recipients = [r.strip() for r in out.to_email.split(',') if r.strip()]
     out.attempts += 1
 
+    files = _load_attachments(out.attachments)
     try:
         if out.account:
             result = EmailOutboundService.send_via_account(
                 account=out.account, to_email=recipients,
                 subject=out.subject, body=out.body, html_body=_with_pixel(out),
+                attachments=files,
             )
         else:
             ok = EmailOutboundService.send(
                 to_email=recipients, subject=out.subject, body=out.body,
-                html_body=_with_pixel(out),
+                html_body=_with_pixel(out), attachments=files,
             )
             result = {'success': bool(ok), 'error': EmailOutboundService.last_error}
     except Exception as e:            # a broken connection shouldn't lose the record
@@ -116,10 +163,11 @@ def attempt(out):
 
 
 def send_now(to_email, subject, body, html_body=None, account=None, user=None,
-             reply_to_email=None):
+             reply_to_email=None, attachments=None):
     """Record and try to send immediately. Returns the OutgoingEmail either
     way — a failure here is scheduled for retry, not lost."""
-    out = queue(to_email, subject, body, html_body, account, user, reply_to_email)
+    out = queue(to_email, subject, body, html_body, account, user, reply_to_email,
+                attachments)
     attempt(out)
     return out
 
