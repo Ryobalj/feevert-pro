@@ -14,6 +14,20 @@ const UserDropdownMenu = ({
 }) => {
   const dropdownRef = useRef(null)
 
+  // How much room is left below the button, in real pixels. Measured rather
+  // than written as `calc(100vh - …)` because the menu is placed from a
+  // measurement already, and pixels stay right when the window is resized
+  // mid-session — which is exactly what changing display scaling does.
+  const roomBelow = () => Math.max(180, window.innerHeight - position.top - 16)
+  const [maxHeight, setMaxHeight] = React.useState(roomBelow)
+
+  useEffect(() => {
+    const recalc = () => setMaxHeight(roomBelow())
+    recalc()
+    window.addEventListener('resize', recalc)
+    return () => window.removeEventListener('resize', recalc)
+  }, [position.top])
+
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -35,12 +49,16 @@ const UserDropdownMenu = ({
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: -8, scale: 0.96 }}
       transition={{ duration: 0.15 }}
-      className="fixed card-glass !p-1 shadow-liquid overflow-hidden user-dropdown dropdown-menu-container z-[9999]"
+      /* Scrollable, not clipped: at 125% or 150% display scaling the screen is
+         short enough that the menu runs past the bottom, and `overflow-hidden`
+         simply cut "Sign out" off with no way to reach it. */
+      className="fixed card-glass !p-1 shadow-liquid overflow-y-auto overscroll-contain user-dropdown dropdown-menu-container z-[9999]"
       style={{
         top: position.top,
         left: position.left,
         minWidth: 260,
         maxWidth: 280,
+        maxHeight,
       }}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
