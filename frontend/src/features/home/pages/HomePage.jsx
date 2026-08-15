@@ -10,6 +10,7 @@ import Icon from '../../../components/ui/Icon'
 // ✅ Ongeza import ya WhatWeDoSection
 import WhatWeDoSection from "../components/WhatWeDoSection"
 import AboutSection from "../components/AboutSection"
+import useAutoRefresh from '../../../app/useAutoRefresh'
 
 // ============ IMAGE CAROUSEL ============
 const CardImage = ({ item, type = 'service' }) => {
@@ -165,6 +166,9 @@ const CardImage = ({ item, type = 'service' }) => {
 
 // ============ MAIN HOME PAGE ============
 const HomePage = () => {
+  // Refetches when the tab comes back to the front, and on a slow timer —
+  // otherwise a page left open keeps showing yesterday's content.
+  const refresh = useAutoRefresh()
   const { t } = useTranslation('home')
   const [loading, setLoading] = useState(true)
   const [siteSettings, setSiteSettings] = useState(null)
@@ -250,7 +254,7 @@ const HomePage = () => {
       }
     }
     loadAllData()
-  }, [])
+  }, [refresh])
 
   if (loading) {
     return (

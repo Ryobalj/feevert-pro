@@ -4,8 +4,12 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next' // ✅ Ongeza hii
 import { useTheme } from '../../../context/ThemeContext'
 import api from '../../../app/api'
+import useAutoRefresh from '../../../app/useAutoRefresh'
 
 const ConsultationList = () => {
+  // Refetches when the tab comes back to the front, and on a slow timer —
+  // otherwise a page left open keeps showing yesterday's content.
+  const refresh = useAutoRefresh()
   const { t } = useTranslation('consultations') // ✅ Ongeza hii
   const [consultations, setConsultations] = useState([])
   const [loading, setLoading] = useState(true)
@@ -22,7 +26,7 @@ const ConsultationList = () => {
       finally { setLoading(false) }
     }
     loadConsultations()
-  }, [])
+  }, [refresh])
 
   // Filter + Search
   const filteredConsultations = consultations.filter(c => {

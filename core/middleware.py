@@ -39,3 +39,23 @@ class LastSeenMiddleware:
         except Exception as e:                     # never break a request over a timestamp
             logger.debug('last_seen not updated: %s', e)
         return response
+
+
+class ApiNoCacheMiddleware:
+    """Keep API answers out of the browser's cache.
+
+    The API sends no cache directives at all, which leaves each browser to
+    apply its own heuristics — and a heuristically cached list of services is
+    exactly the "why am I still seeing the old content?" that a page refetch
+    is supposed to cure. Static files and media are left alone; those are
+    hashed and should be cached hard.
+    """
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self.get_response(request)
+        if request.path.startswith('/api/') and 'Cache-Control' not in response:
+            response['Cache-Control'] = 'no-store, must-revalidate'
+        return response

@@ -1,7 +1,7 @@
 // src/features/accounts/pages/LoginPage.jsx
 
 import React, { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { useTheme } from '../../../context/ThemeContext'
@@ -15,6 +15,9 @@ const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false)
   const [rememberMe, setRememberMe] = useState(false)
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  // Landing here without being told why reads as a bug, not a timeout.
+  const expired = searchParams.get('expired') === '1'
   const { darkMode } = useTheme()
   const { login } = useAuth()
 
@@ -80,6 +83,12 @@ const LoginPage = () => {
           </div>
 
           {/* ============ ERROR MESSAGE ============ */}
+          {expired && !error && (
+            <div className="mb-5 p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl text-amber-300 text-sm text-center">
+              ⏳ {t('session.expired', 'Your session ended after a while with no activity. Please sign in again.')}
+            </div>
+          )}
+
           {error && (
             <motion.div
               initial={{ opacity: 0, y: -10 }}

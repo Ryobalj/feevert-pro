@@ -1,4 +1,4 @@
-﻿{
+{
   "login": {
     "title": "Welcome Back",
     "subtitle": "Sign in to your account",
@@ -177,5 +177,13 @@
     "password_reset": "Password reset successfully!",
     "verification_sent": "Verification email sent!",
     "profile_updated": "Profile updated successfully!"
+  },
+  "session": {
+    "title": "Still there?",
+    "warning": "You will be signed out in",
+    "warning_tail": "because of inactivity.",
+    "stay": "Keep me signed in",
+    "logout": "Sign out",
+    "expired": "Your session ended after a while with no activity. Please sign in again."
   }
 }

@@ -1,4 +1,4 @@
-﻿{
+{
   "login": {
     "title": "欢迎回来",
     "subtitle": "登录到您的账户",
@@ -177,5 +177,13 @@
     "password_reset": "密码重置成功！",
     "verification_sent": "验证邮件已发送！",
     "profile_updated": "资料更新成功！"
+  },
+  "session": {
+    "title": "还在吗？",
+    "warning": "您将在",
+    "warning_tail": "后因无操作被登出。",
+    "stay": "保持登录",
+    "logout": "退出",
+    "expired": "由于长时间无操作，您的会话已结束，请重新登录。"
   }
 }

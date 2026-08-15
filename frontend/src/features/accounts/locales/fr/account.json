@@ -1,4 +1,4 @@
-﻿{
+{
   "login": {
     "title": "Bon Retour",
     "subtitle": "Connectez-vous à votre compte",
@@ -177,5 +177,13 @@
     "password_reset": "Mot de passe réinitialisé avec succès !",
     "verification_sent": "Email de vérification envoyé !",
     "profile_updated": "Profil mis à jour avec succès !"
+  },
+  "session": {
+    "title": "Toujours là ?",
+    "warning": "Vous serez déconnecté dans",
+    "warning_tail": "pour cause d'inactivité.",
+    "stay": "Rester connecté",
+    "logout": "Se déconnecter",
+    "expired": "Votre session a pris fin après une période d'inactivité. Veuillez vous reconnecter."
   }
 }

@@ -1,4 +1,4 @@
-﻿{
+{
   "login": {
     "title": "Karibu Tena",
     "subtitle": "Ingia kwenye akaunti yako",
@@ -177,5 +177,13 @@
     "password_reset": "Nenosiri limewekwa upya kwa mafanikio!",
     "verification_sent": "Barua ya uthibitishaji imetumwa!",
     "profile_updated": "Wasifu umesasishwa kwa mafanikio!"
+  },
+  "session": {
+    "title": "Bado upo?",
+    "warning": "Utatolewa nje baada ya",
+    "warning_tail": "kwa kutokuwa na shughuli.",
+    "stay": "Endelea kuwa ndani",
+    "logout": "Toka",
+    "expired": "Muda wako wa kuwa ndani umeisha kwa kutokuwa na shughuli. Tafadhali ingia tena."
   }
 }

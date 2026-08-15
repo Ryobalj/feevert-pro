@@ -6,8 +6,12 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { useTheme } from '../../../context/ThemeContext'
 import api from '../../../app/api'
+import useAutoRefresh from '../../../app/useAutoRefresh'
 
 const ProjectList = () => {
+  // Refetches when the tab comes back to the front, and on a slow timer —
+  // otherwise a page left open keeps showing yesterday's content.
+  const refresh = useAutoRefresh()
   const { t } = useTranslation('projects')
   const [projects, setProjects] = useState([])
   const [categories, setCategories] = useState([])
@@ -59,7 +63,7 @@ const ProjectList = () => {
       }
     }
     loadData()
-  }, [currentPage, selectedCategory, searchQuery])
+  }, [currentPage, selectedCategory, searchQuery, refresh])
 
   useEffect(() => {
     if (categories.length === 0) return

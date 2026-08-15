@@ -2,6 +2,8 @@ import React from 'react'
 import { Routes, Route, useLocation, Link } from 'react-router-dom'
 import { AnimatePresence } from 'framer-motion'
 import Navbar from './components/layout/Navbar'
+import SessionTimeout from './features/accounts/components/SessionTimeout'
+import { useAuth } from './features/accounts/hooks/useAuth'
 import Footer from './components/layout/Footer'
 import ScrollToTop from './components/common/ScrollToTop'
 import ProtectedRoute from './routes/ProtectedRoute'
@@ -85,6 +87,16 @@ import { CartProvider } from './features/shop/context/CartContext'
 function App() {
   const location = useLocation()
   const hideNavbar = location.pathname === '/'
+  const { isAuthenticated, logout } = useAuth()
+
+  // An idle session on a shared machine is somebody else's session. Ending it
+  // sends them to the sign-in page with a word about why, rather than to a
+  // screen full of errors.
+  const endSession = React.useCallback(async () => {
+    try { await logout() } finally {
+      window.location.href = '/login?expired=1'
+    }
+  }, [logout])
 
   return (
     <CartProvider>
@@ -94,6 +106,8 @@ function App() {
         {/* Grid Overlay */}
         <div className="bg-grid-overlay" />
         
+        <SessionTimeout isAuthenticated={isAuthenticated} onExpire={endSession} />
+
         {/* Navbar */}
         {!hideNavbar && <Navbar />}
         

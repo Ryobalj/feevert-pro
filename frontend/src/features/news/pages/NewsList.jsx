@@ -4,8 +4,12 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next' // ✅ Ongeza hii
 import { useTheme } from '../../../context/ThemeContext'
 import api from '../../../app/api'
+import useAutoRefresh from '../../../app/useAutoRefresh'
 
 const NewsList = () => {
+  // Refetches when the tab comes back to the front, and on a slow timer —
+  // otherwise a page left open keeps showing yesterday's content.
+  const refresh = useAutoRefresh()
   const { t } = useTranslation('news') // ✅ Ongeza hii
   const [news, setNews] = useState([])
   const [categories, setCategories] = useState([])
@@ -27,7 +31,7 @@ const NewsList = () => {
       finally { setLoading(false) }
     }
     loadData()
-  }, [])
+  }, [refresh])
 
   const filteredNews = news.filter(n => {
     const isPublished = n.is_published !== false

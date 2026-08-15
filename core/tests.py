@@ -339,3 +339,25 @@ class StaffActivityTests(TestCase):
         self.api.get('/api/v1/workspace/colleagues/')
         self.admin.refresh_from_db()
         self.assertIsNotNone(self.admin.last_seen)
+
+
+class ApiCacheHeaderTests(TestCase):
+    """A browser deciding for itself how long to keep an API answer is the
+    other half of "why am I still seeing the old content?"."""
+
+    def setUp(self):
+        from accounts.models import Role
+        self.user = User.objects.create_user(
+            username='reader', email='r@feevert.co.tz', password='x',
+            role=Role.objects.create(name='Normal Employee'))
+        self.api = APIClient()
+        self.api.force_authenticate(self.user)
+
+    def test_api_answers_are_not_cached(self):
+        res = self.api.get('/api/v1/workspace/colleagues/')
+        self.assertEqual(res['Cache-Control'], 'no-store, must-revalidate')
+
+    def test_static_files_are_left_alone(self):
+        """Only /api/ is touched — hashed assets should cache hard."""
+        res = self.client.get('/static/nothing-here.css')
+        self.assertNotEqual(res.get('Cache-Control', ''), 'no-store, must-revalidate')

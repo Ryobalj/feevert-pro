@@ -12,6 +12,7 @@ import { useAuth } from '../hooks/useAuth'
 import DraftTools from '../components/workspace/DraftTools'
 import FinancePanel from '../components/workspace/FinancePanel'
 import Calculator from '../components/workspace/Calculator'
+import useAutoRefresh from '../../../app/useAutoRefresh'
 
 const SECTIONS = [
   { key: 'overview', label: 'Overview',  icon: '📊' },
@@ -42,6 +43,9 @@ const STATUS_STYLE = {
 }
 
 const WorkspacePage = () => {
+  // Refetches when the tab comes back to the front, and on a slow timer —
+  // otherwise a page left open keeps showing yesterday's content.
+  const refresh = useAutoRefresh()
   const { t } = useTranslation('admin')
   const { user } = useAuth()
   const [section, setSection] = useState('overview')
@@ -98,7 +102,7 @@ const WorkspacePage = () => {
     }
   }, [])
 
-  useEffect(() => { load() }, [load])
+  useEffect(() => { load() }, [load, refresh])
 
   useEffect(() => {
     api.get('/workspace/colleagues/')

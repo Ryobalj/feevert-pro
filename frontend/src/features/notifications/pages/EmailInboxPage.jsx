@@ -8,6 +8,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import api from '../../../app/api'
+import useAutoRefresh from '../../../app/useAutoRefresh'
 
 const FOLDERS = [
   { key: 'inbox',   label: 'Inbox',   icon: '📥' },
@@ -40,6 +41,9 @@ const dayBucket = (iso) => {
 }
 
 const EmailInboxPage = () => {
+  // Refetches when the tab comes back to the front, and on a slow timer —
+  // otherwise a page left open keeps showing yesterday's content.
+  const refresh = useAutoRefresh()
   const { t } = useTranslation('notifications')
   const [emails, setEmails] = useState([])
   const [mailboxes, setMailboxes] = useState([])
@@ -103,7 +107,7 @@ const EmailInboxPage = () => {
     }
   }, [])
 
-  useEffect(() => { loadEmails() }, [loadEmails])
+  useEffect(() => { loadEmails() }, [loadEmails, refresh])
   useEffect(() => { loadMailboxes() }, [loadMailboxes])
 
   // A tick belongs to the list it was made in — changing folder, mailbox or

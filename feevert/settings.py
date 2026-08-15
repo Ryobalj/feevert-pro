@@ -99,6 +99,8 @@ MIDDLEWARE = [
     # Stamps User.last_seen so "last activity" is a real answer, not a guess
     # from the login time - see core/middleware.py
     'core.middleware.LastSeenMiddleware',
+    # API answers must not sit in a browser cache - see core/middleware.py
+    'core.middleware.ApiNoCacheMiddleware',
 ]
 
 # ===========================
@@ -406,7 +408,7 @@ REST_FRAMEWORK = {
 # ===========================
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(hours=2),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,
     'ALGORITHM': 'HS256',

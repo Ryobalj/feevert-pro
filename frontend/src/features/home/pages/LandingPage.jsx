@@ -7,8 +7,12 @@ import { useTranslation } from 'react-i18next'
 import { useTheme } from '../../../context/ThemeContext'
 import api from '../../../app/api'
 import Loader from '../../../components/ui/Loader'
+import useAutoRefresh from '../../../app/useAutoRefresh'
 
 const LandingPage = () => {
+  // Refetches when the tab comes back to the front, and on a slow timer —
+  // otherwise a page left open keeps showing yesterday's content.
+  const refresh = useAutoRefresh()
   const { t } = useTranslation('home')
   const [heroes, setHeroes] = useState([])
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -52,7 +56,7 @@ const LandingPage = () => {
       }
     }
     loadData()
-  }, [])
+  }, [refresh])
 
   const hasSlideshow = heroes.length > 1
 
