@@ -243,7 +243,16 @@
     "no_match": "Hakuna mwenye akaunti anayelingana — andika jina hapo chini badala yake.",
     "guests": "Asiye na akaunti (mfano Bw. Kileo, TANESCO)",
     "calculator": "Kikokotoo",
-    "close": "Funga"
+    "close": "Funga",
+    "attach_file": "Ambatanisha waraka",
+    "documents_note": "Hizi ni faili zilizoambatanishwa kwenye kazi za wateja wako. Rasimu unazoandika hapa zipo chini ya Rasimu, na unaweza kuzipakua kumalizia kwenye Word au Excel.",
+    "email_attached": "Barua imeambatanishwa",
+    "search_email": "Ambatanisha barua — tafuta mtumaji au mada…",
+    "task_save_failed": "Imeshindwa kuhifadhi jukumu",
+    "upload_client_note": "Faili zilizopakiwa zinaonekana kwa mteja",
+    "upload_failed": "Imeshindwa kupakia faili",
+    "upload_file": "Pakia faili",
+    "uploading": "Inapakia…"
   },
   "cancel": "Ghairi",
   "save": "Hifadhi",

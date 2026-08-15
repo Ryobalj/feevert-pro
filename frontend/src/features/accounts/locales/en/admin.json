@@ -243,7 +243,16 @@
     "no_match": "Nobody with an account matches — write the name below instead.",
     "guests": "Anyone without an account (e.g. Mr Kileo, TANESCO)",
     "calculator": "Calculator",
-    "close": "Close"
+    "close": "Close",
+    "attach_file": "Attach a document",
+    "documents_note": "These are the files attached to your client jobs. Quick drafts you write here live under Drafts, and can be downloaded to finish in Word or Excel.",
+    "email_attached": "Email attached",
+    "search_email": "Attach an email — search sender or subject…",
+    "task_save_failed": "Could not save the task",
+    "upload_client_note": "Uploaded files are visible to the client",
+    "upload_failed": "Could not upload the file",
+    "upload_file": "Upload a file",
+    "uploading": "Uploading…"
   },
   "cancel": "Cancel",
   "save": "Save",

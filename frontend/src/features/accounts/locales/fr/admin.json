@@ -243,7 +243,16 @@
     "no_match": "Aucun compte ne correspond — écrivez plutôt le nom ci-dessous.",
     "guests": "Personnes sans compte (ex. M. Kileo, TANESCO)",
     "calculator": "Calculatrice",
-    "close": "Fermer"
+    "close": "Fermer",
+    "attach_file": "Joindre un document",
+    "documents_note": "Ce sont les fichiers joints aux dossiers de vos clients. Les brouillons que vous écrivez ici se trouvent sous Brouillons et peuvent être téléchargés pour être terminés dans Word ou Excel.",
+    "email_attached": "E-mail joint",
+    "search_email": "Joindre un e-mail — rechercher par expéditeur ou objet…",
+    "task_save_failed": "Impossible d'enregistrer la tâche",
+    "upload_client_note": "Les fichiers envoyés sont visibles par le client",
+    "upload_failed": "Impossible d'envoyer le fichier",
+    "upload_file": "Envoyer un fichier",
+    "uploading": "Envoi…"
   },
   "cancel": "Annuler",
   "save": "Sauvegarder",

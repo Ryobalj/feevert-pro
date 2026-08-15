@@ -243,7 +243,16 @@
     "no_match": "没有匹配的账户 — 请在下方直接输入姓名。",
     "guests": "没有账户的人（例如 Kileo 先生，TANESCO）",
     "calculator": "计算器",
-    "close": "关闭"
+    "close": "关闭",
+    "attach_file": "附加文件",
+    "documents_note": "这些是附加到客户项目的文件。您在此处撰写的草稿位于“草稿”中，可下载后在 Word 或 Excel 中完成。",
+    "email_attached": "已附加邮件",
+    "search_email": "附加邮件 — 按发件人或主题搜索…",
+    "task_save_failed": "无法保存任务",
+    "upload_client_note": "上传的文件客户可见",
+    "upload_failed": "文件上传失败",
+    "upload_file": "上传文件",
+    "uploading": "上传中…"
   },
   "cancel": "取消",
   "save": "节省",

@@ -361,3 +361,79 @@ class ApiCacheHeaderTests(TestCase):
         """Only /api/ is touched — hashed assets should cache hard."""
         res = self.client.get('/static/nothing-here.css')
         self.assertNotEqual(res.get('Cache-Control', ''), 'no-store, must-revalidate')
+
+
+class TaskAttachmentTests(TestCase):
+    """A task can carry the document and the email the work came with —
+    the form had nowhere to put either."""
+
+    def setUp(self):
+        from accounts.models import Role
+        admin_role = Role.objects.create(name='admin')
+        staff_role = Role.objects.create(name='Normal Employee')
+        self.boss = User.objects.create_user(
+            username='boss', email='b@feevert.co.tz', password='x', role=admin_role)
+        self.worker = User.objects.create_user(
+            username='worker', email='w@feevert.co.tz', password='x', role=staff_role)
+        self.api = APIClient()
+        self.api.force_authenticate(self.boss)
+
+    def _an_email(self):
+        from notifications.models import EmailAccount, IncomingEmail
+        account = EmailAccount.objects.create(
+            email_address='info@feevert.co.tz', is_shared=True, is_active=True)
+        return IncomingEmail.objects.create(
+            account=account, sender='client@example.com', subject='Tender documents',
+            message_id='m-1', received_at=timezone.now(), folder='inbox')
+
+    def test_a_document_can_be_attached(self):
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        from .models import Task
+
+        upload = SimpleUploadedFile('brief.txt', b'the brief', content_type='text/plain')
+        res = self.api.post('/api/v1/tasks/', {
+            'title': 'Prepare the tender', 'assigned_to': self.worker.id,
+            'priority': 'high', 'attachment': upload,
+        }, format='multipart')
+        self.assertEqual(res.status_code, 201, res.data)
+        self.assertTrue(Task.objects.get().attachment)
+
+    def test_an_email_can_be_attached_and_comes_back_named(self):
+        from .models import Task
+
+        email = self._an_email()
+        res = self.api.post('/api/v1/tasks/', {
+            'title': 'Answer the client', 'assigned_to': self.worker.id,
+            'related_email': str(email.id),
+        }, format='json')
+        self.assertEqual(res.status_code, 201, res.data)
+        self.assertEqual(Task.objects.get().related_email_id, email.id)
+        # The assignee needs to see which message it was, not just an id.
+        self.assertEqual(res.data['email_subject'], 'Tender documents')
+        self.assertEqual(res.data['email_sender'], 'client@example.com')
+
+    def test_the_assignee_receives_the_attachments_with_the_task(self):
+        from django.core.files.uploadedfile import SimpleUploadedFile
+
+        email = self._an_email()
+        upload = SimpleUploadedFile('scope.txt', b'scope', content_type='text/plain')
+        self.api.post('/api/v1/tasks/', {
+            'title': 'Site visit', 'assigned_to': self.worker.id,
+            'related_email': str(email.id), 'attachment': upload,
+        }, format='multipart')
+
+        worker_api = APIClient()
+        worker_api.force_authenticate(self.worker)
+        rows = worker_api.get('/api/v1/tasks/').data
+        rows = rows.get('results', rows)
+        self.assertEqual(len(rows), 1)
+        self.assertTrue(rows[0]['attachment_url'])
+        self.assertEqual(rows[0]['email_subject'], 'Tender documents')
+
+    def test_searching_the_mail_to_attach_it(self):
+        """The picker searches the same inbox the person is allowed to read."""
+        self._an_email()
+        res = self.api.get('/api/v1/email-inbox/?search=tender&page_size=8')
+        rows = res.data.get('results', res.data)
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]['subject'], 'Tender documents')

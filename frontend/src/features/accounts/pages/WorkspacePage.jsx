@@ -66,6 +66,10 @@ const WorkspacePage = () => {
   const [assignables, setAssignables] = useState([])
   const [loading, setLoading] = useState(true)
   const [newTask, setNewTask] = useState(null)
+  const [emailSearch, setEmailSearch] = useState('')
+  const [emailHits, setEmailHits] = useState([])
+  const [savingTask, setSavingTask] = useState(false)
+  const [uploadingTo, setUploadingTo] = useState(null)   // job id being uploaded to
   const [appointments, setAppointments] = useState([])
   const [people, setPeople] = useState([])      // staff, shown by default
   const [guestSearch, setGuestSearch] = useState('')
@@ -134,22 +138,54 @@ const WorkspacePage = () => {
     if (!loading && !visibleSections.some(s => s.key === section)) setSection('overview')
   }, [visibleSections, section, loading])
 
+  // Looking for the email that carried the work: searched, not scrolled —
+  // there are a thousand messages in there.
+  useEffect(() => {
+    const term = emailSearch.trim()
+    if (!newTask || term.length < 2) { setEmailHits([]); return }
+    const id = setTimeout(() => {
+      api.get(`/email-inbox/?search=${encodeURIComponent(term)}&page_size=8`)
+        .then(res => setEmailHits(res.data?.results || res.data || []))
+        .catch(() => setEmailHits([]))
+    }, 300)
+    return () => clearTimeout(id)
+  }, [emailSearch, newTask])
+
   // ---- task actions
   const saveTask = async (e) => {
     e.preventDefault()
-    if (!newTask?.title?.trim()) return
+    if (!newTask?.title?.trim() || savingTask) return
+    setSavingTask(true)
     try {
-      await api.post('/tasks/', {
+      const fields = {
         title: newTask.title.trim(),
         description: newTask.description || '',
         assigned_to: newTask.assigned_to || user?.id,
         priority: newTask.priority || 'medium',
         due_date: newTask.due_date || null,
-      })
+        related_email: newTask.related_email || null,
+      }
+      if (newTask.file) {
+        // A file can't ride in JSON, so the whole task goes as form data.
+        const form = new FormData()
+        Object.entries(fields).forEach(([k, v]) => {
+          if (v !== null && v !== undefined && v !== '') form.append(k, v)
+        })
+        form.append('attachment', newTask.file)
+        await api.post('/tasks/', form, { headers: { 'Content-Type': 'multipart/form-data' } })
+      } else {
+        await api.post('/tasks/', fields)
+      }
       setNewTask(null)
+      setEmailSearch('')
+      setEmailHits([])
       load()
     } catch (err) {
-      alert(err.response?.data?.detail || 'Could not save the task')
+      const d = err.response?.data
+      alert(d?.detail || (d && Object.entries(d).map(([k, v]) => `${k}: ${[].concat(v).join(', ')}`).join(' · '))
+        || t('workspace.task_save_failed', 'Could not save the task'))
+    } finally {
+      setSavingTask(false)
     }
   }
 
@@ -175,6 +211,31 @@ const WorkspacePage = () => {
       await api.patch(`/tasks/${task.id}/`, { status })
       setTasks(prev => prev.map(t => t.id === task.id ? { ...t, status } : t))
     } catch (err) { console.error(err) }
+  }
+
+  // ---- deliverables
+  // The Documents section listed each job's files and then told you to go
+  // somewhere else to add one. Upload happens here now.
+  const uploadDeliverable = async (job, file, forClient) => {
+    if (!file) return
+    setUploadingTo(job.id)
+    try {
+      const form = new FormData()
+      form.append('request', job.id)
+      form.append('file', file)
+      form.append('title', file.name)
+      form.append('document_type', 'deliverable')
+      form.append('is_deliverable', forClient ? 'true' : 'false')
+      await api.post('/consultation-documents/', form,
+        { headers: { 'Content-Type': 'multipart/form-data' } })
+      await load()
+    } catch (err) {
+      const d = err.response?.data
+      alert(d?.detail || (d && Object.entries(d).map(([k, v]) => `${k}: ${[].concat(v).join(', ')}`).join(' · '))
+        || t('workspace.upload_failed', 'Could not upload the file'))
+    } finally {
+      setUploadingTo(null)
+    }
   }
 
   // ---- note actions
@@ -465,12 +526,10 @@ const WorkspacePage = () => {
                   <h2 className="text-base font-bold text-white">
                     {canDelegate ? t('workspace.tasks', 'Tasks') : t('workspace.my_tasks', 'My tasks')}
                   </h2>
-                  {canDelegate && (
-                    <button onClick={() => setNewTask({ title: '', assigned_to: user?.id, priority: 'medium' })}
-                      className="px-3 py-1.5 rounded-lg bg-emerald-500 text-white text-xs font-semibold hover:bg-emerald-400">
-                      ➕ {t('workspace.new_task', 'New task')}
-                    </button>
-                  )}
+                  {/* The New task button lives in the page header, where it is
+                      reachable from every section. A second one here (and a
+                      third on the overview) only made people wonder whether
+                      they did different things. */}
                 </div>
 
                 {newTask && (
@@ -500,11 +559,67 @@ const WorkspacePage = () => {
                       </select>
                       <input type="date" value={newTask.due_date || ''} onChange={e => setNewTask({ ...newTask, due_date: e.target.value })}
                         className="px-3 py-2 glass text-white rounded-lg border-0 outline-none text-sm" style={{ colorScheme: 'dark' }} />
+                    </div>
+
+                    {/* ---- what the work comes with -------------------- */}
+                    <div className="flex flex-wrap gap-2 items-center">
+                      <label className="px-3 py-2 rounded-lg bg-white/[0.06] text-white/70 text-xs font-semibold cursor-pointer hover:bg-white/10">
+                        📎 {newTask.file ? newTask.file.name.slice(0, 28) : t('workspace.attach_file', 'Attach a document')}
+                        <input type="file" className="hidden"
+                          onChange={e => setNewTask({ ...newTask, file: e.target.files?.[0] || null })} />
+                      </label>
+                      {newTask.file && (
+                        <button type="button" onClick={() => setNewTask({ ...newTask, file: null })}
+                          className="text-[11px] text-white/40 hover:text-red-300">✕</button>
+                      )}
+                    </div>
+
+                    {/* The email that carried the work. Searched rather than
+                        listed — the mailbox holds a thousand messages. */}
+                    <div>
+                      {newTask.related_email ? (
+                        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-emerald-500/15">
+                          <span className="text-xs text-emerald-200 truncate flex-1">
+                            ✉️ {newTask.related_email_subject || t('workspace.email_attached', 'Email attached')}
+                          </span>
+                          <button type="button"
+                            onClick={() => setNewTask({ ...newTask, related_email: null, related_email_subject: '' })}
+                            className="text-emerald-300/60 hover:text-red-300 text-xs">✕</button>
+                        </div>
+                      ) : (
+                        <>
+                          <input value={emailSearch} onChange={e => setEmailSearch(e.target.value)}
+                            placeholder={t('workspace.search_email', 'Attach an email — search sender or subject…')}
+                            className="w-full px-3 py-2 glass text-white placeholder:text-white/25 rounded-lg border-0 outline-none text-xs" />
+                          {emailHits.length > 0 && (
+                            <div className="mt-1 max-h-40 overflow-y-auto rounded-lg bg-white/[0.03] border border-white/10">
+                              {emailHits.map(m => (
+                                <button type="button" key={m.id}
+                                  onClick={() => {
+                                    setNewTask({ ...newTask, related_email: m.id, related_email_subject: m.subject })
+                                    setEmailSearch('')
+                                    setEmailHits([])
+                                  }}
+                                  className="w-full text-left px-3 py-2 hover:bg-white/[0.06] border-b border-white/[0.04] last:border-0">
+                                  <p className="text-[12px] text-white/85 truncate">{m.subject || '(no subject)'}</p>
+                                  <p className="text-[10px] text-white/40 truncate">
+                                    {m.sender_name || m.sender} · {new Date(m.received_at).toLocaleDateString()}
+                                  </p>
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </div>
+
+                    <div className="flex flex-wrap gap-2">
                       <div className="ml-auto flex gap-2">
-                        <button type="button" onClick={() => setNewTask(null)}
+                        <button type="button" onClick={() => { setNewTask(null); setEmailSearch(''); setEmailHits([]) }}
                           className="px-3 py-2 rounded-lg bg-white/[0.06] text-white/70 text-sm">{t('cancel', 'Cancel')}</button>
-                        <button type="submit" className="px-4 py-2 rounded-lg bg-emerald-500 text-white text-sm font-semibold">
-                          {t('save', 'Save')}
+                        <button type="submit" disabled={savingTask}
+                          className="px-4 py-2 rounded-lg bg-emerald-500 text-white text-sm font-semibold disabled:opacity-40">
+                          {savingTask ? t('workspace.saving', 'Saving…') : t('save', 'Save')}
                         </button>
                       </div>
                     </div>
@@ -904,10 +1019,29 @@ const WorkspacePage = () => {
                             ))}
                           </div>
                         )}
+                        <div className="mt-2 flex flex-wrap items-center gap-2">
+                          <label className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold cursor-pointer ${
+                            uploadingTo === j.id ? 'bg-white/[0.06] text-white/40'
+                              : 'bg-emerald-500 text-white hover:bg-emerald-400'
+                          }`}>
+                            {uploadingTo === j.id
+                              ? t('workspace.uploading', 'Uploading…')
+                              : `⬆ ${t('workspace.upload_file', 'Upload a file')}`}
+                            <input type="file" className="hidden" disabled={uploadingTo === j.id}
+                              onChange={e => {
+                                const file = e.target.files?.[0]
+                                e.target.value = ''       // same file twice should still work
+                                uploadDeliverable(j, file, true)
+                              }} />
+                          </label>
+                          <span className="text-[10px] text-white/30">
+                            {t('workspace.upload_client_note', 'Uploaded files are visible to the client')}
+                          </span>
+                        </div>
                       </div>
                     ))}
                     <p className="text-[11px] text-white/30 pt-2">
-                      {t('workspace.upload_hint', 'Upload deliverables from your dashboard job list (My Jobs).')}
+                      {t('workspace.documents_note', 'These are the files attached to your client jobs. Quick drafts you write here live under Drafts, and can be downloaded to finish in Word or Excel.')}
                     </p>
                   </div>
                 )}
