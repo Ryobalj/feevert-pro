@@ -339,8 +339,19 @@ class ConsultationRequestCreateSerializer(serializers.ModelSerializer):
         return attrs
 
     def validate_preferred_date(self, value):
+        """Yesterday is a mistake; today is not.
+
+        This compared against `timezone.now()`, and a date field arrives as
+        midnight — so from one minute past midnight onwards, choosing *today*
+        was rejected as "in the past". Every request made today failed, with
+        an error that blamed the client for picking the current date. Compare
+        whole days, in Dar es Salaam time rather than UTC, since that is the
+        day the person filling the form is living in.
+        """
         from django.utils import timezone
-        if value < timezone.now():
+
+        chosen = timezone.localtime(value).date() if timezone.is_aware(value) else value.date()
+        if chosen < timezone.localdate():
             raise serializers.ValidationError("Preferred date cannot be in the past")
         return value
 

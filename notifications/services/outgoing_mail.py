@@ -29,6 +29,12 @@ from ..models import OutgoingEmail
 logger = logging.getLogger(__name__)
 
 
+class AttachmentError(Exception):
+    """An attachment could not be stored, so the message must not go out
+    pretending to carry it."""
+
+
+
 def _tracking_url(out):
     base = (getattr(settings, 'BACKEND_URL', '') or '').rstrip('/')
     return f'{base}/api/mail/open/{out.tracking_id}.gif'
@@ -73,7 +79,14 @@ def _store_attachments(files):
                 'content_type': getattr(f, 'content_type', '') or 'application/octet-stream',
             })
         except Exception as e:
+            # Loudly. This used to be swallowed, and the message went out
+            # without the file while the sender was told it had been sent —
+            # the worst of both, because nobody knew to try again.
             logger.error('Could not store attachment %s: %s', getattr(f, 'name', '?'), e)
+            raise AttachmentError(
+                f'The file "{getattr(f, "name", "attachment")}" could not be saved, '
+                f'so the message was not sent: {e}'
+            ) from e
     return saved
 
 
@@ -127,6 +140,10 @@ def _load_attachments(rows):
                             row.get('content_type') or 'application/octet-stream'))
         except Exception as e:
             logger.error('Could not read attachment %s: %s', row.get('path'), e)
+            raise AttachmentError(
+                f'The file "{row.get("name") or row.get("path")}" could not be read back, '
+                'so the message was not sent.'
+            ) from e
     return out
 
 
@@ -156,8 +173,8 @@ def attempt(out):
     recipients = [r.strip() for r in out.to_email.split(',') if r.strip()]
     out.attempts += 1
 
-    files = _load_attachments(out.attachments)
     try:
+        files = _load_attachments(out.attachments)
         if out.account:
             result = EmailOutboundService.send_via_account(
                 account=out.account, to_email=recipients,

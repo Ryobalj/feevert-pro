@@ -6,7 +6,7 @@ we sent.
 from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 from rest_framework.test import APIClient
@@ -320,6 +320,9 @@ class OutgoingAttachmentTests(TestCase):
         self.email = make_email(self.account, 'Please send the report')
         self.api = APIClient()
         self.api.force_authenticate(self.user)
+        # Creating a user sends a welcome email; start counting from here.
+        from django.core import mail
+        mail.outbox.clear()
 
     def _file(self, name='report.pdf', body=b'%PDF-1.4 report'):
         from django.core.files.uploadedfile import SimpleUploadedFile
@@ -481,3 +484,71 @@ class JobFileAttachmentTests(TestCase):
             }, format='multipart')
         self.assertEqual([a[0] for a in sent['attachments']],
                          ['note.txt', 'Water study final.pdf'])
+
+
+@override_settings(DEFAULT_FILE_STORAGE='django.core.files.storage.FileSystemStorage',
+                   EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend')
+class AttachmentEndToEndTests(TestCase):
+    """The whole path a file takes: multipart upload -> storage -> the message
+    that actually leaves. Mocking the sender proved the plumbing but not that
+    the bytes arrive, and 'attachments don't go' is exactly that gap."""
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='staff', email='staff@feevert.co.tz', password='x')
+        self.account = EmailAccount.objects.create(
+            email_address='info@feevert.co.tz', is_shared=True, is_active=True)
+        self.email = make_email(self.account, 'Please send the report')
+        self.api = APIClient()
+        self.api.force_authenticate(self.user)
+        # Creating a user sends a welcome email — start counting from here, or
+        # every assertion about "the message that went out" is off by one.
+        from django.core import mail
+        mail.outbox.clear()
+
+    def test_the_file_reaches_the_outgoing_message(self):
+        from django.core import mail
+        from django.core.files.uploadedfile import SimpleUploadedFile
+
+        res = self.api.post(f'/api/v1/email-inbox/{self.email.id}/reply/', {
+            'body': 'Here is the report',
+            'attachments': SimpleUploadedFile('report.pdf', b'%PDF-1.4 real bytes',
+                                              content_type='application/pdf'),
+        }, format='multipart')
+
+        self.assertEqual(res.status_code, 200, res.data)
+        self.assertEqual(len(mail.outbox), 1)
+        sent = mail.outbox[0]
+        self.assertEqual(len(sent.attachments), 1, 'the file never made it onto the message')
+        name, content, content_type = sent.attachments[0]
+        self.assertEqual(name, 'report.pdf')
+        self.assertEqual(content, b'%PDF-1.4 real bytes')
+        self.assertEqual(content_type, 'application/pdf')
+
+    def test_a_storage_failure_stops_the_send_and_says_so(self):
+        """The old behaviour was the dangerous one: the file was dropped, the
+        mail went anyway, and the sender was told it had been sent."""
+        from django.core import mail
+
+        from django.core.files.uploadedfile import SimpleUploadedFile
+
+        with patch('django.core.files.storage.FileSystemStorage.save',
+                   side_effect=OSError('disk is full')):
+            res = self.api.post(f'/api/v1/email-inbox/{self.email.id}/reply/', {
+                'body': 'Here it is',
+                'attachments': SimpleUploadedFile('report.pdf', b'x', content_type='application/pdf'),
+            }, format='multipart')
+
+        self.assertEqual(res.status_code, 400)
+        self.assertIn('report.pdf', res.data['error'])
+        self.assertEqual(len(mail.outbox), 0, 'a message went out without its attachment')
+        self.assertFalse(OutgoingEmail.objects.exists())
+
+    def test_a_message_with_no_attachment_still_sends(self):
+        from django.core import mail
+
+        res = self.api.post(f'/api/v1/email-inbox/{self.email.id}/reply/',
+                            {'body': 'No file needed'}, format='json')
+        self.assertEqual(res.status_code, 200, res.data)
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(len(mail.outbox[0].attachments), 0)

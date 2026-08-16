@@ -580,12 +580,15 @@ class IncomingEmailViewSet(viewsets.ReadOnlyModelViewSet):
         # Recorded before it's sent, so a refusal by the mail server becomes a
         # scheduled retry instead of a lost message.
         from .services import outgoing_mail
-        out = outgoing_mail.send_now(
-            to_email=to_email, subject=subject, body=body,
-            account=account, user=request.user,
-            attachments=request.FILES.getlist('attachments'),
-            document_ids=self._document_ids(request),
-        )
+        try:
+            out = outgoing_mail.send_now(
+                to_email=to_email, subject=subject, body=body,
+                account=account, user=request.user,
+                attachments=request.FILES.getlist('attachments'),
+                document_ids=self._document_ids(request),
+            )
+        except outgoing_mail.AttachmentError as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
         return Response({
             'success': out.status == 'sent',
             'queued': out.status in ('queued', 'failed'),
@@ -692,19 +695,22 @@ class IncomingEmailViewSet(viewsets.ReadOnlyModelViewSet):
             send_account = match
 
         from .services import outgoing_mail
-        out = outgoing_mail.send_now(
-            to_email=email.sender,
-            subject=reply_subject,
-            body=serializer.validated_data['body'],
-            html_body=serializer.validated_data.get('body_html'),
-            account=send_account,
-            user=request.user,
-            reply_to_email=email,
-            # A client sees a document when it is sent to them, so this is the
-            # only door files go out of — from a laptop, or straight off the job.
-            attachments=request.FILES.getlist('attachments'),
-            document_ids=self._document_ids(request),
-        )
+        try:
+            out = outgoing_mail.send_now(
+                to_email=email.sender,
+                subject=reply_subject,
+                body=serializer.validated_data['body'],
+                html_body=serializer.validated_data.get('body_html'),
+                account=send_account,
+                user=request.user,
+                reply_to_email=email,
+                # A client sees a document when it is sent to them, so this is
+                # the only door files go out of — from a laptop, or off the job.
+                attachments=request.FILES.getlist('attachments'),
+                document_ids=self._document_ids(request),
+            )
+        except outgoing_mail.AttachmentError as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
         email.is_processed = True
         email.save(update_fields=['is_processed'])
