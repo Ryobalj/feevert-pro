@@ -19,6 +19,8 @@ const SECTIONS = [
   // Shown only to the accountant — see canFinance below.
   { key: 'finance',  label: 'Finance',   icon: '💰', financeOnly: true },
   { key: 'tasks',    label: 'Tasks',     icon: '✅' },
+  // The queue of requests nobody has picked up — admins and consultants only.
+  { key: 'requests', label: 'Requests',  icon: '📥', delegateOnly: true },
   { key: 'calendar', label: 'Calendar',  icon: '📅' },
   { key: 'notes',    label: 'Notes',     icon: '📝' },
   { key: 'drafts',   label: 'Drafts',    icon: '✍️' },
@@ -79,6 +81,8 @@ const WorkspacePage = () => {
   // The calculator is a window now, not a page you have to go to —
   // you add up a quote while looking at the quote.
   const [calcOpen, setCalcOpen] = useState(false)
+  const [queue, setQueue] = useState([])          // requests waiting for someone
+  const [assigning, setAssigning] = useState(null)  // the request being handed out
 
   const canDelegate = useMemo(() => {
     const role = (user?.role_name || user?.role?.name || '').toLowerCase()
@@ -111,6 +115,20 @@ const WorkspacePage = () => {
 
   useEffect(() => { load() }, [load, refresh])
 
+  // A request nobody owns is the one thing here with a client waiting at the
+  // other end, so it is fetched on its own and kept in front.
+  const loadQueue = useCallback(async () => {
+    if (!canDelegate) return
+    try {
+      const res = await api.get('/consultation-requests/?status=pending&page_size=50')
+      setQueue(res.data?.results || res.data || [])
+    } catch (e) {
+      console.error('queue load failed', e)
+    }
+  }, [canDelegate])
+
+  useEffect(() => { loadQueue() }, [loadQueue, refresh])
+
   useEffect(() => {
     api.get('/workspace/colleagues/')
       .then(res => setPeople(res.data || []))
@@ -129,6 +147,7 @@ const WorkspacePage = () => {
   // they still need it to submit work for review.
   const visibleSections = useMemo(() => SECTIONS.filter(s => {
     if (s.financeOnly) return canFinance
+    if (s.delegateOnly) return canDelegate
     if (s.key === 'tasks') return canDelegate || myTasks.length > 0
     return true
   }), [canFinance, canDelegate, myTasks])
@@ -150,6 +169,26 @@ const WorkspacePage = () => {
     }, 300)
     return () => clearTimeout(id)
   }, [emailSearch, newTask])
+
+  const assignRequest = async (job, userId) => {
+    try {
+      await api.post(`/consultation-requests/${job.id}/assign/`, { consultant_id: userId })
+      setAssigning(null)
+      await Promise.all([loadQueue(), load()])
+    } catch (err) {
+      alert(err.response?.data?.error || t('workspace.assign_failed', 'Could not assign it'))
+    }
+  }
+
+  const cancelRequest = async (job) => {
+    if (!window.confirm(t('workspace.cancel_request_confirm', 'Turn this request down?'))) return
+    try {
+      await api.post(`/consultation-requests/${job.id}/update_status/`, { status: 'cancelled' })
+      await loadQueue()
+    } catch (err) {
+      alert(err.response?.data?.error || t('workspace.cancel_failed', 'Could not cancel it'))
+    }
+  }
 
   // ---- task actions
   const saveTask = async (e) => {
@@ -445,6 +484,12 @@ const WorkspacePage = () => {
                 </p>
               </div>
               <div className="flex gap-2">
+                {canDelegate && queue.length > 0 && (
+                  <button onClick={() => setSection('requests')}
+                    className="px-4 py-2.5 rounded-xl bg-amber-500/20 text-amber-200 text-sm font-semibold hover:bg-amber-500/30">
+                    📥 {t('workspace.new_requests', 'New requests')} <span className="font-bold">{queue.length}</span>
+                  </button>
+                )}
                 <Link to="/email-inbox" className="px-4 py-2.5 rounded-xl bg-white/[0.06] text-white/80 text-sm font-semibold hover:bg-white/10">
                   📥 {t('workspace.inbox', 'Inbox')}{mailUnread > 0 && <span className="ml-1.5 text-emerald-400">{mailUnread}</span>}
                 </Link>
@@ -700,6 +745,89 @@ const WorkspacePage = () => {
             )}
 
             {/* ---------- CALENDAR ---------- */}
+            {/* ---------- REQUESTS WAITING ---------- */}
+            {section === 'requests' && (
+              <div className="glass-card p-5">
+                <div className="flex items-center justify-between mb-1">
+                  <h2 className="text-base font-bold text-white">
+                    {t('workspace.new_requests', 'New requests')}
+                  </h2>
+                  {queue.length > 0 && (
+                    <span className="text-[11px] px-2 py-1 rounded-full bg-amber-500/20 text-amber-300 font-bold">
+                      {queue.length} {t('workspace.waiting', 'waiting')}
+                    </span>
+                  )}
+                </div>
+                <p className="text-white/40 text-sm mb-4">
+                  {t('workspace.requests_hint', 'A client is waiting at the other end of each of these. Hand it to whoever will do the work.')}
+                </p>
+
+                {queue.length === 0 ? (
+                  <p className="text-white/30 text-sm py-10 text-center">
+                    {t('workspace.no_requests', 'Nothing waiting — every request has someone on it')}
+                  </p>
+                ) : (
+                  <div className="space-y-2">
+                    {queue.map(job => (
+                      <div key={job.id} className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.06]">
+                        <div className="flex flex-wrap items-start justify-between gap-2">
+                          <div className="min-w-0">
+                            <p className="text-sm font-semibold text-white/90 truncate">
+                              {job.item_name || job.category_name || job.service_name
+                                || t('workspace.a_consultation', 'Consultation')}
+                            </p>
+                            <p className="text-[11px] text-white/45 truncate">
+                              👤 {job.client_name || job.client_email}
+                              {job.preferred_date && ` · 📅 ${new Date(job.preferred_date).toLocaleString([], {
+                                day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}`}
+                              {job.budget_range && ` · 💰 ${job.budget_range}`}
+                            </p>
+                            {job.message && (
+                              <p className="text-[11px] text-white/35 mt-1 line-clamp-2">{job.message}</p>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-1.5 flex-shrink-0">
+                            <button onClick={() => setAssigning(assigning === job.id ? null : job.id)}
+                              className="px-3 py-1.5 rounded-lg bg-emerald-500 text-white text-xs font-semibold hover:bg-emerald-400">
+                              👤 {t('workspace.assign', 'Assign')}
+                            </button>
+                            <Link to={`/consultations/${job.id}`}
+                              className="px-3 py-1.5 rounded-lg bg-white/[0.06] text-white/70 text-xs font-semibold hover:bg-white/10">
+                              {t('workspace.open', 'Open')}
+                            </Link>
+                            <button onClick={() => cancelRequest(job)}
+                              title={t('workspace.turn_down', 'Turn down')}
+                              className="px-2 py-1.5 rounded-lg text-white/30 hover:text-red-300 text-xs">✕</button>
+                          </div>
+                        </div>
+
+                        {/* Who does it go to: the people who can be given work. */}
+                        {assigning === job.id && (
+                          <div className="mt-2 pt-2 border-t border-white/[0.06]">
+                            <p className="text-[11px] text-white/40 mb-1.5">
+                              {t('workspace.assign_to_whom', 'Hand it to')}
+                            </p>
+                            <div className="flex flex-wrap gap-1.5">
+                              {assignables.length === 0 ? (
+                                <span className="text-[11px] text-white/30">
+                                  {t('workspace.nobody_to_assign', 'No staff available')}
+                                </span>
+                              ) : assignables.map(u => (
+                                <button key={u.id} onClick={() => assignRequest(job, u.id)}
+                                  className="px-2.5 py-1 rounded-full text-[11px] bg-white/[0.06] text-white/70 hover:bg-emerald-500 hover:text-white">
+                                  {u.full_name || u.username}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
             {section === 'calendar' && (
               <div className="glass-card p-5">
                 <div className="flex items-center justify-between mb-4">

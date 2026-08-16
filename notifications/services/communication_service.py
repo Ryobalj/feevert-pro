@@ -106,15 +106,36 @@ class CommunicationService:
 
     @staticmethod
     def notify_new_consultation(consultation):
-        """Admin anaarifiwa kuhusu consultation mpya"""
-        NotificationDispatcher.send_to_admins(
-            notification_type='email',
-            title='New Consultation Request',
-            message=f"New consultation request from {consultation.client.username if hasattr(consultation, 'client') else 'a client'}.",
-            related_link=f'/admin/consultations/consultation/{consultation.id}/change/',
-            object_id=consultation.id,
-            object_type='consultation',
-        )
+        """Tell the people who can actually pick the request up.
+
+        This used to go to `send_to_admins`, which means "role admin OR
+        is_staff" — a Django flag that has nothing to do with the job. It
+        reached an employee who cannot assign anything and missed the
+        consultant who can. Admins and consultants, then: the two roles the
+        assign action accepts.
+        """
+        from django.db.models import Q
+        from accounts.models import User
+
+        who = User.objects.filter(
+            Q(role__name__iexact='admin') | Q(role__name__iexact='consultant')
+            | Q(is_superuser=True),
+            is_active=True,
+        ).distinct()
+
+        client = getattr(consultation, 'client', None)
+        name = getattr(client, 'full_name', '') or getattr(client, 'username', 'a client')
+        item = consultation.item_name or 'a consultation'
+        for person in who:
+            NotificationDispatcher.send(
+                recipient=person,
+                notification_type='email',
+                title='New Consultation Request',
+                message=f'{name} requested {item}. Nobody is assigned to it yet.',
+                related_link='/workspace',
+                object_id=consultation.id,
+                object_type='consultation',
+            )
 
     # ============================================================
     # PAYMENT NOTIFICATIONS

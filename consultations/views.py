@@ -207,9 +207,23 @@ class ConsultationRequestViewSet(viewsets.ModelViewSet):
     
     @action(detail=True, methods=['post'])
     def update_status(self, request, pk=None):
-        """Update consultation request status"""
+        """Move a request along its workflow.
+
+        Staff only, with one exception: a client may call off their own
+        request. Everything else — confirming, completing, delivering — is
+        ours to say, and nothing checked that until now: the client owns the
+        object, so `get_object()` handed it over and they could have marked
+        their own job delivered.
+        """
         consultation = self.get_object()
         new_status = request.data.get('status')
+
+        if not is_staff_role(request.user):
+            if not (consultation.client_id == request.user.id and new_status == 'cancelled'):
+                return Response(
+                    {'error': 'Only staff can change the status of a request.'},
+                    status=status.HTTP_403_FORBIDDEN,
+                )
 
         valid_statuses = ['pending', 'confirmed', 'in_progress', 'completed', 'delivered', 'cancelled']
         if new_status not in valid_statuses:
@@ -261,8 +275,20 @@ class ConsultationRequestViewSet(viewsets.ModelViewSet):
     
     @action(detail=True, methods=['post'])
     def assign(self, request, pk=None):
-        """Assign a consultant to the request"""
+        """Hand the request to whoever will do the work.
+
+        Admins and consultants only. This had no check at all, which meant the
+        client who raised the request could assign it — to anyone.
+        """
         consultation = self.get_object()
+
+        role = (getattr(request.user, 'role_name', '') or '').strip().lower()
+        if not (role in ('admin', 'consultant') or request.user.is_superuser):
+            return Response(
+                {'error': 'Only admins and consultants can assign a request.'},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
         consultant_id = request.data.get('consultant_id')
         
         from django.contrib.auth import get_user_model
