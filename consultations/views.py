@@ -12,7 +12,8 @@ from django.db.models import Count, Q
 from django.utils import timezone
 
 from accounts.roles import is_staff_role
-from .notify import notify_request_status, notify_request_assigned
+from .notify import (notify_request_status, notify_request_assigned,
+                     notify_request_submitted, notify_request_reviewed)
 from .models import (
     ConsultationCategory, ConsultationService, ConsultationRequest,
     ConsultationDocument, ConsultationFollowup, ServiceImage
@@ -316,6 +317,64 @@ class ConsultationRequestViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_404_NOT_FOUND
             )
     
+    @action(detail=True, methods=['post'])
+    def progress(self, request, pk=None):
+        """How far along the work is. "In progress" for three weeks tells the
+        client nothing; a number moving tells them something."""
+        job = self.get_object()
+        if not is_staff_role(request.user):
+            return Response({'error': 'Staff only.'}, status=status.HTTP_403_FORBIDDEN)
+        try:
+            value = max(0, min(100, int(request.data.get('progress'))))
+        except (TypeError, ValueError):
+            return Response({'error': 'progress must be a number between 0 and 100'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        job.progress = value
+        if value > 0 and job.status in ('pending', 'confirmed'):
+            job.status = 'in_progress'
+        job.save(update_fields=['progress', 'status', 'updated_at'])
+        return Response(self.get_serializer(job).data)
+
+    @action(detail=True, methods=['post'])
+    def submit(self, request, pk=None):
+        """The assignee hands the finished work in for checking.
+
+        Nothing reaches the client on one person's say-so — what leaves here
+        carries the company's name.
+        """
+        job = self.get_object()
+        if job.assigned_to_id != request.user.id and not is_staff_role(request.user):
+            return Response({'error': 'Only the person doing the work can submit it.'},
+                            status=status.HTTP_403_FORBIDDEN)
+        job.status = 'submitted'
+        job.submitted_at = timezone.now()
+        job.progress = max(job.progress, 90)
+        job.save(update_fields=['status', 'submitted_at', 'progress', 'updated_at'])
+        notify_request_submitted(job, actor=request.user)
+        return Response(self.get_serializer(job).data)
+
+    @action(detail=True, methods=['post'])
+    def review(self, request, pk=None):
+        """Approve the work, or send it back saying what is missing."""
+        job = self.get_object()
+        role = (getattr(request.user, 'role_name', '') or '').strip().lower()
+        if not (role in ('admin', 'consultant') or request.user.is_superuser):
+            return Response({'error': 'Only admins and consultants review work.'},
+                            status=status.HTTP_403_FORBIDDEN)
+
+        approve = str(request.data.get('approve', True)).lower() not in ('false', '0', 'no')
+        job.review_notes = request.data.get('notes', '') or ''
+        if approve:
+            job.status = 'completed'
+            job.progress = 100
+            job.completed_at = timezone.now()
+        else:
+            job.status = 'returned'
+            job.progress = min(job.progress, 80)
+        job.save()
+        notify_request_reviewed(job, approved=approve, actor=request.user)
+        return Response(self.get_serializer(job).data)
+
     @action(detail=True, methods=['post'])
     def add_note(self, request, pk=None):
         """Add admin note to consultation"""

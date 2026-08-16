@@ -31,6 +31,7 @@ import Dashboard from './features/accounts/pages/Dashboard'
 import MessagesPage from './features/realtime/pages/MessagesPage'
 import EmailInboxPage from './features/notifications/pages/EmailInboxPage'
 import WorkspacePage from './features/accounts/pages/WorkspacePage'
+import WorkPage from './features/accounts/pages/WorkPage'
 import AdminEmailAccountsPage from './features/notifications/pages/AdminEmailAccountsPage'
 import SettingsPage from './features/accounts/pages/SettingsPage'
 import ForgotPassword from './features/accounts/pages/ForgotPassword'
@@ -163,6 +164,8 @@ function App() {
               <Route path="/messages" element={<ProtectedRoute><MessagesPage /></ProtectedRoute>} />
               <Route path="/email-inbox" element={<ProtectedRoute><EmailInboxPage /></ProtectedRoute>} />
               <Route path="/workspace" element={<ProtectedRoute><WorkspacePage /></ProtectedRoute>} />
+              {/* One page per piece of work — a client job or an internal task */}
+              <Route path="/work/:kind/:id" element={<ProtectedRoute><WorkPage /></ProtectedRoute>} />
               <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
 
               {/* Admin */}

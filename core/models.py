@@ -252,3 +252,165 @@ class CalendarEvent(BaseModel):
         if not self.remind_minutes:
             return None
         return self.starts_at - timedelta(minutes=self.remind_minutes)
+
+
+# ============================================================
+# ONE UNIT OF WORK — the notes on it, and the field data behind it
+# ============================================================
+
+class WorkNote(BaseModel):
+    """A line in the conversation about one piece of work.
+
+    Both a client job and an internal task need the same thing: somewhere to
+    say "site visit done, waiting on the lab" so the next person — or the
+    same person next week — knows where it stands. Kept internal by default;
+    a note is only shown to the client when someone decides it should be.
+    """
+
+    job = models.ForeignKey(
+        'consultations.ConsultationRequest', on_delete=models.CASCADE,
+        null=True, blank=True, related_name='work_notes',
+    )
+    task = models.ForeignKey(
+        Task, on_delete=models.CASCADE, null=True, blank=True, related_name='work_notes',
+    )
+    author = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True,
+        related_name='work_notes',
+    )
+    body = models.TextField()
+    is_internal = models.BooleanField(
+        default=True, help_text='Internal notes are never shown to the client')
+
+    class Meta:
+        ordering = ['created_at']
+        indexes = [models.Index(fields=['job', 'created_at']),
+                   models.Index(fields=['task', 'created_at'])]
+
+    def __str__(self):
+        return f'{self.author}: {self.body[:40]}'
+
+
+class FieldSheet(BaseModel):
+    """Field data collected for a job: a checklist, a set of readings, or a
+    risk assessment.
+
+    These three cover what this company actually does. An environmental audit
+    or an OHS inspection is a checklist walked through on site; a noise, dust
+    or water study is a column of readings that has to be summarised and
+    compared against a limit; a risk assessment is likelihood times severity.
+    Doing any of them in a notebook and retyping them into Word is where the
+    hours and the mistakes go.
+
+    `rows` holds the data as filled; the analysis (averages, exceedances, risk
+    ratings) is computed on read so that correcting a number corrects the
+    conclusion — a stored total would quietly go stale.
+    """
+
+    KIND_CHOICES = (
+        ('checklist', 'Checklist / inspection'),
+        ('measurements', 'Measurements'),
+        ('risk', 'Risk assessment'),
+    )
+
+    job = models.ForeignKey(
+        'consultations.ConsultationRequest', on_delete=models.CASCADE,
+        null=True, blank=True, related_name='field_sheets',
+    )
+    task = models.ForeignKey(
+        Task, on_delete=models.CASCADE, null=True, blank=True, related_name='field_sheets',
+    )
+    kind = models.CharField(max_length=20, choices=KIND_CHOICES, default='checklist')
+    title = models.CharField(max_length=200)
+    template_key = models.CharField(max_length=60, blank=True)
+
+    # measurements: what is being measured, and what it may not exceed
+    parameter = models.CharField(max_length=100, blank=True)
+    unit = models.CharField(max_length=30, blank=True)
+    limit_value = models.FloatField(null=True, blank=True)
+    limit_source = models.CharField(
+        max_length=200, blank=True, help_text='e.g. TBS / NEMC / WHO guideline')
+
+    location = models.CharField(max_length=200, blank=True)
+    collected_on = models.DateField(null=True, blank=True)
+    rows = models.JSONField(default=list, blank=True)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True,
+        related_name='field_sheets',
+    )
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f'{self.title} ({self.kind})'
+
+    # ---- analysis ---------------------------------------------------------
+    def _numbers(self):
+        out = []
+        for row in self.rows or []:
+            try:
+                out.append(float(row.get('value')))
+            except (TypeError, ValueError):
+                continue
+        return out
+
+    def summary(self):
+        """What the sheet says, worked out from what is in it."""
+        if self.kind == 'measurements':
+            values = self._numbers()
+            if not values:
+                return {'count': 0}
+            n = len(values)
+            mean = sum(values) / n
+            # Population standard deviation: these are the readings taken, not
+            # a sample of a larger set.
+            variance = sum((v - mean) ** 2 for v in values) / n
+            out = {
+                'count': n,
+                'mean': round(mean, 3),
+                'min': round(min(values), 3),
+                'max': round(max(values), 3),
+                'std_dev': round(variance ** 0.5, 3),
+            }
+            if self.limit_value is not None:
+                over = [v for v in values if v > self.limit_value]
+                out.update({
+                    'limit': self.limit_value,
+                    'exceedances': len(over),
+                    'worst_exceedance': round(max(over), 3) if over else None,
+                    'compliant': not over,
+                })
+            return out
+
+        if self.kind == 'risk':
+            bands = {'low': 0, 'medium': 0, 'high': 0, 'extreme': 0}
+            worst = 0
+            for row in self.rows or []:
+                try:
+                    score = int(row.get('likelihood', 0)) * int(row.get('severity', 0))
+                except (TypeError, ValueError):
+                    continue
+                worst = max(worst, score)
+                bands[self.risk_band(score)] += 1
+            return {'count': len(self.rows or []), 'highest_score': worst,
+                    'highest_band': self.risk_band(worst), **bands}
+
+        done = sum(1 for r in (self.rows or []) if r.get('status') == 'yes')
+        failed = sum(1 for r in (self.rows or []) if r.get('status') == 'no')
+        total = len(self.rows or [])
+        return {
+            'count': total, 'compliant': done, 'findings': failed,
+            'percent': round(done * 100 / total) if total else 0,
+        }
+
+    @staticmethod
+    def risk_band(score):
+        """The 5x5 matrix every OHS report in the country uses."""
+        if score >= 15:
+            return 'extreme'
+        if score >= 8:
+            return 'high'
+        if score >= 4:
+            return 'medium'
+        return 'low'

@@ -686,9 +686,11 @@ const WorkspacePage = () => {
                           {tk.status === 'done' ? '✓' : ''}
                         </button>
                         <div className="min-w-0 flex-1">
-                          <p className={`text-sm truncate ${tk.status === 'done' ? 'text-white/35 line-through' : 'text-white/85'}`}>
+                          <Link to={`/work/task/${tk.id}`}
+                            className={`text-sm truncate block hover:text-emerald-300 ${
+                              tk.status === 'done' ? 'text-white/35 line-through' : 'text-white/85'}`}>
                             {tk.title}
-                          </p>
+                          </Link>
                           <div className="flex flex-wrap items-center gap-2 mt-1">
                             <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${STATUS_STYLE[tk.status]}`}>
                               {tk.status_display}
@@ -791,7 +793,7 @@ const WorkspacePage = () => {
                               className="px-3 py-1.5 rounded-lg bg-emerald-500 text-white text-xs font-semibold hover:bg-emerald-400">
                               👤 {t('workspace.assign', 'Assign')}
                             </button>
-                            <Link to={`/consultations/${job.id}`}
+                            <Link to={`/work/job/${job.id}`}
                               className="px-3 py-1.5 rounded-lg bg-white/[0.06] text-white/70 text-xs font-semibold hover:bg-white/10">
                               {t('workspace.open', 'Open')}
                             </Link>
@@ -1132,7 +1134,10 @@ const WorkspacePage = () => {
                       <div key={j.id} className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.06]">
                         <div className="flex items-center justify-between gap-3">
                           <div className="min-w-0">
-                            <p className="text-sm text-white/85 truncate">{j.item_name || j.service_name}</p>
+                            <Link to={`/work/job/${j.id}`}
+                              className="text-sm text-white/85 truncate block hover:text-emerald-300">
+                              {j.item_name || j.service_name}
+                            </Link>
                             <p className="text-[11px] text-white/35">{j.client_name || j.client_email}</p>
                           </div>
                           <span className="text-[10px] px-2 py-1 rounded-full bg-white/10 text-white/60 whitespace-nowrap">

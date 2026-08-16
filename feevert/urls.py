@@ -16,6 +16,7 @@ from rest_framework_simplejwt.views import (
 
 # Staff-only admin helper views
 from core.admin_views import export_seed_download
+from core.work_api import WorkNoteViewSet, FieldSheetViewSet
 from core.workspace_api import (
     TaskViewSet, StickyNoteViewSet, WorkDocumentViewSet, finance_summary,
     CalendarEventViewSet, colleagues, staff_activity,
@@ -112,6 +113,9 @@ router.register(r'tasks', TaskViewSet, basename='task')
 router.register(r'sticky-notes', StickyNoteViewSet, basename='sticky-note')
 router.register(r'work-documents', WorkDocumentViewSet, basename='work-document')
 router.register(r'calendar-events', CalendarEventViewSet, basename='calendar-event')
+# The work itself: notes kept against a job, and the field data behind it
+router.register(r'work-notes', WorkNoteViewSet, basename='work-note')
+router.register(r'field-sheets', FieldSheetViewSet, basename='field-sheet')
 
 # Projects
 router.register(r'project-categories', ProjectCategoryViewSet, basename='project-category')

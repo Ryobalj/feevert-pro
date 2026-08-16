@@ -277,6 +277,7 @@ class ConsultationRequestSerializer(serializers.ModelSerializer):
             'preferred_date', 'preferred_time', 'alternative_date',
             'message', 'budget_range', 'attachments',
             'status', 'status_display', 'priority', 'priority_display',
+            'progress', 'submitted_at', 'review_notes',
             'assigned_to', 'assigned_to_name',
             'admin_notes', 'internal_notes',
             'response_sent_at', 'completed_at', 'is_overdue',

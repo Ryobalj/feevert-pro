@@ -302,6 +302,10 @@ class ConsultationRequest(BaseModel):
         ('pending', 'Pending'),
         ('confirmed', 'Confirmed'),
         ('in_progress', 'In Progress'),
+        # The finished work goes to whoever assigned it before it goes to the
+        # client — the company's name is what leaves the building.
+        ('submitted', 'Submitted for review'),
+        ('returned', 'Returned for changes'),
         ('completed', 'Completed'),
         ('delivered', 'Delivered'),
         ('cancelled', 'Cancelled'),
@@ -350,6 +354,11 @@ class ConsultationRequest(BaseModel):
     status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='pending')
     priority = models.CharField(max_length=50, choices=PRIORITY_CHOICES, default='medium')
     
+    # How far along, in the assignee's own words. Shown to the client as a
+    # bar, because "in progress" for three weeks tells them nothing.
+    progress = models.PositiveSmallIntegerField(default=0, help_text='0-100')
+    submitted_at = models.DateTimeField(blank=True, null=True)
+    review_notes = models.TextField(blank=True)
     admin_notes = models.TextField(blank=True)
     internal_notes = models.TextField(blank=True)
     response_sent_at = models.DateTimeField(blank=True, null=True)

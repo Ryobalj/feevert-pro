@@ -168,3 +168,102 @@ class AssignmentTests(TestCase):
         allowed = api.post(f'/api/v1/consultation-requests/{job.id}/update_status/',
                            {'status': 'in_progress'}, format='json')
         self.assertEqual(allowed.status_code, 200, allowed.data)
+
+
+class WorkflowTests(TestCase):
+    """The round trip: assigned, worked, submitted, checked, delivered."""
+
+    def setUp(self):
+        from django.contrib.auth import get_user_model
+        from accounts.models import Role
+        from notifications.models import Notification
+
+        User = get_user_model()
+        self.admin = User.objects.create_user(
+            username='boss', email='b@feevert.co.tz', password='x',
+            role=Role.objects.create(name='admin'))
+        self.worker = User.objects.create_user(
+            username='worker', email='w@feevert.co.tz', password='x',
+            role=Role.objects.create(name='Normal Employee'))
+        self.client_user = User.objects.create_user(
+            username='client2', email='c2@example.com', password='x',
+            role=Role.objects.create(name='Client'))
+        self.category = ConsultationCategory.objects.create(
+            name='Risk Assessment', slug='risk-assessment-2', is_active=True)
+
+        from .models import ConsultationRequest
+        self.job = ConsultationRequest.objects.create(
+            client=self.client_user, category=self.category,
+            preferred_date=timezone.now() + timedelta(days=3),
+            message='Assess our workshop', assigned_to=self.worker, status='confirmed',
+        )
+        Notification.objects.all().delete()
+
+    def _api(self, who):
+        from rest_framework.test import APIClient
+        api = APIClient()
+        api.force_authenticate(who)
+        return api
+
+    def test_progress_moves_the_job_into_in_progress(self):
+        res = self._api(self.worker).post(
+            f'/api/v1/consultation-requests/{self.job.id}/progress/',
+            {'progress': 40}, format='json')
+        self.assertEqual(res.status_code, 200, res.data)
+        self.job.refresh_from_db()
+        self.assertEqual(self.job.progress, 40)
+        self.assertEqual(self.job.status, 'in_progress')
+
+    def test_the_worker_submits_and_the_reviewers_hear_about_it(self):
+        from notifications.models import Notification
+
+        res = self._api(self.worker).post(
+            f'/api/v1/consultation-requests/{self.job.id}/submit/')
+        self.assertEqual(res.status_code, 200, res.data)
+        self.job.refresh_from_db()
+        self.assertEqual(self.job.status, 'submitted')
+        self.assertIsNotNone(self.job.submitted_at)
+        self.assertTrue(Notification.objects.filter(
+            recipient=self.admin, title='Work submitted for review').exists())
+
+    def test_sending_it_back_says_why_and_the_worker_is_told(self):
+        from notifications.models import Notification
+
+        self._api(self.worker).post(f'/api/v1/consultation-requests/{self.job.id}/submit/')
+        Notification.objects.all().delete()
+
+        res = self._api(self.admin).post(
+            f'/api/v1/consultation-requests/{self.job.id}/review/',
+            {'approve': False, 'notes': 'Add the noise readings'}, format='json')
+        self.assertEqual(res.status_code, 200, res.data)
+        self.job.refresh_from_db()
+        self.assertEqual(self.job.status, 'returned')
+        self.assertEqual(self.job.review_notes, 'Add the noise readings')
+        note = Notification.objects.get(recipient=self.worker)
+        self.assertIn('Add the noise readings', note.message)
+
+    def test_approval_completes_it_at_100_percent(self):
+        self._api(self.worker).post(f'/api/v1/consultation-requests/{self.job.id}/submit/')
+        self._api(self.admin).post(f'/api/v1/consultation-requests/{self.job.id}/review/',
+                                   {'approve': True}, format='json')
+        self.job.refresh_from_db()
+        self.assertEqual(self.job.status, 'completed')
+        self.assertEqual(self.job.progress, 100)
+        self.assertIsNotNone(self.job.completed_at)
+
+    def test_an_employee_cannot_approve_their_own_work(self):
+        self._api(self.worker).post(f'/api/v1/consultation-requests/{self.job.id}/submit/')
+        res = self._api(self.worker).post(
+            f'/api/v1/consultation-requests/{self.job.id}/review/',
+            {'approve': True}, format='json')
+        self.assertEqual(res.status_code, 403)
+        self.job.refresh_from_db()
+        self.assertEqual(self.job.status, 'submitted')
+
+    def test_the_client_never_sees_the_working_notes(self):
+        from core.models import WorkNote
+
+        WorkNote.objects.create(job=self.job, author=self.worker,
+                                body='Client was difficult about access')
+        rows = self._api(self.client_user).get('/api/v1/work-notes/').data
+        self.assertEqual(len(rows.get('results', rows)), 0)

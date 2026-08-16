@@ -437,3 +437,121 @@ class TaskAttachmentTests(TestCase):
         rows = res.data.get('results', res.data)
         self.assertEqual(len(rows), 1)
         self.assertEqual(rows[0]['subject'], 'Tender documents')
+
+
+class FieldSheetTests(TestCase):
+    """The sheets add themselves up — that arithmetic is the whole point, so
+    it is the thing worth testing."""
+
+    def setUp(self):
+        from accounts.models import Role
+        from .models import FieldSheet
+
+        staff = Role.objects.create(name='Normal Employee')
+        self.staff = User.objects.create_user(
+            username='field', email='f@feevert.co.tz', password='x', role=staff)
+        self.client_user = User.objects.create_user(
+            username='mteja', email='c@example.com', password='x',
+            role=Role.objects.create(name='Client'))
+        self.api = APIClient()
+        self.api.force_authenticate(self.staff)
+
+    def _sheet(self, **kw):
+        from .models import FieldSheet
+        kw.setdefault('title', 'Sheet')
+        kw.setdefault('created_by', self.staff)
+        return FieldSheet.objects.create(**kw)
+
+    def test_readings_are_averaged_and_the_spread_reported(self):
+        sheet = self._sheet(kind='measurements', rows=[
+            {'point': 'A', 'value': '70'}, {'point': 'B', 'value': '80'},
+            {'point': 'C', 'value': '90'},
+        ])
+        s = sheet.summary()
+        self.assertEqual(s['count'], 3)
+        self.assertEqual(s['mean'], 80)
+        self.assertEqual(s['min'], 70)
+        self.assertEqual(s['max'], 90)
+        self.assertAlmostEqual(s['std_dev'], 8.165, places=2)
+
+    def test_a_reading_over_the_limit_is_counted_not_buried(self):
+        sheet = self._sheet(kind='measurements', limit_value=85, rows=[
+            {'value': '80'}, {'value': '92.5'}, {'value': '88'},
+        ])
+        s = sheet.summary()
+        self.assertFalse(s['compliant'])
+        self.assertEqual(s['exceedances'], 2)
+        self.assertEqual(s['worst_exceedance'], 92.5)
+
+    def test_readings_that_are_not_numbers_are_skipped_not_fatal(self):
+        """A half-filled sheet is the normal state during a site visit."""
+        sheet = self._sheet(kind='measurements', rows=[
+            {'value': '70'}, {'value': ''}, {'value': 'n/a'}, {'value': '90'},
+        ])
+        s = sheet.summary()
+        self.assertEqual(s['count'], 2)
+        self.assertEqual(s['mean'], 80)
+
+    def test_risk_is_likelihood_times_severity_and_banded(self):
+        sheet = self._sheet(kind='risk', rows=[
+            {'hazard': 'Height', 'likelihood': 4, 'severity': 5},    # 20 extreme
+            {'hazard': 'Noise', 'likelihood': 3, 'severity': 3},     # 9  high
+            {'hazard': 'Trip', 'likelihood': 2, 'severity': 2},      # 4  medium
+            {'hazard': 'Paper cut', 'likelihood': 1, 'severity': 1}, # 1  low
+        ])
+        s = sheet.summary()
+        self.assertEqual(s['highest_score'], 20)
+        self.assertEqual(s['highest_band'], 'extreme')
+        self.assertEqual((s['extreme'], s['high'], s['medium'], s['low']), (1, 1, 1, 1))
+
+    def test_a_checklist_counts_findings(self):
+        sheet = self._sheet(kind='checklist', rows=[
+            {'item': 'Extinguishers', 'status': 'yes'},
+            {'item': 'Exits clear', 'status': 'no'},
+            {'item': 'First aid', 'status': 'yes'},
+            {'item': 'Not applicable', 'status': 'na'},
+        ])
+        s = sheet.summary()
+        self.assertEqual(s['compliant'], 2)
+        self.assertEqual(s['findings'], 1)
+        self.assertEqual(s['percent'], 50)
+
+    def test_a_template_starts_with_the_right_questions(self):
+        res = self.api.post('/api/v1/field-sheets/from_template/',
+                            {'template_key': 'ohs_risk'}, format='json')
+        self.assertEqual(res.status_code, 201, res.data)
+        self.assertEqual(res.data['kind'], 'risk')
+        self.assertEqual(len(res.data['rows']), 5)
+        self.assertEqual(res.data['summary']['highest_band'], 'high')
+
+    def test_a_measurement_template_carries_its_limit(self):
+        res = self.api.post('/api/v1/field-sheets/from_template/',
+                            {'template_key': 'noise_survey'}, format='json')
+        self.assertEqual(res.data['limit_value'], 85)
+        self.assertEqual(res.data['unit'], 'dB(A)')
+
+    def test_correcting_a_number_corrects_the_conclusion(self):
+        """Nothing is stored pre-computed, so a fix is a fix everywhere."""
+        sheet = self._sheet(kind='measurements', limit_value=85,
+                            rows=[{'value': '95'}])
+        self.assertFalse(sheet.summary()['compliant'])
+        res = self.api.patch(f'/api/v1/field-sheets/{sheet.id}/',
+                             {'rows': [{'value': '75'}]}, format='json')
+        self.assertTrue(res.data['summary']['compliant'])
+
+    def test_a_client_sees_no_field_data_at_all(self):
+        self._sheet(kind='checklist', rows=[{'item': 'x', 'status': 'no'}])
+        api = APIClient()
+        api.force_authenticate(self.client_user)
+        rows = api.get('/api/v1/field-sheets/').data
+        self.assertEqual(len(rows.get('results', rows)), 0)
+
+    def test_export_gives_a_csv_with_the_totals(self):
+        sheet = self._sheet(kind='measurements', limit_value=85,
+                            rows=[{'point': 'A', 'value': '90'}])
+        res = self.api.get(f'/api/v1/field-sheets/{sheet.id}/export/')
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res['Content-Type'], 'text/csv')
+        body = res.content.decode()
+        self.assertIn('90', body)
+        self.assertIn('Exceedances', body)
