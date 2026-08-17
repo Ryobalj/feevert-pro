@@ -41,11 +41,13 @@ class TaskSerializer(serializers.ModelSerializer):
                             'created_at', 'updated_at']
 
     def get_attachment_url(self, obj):
+        # Served by us — see core/file_views.py for why the storage URL isn't
+        # good enough.
         if not obj.attachment:
             return None
+        path = f'/api/v1/files/task-attachment/{obj.id}/'
         request = self.context.get('request')
-        url = obj.attachment.url
-        return request.build_absolute_uri(url) if request else url
+        return request.build_absolute_uri(path) if request else path
 
 
 class StickyNoteSerializer(serializers.ModelSerializer):

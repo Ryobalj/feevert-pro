@@ -391,12 +391,17 @@ class ConsultationDocumentSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'file_size', 'created_at']
     
     def get_file_url(self, obj):
-        if obj.file:
-            request = self.context.get('request')
-            if request:
-                return request.build_absolute_uri(obj.file.url)
-            return obj.file.url
-        return None
+        """Our own download link, not the storage's.
+
+        A Cloudinary URL is public to anyone holding it and 401s for PDFs
+        unless the account allows raw delivery. Going through the API keeps
+        the permission check and works either way.
+        """
+        if not obj.file:
+            return None
+        path = f'/api/v1/files/document/{obj.id}/'
+        request = self.context.get('request')
+        return request.build_absolute_uri(path) if request else path
     
     def get_file_size_display(self, obj):
         if obj.file_size:

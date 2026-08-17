@@ -16,6 +16,7 @@ from rest_framework_simplejwt.views import (
 
 # Staff-only admin helper views
 from core.admin_views import export_seed_download
+from core.file_views import consultation_document, task_attachment
 from core.work_api import WorkNoteViewSet, FieldSheetViewSet
 from core.workspace_api import (
     TaskViewSet, StickyNoteViewSet, WorkDocumentViewSet, finance_summary,
@@ -232,6 +233,11 @@ urlpatterns = [
 
     # Who you can name on a draft or an appointment (any staff member)
     path('api/v1/workspace/colleagues/', colleagues, name='workspace-colleagues'),
+
+    # Files are served by us, not linked straight to Cloudinary: that account
+    # blocks public PDF delivery, and a public link checks nobody's permission.
+    path('api/v1/files/document/<int:pk>/', consultation_document, name='file-document'),
+    path('api/v1/files/task-attachment/<int:pk>/', task_attachment, name='file-task-attachment'),
 
     # Who signed in when, and what they last did (admins only)
     path('api/v1/workspace/staff-activity/', staff_activity, name='workspace-staff-activity'),

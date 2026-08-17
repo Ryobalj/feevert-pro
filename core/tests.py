@@ -2,6 +2,7 @@
 the reminders that make them worth adding."""
 
 from datetime import timedelta
+from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase
@@ -555,3 +556,88 @@ class FieldSheetTests(TestCase):
         body = res.content.decode()
         self.assertIn('90', body)
         self.assertIn('Exceedances', body)
+
+
+class FileServingTests(TestCase):
+    """Files come through our own door: the Cloudinary link 401s for PDFs and
+    checks nobody's permission."""
+
+    def setUp(self):
+        from accounts.models import Role
+        from consultations.models import ConsultationRequest, ConsultationDocument
+        from django.core.files.uploadedfile import SimpleUploadedFile
+
+        staff_role = Role.objects.create(name='Normal Employee')
+        client_role = Role.objects.create(name='Client')
+        self.staff = User.objects.create_user(
+            username='worker', email='w@feevert.co.tz', password='x', role=staff_role)
+        self.client_user = User.objects.create_user(
+            username='mteja', email='c@example.com', password='x', role=client_role)
+        self.other_client = User.objects.create_user(
+            username='mwingine', email='o@example.com', password='x', role=client_role)
+
+        self.job = ConsultationRequest.objects.create(
+            client=self.client_user,
+            preferred_date=timezone.now() + timedelta(days=1), message='...')
+        self.internal = ConsultationDocument.objects.create(
+            request=self.job, title='working notes.pdf', uploaded_by=self.staff,
+            file=SimpleUploadedFile('w.pdf', b'%PDF internal', content_type='application/pdf'),
+            is_deliverable=False)
+        self.released = ConsultationDocument.objects.create(
+            request=self.job, title='final report.pdf', uploaded_by=self.staff,
+            file=SimpleUploadedFile('f.pdf', b'%PDF final', content_type='application/pdf'),
+            is_deliverable=True)
+
+    def _get(self, who, doc):
+        api = APIClient()
+        api.force_authenticate(who)
+        return api.get(f'/api/v1/files/document/{doc.id}/')
+
+    def test_staff_can_open_any_file_on_the_job(self):
+        res = self._get(self.staff, self.internal)
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.content, b'%PDF internal')
+        self.assertIn('working notes.pdf', res['Content-Disposition'])
+
+    def test_a_client_gets_what_was_released_to_them(self):
+        res = self._get(self.client_user, self.released)
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.content, b'%PDF final')
+
+    def test_a_client_cannot_open_the_internal_working_file(self):
+        """The old Cloudinary link was public to anyone who had it."""
+        self.assertEqual(self._get(self.client_user, self.internal).status_code, 404)
+
+    def test_another_client_cannot_open_it_at_all(self):
+        self.assertEqual(self._get(self.other_client, self.released).status_code, 404)
+
+    def test_the_link_handed_out_is_ours_not_the_storage_url(self):
+        from consultations.serializers import ConsultationDocumentSerializer
+
+        url = ConsultationDocumentSerializer(self.released).data['file_url']
+        self.assertEqual(url, f'/api/v1/files/document/{self.released.id}/')
+        self.assertNotIn('cloudinary', url)
+
+    def test_a_task_attachment_is_for_the_people_on_the_task(self):
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        from .models import Task
+
+        task = Task.objects.create(
+            title='Read this', assigned_to=self.staff, assigned_by=self.staff,
+            attachment=SimpleUploadedFile('brief.pdf', b'%PDF brief',
+                                          content_type='application/pdf'))
+        api = APIClient()
+        api.force_authenticate(self.staff)
+        mine = api.get(f'/api/v1/files/task-attachment/{task.id}/')
+        self.assertEqual(mine.status_code, 200)
+        self.assertEqual(mine.content, b'%PDF brief')
+
+        api.force_authenticate(self.client_user)
+        theirs = api.get(f'/api/v1/files/task-attachment/{task.id}/')
+        self.assertEqual(theirs.status_code, 403)
+
+    def test_a_storage_that_refuses_says_so_instead_of_serving_nothing(self):
+        with patch('core.file_views.read_file', side_effect=OSError('401 Unauthorized')):
+            res = self._get(self.staff, self.released)
+        self.assertEqual(res.status_code, 502)
+        self.assertIn('401', res.data['error'])
