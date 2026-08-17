@@ -323,7 +323,9 @@
     "upload": "Upload finished work",
     "upload_failed": "Could not upload it",
     "uploading": "Uploading…",
-    "what_is_missing": "What still needs doing?"
+    "what_is_missing": "What still needs doing?",
+    "client_has_it": "sent to client",
+    "internal_only": "internal"
   },
   "sheets": {
     "add_row": "Add row",

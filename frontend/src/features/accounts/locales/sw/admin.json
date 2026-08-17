@@ -323,7 +323,9 @@
     "upload": "Pakia kazi iliyokamilika",
     "upload_failed": "Imeshindwa kupakia",
     "uploading": "Inapakia…",
-    "what_is_missing": "Nini bado kinatakiwa kufanyika?"
+    "what_is_missing": "Nini bado kinatakiwa kufanyika?",
+    "client_has_it": "imetumwa kwa mteja",
+    "internal_only": "ya ndani"
   },
   "sheets": {
     "add_row": "Ongeza mstari",

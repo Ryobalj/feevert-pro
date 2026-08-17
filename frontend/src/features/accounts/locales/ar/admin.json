@@ -323,7 +323,9 @@
     "upload": "ارفع العمل المنجز",
     "upload_failed": "تعذّر الرفع",
     "uploading": "جارٍ الرفع…",
-    "what_is_missing": "ما الذي ما زال مطلوباً؟"
+    "what_is_missing": "ما الذي ما زال مطلوباً؟",
+    "client_has_it": "أُرسل للعميل",
+    "internal_only": "داخلي"
   },
   "sheets": {
     "add_row": "أضف صفاً",

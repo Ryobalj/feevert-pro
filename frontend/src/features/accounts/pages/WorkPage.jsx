@@ -175,6 +175,13 @@ const WorkPage = () => {
     )
   }
 
+  // What the client sent us versus what we produced. The deliverable flag
+  // answers a different question — "has it been released" — and using it here
+  // filed your own upload under "what you were given".
+  const fromClient = d => !d.uploaded_by || String(d.uploaded_by) === String(item?.client)
+  const givenDocs = docs.filter(fromClient)
+  const producedDocs = docs.filter(d => !fromClient(d))
+
   const title = isJob
     ? (item.item_name || item.category_name || item.service_name || t('work.a_job', 'Consultation'))
     : item.title
@@ -285,7 +292,7 @@ const WorkPage = () => {
                 </Link>
               </div>
             )}
-            {isJob && docs.filter(d => !d.is_deliverable).map(d => (
+            {isJob && givenDocs.map(d => (
               <a key={d.id} href={d.file_url} target="_blank" rel="noreferrer"
                 className="flex items-center gap-2 p-2.5 rounded-lg bg-white/[0.03] hover:bg-white/[0.07]">
                 <span>📄</span>
@@ -294,7 +301,7 @@ const WorkPage = () => {
               </a>
             ))}
             {((!isJob && !item.attachment_url && !item.related_email)
-              || (isJob && docs.filter(d => !d.is_deliverable).length === 0)) && (
+              || (isJob && givenDocs.length === 0)) && (
               <p className="text-white/30 text-sm">{t('work.nothing_given', 'Nothing was attached')}</p>
             )}
           </div>
@@ -365,13 +372,18 @@ const WorkPage = () => {
               {t('work.results_hint', 'Uploaded files stay internal. The client sees a file when it is emailed to them.')}
             </p>
             <div className="space-y-1.5 mb-3">
-              {docs.filter(d => d.is_deliverable).length === 0 ? (
+              {producedDocs.length === 0 ? (
                 <p className="text-white/30 text-sm">{t('work.no_results', 'Nothing uploaded yet')}</p>
-              ) : docs.filter(d => d.is_deliverable).map(d => (
+              ) : producedDocs.map(d => (
                 <a key={d.id} href={d.file_url} target="_blank" rel="noreferrer"
                   className="flex items-center gap-2 p-2.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/15">
                   <span>📦</span>
                   <span className="text-sm text-emerald-200 underline truncate">{d.title}</span>
+                  <span className="ml-auto text-[10px] flex-shrink-0">
+                    {d.is_deliverable
+                      ? <span className="text-emerald-300">✓ {t('work.client_has_it', 'sent to client')}</span>
+                      : <span className="text-white/35">🔒 {t('work.internal_only', 'internal')}</span>}
+                  </span>
                 </a>
               ))}
             </div>
@@ -428,7 +440,7 @@ const WorkPage = () => {
             {isJob && canDelegate && ['completed', 'submitted'].includes(item.status) && (
               <button
                 onClick={() => {
-                  const ids = docs.filter(d => !d.is_deliverable).map(d => d.id)
+                  const ids = producedDocs.map(d => d.id)
                   act('deliver', { document_ids: ids })
                 }}
                 disabled={busy}

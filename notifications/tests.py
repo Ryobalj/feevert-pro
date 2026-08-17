@@ -552,3 +552,99 @@ class AttachmentEndToEndTests(TestCase):
         self.assertEqual(res.status_code, 200, res.data)
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(len(mail.outbox[0].attachments), 0)
+
+
+class AttachmentDeliveryTests(TestCase):
+    """The failure that stopped eight receipts going out: the file uploaded
+    fine, and then could not be read back."""
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='sender2', email='s2@feevert.co.tz', password='x')
+        self.account = EmailAccount.objects.create(
+            email_address='info@feevert.co.tz', is_shared=True, is_active=True)
+
+    @staticmethod
+    def _upload(name='EFD Receipt - Kasulu.pdf', data=b'%PDF receipt'):
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        return SimpleUploadedFile(name, data, content_type='application/pdf')
+
+    def test_the_first_send_does_not_go_near_storage(self):
+        """Storage that accepts a save and then cannot open it — Cloudinary's
+        raw backend — must not be able to stop the message."""
+        sent = {}
+        with patch('notifications.services.outgoing_mail._load_attachments',
+                   side_effect=AssertionError('storage must not be read on the first send')), \
+             patch('notifications.services.email_outbound_service.EmailOutboundService'
+                   '.send_via_account',
+                   side_effect=lambda **kw: (sent.update(kw), {'success': True})[1]):
+            out = outgoing_mail.send_now(
+                to_email='client@example.com', subject='ATTACHED EFD RECEIPT',
+                body='Please find attached', account=self.account, user=self.user,
+                attachments=[self._upload()])
+
+        self.assertEqual(out.status, 'sent')
+        name, content, content_type = sent['attachments'][0]
+        self.assertEqual(name, 'EFD Receipt - Kasulu.pdf')
+        self.assertEqual(content, b'%PDF receipt')
+        self.assertEqual(content_type, 'application/pdf')
+
+    def test_a_retry_falls_back_to_the_public_url_when_open_fails(self):
+        class Broken:
+            """Saves happily, refuses to open — the real behaviour we hit."""
+            def save(self, path, f):
+                return path
+
+            def open(self, path, mode='rb'):
+                raise OSError('raw resources cannot be opened')
+
+            def url(self, path):
+                return f'https://res.cloudinary.com/demo/raw/upload/{path}'
+
+        rows = [{'name': 'r.pdf', 'path': 'outgoing_attachments/r.pdf',
+                 'content_type': 'application/pdf'}]
+
+        class Fetched:
+            status_code = 200
+            content = b'%PDF from the url'
+
+            def raise_for_status(self):
+                pass
+
+        with patch('core.storage.any_file_storage', return_value=Broken()), \
+             patch('requests.get', return_value=Fetched()) as fetched:
+            loaded = outgoing_mail._load_attachments(rows)
+
+        self.assertEqual(loaded[0][1], b'%PDF from the url')
+        self.assertIn('res.cloudinary.com', fetched.call_args[0][0])
+
+    def test_a_file_that_cannot_be_read_at_all_stops_the_send(self):
+        """Better a failure the sender can see than a message that quietly
+        arrives without the receipt it promised."""
+        class Hopeless:
+            def open(self, path, mode='rb'):
+                raise OSError('gone')
+
+            def url(self, path):
+                raise ValueError('no url either')
+
+        with patch('core.storage.any_file_storage', return_value=Hopeless()):
+            with self.assertRaises(outgoing_mail.AttachmentError):
+                outgoing_mail._load_attachments(
+                    [{'name': 'r.pdf', 'path': 'x/r.pdf'}])
+
+    def test_the_upload_is_still_saved_for_a_later_retry(self):
+        with patch('notifications.services.email_outbound_service.EmailOutboundService'
+                   '.send_via_account', return_value={'success': True}):
+            out = outgoing_mail.send_now(
+                to_email='c@example.com', subject='S', body='b',
+                account=self.account, user=self.user, attachments=[self._upload()])
+        self.assertEqual(len(out.attachments), 1)
+        self.assertTrue(out.attachments[0]['path'])
+
+    def test_reading_the_upload_leaves_it_readable_for_the_save(self):
+        """Reading a file consumes it; the save that follows must still work."""
+        upload = self._upload(data=b'twice')
+        in_hand = outgoing_mail.read_uploads([upload])
+        self.assertEqual(in_hand[0][1], b'twice')
+        self.assertEqual(upload.read(), b'twice')

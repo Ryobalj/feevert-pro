@@ -323,7 +323,9 @@
     "upload": "上传完成的工作",
     "upload_failed": "上传失败",
     "uploading": "上传中…",
-    "what_is_missing": "还需要做什么？"
+    "what_is_missing": "还需要做什么？",
+    "client_has_it": "已发送给客户",
+    "internal_only": "内部"
   },
   "sheets": {
     "add_row": "添加行",

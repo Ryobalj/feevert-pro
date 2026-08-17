@@ -57,12 +57,37 @@ def _with_pixel(out):
     return body_html + pixel
 
 
+def read_uploads(files):
+    """The bytes, taken while the upload is still in our hands.
+
+    Storing a file and reading it back is not the same round trip on every
+    backend: Cloudinary's raw storage accepts the save and then cannot open
+    what it wrote, which is how a PDF that uploaded perfectly turned into
+    "the file could not be read back, so the message was not sent". The first
+    send never needs storage at all — the bytes are right here.
+    """
+    out = []
+    for f in files or []:
+        try:
+            f.seek(0)
+            data = f.read()
+            f.seek(0)                     # leave it re-readable for the save
+            out.append((f.name, data, getattr(f, 'content_type', '')
+                        or 'application/octet-stream'))
+        except Exception as e:
+            logger.error('Could not read upload %s: %s', getattr(f, 'name', '?'), e)
+            raise AttachmentError(
+                f'The file "{getattr(f, "name", "attachment")}" could not be read, '
+                f'so the message was not sent: {e}') from e
+    return out
+
+
 def _store_attachments(files):
-    """Keep the uploaded files where a retry can still find them.
+    """Keep a copy where a retry can still find it.
 
     A retry can come two hours after the click, long after the upload objects
-    have gone, so the bytes are written to storage and the message remembers
-    where they are.
+    have gone. This copy is for that case only — the first attempt uses the
+    bytes read straight from the upload.
     """
     from django.core.files.storage import default_storage
 
@@ -121,8 +146,32 @@ def _job_documents(document_ids, user):
             'name': name,
             'path': doc.file.name,
             'content_type': mimetypes.guess_type(name)[0] or 'application/octet-stream',
+            'from_job': True,
         })
     return rows
+
+
+def _fetch(storage, path):
+    """The bytes at `path`, however we can get them.
+
+    `storage.open()` is the direct route and fails on Cloudinary raw files;
+    the URL is public and works. Trying both means a retry is not at the mercy
+    of which backend the file happened to land on.
+    """
+    try:
+        with storage.open(path, 'rb') as fh:
+            return fh.read()
+    except Exception as direct:
+        try:
+            import requests
+            url = storage.url(path)
+            response = requests.get(url, timeout=30)
+            response.raise_for_status()
+            return response.content
+        except Exception as over_http:
+            raise AttachmentError(
+                f'{direct} / {over_http}'
+            ) from over_http
 
 
 def _load_attachments(rows):
@@ -135,9 +184,8 @@ def _load_attachments(rows):
     out = []
     for row in rows or []:
         try:
-            with storage.open(row['path'], 'rb') as fh:
-                out.append((row.get('name') or 'attachment', fh.read(),
-                            row.get('content_type') or 'application/octet-stream'))
+            out.append((row.get('name') or 'attachment', _fetch(storage, row['path']),
+                        row.get('content_type') or 'application/octet-stream'))
         except Exception as e:
             logger.error('Could not read attachment %s: %s', row.get('path'), e)
             raise AttachmentError(
@@ -166,15 +214,26 @@ def queue(to_email, subject, body, html_body=None, account=None, user=None,
     )
 
 
-def attempt(out):
-    """Try to send one recorded message once, and write down what happened."""
+def attempt(out, files=None):
+    """Try to send one recorded message once, and write down what happened.
+
+    `files` is the bytes already in hand from the upload. Only a retry, hours
+    later, has to go back to storage for them.
+    """
     from .email_outbound_service import EmailOutboundService
 
     recipients = [r.strip() for r in out.to_email.split(',') if r.strip()]
     out.attempts += 1
 
     try:
-        files = _load_attachments(out.attachments)
+        if files is None:
+            files = _load_attachments(out.attachments)
+        else:
+            # Files held on a client job are pointed at, not uploaded, so those
+            # do have to be fetched — but only if there are any. An upload in
+            # hand should never wait on storage.
+            from_job = [r for r in (out.attachments or []) if r.get('from_job')]
+            files = list(files) + (_load_attachments(from_job) if from_job else [])
         if out.account:
             result = EmailOutboundService.send_via_account(
                 account=out.account, to_email=recipients,
@@ -218,9 +277,12 @@ def send_now(to_email, subject, body, html_body=None, account=None, user=None,
              reply_to_email=None, attachments=None, document_ids=None):
     """Record and try to send immediately. Returns the OutgoingEmail either
     way — a failure here is scheduled for retry, not lost."""
+    # Read the uploads before anything else: this is the one moment the bytes
+    # are guaranteed to be readable, whatever the storage backend does next.
+    in_hand = read_uploads(attachments)
     out = queue(to_email, subject, body, html_body, account, user, reply_to_email,
                 attachments, document_ids)
-    attempt(out)
+    attempt(out, files=in_hand)
     return out
 
 

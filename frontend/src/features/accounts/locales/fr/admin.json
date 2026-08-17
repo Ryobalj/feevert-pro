@@ -323,7 +323,9 @@
     "upload": "Téléverser le travail",
     "upload_failed": "Téléversement impossible",
     "uploading": "Téléversement…",
-    "what_is_missing": "Que reste-t-il à faire ?"
+    "what_is_missing": "Que reste-t-il à faire ?",
+    "client_has_it": "envoyé au client",
+    "internal_only": "interne"
   },
   "sheets": {
     "add_row": "Ajouter une ligne",
