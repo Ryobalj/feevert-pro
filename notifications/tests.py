@@ -648,3 +648,70 @@ class AttachmentDeliveryTests(TestCase):
         in_hand = outgoing_mail.read_uploads([upload])
         self.assertEqual(in_hand[0][1], b'twice')
         self.assertEqual(upload.read(), b'twice')
+
+
+class CloudinaryRawDeliveryTests(TestCase):
+    """Cloudinary answers 401 for raw files unless the account allows their
+    delivery. Signing with our own credentials is the way past it."""
+
+    class Blocked:
+        """Public delivery refused, exactly as production answered."""
+        def open(self, path, mode='rb'):
+            raise OSError('raw resources cannot be opened')
+
+        def url(self, path):
+            return f'https://res.cloudinary.com/demo/raw/upload/v1/{path}'
+
+    @staticmethod
+    def _response(status, content=b''):
+        class R:
+            status_code = status
+
+            def raise_for_status(self):
+                if status >= 400:
+                    raise Exception(f'{status} Client Error: Unauthorized')
+        R.content = content
+        return R()
+
+    def test_a_signed_url_is_tried_when_the_public_one_is_refused(self):
+        rows = [{'name': 'r.pdf', 'path': 'media/outgoing_attachments/r.pdf'}]
+        signed = 'https://res.cloudinary.com/demo/raw/upload/s--sig--/v1/media/outgoing_attachments/r.pdf'
+
+        def fetch(url, **kwargs):
+            if url == signed:
+                return self._response(200, b'%PDF signed')
+            return self._response(401)
+
+        with patch('core.storage.any_file_storage', return_value=self.Blocked()), \
+             patch('notifications.services.outgoing_mail._signed_cloudinary_urls',
+                   return_value=[signed]), \
+             patch('requests.get', side_effect=fetch):
+            loaded = outgoing_mail._load_attachments(rows)
+
+        self.assertEqual(loaded[0][1], b'%PDF signed')
+
+    def test_every_route_is_named_when_they_all_fail(self):
+        """The error has to be actionable — a bare sentence taught us nothing
+        for a day."""
+        with patch('core.storage.any_file_storage', return_value=self.Blocked()), \
+             patch('notifications.services.outgoing_mail._signed_cloudinary_urls',
+                   return_value=['https://res.cloudinary.com/demo/signed']), \
+             patch('requests.get', return_value=self._response(401)):
+            with self.assertRaises(outgoing_mail.AttachmentError) as caught:
+                outgoing_mail._load_attachments([{'name': 'r.pdf', 'path': 'media/r.pdf'}])
+
+        message = str(caught.exception)
+        self.assertIn('storage.open', message)
+        self.assertIn('res.cloudinary.com', message)
+        self.assertIn('401', message)
+
+    def test_signing_asks_cloudinary_for_a_raw_upload(self):
+        with patch('cloudinary.utils.cloudinary_url',
+                   return_value=('https://signed', {})) as signer, \
+             patch('cloudinary.utils.private_download_url', return_value='https://private'):
+            urls = outgoing_mail._signed_cloudinary_urls('media/outgoing_attachments/r.pdf')
+
+        self.assertEqual(urls, ['https://signed', 'https://private'])
+        kwargs = signer.call_args.kwargs
+        self.assertEqual(kwargs['resource_type'], 'raw')
+        self.assertTrue(kwargs['sign_url'])

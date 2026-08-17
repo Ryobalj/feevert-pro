@@ -151,27 +151,71 @@ def _job_documents(document_ids, user):
     return rows
 
 
+def _signed_cloudinary_urls(path):
+    """Signed URLs for a raw asset we own.
+
+    Cloudinary refuses public delivery of PDFs and other raw files unless the
+    account allows it — the answer is a flat `401 Unauthorized`, even for a
+    file we uploaded a minute earlier. Signing with our own API secret proves
+    it is ours, and does not depend on a dashboard switch being found and
+    turned on.
+    """
+    try:
+        import cloudinary.utils
+    except Exception:
+        return []
+
+    public_id = path
+    urls = []
+    try:
+        signed, _ = cloudinary.utils.cloudinary_url(
+            public_id, resource_type='raw', type='upload', sign_url=True, secure=True)
+        urls.append(signed)
+    except Exception as e:
+        logger.debug('Could not sign %s: %s', path, e)
+    try:
+        urls.append(cloudinary.utils.private_download_url(
+            public_id, None, resource_type='raw', type='upload'))
+    except Exception as e:
+        logger.debug('No private download url for %s: %s', path, e)
+    return urls
+
+
 def _fetch(storage, path):
     """The bytes at `path`, however we can get them.
 
-    `storage.open()` is the direct route and fails on Cloudinary raw files;
-    the URL is public and works. Trying both means a retry is not at the mercy
-    of which backend the file happened to land on.
+    Four routes, because no single one survives every backend: the storage
+    API itself (fails on Cloudinary raw), the plain URL (401 when the account
+    blocks raw delivery), then the same URL signed with our credentials, and
+    a private download link. A retry should not be at the mercy of which
+    backend the file happened to land on, or which switch is set in a console
+    nobody remembers.
     """
+    import requests
+
+    attempts = []
     try:
         with storage.open(path, 'rb') as fh:
             return fh.read()
-    except Exception as direct:
+    except Exception as e:
+        attempts.append(f'storage.open: {e}')
+
+    candidates = []
+    try:
+        candidates.append(storage.url(path))
+    except Exception as e:
+        attempts.append(f'storage.url: {e}')
+    candidates += _signed_cloudinary_urls(path)
+
+    for url in candidates:
         try:
-            import requests
-            url = storage.url(path)
             response = requests.get(url, timeout=30)
             response.raise_for_status()
             return response.content
-        except Exception as over_http:
-            raise AttachmentError(
-                f'{direct} / {over_http}'
-            ) from over_http
+        except Exception as e:
+            attempts.append(f'{url.split("?")[0][:90]}: {e}')
+
+    raise AttachmentError(' | '.join(attempts))
 
 
 def _load_attachments(rows):
