@@ -375,6 +375,47 @@ class ConsultationRequestViewSet(viewsets.ModelViewSet):
         notify_request_reviewed(job, approved=approve, actor=request.user)
         return Response(self.get_serializer(job).data)
 
+    @action(detail=True, methods=['get', 'post'])
+    def report(self, request, pk=None):
+        """Write the first draft of the report from the field data.
+
+        GET downloads it as a Word-openable file; POST keeps it as a draft in
+        the workspace so it can be finished here and shared with a colleague.
+        Either way the numbers come from the sheets, so the tables in the
+        report and the data behind them cannot drift apart.
+        """
+        job = self.get_object()
+        if not is_staff_role(request.user):
+            return Response({'error': 'Staff only.'}, status=status.HTTP_403_FORBIDDEN)
+
+        from core.models import FieldSheet, WorkDocument
+        from core.report_builder import build_report
+
+        sheets = list(FieldSheet.objects.filter(job=job).order_by('created_at'))
+        title, body = build_report(job, sheets, author=request.user)
+
+        if request.method == 'GET':
+            from django.http import HttpResponse
+            document = (
+                '<html xmlns:o="urn:schemas-microsoft-com:office:office" '
+                'xmlns:w="urn:schemas-microsoft-com:office:word" '
+                'xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8">'
+                f'<title>{title}</title></head><body>{body}</body></html>'
+            )
+            response = HttpResponse(document, content_type='application/msword')
+            safe = ''.join(c for c in title if c.isalnum() or c in ' -_')[:70]
+            response['Content-Disposition'] = f'attachment; filename="{safe}.doc"'
+            return response
+
+        draft = WorkDocument.objects.create(
+            owner=request.user, title=title, kind='doc',
+            content=body, related_request=job,
+        )
+        return Response({
+            'id': str(draft.id), 'title': draft.title,
+            'sheets_used': len(sheets),
+        }, status=status.HTTP_201_CREATED)
+
     @action(detail=True, methods=['post'])
     def add_note(self, request, pk=None):
         """Add admin note to consultation"""

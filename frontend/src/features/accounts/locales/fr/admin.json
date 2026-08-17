@@ -361,5 +361,14 @@
     "value": "Valeur",
     "who": "Qui",
     "within_limit": "dans la limite"
+  },
+  "report": {
+    "title": "Rapport provisoire",
+    "hint": "Construit les tableaux, les moyennes et les constats à partir des données de terrain. Le jugement et les recommandations restent les vôtres.",
+    "download": "Télécharger en Word",
+    "to_drafts": "Ouvrir comme brouillon",
+    "made": "Brouillon créé à partir de {{n}} fiche(s). À retrouver dans Brouillons.",
+    "empty": "Un brouillon a été créé, mais sans données de terrain.",
+    "failed": "Impossible de générer le rapport"
   }
 }

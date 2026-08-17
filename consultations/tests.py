@@ -4,6 +4,7 @@ from datetime import timedelta
 
 from django.test import TestCase
 from django.utils import timezone
+from rest_framework.test import APIClient
 
 from .models import ConsultationCategory
 from .serializers import ConsultationRequestCreateSerializer
@@ -267,3 +268,129 @@ class WorkflowTests(TestCase):
                                 body='Client was difficult about access')
         rows = self._api(self.client_user).get('/api/v1/work-notes/').data
         self.assertEqual(len(rows.get('results', rows)), 0)
+
+
+class ReportBuilderTests(TestCase):
+    """The draft is only worth having if its sentences follow the data."""
+
+    def setUp(self):
+        from django.contrib.auth import get_user_model
+        from accounts.models import Role
+        from core.models import FieldSheet
+        from .models import ConsultationRequest
+
+        User = get_user_model()
+        self.staff = User.objects.create_user(
+            username='consultant', email='c@feevert.co.tz', password='x',
+            role=Role.objects.create(name='consultant'))
+        self.client_user = User.objects.create_user(
+            username='xincheng', email='x@example.com', password='x',
+            first_name='Xincheng', last_name='Development',
+            role=Role.objects.create(name='Client'))
+        self.category = ConsultationCategory.objects.create(
+            name='Environmental Auditing', slug='env-audit-2', is_active=True)
+        self.job = ConsultationRequest.objects.create(
+            client=self.client_user, category=self.category,
+            preferred_date=timezone.now() + timedelta(days=1),
+            message='Audit the quarry', assigned_to=self.staff, status='in_progress',
+        )
+        self.api = APIClient()
+        self.api.force_authenticate(self.staff)
+
+    def _report(self):
+        from core.models import FieldSheet
+        from core.report_builder import build_report
+        sheets = list(FieldSheet.objects.filter(job=self.job).order_by('created_at'))
+        return build_report(self.job, sheets, author=self.staff)[1]
+
+    def test_an_exceedance_is_stated_with_its_numbers(self):
+        from core.models import FieldSheet
+
+        FieldSheet.objects.create(
+            job=self.job, kind='measurements', title='Noise survey',
+            parameter='Noise level', unit='dB(A)', limit_value=85,
+            limit_source='Occupational limit',
+            rows=[{'point': 'A', 'value': '80'}, {'point': 'B', 'value': '92.5'},
+                  {'point': 'C', 'value': '88'}],
+        )
+        html = self._report()
+        self.assertIn('2 of 3 readings exceeded', html)
+        self.assertIn('92.5', html)
+        self.assertIn('Occupational limit', html)
+
+    def test_compliance_is_stated_when_everything_passes(self):
+        from core.models import FieldSheet
+
+        FieldSheet.objects.create(
+            job=self.job, kind='measurements', title='Noise survey',
+            parameter='Noise', unit='dB(A)', limit_value=85,
+            rows=[{'value': '70'}, {'value': '75'}],
+        )
+        html = self._report()
+        self.assertIn('within their reference limits', html)
+        self.assertNotIn('exceeded the', html)
+
+    def test_non_conformities_become_recommendations(self):
+        from core.models import FieldSheet
+
+        FieldSheet.objects.create(
+            job=self.job, kind='checklist', title='Audit walk-through',
+            rows=[{'item': 'Effluent permit valid', 'status': 'no', 'note': 'Expired in June'},
+                  {'item': 'Waste segregated', 'status': 'yes'}],
+        )
+        html = self._report()
+        self.assertIn('Expired in June', html)
+        self.assertIn('Address the non-conformity: Effluent permit valid', html)
+
+    def test_serious_hazards_are_carried_into_the_conclusion(self):
+        from core.models import FieldSheet
+
+        FieldSheet.objects.create(
+            job=self.job, kind='risk', title='Risk assessment',
+            rows=[{'hazard': 'Unguarded crusher', 'likelihood': 4, 'severity': 5,
+                   'control': 'Fit interlocked guard'},
+                  {'hazard': 'Paper cut', 'likelihood': 1, 'severity': 1}],
+        )
+        html = self._report()
+        self.assertIn('Unguarded crusher', html)
+        self.assertIn('1 hazard(s) were rated high or extreme', html)
+        self.assertIn('Fit interlocked guard', html)
+
+    def test_the_draft_says_it_is_a_draft(self):
+        html = self._report()
+        self.assertIn('Draft.', html)
+        self.assertIn('remain to be written by the consultant', html)
+
+    def test_the_client_name_and_brief_appear(self):
+        html = self._report()
+        self.assertIn('Xincheng Development', html)
+        self.assertIn('Audit the quarry', html)
+
+    def test_download_returns_a_word_file(self):
+        res = self.api.get(f'/api/v1/consultation-requests/{self.job.id}/report/')
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res['Content-Type'], 'application/msword')
+        self.assertIn('.doc', res['Content-Disposition'])
+
+    def test_saving_it_as_a_draft_keeps_it_with_the_job(self):
+        from core.models import FieldSheet, WorkDocument
+
+        FieldSheet.objects.create(job=self.job, kind='checklist', title='Walk',
+                                  rows=[{'item': 'x', 'status': 'yes'}])
+        res = self.api.post(f'/api/v1/consultation-requests/{self.job.id}/report/')
+        self.assertEqual(res.status_code, 201, res.data)
+        self.assertEqual(res.data['sheets_used'], 1)
+        draft = WorkDocument.objects.get()
+        self.assertEqual(draft.related_request, self.job)
+        self.assertEqual(draft.owner, self.staff)
+
+    def test_a_client_cannot_generate_the_report(self):
+        api = APIClient()
+        api.force_authenticate(self.client_user)
+        res = api.get(f'/api/v1/consultation-requests/{self.job.id}/report/')
+        self.assertEqual(res.status_code, 403)
+
+    def test_a_job_with_no_data_still_produces_a_usable_skeleton(self):
+        html = self._report()
+        self.assertIn('1. Introduction', html)
+        self.assertIn('no field data', html.lower())

@@ -361,5 +361,14 @@
     "value": "Thamani",
     "who": "Nani",
     "within_limit": "ndani ya kikomo"
+  },
+  "report": {
+    "title": "Rasimu ya ripoti",
+    "hint": "Inatengeneza majedwali, wastani na matokeo moja kwa moja kutoka data ya uwandani. Tathmini na mapendekezo ni yako kuandika.",
+    "download": "Pakua kama Word",
+    "to_drafts": "Fungua kama rasimu ya kuhariri",
+    "made": "Rasimu imetengenezwa kutoka jedwali {{n}} la uwandani. Itafute kwenye Drafts.",
+    "empty": "Rasimu imetengenezwa, lakini bado haina data ya uwandani.",
+    "failed": "Imeshindwa kutengeneza ripoti"
   }
 }

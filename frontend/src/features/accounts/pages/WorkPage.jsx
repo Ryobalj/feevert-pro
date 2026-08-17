@@ -129,6 +129,25 @@ const WorkPage = () => {
     }
   }
 
+  // Keeping it as a draft rather than a download: the report gets finished
+  // here, shared with whoever is reviewing it, and only then goes to Word.
+  const makeDraft = async () => {
+    setBusy(true)
+    try {
+      const res = await api.post(`/consultation-requests/${id}/report/`)
+      const used = res.data?.sheets_used ?? 0
+      alert(used === 0
+        ? t('report.empty', 'A draft was created, but there is no field data in it yet.')
+        : t('report.made', 'Draft created from {{n}} field sheet(s). Find it under Drafts.')
+          .replace('{{n}}', used))
+      navigate('/workspace')
+    } catch (err) {
+      alert(err.response?.data?.error || t('report.failed', 'Could not build the report'))
+    } finally {
+      setBusy(false)
+    }
+  }
+
   const setProgress = async (value) => {
     if (!isJob) return
     try {
@@ -283,6 +302,28 @@ const WorkPage = () => {
 
         {/* ---------- 3. field data (the tools) ---------- */}
         <FieldSheets kind={kind} id={id} />
+
+        {/* ---------- the draft that writes itself ---------- */}
+        {isJob && (
+          <div className="glass-card p-5">
+            <h2 className="text-sm font-bold text-white mb-1">
+              📝 {t('report.title', 'Draft report')}
+            </h2>
+            <p className="text-[11px] text-white/40 mb-3">
+              {t('report.hint', 'Builds the tables, the averages and the findings straight from the field data. The judgement and recommendations are yours to write.')}
+            </p>
+            <div className="flex flex-wrap gap-2">
+              <a href={`${api.defaults.baseURL}/api/v1/consultation-requests/${id}/report/`}
+                className="px-4 py-2.5 rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-400">
+                ⬇ {t('report.download', 'Download as Word')}
+              </a>
+              <button onClick={makeDraft} disabled={busy}
+                className="px-4 py-2.5 rounded-xl bg-white/[0.06] text-white/75 text-sm font-semibold hover:bg-white/10 disabled:opacity-40">
+                ✍️ {t('report.to_drafts', 'Open as a draft to edit')}
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* ---------- 4. what has happened ---------- */}
         <div className="glass-card p-5">

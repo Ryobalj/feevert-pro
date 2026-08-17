@@ -71,6 +71,18 @@ class User(AbstractUser, BaseModel):
         return self.username or self.email or str(self.phone)
     
     @property
+    def full_name(self):
+        """The person's name, or their username if we were never told it.
+
+        Serializers all over the project already read `client.full_name` and
+        `assigned_to.full_name` — the property simply did not exist, so every
+        one of them quietly returned null and screens showed blanks or fell
+        back to an email address.
+        """
+        name = f'{self.first_name} {self.last_name}'.strip()
+        return name or self.username or self.email or ''
+
+    @property
     def role_name(self):
         return self.role.name if self.role else "No Role"
 

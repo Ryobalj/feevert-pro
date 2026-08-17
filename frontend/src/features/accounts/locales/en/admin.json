@@ -361,5 +361,14 @@
     "value": "Value",
     "who": "Who",
     "within_limit": "within limit"
+  },
+  "report": {
+    "title": "Draft report",
+    "hint": "Builds the tables, the averages and the findings straight from the field data. The judgement and recommendations are yours to write.",
+    "download": "Download as Word",
+    "to_drafts": "Open as a draft to edit",
+    "made": "Draft created from {{n}} field sheet(s). Find it under Drafts.",
+    "empty": "A draft was created, but there is no field data in it yet.",
+    "failed": "Could not build the report"
   }
 }
