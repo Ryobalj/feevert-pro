@@ -237,8 +237,15 @@ const EmailInboxPage = () => {
   const retrySend = async (row) => {
     setActing(true)
     try {
-      await api.post(`/sent-mail/${row.id}/retry/`)
+      // Say what happened. A retry that fails for a new reason looked exactly
+      // like one that failed for the old reason — silence either way.
+      const res = await api.post(`/sent-mail/${row.id}/retry/`)
       await loadOutbox()
+      if (res.data && res.data.success === false) {
+        alert(`${t('inbox.retry_failed', 'Could not send it again')}:
+
+${res.data.error || ''}`)
+      }
     } catch (error) {
       alert(error.response?.data?.error || t('inbox.retry_failed', 'Could not send it again'))
     } finally {

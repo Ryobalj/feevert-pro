@@ -189,8 +189,8 @@ def _load_attachments(rows):
         except Exception as e:
             logger.error('Could not read attachment %s: %s', row.get('path'), e)
             raise AttachmentError(
-                f'The file "{row.get("name") or row.get("path")}" could not be read back, '
-                'so the message was not sent.'
+                f'The file "{row.get("name") or row.get("path")}" could not be read back '
+                f'from {row.get("path")}, so the message was not sent. {e}'
             ) from e
     return out
 
