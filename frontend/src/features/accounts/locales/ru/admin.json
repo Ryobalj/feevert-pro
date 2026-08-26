@@ -325,7 +325,9 @@
     "uploading": "Загрузка…",
     "what_is_missing": "Что ещё нужно сделать?",
     "client_has_it": "отправлено клиенту",
-    "internal_only": "внутренний"
+    "internal_only": "внутренний",
+    "open_failed": "Не удалось открыть файл",
+    "the_attachment": "Открыть вложенный файл"
   },
   "sheets": {
     "add_row": "Добавить строку",

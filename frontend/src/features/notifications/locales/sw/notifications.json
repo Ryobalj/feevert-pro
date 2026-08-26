@@ -103,7 +103,8 @@
     "no_job_files": "Hakuna faili kwenye kazi zako bado",
     "attachments": "Viambatanisho",
     "attachments_loading": "Inasoma viambatanisho…",
-    "attachments_failed": "Imeshindwa kusoma viambatanisho"
+    "attachments_failed": "Imeshindwa kusoma viambatanisho",
+    "attachment_failed": "Imeshindwa kufungua faili"
   },
   "email_accounts": {
     "title": "Barua Pepe za Wafanyakazi",

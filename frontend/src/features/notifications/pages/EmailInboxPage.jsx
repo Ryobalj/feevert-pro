@@ -9,6 +9,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import api from '../../../app/api'
 import useAutoRefresh from '../../../app/useAutoRefresh'
+import openFile, { fileError } from '../../../app/openFile'
 
 const FOLDERS = [
   { key: 'inbox',   label: 'Inbox',   icon: '📥' },
@@ -852,9 +853,11 @@ ${res.data.error || ''}`)
                       ) : (
                         <div className="flex flex-wrap gap-2">
                           {inbound.map(a => (
-                            <a key={a.id}
-                              href={`${api.defaults.baseURL}/api/v1/email-inbox/${selected.id}/attachment/${encodeURIComponent(a.id)}/`}
-                              target="_blank" rel="noreferrer"
+                            <button key={a.id} type="button"
+                              onClick={() => openFile(
+                                `/email-inbox/${selected.id}/attachment/${encodeURIComponent(a.id)}/`)
+                                .catch(async err => alert(
+                                  `${t('inbox.attachment_failed', 'Could not open the file')}: ${await fileError(err)}`))}
                               className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] transition-colors">
                               <span>{/\.(png|jpe?g|gif|webp)$/i.test(a.name) ? '🖼️'
                                 : /\.pdf$/i.test(a.name) ? '📕'
@@ -867,7 +870,7 @@ ${res.data.error || ''}`)
                                     : `${Math.max(1, Math.round(a.size / 1024))} KB`}
                                 </span>
                               )}
-                            </a>
+                            </button>
                           ))}
                         </div>
                       )}

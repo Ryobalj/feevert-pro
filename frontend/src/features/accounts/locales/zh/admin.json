@@ -325,7 +325,9 @@
     "uploading": "上传中…",
     "what_is_missing": "还需要做什么？",
     "client_has_it": "已发送给客户",
-    "internal_only": "内部"
+    "internal_only": "内部",
+    "open_failed": "无法打开文件",
+    "the_attachment": "打开附件"
   },
   "sheets": {
     "add_row": "添加行",

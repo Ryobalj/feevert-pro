@@ -14,6 +14,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import api from '../../../../app/api'
+import openFile from '../../../../app/openFile'
 
 const BAND_STYLE = {
   low:     'bg-emerald-500/20 text-emerald-300',
@@ -317,10 +318,12 @@ const FieldSheets = ({ kind, id }) => {
                   <div className="mt-1"><Summary sheet={sheet} /></div>
                 </button>
                 <div className="flex items-center gap-1.5">
-                  <a href={`${api.defaults.baseURL}/api/v1/field-sheets/${sheet.id}/export/`}
+                  <button type="button"
+                    onClick={() => openFile(`/field-sheets/${sheet.id}/export/`,
+                      { download: `${sheet.title || 'field-data'}.csv` })}
                     className="px-2.5 py-1.5 rounded-lg bg-white/[0.06] text-white/70 text-[11px] hover:bg-white/10">
                     ⬇ CSV
-                  </a>
+                  </button>
                   <button onClick={() => setOpen(open === sheet.id ? null : sheet.id)}
                     className="px-2.5 py-1.5 rounded-lg bg-white/[0.06] text-white/70 text-[11px]">
                     {open === sheet.id ? t('sheets.close', 'Close') : t('sheets.fill', 'Fill in')}

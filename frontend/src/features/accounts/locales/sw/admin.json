@@ -325,7 +325,9 @@
     "uploading": "Inapakia…",
     "what_is_missing": "Nini bado kinatakiwa kufanyika?",
     "client_has_it": "imetumwa kwa mteja",
-    "internal_only": "ya ndani"
+    "internal_only": "ya ndani",
+    "open_failed": "Imeshindwa kufungua faili",
+    "the_attachment": "Fungua faili iliyoambatanishwa"
   },
   "sheets": {
     "add_row": "Ongeza mstari",

@@ -17,6 +17,7 @@ import { useTranslation } from 'react-i18next'
 import api from '../../../app/api'
 import { useAuth } from '../hooks/useAuth'
 import useAutoRefresh from '../../../app/useAutoRefresh'
+import openFile, { fileError } from '../../../app/openFile'
 import FieldSheets from '../components/workspace/FieldSheets'
 
 const STATUS_STYLE = {
@@ -148,6 +149,12 @@ const WorkPage = () => {
     }
   }
 
+  // Every file here is behind the API's bearer token, which a plain link
+  // does not carry — see app/openFile.js.
+  const open = (path, download = '') => openFile(path, { download })
+    .catch(async err => alert(
+      `${t('work.open_failed', 'Could not open the file')}: ${await fileError(err)}`))
+
   const setProgress = async (value) => {
     if (!isJob) return
     try {
@@ -274,13 +281,13 @@ const WorkPage = () => {
           </h2>
           <div className="space-y-1.5">
             {!isJob && item.attachment_url && (
-              <a href={item.attachment_url} target="_blank" rel="noreferrer"
-                className="flex items-center gap-2 p-2.5 rounded-lg bg-white/[0.03] hover:bg-white/[0.07]">
+              <button type="button" onClick={() => open(`/files/task-attachment/${item.id}/`)}
+                className="w-full text-left flex items-center gap-2 p-2.5 rounded-lg bg-white/[0.03] hover:bg-white/[0.07]">
                 <span>📄</span>
                 <span className="text-sm text-emerald-300 underline truncate">
-                  {item.attachment_url.split('/').pop()}
+                  {t('work.the_attachment', 'Open the attached file')}
                 </span>
-              </a>
+              </button>
             )}
             {!isJob && item.related_email && (
               <div className="p-2.5 rounded-lg bg-white/[0.03]">
@@ -293,12 +300,12 @@ const WorkPage = () => {
               </div>
             )}
             {isJob && givenDocs.map(d => (
-              <a key={d.id} href={d.file_url} target="_blank" rel="noreferrer"
-                className="flex items-center gap-2 p-2.5 rounded-lg bg-white/[0.03] hover:bg-white/[0.07]">
+              <button type="button" key={d.id} onClick={() => open(`/files/document/${d.id}/`)}
+                className="w-full text-left flex items-center gap-2 p-2.5 rounded-lg bg-white/[0.03] hover:bg-white/[0.07]">
                 <span>📄</span>
                 <span className="text-sm text-emerald-300 underline truncate">{d.title}</span>
                 <span className="text-[10px] text-white/30 ml-auto">{d.file_size_display}</span>
-              </a>
+              </button>
             ))}
             {((!isJob && !item.attachment_url && !item.related_email)
               || (isJob && givenDocs.length === 0)) && (
@@ -320,10 +327,12 @@ const WorkPage = () => {
               {t('report.hint', 'Builds the tables, the averages and the findings straight from the field data. The judgement and recommendations are yours to write.')}
             </p>
             <div className="flex flex-wrap gap-2">
-              <a href={`${api.defaults.baseURL}/api/v1/consultation-requests/${id}/report/`}
+              <button type="button"
+                onClick={() => open(`/consultation-requests/${id}/report/`,
+                  `${title || 'report'}.doc`)}
                 className="px-4 py-2.5 rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-400">
                 ⬇ {t('report.download', 'Download as Word')}
-              </a>
+              </button>
               <button onClick={makeDraft} disabled={busy}
                 className="px-4 py-2.5 rounded-xl bg-white/[0.06] text-white/75 text-sm font-semibold hover:bg-white/10 disabled:opacity-40">
                 ✍️ {t('report.to_drafts', 'Open as a draft to edit')}
@@ -375,8 +384,8 @@ const WorkPage = () => {
               {producedDocs.length === 0 ? (
                 <p className="text-white/30 text-sm">{t('work.no_results', 'Nothing uploaded yet')}</p>
               ) : producedDocs.map(d => (
-                <a key={d.id} href={d.file_url} target="_blank" rel="noreferrer"
-                  className="flex items-center gap-2 p-2.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/15">
+                <button type="button" key={d.id} onClick={() => open(`/files/document/${d.id}/`)}
+                  className="w-full text-left flex items-center gap-2 p-2.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/15">
                   <span>📦</span>
                   <span className="text-sm text-emerald-200 underline truncate">{d.title}</span>
                   <span className="ml-auto text-[10px] flex-shrink-0">
@@ -384,7 +393,7 @@ const WorkPage = () => {
                       ? <span className="text-emerald-300">✓ {t('work.client_has_it', 'sent to client')}</span>
                       : <span className="text-white/35">🔒 {t('work.internal_only', 'internal')}</span>}
                   </span>
-                </a>
+                </button>
               ))}
             </div>
             <label className="inline-block px-3.5 py-2 rounded-lg bg-white/[0.06] text-white/75 text-xs font-semibold hover:bg-white/10 cursor-pointer">

@@ -325,7 +325,9 @@
     "uploading": "Uploading…",
     "what_is_missing": "What still needs doing?",
     "client_has_it": "sent to client",
-    "internal_only": "internal"
+    "internal_only": "internal",
+    "open_failed": "Could not open the file",
+    "the_attachment": "Open the attached file"
   },
   "sheets": {
     "add_row": "Add row",

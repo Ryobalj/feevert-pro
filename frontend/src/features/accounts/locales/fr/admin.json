@@ -325,7 +325,9 @@
     "uploading": "Téléversement…",
     "what_is_missing": "Que reste-t-il à faire ?",
     "client_has_it": "envoyé au client",
-    "internal_only": "interne"
+    "internal_only": "interne",
+    "open_failed": "Impossible d'ouvrir le fichier",
+    "the_attachment": "Ouvrir le fichier joint"
   },
   "sheets": {
     "add_row": "Ajouter une ligne",

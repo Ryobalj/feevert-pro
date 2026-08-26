@@ -103,7 +103,8 @@
     "no_job_files": "لا توجد ملفات في أعمالك بعد",
     "attachments": "المرفقات",
     "attachments_loading": "جارٍ قراءة المرفقات…",
-    "attachments_failed": "تعذّرت قراءة المرفقات"
+    "attachments_failed": "تعذّرت قراءة المرفقات",
+    "attachment_failed": "تعذّر فتح الملف"
   },
   "email_accounts": {
     "title": "صناديق بريد الموظفين",

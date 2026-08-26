@@ -103,7 +103,8 @@
     "no_job_files": "Aucun fichier sur vos dossiers",
     "attachments": "Pièces jointes",
     "attachments_loading": "Lecture des pièces jointes…",
-    "attachments_failed": "Impossible de lire les pièces jointes"
+    "attachments_failed": "Impossible de lire les pièces jointes",
+    "attachment_failed": "Impossible d'ouvrir le fichier"
   },
   "email_accounts": {
     "title": "Boîtes mail du personnel",

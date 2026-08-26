@@ -103,7 +103,8 @@
     "no_job_files": "No files on your jobs yet",
     "attachments": "Attachments",
     "attachments_loading": "Reading the attachments…",
-    "attachments_failed": "Could not read the attachments"
+    "attachments_failed": "Could not read the attachments",
+    "attachment_failed": "Could not open the file"
   },
   "email_accounts": {
     "title": "Staff Mailboxes",

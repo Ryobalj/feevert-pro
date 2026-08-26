@@ -103,7 +103,8 @@
     "no_job_files": "В ваших работах пока нет файлов",
     "attachments": "Вложения",
     "attachments_loading": "Читаем вложения…",
-    "attachments_failed": "Не удалось прочитать вложения"
+    "attachments_failed": "Не удалось прочитать вложения",
+    "attachment_failed": "Не удалось открыть файл"
   },
   "email_accounts": {
     "title": "Почтовые ящики сотрудников",
