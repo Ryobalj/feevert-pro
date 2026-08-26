@@ -70,6 +70,8 @@ const EmailInboxPage = () => {
   const [replyDocs, setReplyDocs] = useState([])     // files already on a client job
   const [docPicker, setDocPicker] = useState(null)   // null = closed, '' or a search term
   const [docHits, setDocHits] = useState([])
+  const [inbound, setInbound] = useState([])        // files attached to the open message
+  const [inboundError, setInboundError] = useState('')
   const [taskForm, setTaskForm] = useState(null)   // {title, assigned_to, due_date}
   const [assignables, setAssignables] = useState([])
   const [picked, setPicked] = useState([])          // ids ticked for a bulk action
@@ -185,6 +187,22 @@ const EmailInboxPage = () => {
       console.error('Error opening email:', error)
     }
   }
+
+  // What came attached: asked for only when a message that has attachments is
+  // opened, because the files live in Zoho, not here.
+  useEffect(() => {
+    setInbound([])
+    setInboundError('')
+    if (!selected?.has_attachments) return
+    let cancelled = false
+    api.get(`/email-inbox/${selected.id}/attachments/`)
+      .then(res => { if (!cancelled) setInbound(res.data?.attachments || []) })
+      .catch(err => {
+        if (!cancelled) setInboundError(err.response?.data?.error
+          || t('inbox.attachments_failed', 'Could not read the attachments'))
+      })
+    return () => { cancelled = true }
+  }, [selected?.id, selected?.has_attachments])
 
   const runAction = async (email, path, body = {}) => {
     if (!email) return
@@ -814,6 +832,46 @@ ${res.data.error || ''}`)
                       dangerouslySetInnerHTML={{ __html: selected.body_html }} />
                   ) : (
                     <pre className="mail-body text-sm whitespace-pre-wrap font-sans leading-relaxed">{selected.body}</pre>
+                  )}
+
+                  {/* What came with it. Clicking opens the file itself —
+                      fetched from Zoho through the API, so a PDF opens in the
+                      browser like it would in any mail client. */}
+                  {selected.has_attachments && (
+                    <div className="mt-4 pt-3 border-t border-white/10">
+                      <p className="text-[11px] uppercase tracking-wider text-white/35 font-bold mb-2">
+                        📎 {t('inbox.attachments', 'Attachments')}
+                        {inbound.length > 0 && ` (${inbound.length})`}
+                      </p>
+                      {inboundError ? (
+                        <p className="text-[11px] text-red-300">{inboundError}</p>
+                      ) : inbound.length === 0 ? (
+                        <p className="text-[11px] text-white/35">
+                          {t('inbox.attachments_loading', 'Reading the attachments…')}
+                        </p>
+                      ) : (
+                        <div className="flex flex-wrap gap-2">
+                          {inbound.map(a => (
+                            <a key={a.id}
+                              href={`${api.defaults.baseURL}/api/v1/email-inbox/${selected.id}/attachment/${encodeURIComponent(a.id)}/`}
+                              target="_blank" rel="noreferrer"
+                              className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] transition-colors">
+                              <span>{/\.(png|jpe?g|gif|webp)$/i.test(a.name) ? '🖼️'
+                                : /\.pdf$/i.test(a.name) ? '📕'
+                                : /\.(docx?|odt)$/i.test(a.name) ? '📘'
+                                : /\.(xlsx?|csv)$/i.test(a.name) ? '📗' : '📄'}</span>
+                              <span className="text-xs text-emerald-300 underline truncate max-w-[220px]">{a.name}</span>
+                              {a.size > 0 && (
+                                <span className="text-[10px] text-white/35">
+                                  {a.size > 1048576 ? `${(a.size / 1048576).toFixed(1)} MB`
+                                    : `${Math.max(1, Math.round(a.size / 1024))} KB`}
+                                </span>
+                              )}
+                            </a>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   )}
                 </div>
 

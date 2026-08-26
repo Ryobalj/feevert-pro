@@ -715,3 +715,108 @@ class CloudinaryRawDeliveryTests(TestCase):
         kwargs = signer.call_args.kwargs
         self.assertEqual(kwargs['resource_type'], 'raw')
         self.assertTrue(kwargs['sign_url'])
+
+
+class InboundAttachmentTests(TestCase):
+    """Opening what a client sent us. The files stay in Zoho; these endpoints
+    are the door to them."""
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='reader', email='r@feevert.co.tz', password='x')
+        self.shared = EmailAccount.objects.create(
+            email_address='info@feevert.co.tz', is_shared=True, is_active=True)
+        self.email = make_email(self.shared, 'Tender documents')
+        self.email.has_attachments = True
+        self.email.save(update_fields=['has_attachments'])
+        self.api = APIClient()
+        self.api.force_authenticate(self.user)
+
+    IDS = ('token', 'acct-1', 'folder-9')
+    FILES = [{'id': 'att-1', 'name': 'Tender.pdf', 'size': 20480}]
+
+    def test_the_list_is_fetched_and_then_remembered(self):
+        with patch('notifications.services.zoho_mail_api.resolve_ids', return_value=self.IDS), \
+             patch('notifications.services.zoho_mail_api.get_attachment_info',
+                   return_value=self.FILES) as ask:
+            first = self.api.get(f'/api/v1/email-inbox/{self.email.id}/attachments/')
+            second = self.api.get(f'/api/v1/email-inbox/{self.email.id}/attachments/')
+
+        self.assertEqual(first.data['attachments'], self.FILES)
+        self.assertTrue(second.data.get('cached'))
+        self.assertEqual(ask.call_count, 1)        # asked Zoho once, not twice
+
+    def test_a_message_without_attachments_asks_zoho_nothing(self):
+        plain = make_email(self.shared, 'Just a note')
+        with patch('notifications.services.zoho_mail_api.resolve_ids') as resolve:
+            res = self.api.get(f'/api/v1/email-inbox/{plain.id}/attachments/')
+        self.assertEqual(res.data['attachments'], [])
+        resolve.assert_not_called()
+
+    def test_the_file_comes_back_openable_in_the_browser(self):
+        self.email.attachments = self.FILES
+        self.email.save(update_fields=['attachments'])
+        with patch('notifications.services.zoho_mail_api.resolve_ids', return_value=self.IDS), \
+             patch('notifications.services.zoho_mail_api.download_attachment',
+                   return_value=b'%PDF tender'):
+            res = self.api.get(f'/api/v1/email-inbox/{self.email.id}/attachment/att-1/')
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.content, b'%PDF tender')
+        self.assertEqual(res['Content-Type'], 'application/pdf')
+        self.assertIn('inline', res['Content-Disposition'])
+        self.assertIn('Tender.pdf', res['Content-Disposition'])
+
+    def test_a_colleagues_private_mail_stays_shut(self):
+        other = User.objects.create_user(username='other', email='o@feevert.co.tz', password='x')
+        private = EmailAccount.objects.create(
+            email_address='accounts@feevert.co.tz', owner_user=other, is_active=True)
+        theirs = make_email(private, 'Private')
+        theirs.has_attachments = True
+        theirs.save(update_fields=['has_attachments'])
+
+        res = self.api.get(f'/api/v1/email-inbox/{theirs.id}/attachments/')
+        self.assertEqual(res.status_code, 404)
+
+    def test_a_zoho_failure_says_what_went_wrong(self):
+        with patch('notifications.services.zoho_mail_api.resolve_ids',
+                   side_effect=RuntimeError('No Zoho folder matching "inbox"')):
+            res = self.api.get(f'/api/v1/email-inbox/{self.email.id}/attachments/')
+        self.assertEqual(res.status_code, 502)
+        self.assertIn('No Zoho folder', res.data['error'])
+
+    def test_download_tries_the_known_url_shapes_before_giving_up(self):
+        from notifications.services import zoho_mail_api
+
+        class Answer:
+            def __init__(self, ok, body=b'', content_type='application/pdf'):
+                self.ok, self.content = ok, body
+                self.headers = {'Content-Type': content_type}
+
+            def raise_for_status(self):
+                if not self.ok:
+                    raise Exception('404 Not Found')
+
+        answers = [Answer(False), Answer(True, b'%PDF at the second url')]
+        with patch('requests.get', side_effect=answers) as fetch:
+            data = zoho_mail_api.download_attachment(
+                'tok', 'acct', 'folder', 'msg', 'att', 'Tender.pdf')
+
+        self.assertEqual(data, b'%PDF at the second url')
+        self.assertEqual(fetch.call_count, 2)
+
+    def test_a_json_answer_is_not_mistaken_for_a_file(self):
+        """Zoho reports some errors as 200 with a JSON body."""
+        from notifications.services import zoho_mail_api
+
+        class JsonAnswer:
+            content = b'{"status":{"code":404}}'
+            headers = {'Content-Type': 'application/json;charset=UTF-8'}
+
+            def raise_for_status(self):
+                pass
+
+        with patch('requests.get', return_value=JsonAnswer()):
+            with self.assertRaises(RuntimeError) as caught:
+                zoho_mail_api.download_attachment('t', 'a', 'f', 'm', 'att', 'x.pdf')
+        self.assertIn('JSON, not a file', str(caught.exception))

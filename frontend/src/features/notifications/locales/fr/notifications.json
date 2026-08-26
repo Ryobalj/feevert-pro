@@ -100,7 +100,10 @@
     "from_job_files": "Depuis les fichiers du dossier",
     "from_job_files_hint": "Joindre un fichier déjà présent sur un dossier client",
     "search_job_files": "Rechercher dans les fichiers…",
-    "no_job_files": "Aucun fichier sur vos dossiers"
+    "no_job_files": "Aucun fichier sur vos dossiers",
+    "attachments": "Pièces jointes",
+    "attachments_loading": "Lecture des pièces jointes…",
+    "attachments_failed": "Impossible de lire les pièces jointes"
   },
   "email_accounts": {
     "title": "Boîtes mail du personnel",

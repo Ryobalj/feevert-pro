@@ -100,7 +100,10 @@
     "from_job_files": "Kutoka faili za kazi",
     "from_job_files_hint": "Ambatanisha faili iliyopo tayari kwenye kazi ya mteja",
     "search_job_files": "Tafuta faili za kazi…",
-    "no_job_files": "Hakuna faili kwenye kazi zako bado"
+    "no_job_files": "Hakuna faili kwenye kazi zako bado",
+    "attachments": "Viambatanisho",
+    "attachments_loading": "Inasoma viambatanisho…",
+    "attachments_failed": "Imeshindwa kusoma viambatanisho"
   },
   "email_accounts": {
     "title": "Barua Pepe za Wafanyakazi",

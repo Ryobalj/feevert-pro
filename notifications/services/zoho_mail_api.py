@@ -333,3 +333,110 @@ def _sync_one(refresh_token, limit=None, fetch_bodies=True, only_address=None,
                 last_synced_at=timezone.now(), last_sync_error='')
 
     return saved
+
+
+# ============================================================
+# ATTACHMENTS ON MAIL THAT CAME IN
+# ============================================================
+#
+# The sync records that a message has attachments; the files themselves stay
+# in Zoho. Pulling every attachment of 1,061 messages into our own storage
+# would be a lot of megabytes for files most of which nobody will open, so
+# they are fetched on demand — the first time somebody actually clicks one.
+
+def get_attachment_info(token, account_id, folder_id, message_id):
+    """What is attached to this message: id, name and size for each file."""
+    r = requests.get(
+        f'{_mail_base()}/accounts/{account_id}/folders/{folder_id}'
+        f'/messages/{message_id}/attachmentinfo',
+        headers=_auth(token), timeout=30,
+    )
+    r.raise_for_status()
+    data = r.json().get('data', {}) or {}
+    rows = data.get('attachments') if isinstance(data, dict) else data
+    out = []
+    for a in (rows or []):
+        out.append({
+            'id': str(a.get('attachmentId') or a.get('attachmentID') or ''),
+            'name': a.get('attachmentName') or a.get('fileName') or 'attachment',
+            'size': a.get('attachmentSize') or a.get('size') or 0,
+        })
+    return [a for a in out if a['id']]
+
+
+def download_attachment(token, account_id, folder_id, message_id, attachment_id, name=''):
+    """The bytes of one attachment.
+
+    Zoho has moved this path around between API versions, so the known shapes
+    are tried in turn rather than trusting one and failing silently. Every
+    attempt is named if none of them work — a bare "could not download" taught
+    us nothing the last time.
+    """
+    from urllib.parse import quote
+
+    base = (f'{_mail_base()}/accounts/{account_id}/folders/{folder_id}'
+            f'/messages/{message_id}')
+    candidates = [
+        f'{base}/attachments/{attachment_id}',
+        f'{base}/attachments/{attachment_id}?attachmentName={quote(name or "")}',
+        f'{_mail_base()}/accounts/{account_id}/messages/{message_id}'
+        f'/attachments/{attachment_id}',
+    ]
+
+    attempts = []
+    for url in candidates:
+        try:
+            r = requests.get(url, headers=_auth(token), timeout=60)
+            r.raise_for_status()
+            # An error can still arrive as 200 with a JSON body, so anything
+            # that parses as our error envelope is not the file.
+            if r.headers.get('Content-Type', '').startswith('application/json'):
+                attempts.append(f'{url.split("?")[0][-60:]}: JSON, not a file')
+                continue
+            return r.content
+        except Exception as e:
+            attempts.append(f'{url.split("?")[0][-60:]}: {e}')
+    raise RuntimeError(' | '.join(attempts))
+
+
+def resolve_ids(email):
+    """The account and folder ids Zoho needs for one stored message.
+
+    We keep the folder by name (inbox, sent, …) because that is what the mail
+    page shows; Zoho wants its own numeric ids. They are looked up from the
+    mailbox's own token, which is also the check that this message really
+    belongs to a mailbox we can read.
+    """
+    from ..models import EmailAccount
+
+    account = email.account
+    if not account:
+        raise RuntimeError('This message is not linked to a mailbox.')
+
+    token = get_access_token(
+        account.oauth_refresh_token or None,
+        account.oauth_client_id or None,
+        account.oauth_client_secret or None,
+    )
+
+    wanted = (account.email_address or '').lower()
+    account_id = None
+    for a in get_accounts(token):
+        address = (a.get('primaryEmailAddress') or a.get('mailboxAddress') or '').lower()
+        if not account_id or address == wanted:
+            account_id = a.get('accountId') or a.get('account_id')
+        if address == wanted:
+            break
+    if not account_id:
+        raise RuntimeError(f'Zoho does not list {account.email_address} for this token.')
+
+    folder_id = None
+    for f in get_folders(token, account_id):
+        name = (f.get('folderName') or '').strip().lower()
+        if FOLDER_MAP.get(name, name) == (email.folder or 'inbox'):
+            folder_id = f.get('folderId') or f.get('folderID')
+            break
+    if not folder_id:
+        raise RuntimeError(f'No Zoho folder matching "{email.folder}".')
+
+    return token, account_id, folder_id

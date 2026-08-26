@@ -100,7 +100,10 @@
     "from_job_files": "From job files",
     "from_job_files_hint": "Attach a file already held on a client job",
     "search_job_files": "Search the job files…",
-    "no_job_files": "No files on your jobs yet"
+    "no_job_files": "No files on your jobs yet",
+    "attachments": "Attachments",
+    "attachments_loading": "Reading the attachments…",
+    "attachments_failed": "Could not read the attachments"
   },
   "email_accounts": {
     "title": "Staff Mailboxes",

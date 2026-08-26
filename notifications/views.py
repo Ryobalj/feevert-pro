@@ -513,6 +513,69 @@ class IncomingEmailViewSet(viewsets.ReadOnlyModelViewSet):
         email.save(update_fields=['is_read'])
         return Response({'success': True})
 
+    @action(detail=True, methods=['get'])
+    def attachments(self, request, pk=None):
+        """What came attached to this message.
+
+        The sync records only that a message has attachments — the files stay
+        in Zoho rather than dragging every megabyte of 1,061 messages into our
+        own storage. This asks Zoho what they are, and caches the answer on
+        the message so the second look is free.
+        """
+        email = self.get_object()
+        if not email.has_attachments:
+            return Response({'attachments': []})
+        if email.attachments:
+            return Response({'attachments': email.attachments, 'cached': True})
+
+        from .services import zoho_mail_api
+        try:
+            token, account_id, folder_id = zoho_mail_api.resolve_ids(email)
+            rows = zoho_mail_api.get_attachment_info(
+                token, account_id, folder_id, email.message_id)
+        except Exception as e:
+            logger.warning('Attachment list failed for %s: %s', email.pk, e)
+            return Response({'error': f'Could not read the attachments: {e}'},
+                            status=status.HTTP_502_BAD_GATEWAY)
+
+        email.attachments = rows
+        email.save(update_fields=['attachments'])
+        return Response({'attachments': rows})
+
+    @action(detail=True, methods=['get'],
+            url_path=r'attachment/(?P<attachment_id>[^/]+)')
+    def attachment(self, request, pk=None, attachment_id=None):
+        """One attachment, fetched from Zoho and handed to the browser.
+
+        Served through us rather than as a Zoho link: the link would need the
+        mailbox's own credentials, and going through here means the same
+        visibility rule that governs the message governs its files.
+        """
+        import mimetypes
+
+        from django.http import HttpResponse
+
+        email = self.get_object()
+        from .services import zoho_mail_api
+
+        name = next((a.get('name') for a in (email.attachments or [])
+                     if str(a.get('id')) == str(attachment_id)), '') or 'attachment'
+        try:
+            token, account_id, folder_id = zoho_mail_api.resolve_ids(email)
+            data = zoho_mail_api.download_attachment(
+                token, account_id, folder_id, email.message_id, attachment_id, name)
+        except Exception as e:
+            logger.error('Attachment download failed for %s/%s: %s', email.pk, attachment_id, e)
+            return Response({'error': f'Could not download it: {e}'},
+                            status=status.HTTP_502_BAD_GATEWAY)
+
+        content_type = mimetypes.guess_type(name)[0] or 'application/octet-stream'
+        response = HttpResponse(data, content_type=content_type)
+        # inline: a PDF or an image opens in the browser, which is what
+        # "can I see the attachment" actually means.
+        response['Content-Disposition'] = f'inline; filename="{name}"'
+        return response
+
     @action(detail=False, methods=['post'])
     def bulk(self, request):
         """Act on several messages at once — ticking a few boxes, or "select
