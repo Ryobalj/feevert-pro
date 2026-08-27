@@ -179,6 +179,10 @@ class EmailAccount(BaseModel):
     oauth_client_secret = models.CharField(max_length=255, blank=True)
 
     last_synced_at = models.DateTimeField(null=True, blank=True)
+    # The routine sync only looks at the newest messages, which is enough
+    # unless a burst arrives between two runs. This is when the whole mailbox
+    # was last walked end to end, so nothing can be missed permanently.
+    last_deep_sync_at = models.DateTimeField(null=True, blank=True)
     last_sync_error = models.TextField(blank=True)
 
     class Meta:

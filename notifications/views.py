@@ -1109,7 +1109,15 @@ def cron_sync_emails(request):
         # Runs every few minutes, so check a short window — the deep backfill
         # is `manage.py sync_zoho_inbox` with no --limit.
         saved = zoho_mail_api.sync(limit=50)
+        # ...and once a day, one mailbox is walked end to end, so a burst that
+        # outran the quick sync cannot go missing for good.
+        try:
+            deep = zoho_mail_api.deep_sync_due()
+        except Exception as e:
+            logger.warning('Deep sync pass failed: %s', e)
+            deep = []
         return Response({'zoho_api': {'success': True, 'saved': saved},
+                         'deep_sync': deep,
                          'outgoing_retry': retried, 'reminders_sent': reminders})
 
     results = EmailInboundService.fetch_all_sources()

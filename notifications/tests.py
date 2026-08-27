@@ -820,3 +820,62 @@ class InboundAttachmentTests(TestCase):
             with self.assertRaises(RuntimeError) as caught:
                 zoho_mail_api.download_attachment('t', 'a', 'f', 'm', 'att', 'x.pdf')
         self.assertIn('JSON, not a file', str(caught.exception))
+
+
+class DeepSyncTests(TestCase):
+    """The quick sync looks at the newest mail only. This is the safety net
+    that keeps a burst from going missing for good."""
+
+    def setUp(self):
+        self.fresh = EmailAccount.objects.create(
+            email_address='fresh@feevert.co.tz', is_active=True,
+            oauth_refresh_token='tok-1', last_deep_sync_at=timezone.now())
+        self.stale = EmailAccount.objects.create(
+            email_address='stale@feevert.co.tz', is_active=True,
+            oauth_refresh_token='tok-2',
+            last_deep_sync_at=timezone.now() - timezone.timedelta(days=3))
+        self.never = EmailAccount.objects.create(
+            email_address='never@feevert.co.tz', is_active=True,
+            oauth_refresh_token='tok-3', last_deep_sync_at=None)
+
+    def test_the_mailbox_never_walked_goes_first(self):
+        from notifications.services import zoho_mail_api
+
+        with patch('notifications.services.zoho_mail_api._sync_one',
+                   return_value=4) as walk:
+            done = zoho_mail_api.deep_sync_due()
+
+        self.assertEqual(done, [{'mailbox': 'never@feevert.co.tz', 'new': 4}])
+        self.assertIsNone(walk.call_args.kwargs['limit'])          # the whole mailbox
+        self.assertEqual(walk.call_args.kwargs['only_address'], 'never@feevert.co.tz')
+        self.never.refresh_from_db()
+        self.assertIsNotNone(self.never.last_deep_sync_at)
+
+    def test_a_mailbox_walked_today_is_left_alone(self):
+        from notifications.services import zoho_mail_api
+
+        self.never.delete()
+        self.stale.delete()
+        with patch('notifications.services.zoho_mail_api._sync_one') as walk:
+            done = zoho_mail_api.deep_sync_due()
+        self.assertEqual(done, [])
+        walk.assert_not_called()
+
+    def test_one_mailbox_per_run_keeps_the_request_short(self):
+        from notifications.services import zoho_mail_api
+
+        with patch('notifications.services.zoho_mail_api._sync_one', return_value=0) as walk:
+            zoho_mail_api.deep_sync_due()
+        self.assertEqual(walk.call_count, 1)
+
+    def test_a_failure_is_recorded_and_does_not_stop_the_cron(self):
+        from notifications.services import zoho_mail_api
+
+        with patch('notifications.services.zoho_mail_api._sync_one',
+                   side_effect=RuntimeError('token expired')):
+            done = zoho_mail_api.deep_sync_due()
+
+        self.assertIn('token expired', done[0]['error'])
+        self.never.refresh_from_db()
+        self.assertIn('Deep sync', self.never.last_sync_error)
+        self.assertIsNone(self.never.last_deep_sync_at)   # not stamped, so it retries

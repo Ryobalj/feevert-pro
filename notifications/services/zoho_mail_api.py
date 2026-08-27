@@ -440,3 +440,49 @@ def resolve_ids(email):
         raise RuntimeError(f'No Zoho folder matching "{email.folder}".')
 
     return token, account_id, folder_id
+
+
+def deep_sync_due(max_age_hours=24, mailboxes_per_run=1):
+    """Walk one whole mailbox end to end, for the mail the quick sync can miss.
+
+    The routine sync looks at the newest messages in each folder, which is
+    enough for ordinary traffic. It is not enough for a burst: if more arrive
+    between two runs than that window covers, the older ones in the burst fall
+    behind the window and are never looked at again — permanently missing from
+    a search that is supposed to reach back to 2022.
+
+    So every mailbox is walked in full once a day. It is cheap after the first
+    time, because a message already stored is skipped before its body is
+    fetched: the cost is listing pages, not downloading mail twice. One
+    mailbox per run keeps any single cron request short.
+    """
+    from datetime import timedelta
+
+    from ..models import EmailAccount
+
+    cutoff = timezone.now() - timedelta(hours=max_age_hours)
+    due = EmailAccount.objects.filter(is_active=True).exclude(
+        oauth_refresh_token='').filter(
+        models_Q(last_deep_sync_at__isnull=True) | models_Q(last_deep_sync_at__lt=cutoff)
+    ).order_by('last_deep_sync_at')[:mailboxes_per_run]
+
+    done = []
+    for account in due:
+        try:
+            saved = _sync_one(
+                account.oauth_refresh_token,
+                limit=None,                       # the whole mailbox
+                fetch_bodies=True,
+                only_address=account.email_address,
+                client_id=account.oauth_client_id or None,
+                client_secret=account.oauth_client_secret or None,
+            )
+            EmailAccount.objects.filter(pk=account.pk).update(
+                last_deep_sync_at=timezone.now(), last_sync_error='')
+            done.append({'mailbox': account.email_address, 'new': saved})
+        except Exception as e:
+            logger.error('Deep sync failed for %s: %s', account.email_address, e)
+            EmailAccount.objects.filter(pk=account.pk).update(
+                last_sync_error=f'Deep sync: {str(e)[:400]}')
+            done.append({'mailbox': account.email_address, 'error': str(e)[:200]})
+    return done
