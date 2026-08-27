@@ -956,6 +956,16 @@ class ContactsTests(TestCase):
         self._mail('procurement@wvi.org', 'World Vision')
         self.assertIn('procurement@wvi.org', self._contacts('wvi'))
 
+    def test_mail_we_sent_counts_as_sent_not_received(self):
+        """A client we have chased for three years should not read like a
+        regular correspondent."""
+        IncomingEmail.objects.create(
+            account=self.shared, sender='info@feevert.co.tz', sender_name='Us',
+            recipient='tender@wvi.org', subject='Our submission',
+            message_id='sent-1', received_at=timezone.now(), folder='sent')
+        row = self._contacts()['tender@wvi.org']
+        self.assertEqual((row['sent'], row['received']), (1, 0))
+
     def test_a_colleagues_private_correspondence_stays_out(self):
         other = User.objects.create_user(username='other', email='o@feevert.co.tz', password='x')
         private = EmailAccount.objects.create(
@@ -1065,12 +1075,3 @@ class ArchiveImportTests(TestCase):
         rows = {c['email'] for c in api.get('/api/v1/email-inbox/contacts/').data['contacts']}
         self.assertIn('kileo@tanesco.co.tz', rows)
 
-    def test_mail_we_sent_counts_as_sent_not_received(self):
-        """A client we have chased for three years should not read like a
-        regular correspondent."""
-        IncomingEmail.objects.create(
-            account=self.shared, sender='info@feevert.co.tz', sender_name='Us',
-            recipient='tender@wvi.org', subject='Our submission',
-            message_id='sent-1', received_at=timezone.now(), folder='sent')
-        row = self._contacts()['tender@wvi.org']
-        self.assertEqual((row['sent'], row['received']), (1, 0))
