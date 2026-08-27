@@ -964,3 +964,103 @@ class ContactsTests(TestCase):
             account=private, sender='secret@example.com', recipient='accounts@feevert.co.tz',
             subject='x', message_id='private-1', received_at=timezone.now(), folder='inbox')
         self.assertNotIn('secret@example.com', self._contacts())
+
+
+class ArchiveImportTests(TestCase):
+    """Old mail that only exists in an export has to come in cleanly, and
+    twice must not mean double."""
+
+    def setUp(self):
+        self.account = EmailAccount.objects.create(
+            email_address='essau.losujaki@feevert.co.tz', is_active=True)
+
+    RAW = (b'Message-ID: <2022-tender@client.co.tz>\r\n'
+           b'From: Mr Kileo <kileo@tanesco.co.tz>\r\n'
+           b'To: essau.losujaki@feevert.co.tz\r\n'
+           b'Subject: Pre-qualification documents\r\n'
+           b'Date: Mon, 2 May 2022 09:14:00 +0300\r\n'
+           b'\r\n'
+           b'Please find our requirements attached.\r\n')
+
+    def _import(self, folder, **extra):
+        from django.core.management import call_command
+        from io import StringIO
+
+        out = StringIO()
+        call_command('import_mail_archive', mailbox=self.account.email_address,
+                     file=str(folder), stdout=out, stderr=out, **extra)
+        return out.getvalue()
+
+    def test_an_exported_message_arrives_with_its_real_date(self):
+        import tempfile
+        from pathlib import Path
+
+        with tempfile.TemporaryDirectory() as folder:
+            (Path(folder) / 'one.eml').write_bytes(self.RAW)
+            self._import(folder)
+
+        mail = IncomingEmail.objects.get()
+        self.assertEqual(mail.sender, 'kileo@tanesco.co.tz')
+        self.assertEqual(mail.sender_name, 'Mr Kileo')
+        self.assertEqual(mail.subject, 'Pre-qualification documents')
+        self.assertEqual(mail.received_at.year, 2022)
+        self.assertEqual(mail.source, 'archive')
+        self.assertIn('requirements', mail.body)
+
+    def test_importing_the_same_archive_twice_changes_nothing(self):
+        import tempfile
+        from pathlib import Path
+
+        with tempfile.TemporaryDirectory() as folder:
+            (Path(folder) / 'one.eml').write_bytes(self.RAW)
+            self._import(folder)
+            report = self._import(folder)
+
+        self.assertEqual(IncomingEmail.objects.count(), 1)
+        self.assertIn('already held 1', report)
+
+    def test_a_message_with_no_id_is_still_only_imported_once(self):
+        """Plenty of old exports have no Message-ID at all."""
+        import tempfile
+        from pathlib import Path
+
+        raw = self.RAW.replace(b'Message-ID: <2022-tender@client.co.tz>\r\n', b'')
+        with tempfile.TemporaryDirectory() as folder:
+            (Path(folder) / 'one.eml').write_bytes(raw)
+            self._import(folder)
+            self._import(folder)
+
+        self.assertEqual(IncomingEmail.objects.count(), 1)
+        self.assertTrue(IncomingEmail.objects.get().message_id.startswith('archive-'))
+
+    def test_a_dry_run_saves_nothing(self):
+        import tempfile
+        from pathlib import Path
+
+        with tempfile.TemporaryDirectory() as folder:
+            (Path(folder) / 'one.eml').write_bytes(self.RAW)
+            report = self._import(folder, dry_run=True)
+
+        self.assertEqual(IncomingEmail.objects.count(), 0)
+        self.assertIn('would import 1', report)
+        self.assertIn('02 May 2022', report)
+
+    def test_imported_mail_joins_the_address_book(self):
+        """The point of the exercise: the contact behind old mail becomes
+        reachable."""
+        import tempfile
+        from pathlib import Path
+
+        user = User.objects.create_user(
+            username='essau', email='essau.losujaki@feevert.co.tz', password='x')
+        self.account.owner_user = user
+        self.account.save(update_fields=['owner_user'])
+
+        with tempfile.TemporaryDirectory() as folder:
+            (Path(folder) / 'one.eml').write_bytes(self.RAW)
+            self._import(folder)
+
+        api = APIClient()
+        api.force_authenticate(user)
+        rows = {c['email'] for c in api.get('/api/v1/email-inbox/contacts/').data['contacts']}
+        self.assertIn('kileo@tanesco.co.tz', rows)

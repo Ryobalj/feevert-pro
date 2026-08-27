@@ -267,15 +267,28 @@ def _sync_one(refresh_token, limit=None, fetch_bodies=True, only_address=None,
                 )
                 logger.info('Created EmailAccount for %s (unassigned — map an owner or mark shared)', primary)
 
-        # Mirror the standard folders, not just the inbox, so the mail page can
-        # offer Sent/Drafts/Spam/Trash the way a mail client does.
+        # Every folder, not a chosen few. The six standard names keep their
+        # own labels so the mail page can offer Sent/Drafts/Spam/Trash the way
+        # a mail client does; anything else — a folder someone made, or one a
+        # migration created — is mirrored under its own name rather than
+        # skipped. A message we never look at is a message that does not exist
+        # as far as search is concerned.
         targets = []
         for f in get_folders(token, account_id):
-            name = (f.get('folderName') or '').strip().lower()
-            mapped = FOLDER_MAP.get(name)
+            raw = (f.get('folderName') or '').strip()
+            name = raw.lower()
             fid = f.get('folderId') or f.get('folderID')
-            if mapped and fid:
-                targets.append((mapped, fid))
+            if not fid or not raw:
+                continue
+            mapped = FOLDER_MAP.get(name)
+            if not mapped:
+                # Outbox holds mail Zoho is still sending; it becomes a real
+                # message in Sent a moment later, so mirroring it would only
+                # produce duplicates that never resolve.
+                if name in ('outbox',):
+                    continue
+                mapped = name.replace(' ', '_')[:100]
+            targets.append((mapped, fid))
         if not targets:
             targets = [('inbox', None)]
 
