@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next'
 import api from '../../../app/api'
 import useAutoRefresh from '../../../app/useAutoRefresh'
 import openFile, { fileError } from '../../../app/openFile'
+import sanitizeMail from '../utils/sanitizeMail'
 
 const FOLDERS = [
   { key: 'inbox',   label: 'Inbox',   icon: '📥' },
@@ -560,9 +561,17 @@ ${res.data.error || ''}`)
                     : contacts !== null
                       ? `${t('inbox.contacts', 'Contacts')} (${contacts.length})`
                       : alias || folderLabel}
-                  {counts.unread > 0 && folder === 'inbox' && (
+                  {folderCounts[folder]?.unread > 0 && (
                     <span className="ml-2 text-[11px] font-semibold text-emerald-400">
-                      {counts.unread} {t('inbox.unread', 'unread')}
+                      {folderCounts[folder].unread} {t('inbox.unread', 'unread')}
+                    </span>
+                  )}
+                  {/* Unread sitting in another folder — the count used to be
+                      added to this one, pointing at mail that is not here. */}
+                  {counts.unread > (folderCounts[folder]?.unread || 0) && (
+                    <span className="ml-2 text-[11px] text-white/40">
+                      +{counts.unread - (folderCounts[folder]?.unread || 0)}{' '}
+                      {t('inbox.elsewhere', 'in other folders')}
                     </span>
                   )}
                 </h2>
@@ -855,8 +864,10 @@ ${res.data.error || ''}`)
                   {/* Sender-authored HTML carries its own (usually dark-on-white)
                       colours, so render it on a white sheet rather than fighting it. */}
                   {selected.body_html ? (
+                    /* Stripped of the sender's stylesheet and anything
+                       executable first — see utils/sanitizeMail. */
                     <div className="mail-body text-sm leading-relaxed overflow-x-auto [&_img]:max-w-full"
-                      dangerouslySetInnerHTML={{ __html: selected.body_html }} />
+                      dangerouslySetInnerHTML={{ __html: sanitizeMail(selected.body_html) }} />
                   ) : (
                     <pre className="mail-body text-sm whitespace-pre-wrap font-sans leading-relaxed">{selected.body}</pre>
                   )}

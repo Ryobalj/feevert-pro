@@ -106,7 +106,8 @@
     "attachments_failed": "Не удалось прочитать вложения",
     "attachment_failed": "Не удалось открыть файл",
     "no_reply_yet": "ответа пока нет",
-    "since": "с"
+    "since": "с",
+    "elsewhere": "в других папках"
   },
   "email_accounts": {
     "title": "Почтовые ящики сотрудников",

@@ -106,7 +106,8 @@
     "attachments_failed": "Imeshindwa kusoma viambatanisho",
     "attachment_failed": "Imeshindwa kufungua faili",
     "no_reply_yet": "hajajibu bado",
-    "since": "tangu"
+    "since": "tangu",
+    "elsewhere": "kwenye folda nyingine"
   },
   "email_accounts": {
     "title": "Barua Pepe za Wafanyakazi",

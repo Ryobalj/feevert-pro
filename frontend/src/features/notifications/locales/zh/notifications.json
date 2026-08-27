@@ -106,7 +106,8 @@
     "attachments_failed": "无法读取附件",
     "attachment_failed": "无法打开文件",
     "no_reply_yet": "尚未回复",
-    "since": "自"
+    "since": "自",
+    "elsewhere": "在其他文件夹"
   },
   "email_accounts": {
     "title": "员工邮箱",

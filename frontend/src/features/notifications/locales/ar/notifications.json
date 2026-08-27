@@ -106,7 +106,8 @@
     "attachments_failed": "تعذّرت قراءة المرفقات",
     "attachment_failed": "تعذّر فتح الملف",
     "no_reply_yet": "لم يرد بعد",
-    "since": "منذ"
+    "since": "منذ",
+    "elsewhere": "في مجلدات أخرى"
   },
   "email_accounts": {
     "title": "صناديق بريد الموظفين",
