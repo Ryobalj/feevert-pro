@@ -31,12 +31,39 @@ const UserDropdownMenu = ({
   }
   const [maxHeight, setMaxHeight] = React.useState(() => `min(70vh, ${roomBelow()}px)`)
 
+  // Where it actually sits. The navbar measures the button and hands us a
+  // left edge, which is right until the page stops being the size it was
+  // measured at — and the text-size buttons live inside this very menu, so
+  // pressing A+ re-laid out the page underneath coordinates taken before the
+  // press and sent the menu off the right-hand edge, out of reach.
+  const [left, setLeft] = React.useState(position.left)
+  const menuWidth = () => dropdownRef.current?.getBoundingClientRect().width || 260
+
+  const fitOnScreen = React.useCallback(() => {
+    // Both measurements come from getBoundingClientRect, so both are in the
+    // same coordinate space whatever the page zoom is.
+    const viewport = document.documentElement.getBoundingClientRect().width
+    const wanted = position.left
+    setLeft(Math.max(8, Math.min(wanted, viewport - menuWidth() - 8)))
+  }, [position.left])
+
   useEffect(() => {
-    const recalc = () => setMaxHeight(`min(70vh, ${roomBelow()}px)`)
+    const recalc = () => {
+      setMaxHeight(`min(70vh, ${roomBelow()}px)`)
+      fitOnScreen()
+    }
     recalc()
     window.addEventListener('resize', recalc)
-    return () => window.removeEventListener('resize', recalc)
-  }, [position.top])
+    // A zoom change re-lays out the page without firing resize, so watch the
+    // document itself.
+    const observer = typeof ResizeObserver !== 'undefined'
+      ? new ResizeObserver(recalc) : null
+    observer?.observe(document.documentElement)
+    return () => {
+      window.removeEventListener('resize', recalc)
+      observer?.disconnect()
+    }
+  }, [position.top, fitOnScreen])
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -65,7 +92,7 @@ const UserDropdownMenu = ({
       className="fixed card-glass !p-1 shadow-liquid overflow-y-auto overscroll-contain user-dropdown dropdown-menu-container z-[9999]"
       style={{
         top: position.top,
-        left: position.left,
+        left,
         minWidth: 260,
         maxWidth: 280,
         maxHeight,

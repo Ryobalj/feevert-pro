@@ -13,8 +13,12 @@ const DropdownContent = ({ items, position, onClose, onMouseEnter, onMouseLeave 
     className="fixed card-glass !p-1 shadow-lg overflow-hidden dropdown-menu-container z-[9999]"
     style={{
       top: position.top,
-      left: position.left,
+      // Clamped in CSS rather than in JS: the browser re-evaluates it on every
+      // layout change, including a text-size change, so the menu cannot end up
+      // past an edge that moved after it was measured.
+      left: `max(8px, min(${position.left}px, calc(100vw - 236px)))`,
       minWidth: 220,
+      maxWidth: 'calc(100vw - 16px)',
       maxHeight: '60vh',
       overflowY: 'auto',
     }}
