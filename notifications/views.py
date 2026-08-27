@@ -519,13 +519,20 @@ class IncomingEmailViewSet(viewsets.ReadOnlyModelViewSet):
                     row['first_seen'] = when
 
         visible = self.get_queryset()
-        for e in visible.values('sender', 'sender_name', 'recipient', 'received_at'):
-            note(e['sender'], e['sender_name'], e['received_at'], 'received')
+        for e in visible.values('sender', 'sender_name', 'recipient',
+                                'received_at', 'folder'):
+            # A message in Sent or Drafts is one we wrote: the person in the
+            # To line is someone we approached, not someone who approached us.
+            # Reading every stored message as "received" made a client we have
+            # chased for three years look like a regular correspondent.
+            outgoing = e['folder'] in ('sent', 'drafts')
+            if not outgoing:
+                note(e['sender'], e['sender_name'], e['received_at'], 'received')
             # The To/Cc header carries the rest of the conversation: people
             # copied in are contacts too, and often the ones being looked for.
             for found in _re.findall(r'[\w.+-]+@[\w.-]+\.\w+',
                                      _h.unescape(str(e['recipient'] or ''))):
-                note(found, '', e['received_at'], 'received')
+                note(found, '', e['received_at'], 'sent' if outgoing else 'received')
 
         # Anyone the system has written to, whether or not they ever replied.
         for out in OutgoingEmail.objects.filter(
