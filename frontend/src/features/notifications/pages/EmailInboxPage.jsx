@@ -472,6 +472,22 @@ ${res.data.error || ''}`)
                   onClick={() => { setFolder(f.key); setTeamView('all') }} />
               ))}
 
+              {/* Folders the mail server made up its own mind about — Zoho
+                  files bulk mail into "Newsletter" by itself, which is where
+                  the tender alerts had been going. Listing whatever comes back
+                  means a folder we have never heard of cannot hide mail. */}
+              {Object.keys(folderCounts)
+                .filter(key => !FOLDERS.some(f => f.key === key))
+                .sort()
+                .map(key => (
+                  <NavRow key={key} icon="📁"
+                    label={key.charAt(0).toUpperCase() + key.slice(1).replace(/_/g, ' ')}
+                    active={folder === key}
+                    badge={folderCounts[key]?.unread || 0}
+                    count={folderCounts[key]?.total || 0}
+                    onClick={() => { setFolder(key); setTeamView('all') }} />
+                ))}
+
               <p className="px-3 pb-1 pt-4 text-[10px] uppercase tracking-wider text-white/30 font-bold">
                 {t('inbox.views', 'Views')}
               </p>
