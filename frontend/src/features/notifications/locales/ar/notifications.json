@@ -104,7 +104,9 @@
     "attachments": "المرفقات",
     "attachments_loading": "جارٍ قراءة المرفقات…",
     "attachments_failed": "تعذّرت قراءة المرفقات",
-    "attachment_failed": "تعذّر فتح الملف"
+    "attachment_failed": "تعذّر فتح الملف",
+    "no_reply_yet": "لم يرد بعد",
+    "since": "منذ"
   },
   "email_accounts": {
     "title": "صناديق بريد الموظفين",

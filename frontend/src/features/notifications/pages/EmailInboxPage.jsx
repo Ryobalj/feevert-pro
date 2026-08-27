@@ -680,8 +680,18 @@ ${res.data.error || ''}`)
                         <p className="text-[13px] font-semibold truncate">{c.name || c.email}</p>
                         <p className="text-[11px] text-white/45 truncate">{c.email}</p>
                         <p className="text-[10px] text-white/25">
-                          {c.messages} {t('inbox.messages_count', 'messages')}
-                          {c.last_seen ? ` · ${new Date(c.last_seen).toLocaleDateString()}` : ''}
+                          {/* Both directions, so it is clear whether we have ever
+                              heard back from this person. */}
+                          {c.received > 0 && `↓ ${c.received} `}
+                          {c.sent > 0 && `↑ ${c.sent} `}
+                          {c.received === 0 && c.sent > 0 && (
+                            <span className="text-amber-300/60">
+                              {t('inbox.no_reply_yet', 'no reply yet')} ·{' '}
+                            </span>
+                          )}
+                          {c.last_seen ? new Date(c.last_seen).toLocaleDateString() : ''}
+                          {c.first_seen && c.first_seen !== c.last_seen
+                            && ` · ${t('inbox.since', 'since')} ${new Date(c.first_seen).getFullYear()}`}
                         </p>
                       </div>
                       <button

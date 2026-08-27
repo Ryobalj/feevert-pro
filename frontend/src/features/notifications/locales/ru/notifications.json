@@ -104,7 +104,9 @@
     "attachments": "Вложения",
     "attachments_loading": "Читаем вложения…",
     "attachments_failed": "Не удалось прочитать вложения",
-    "attachment_failed": "Не удалось открыть файл"
+    "attachment_failed": "Не удалось открыть файл",
+    "no_reply_yet": "ответа пока нет",
+    "since": "с"
   },
   "email_accounts": {
     "title": "Почтовые ящики сотрудников",

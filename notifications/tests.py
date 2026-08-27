@@ -879,3 +879,88 @@ class DeepSyncTests(TestCase):
         self.never.refresh_from_db()
         self.assertIn('Deep sync', self.never.last_sync_error)
         self.assertIsNone(self.never.last_deep_sync_at)   # not stamped, so it retries
+
+
+class ContactsTests(TestCase):
+    """The address book is what the old cPanel mail was kept for: if someone
+    was ever written to or heard from, they must be findable."""
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='staff', email='staff@feevert.co.tz', password='x')
+        self.shared = EmailAccount.objects.create(
+            email_address='info@feevert.co.tz', is_shared=True, is_active=True)
+        self.api = APIClient()
+        self.api.force_authenticate(self.user)
+
+    def _mail(self, sender, sender_name='', recipient='info@feevert.co.tz'):
+        # A counter, not a timestamp: two messages made in the same tick
+        # collided on the unique message_id.
+        self._seq = getattr(self, '_seq', 0) + 1
+        return IncomingEmail.objects.create(
+            account=self.shared, sender=sender, sender_name=sender_name,
+            recipient=recipient, subject='x',
+            message_id=f'id-{self._seq}-{sender}',
+            received_at=timezone.now(), folder='inbox')
+
+    def _contacts(self, term=''):
+        url = '/api/v1/email-inbox/contacts/' + (f'?search={term}' if term else '')
+        return {c['email']: c for c in self.api.get(url).data['contacts']}
+
+    def test_someone_who_wrote_to_us_is_in_the_book(self):
+        self._mail('client@example.com', 'A Client')
+        rows = self._contacts()
+        self.assertEqual(rows['client@example.com']['name'], 'A Client')
+        self.assertEqual(rows['client@example.com']['received'], 1)
+
+    def test_someone_copied_on_a_thread_is_in_the_book(self):
+        """Cc'd people are contacts too, and often the ones being looked for."""
+        self._mail('client@example.com',
+                   recipient='info@feevert.co.tz, engineer@ministry.go.tz')
+        self.assertIn('engineer@ministry.go.tz', self._contacts())
+
+    def test_someone_we_wrote_to_who_never_replied_is_in_the_book(self):
+        """The old builder read senders only, so every client we sent a tender
+        or an invoice to was missing."""
+        OutgoingEmail.objects.create(
+            account=self.shared, sent_by=self.user,
+            to_email='newclient@example.com', subject='Our quote', status='sent')
+        rows = self._contacts()
+        self.assertIn('newclient@example.com', rows)
+        self.assertEqual(rows['newclient@example.com']['sent'], 1)
+        self.assertEqual(rows['newclient@example.com']['received'], 0)
+
+    def test_our_own_addresses_are_not_contacts(self):
+        self._mail('client@example.com')
+        rows = self._contacts()
+        self.assertNotIn('info@feevert.co.tz', rows)
+        self.assertNotIn('staff@feevert.co.tz', rows)
+
+    def test_both_directions_count_towards_one_person(self):
+        self._mail('client@example.com', 'A Client')
+        self._mail('client@example.com', 'A Client')
+        OutgoingEmail.objects.create(
+            account=self.shared, sent_by=self.user,
+            to_email='client@example.com', subject='Reply', status='sent')
+        row = self._contacts()['client@example.com']
+        self.assertEqual((row['received'], row['sent'], row['messages']), (2, 1, 3))
+
+    def test_search_matches_a_name_learned_from_another_message(self):
+        """The name comes from one message, the search from another — matching
+        after the book is built is what makes that work."""
+        self._mail('mkuu@tanesco.co.tz', 'Mkuu wa Mradi')
+        self._mail('mkuu@tanesco.co.tz', '')
+        self.assertIn('mkuu@tanesco.co.tz', self._contacts('mkuu wa'))
+
+    def test_search_finds_by_address_too(self):
+        self._mail('procurement@wvi.org', 'World Vision')
+        self.assertIn('procurement@wvi.org', self._contacts('wvi'))
+
+    def test_a_colleagues_private_correspondence_stays_out(self):
+        other = User.objects.create_user(username='other', email='o@feevert.co.tz', password='x')
+        private = EmailAccount.objects.create(
+            email_address='accounts@feevert.co.tz', owner_user=other, is_active=True)
+        IncomingEmail.objects.create(
+            account=private, sender='secret@example.com', recipient='accounts@feevert.co.tz',
+            subject='x', message_id='private-1', received_at=timezone.now(), folder='inbox')
+        self.assertNotIn('secret@example.com', self._contacts())

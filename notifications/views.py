@@ -470,33 +470,79 @@ class IncomingEmailViewSet(viewsets.ReadOnlyModelViewSet):
 
     @action(detail=False, methods=['get'])
     def contacts(self, request):
-        """Everyone who has ever written in, newest first — the address book the
-        old cPanel mail was being kept around for."""
-        term = (request.query_params.get('search') or '').strip()
-        qs = self.get_queryset().exclude(sender='')
-        if term:
-            qs = qs.filter(Q(sender__icontains=term) | Q(sender_name__icontains=term))
+        """Everyone this company has corresponded with — the address book the
+        old cPanel mail was being kept around for.
+
+        Built from both directions. It used to read the sender of received
+        mail and nothing else, which left out every client we wrote to who
+        never wrote back — for a firm that sends tenders, quotes and invoices,
+        that is most of them. It now also reads who each message was addressed
+        to (To and Cc), and everyone the system has sent to.
+
+        Our own addresses are left out: an address book full of ourselves
+        helps nobody find a client.
+        """
+        import html as _h
+        import re as _re
+
+        term = (request.query_params.get('search') or '').strip().lower()
+
+        ours = {a.lower() for a in EmailAccount.objects.values_list(
+            'email_address', flat=True)}
+        for aliases in EmailAccount.objects.values_list('aliases', flat=True):
+            ours |= {str(a).lower() for a in (aliases or [])}
+        from django.contrib.auth import get_user_model
+        ours |= {a.lower() for a in get_user_model().objects
+                 .exclude(email='').values_list('email', flat=True)}
+
         rows = {}
-        for e in qs.values(
-            'sender', 'sender_name', 'received_at'
-        ).order_by('-received_at')[:5000]:
-            import html as _h
-            addr = _h.unescape((e['sender'] or '')).strip().strip('<>').lower()
-            if not addr or '@' not in addr:
-                continue
-            row = rows.get(addr)
-            if row:
-                row['messages'] += 1
-                if not row['name'] and e['sender_name']:
-                    row['name'] = e['sender_name']
-            else:
-                rows[addr] = {
-                    'email': addr,
-                    'name': e['sender_name'] or '',
-                    'messages': 1,
-                    'last_seen': e['received_at'],
+
+        def note(address, name, when, direction):
+            address = _h.unescape(str(address or '')).strip().strip('<>').lower()
+            if not address or '@' not in address or address in ours:
+                return
+            row = rows.get(address)
+            if not row:
+                row = rows[address] = {
+                    'email': address, 'name': name or '',
+                    'messages': 0, 'received': 0, 'sent': 0,
+                    'first_seen': when, 'last_seen': when,
                 }
-        contacts = sorted(rows.values(), key=lambda r: r['last_seen'] or '', reverse=True)
+            row['messages'] += 1
+            row[direction] += 1
+            if name and not row['name']:
+                row['name'] = name
+            if when:
+                if not row['last_seen'] or when > row['last_seen']:
+                    row['last_seen'] = when
+                if not row['first_seen'] or when < row['first_seen']:
+                    row['first_seen'] = when
+
+        visible = self.get_queryset()
+        for e in visible.values('sender', 'sender_name', 'recipient', 'received_at'):
+            note(e['sender'], e['sender_name'], e['received_at'], 'received')
+            # The To/Cc header carries the rest of the conversation: people
+            # copied in are contacts too, and often the ones being looked for.
+            for found in _re.findall(r'[\w.+-]+@[\w.-]+\.\w+',
+                                     _h.unescape(str(e['recipient'] or ''))):
+                note(found, '', e['received_at'], 'received')
+
+        # Anyone the system has written to, whether or not they ever replied.
+        for out in OutgoingEmail.objects.filter(
+                Q(sent_by=request.user) | Q(account__owner_user=request.user)
+                | Q(account__is_shared=True)).values('to_email', 'created_at'):
+            for found in _re.findall(r'[\w.+-]+@[\w.-]+\.\w+',
+                                     str(out['to_email'] or '')):
+                note(found, '', out['created_at'], 'sent')
+
+        contacts = list(rows.values())
+        if term:
+            # Matched after building, so a name learned from one message finds
+            # a contact known from another.
+            contacts = [c for c in contacts
+                        if term in c['email'] or term in (c['name'] or '').lower()]
+
+        contacts.sort(key=lambda r: r['last_seen'] or '', reverse=True)
         return Response({'count': len(contacts), 'contacts': contacts})
 
     @action(detail=True, methods=['post'])

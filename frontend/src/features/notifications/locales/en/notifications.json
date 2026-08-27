@@ -104,7 +104,9 @@
     "attachments": "Attachments",
     "attachments_loading": "Reading the attachments…",
     "attachments_failed": "Could not read the attachments",
-    "attachment_failed": "Could not open the file"
+    "attachment_failed": "Could not open the file",
+    "no_reply_yet": "no reply yet",
+    "since": "since"
   },
   "email_accounts": {
     "title": "Staff Mailboxes",

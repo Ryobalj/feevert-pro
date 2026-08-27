@@ -104,7 +104,9 @@
     "attachments": "Pièces jointes",
     "attachments_loading": "Lecture des pièces jointes…",
     "attachments_failed": "Impossible de lire les pièces jointes",
-    "attachment_failed": "Impossible d'ouvrir le fichier"
+    "attachment_failed": "Impossible d'ouvrir le fichier",
+    "no_reply_yet": "pas encore de réponse",
+    "since": "depuis"
   },
   "email_accounts": {
     "title": "Boîtes mail du personnel",
