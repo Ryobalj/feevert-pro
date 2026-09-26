@@ -130,5 +130,18 @@
     "smaller": "نص أصغر",
     "normal": "الحجم العادي",
     "bigger": "نص أكبر"
+  },
+  "projects_menu": {
+    "title": "قائمة المشاريع",
+    "projects": "المشاريع",
+    "categories": "الفئات",
+    "completed": "المكتملة",
+    "ongoing": "الجارية",
+    "completed_projects": "المشاريع المكتملة",
+    "ongoing_projects": "المشاريع الجارية",
+    "no_completed": "لا توجد مشاريع مكتملة",
+    "no_ongoing": "لا توجد مشاريع جارية",
+    "select_category": "اختر فئة",
+    "no_projects": "لا توجد مشاريع بعد"
   }
 }

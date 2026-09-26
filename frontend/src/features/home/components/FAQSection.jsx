@@ -110,7 +110,7 @@ const FAQSection = ({ data }) => {
                           <div className="flex gap-4">
                             {/* Answer line indicator */}
                             <div className="hidden sm:block w-1 bg-gradient-to-b from-emerald-400 to-transparent rounded-full flex-shrink-0" />
-                            <p className="text-white/70 leading-relaxed text-sm md:text-base">
+                            <p className="text-white/70 leading-relaxed text-sm md:text-base text-justify hyphens-auto">
                               {faq.answer}
                             </p>
                           </div>

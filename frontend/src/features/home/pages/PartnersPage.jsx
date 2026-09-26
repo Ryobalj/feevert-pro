@@ -136,7 +136,7 @@ const PartnersPage = () => {
 
                     {/* Description */}
                     {partner.description && (
-                      <p className="text-xs text-white/40 line-clamp-2 mb-3 leading-relaxed">
+                      <p className="text-sm md:text-base text-white/40 line-clamp-2 mb-3 leading-relaxed text-justify hyphens-auto">
                         {partner.description}
                       </p>
                     )}

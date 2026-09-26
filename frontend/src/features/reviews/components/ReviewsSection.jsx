@@ -92,7 +92,7 @@ const ReviewsSection = () => {
                   </div>
                   
                   {/* Content */}
-                  <p className="text-white/70 leading-relaxed mb-6 flex-1 text-sm italic">
+                  <p className="text-white/70 leading-relaxed mb-6 flex-1 text-sm md:text-base italic text-justify hyphens-auto">
                     "{review.comment?.substring(0, 180)}{review.comment?.length > 180 ? '...' : ''}"
                   </p>
                   

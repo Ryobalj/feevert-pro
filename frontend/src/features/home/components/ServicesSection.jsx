@@ -290,7 +290,7 @@ const ServicesSection = ({ data }) => {
                     </h3>
 
                     {/* Description */}
-                    <p className="text-white/50 text-sm leading-relaxed mb-5 flex-1 line-clamp-3">
+                    <p className="text-white/50 text-sm md:text-base leading-relaxed mb-5 flex-1 line-clamp-3 text-justify hyphens-auto">
                       {service.description}
                     </p>
 

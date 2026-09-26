@@ -100,7 +100,7 @@ const NewsCard = ({ article }) => {
           </h3>
 
           {/* Excerpt */}
-          <p className="text-white/40 text-sm mb-4 line-clamp-3 flex-1 leading-relaxed">
+          <p className="text-white/40 text-sm md:text-base mb-4 line-clamp-3 flex-1 leading-relaxed text-justify hyphens-auto">
             {article.excerpt || article.content?.substring(0, 120)}
             {!article.excerpt && article.content?.length > 120 ? '...' : ''}
           </p>

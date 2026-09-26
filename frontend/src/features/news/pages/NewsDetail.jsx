@@ -166,7 +166,7 @@ const NewsDetail = () => {
           {/* Summary */}
           {news.summary && (
             <div className="glass-card p-5 mb-8 border-l-[3px] border-l-emerald-400 bg-emerald-400/[0.02]">
-              <p className="text-white/60 leading-relaxed italic">
+              <p className="text-white/60 leading-relaxed italic text-sm md:text-base text-justify hyphens-auto">
                 {news.summary}
               </p>
             </div>
@@ -175,7 +175,7 @@ const NewsDetail = () => {
           {/* Main Content */}
           <div className="glass-card p-6 md:p-8 mb-8">
             <div 
-              className="prose prose-lg max-w-none prose-headings:text-white prose-headings:font-bold prose-p:text-white/60 prose-p:leading-relaxed prose-a:text-emerald-400 prose-a:no-underline hover:prose-a:text-emerald-300 prose-strong:text-white/80 prose-img:rounded-2xl prose-img:shadow-lg prose-blockquote:border-l-emerald-400 prose-blockquote:bg-white/[0.02] prose-blockquote:py-2 prose-blockquote:px-4 prose-blockquote:rounded-r-xl prose-blockquote:text-white/50 prose-li:text-white/60"
+              className="prose prose-lg max-w-none prose-headings:text-white prose-headings:font-bold prose-p:text-white/60 prose-p:text-justify prose-p:leading-relaxed prose-a:text-emerald-400 prose-a:no-underline hover:prose-a:text-emerald-300 prose-strong:text-white/80 prose-img:rounded-2xl prose-img:shadow-lg prose-blockquote:border-l-emerald-400 prose-blockquote:bg-white/[0.02] prose-blockquote:py-2 prose-blockquote:px-4 prose-blockquote:rounded-r-xl prose-blockquote:text-white/50 prose-li:text-white/60"
               dangerouslySetInnerHTML={{ __html: news.content }}
             />
           </div>
@@ -230,7 +230,7 @@ const NewsDetail = () => {
                     <h3 className="font-bold text-white text-sm mb-2 group-hover:text-emerald-400 transition-colors line-clamp-2">
                       {item.title}
                     </h3>
-                    <p className="text-xs text-white/40 line-clamp-2 mb-3 leading-relaxed">
+                    <p className="text-sm md:text-base text-white/40 line-clamp-2 mb-3 leading-relaxed text-justify hyphens-auto">
                       {item.excerpt || item.summary || item.content?.substring(0, 80)}...
                     </p>
                     <span className="text-xs text-white/30">

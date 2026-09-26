@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 import Icon from '../../ui/Icon'
 import { categoryIcon } from '../../utils/iconMap'
 import api from '../../../app/api'
@@ -43,6 +44,7 @@ const ProjectCard = ({ project, onClose }) => (
 )
 
 const ProjectsMegaMenu = ({ categories, onClose, onMouseEnter, onMouseLeave }) => {
+  const { t } = useTranslation('common')
   const [projects, setProjects] = useState([])
   const [activeCatId, setActiveCatId] = useState(null)
   const [mobileTab, setMobileTab] = useState('categories')
@@ -109,14 +111,14 @@ const ProjectsMegaMenu = ({ categories, onClose, onMouseEnter, onMouseLeave }) =
       {/* Title Bar */}
       <div className="flex items-center justify-between px-4 py-2.5 border-b border-[var(--g-border-glass)] bg-[var(--g-surface-glass)]/30">
         <h3 className="text-xs font-semibold text-[var(--g-text-tertiary)] uppercase tracking-widest flex items-center gap-1">
-          <Icon name="📁" size="text-sm" /> Projects Menu
+          <Icon name="📁" size="text-sm" /> {t('projects_menu.title', 'Projects Menu')}
         </h3>
       </div>
 
       {isMobile ? (
         <>
           <div className="flex border-b border-[var(--g-border-glass)]">
-            {[['categories', 'Categories'], ['completed', 'Completed'], ['ongoing', 'On-going']].map(([tab, label], i) => (
+            {[['categories', t('projects_menu.categories', 'Categories')], ['completed', t('projects_menu.completed', 'Completed')], ['ongoing', t('projects_menu.ongoing', 'On-going')]].map(([tab, label], i) => (
               <button
                 key={tab}
                 onClick={() => { if (tab !== 'categories' && !activeCatId) return; setMobileTab(tab) }}
@@ -149,14 +151,14 @@ const ProjectsMegaMenu = ({ categories, onClose, onMouseEnter, onMouseLeave }) =
             )}
             {mobileTab === 'completed' && (
               <div className="p-2">
-                <h4 className="px-3 py-1 text-xs font-semibold text-[var(--g-text-secondary)]">{activeCat?.name} — Completed</h4>
-                {completed.length > 0 ? completed.map(p => <ProjectCard key={p.id} project={p} onClose={onClose} />) : <EmptyCol text="No completed projects" />}
+                <h4 className="px-3 py-1 text-xs font-semibold text-[var(--g-text-secondary)]">{activeCat?.name} — {t('projects_menu.completed', 'Completed')}</h4>
+                {completed.length > 0 ? completed.map(p => <ProjectCard key={p.id} project={p} onClose={onClose} />) : <EmptyCol text={t('projects_menu.no_completed', 'No completed projects')} />}
               </div>
             )}
             {mobileTab === 'ongoing' && (
               <div className="p-2">
-                <h4 className="px-3 py-1 text-xs font-semibold text-[var(--g-text-secondary)]">{activeCat?.name} — On-going</h4>
-                {ongoing.length > 0 ? ongoing.map(p => <ProjectCard key={p.id} project={p} onClose={onClose} />) : <EmptyCol text="No on-going projects" />}
+                <h4 className="px-3 py-1 text-xs font-semibold text-[var(--g-text-secondary)]">{activeCat?.name} — {t('projects_menu.ongoing', 'On-going')}</h4>
+                {ongoing.length > 0 ? ongoing.map(p => <ProjectCard key={p.id} project={p} onClose={onClose} />) : <EmptyCol text={t('projects_menu.no_ongoing', 'No on-going projects')} />}
               </div>
             )}
           </div>
@@ -167,7 +169,7 @@ const ProjectsMegaMenu = ({ categories, onClose, onMouseEnter, onMouseLeave }) =
           {/* Column 1: Categories */}
           <div className="w-[220px] flex-shrink-0 overflow-y-auto scrollbar-thin p-2">
             <h4 className="px-3 py-1.5 text-[10px] font-semibold text-[var(--g-text-tertiary)] uppercase tracking-wider sticky top-0 bg-[var(--g-surface-glass)]/80 backdrop-blur-sm z-10 rounded-md mb-1">
-              Categories
+              {t('projects_menu.categories', 'Categories')}
             </h4>
             <div className="space-y-0.5">
               {coreCategories.map(cat => (
@@ -189,21 +191,21 @@ const ProjectsMegaMenu = ({ categories, onClose, onMouseEnter, onMouseLeave }) =
           {/* Column 2: Completed */}
           <div className="flex-1 min-w-[260px] overflow-y-auto scrollbar-thin p-2">
             <h4 className="px-3 py-1.5 text-[10px] font-semibold text-emerald-500 uppercase tracking-wider sticky top-0 bg-[var(--g-surface-glass)]/80 backdrop-blur-sm z-10 rounded-md mb-1 flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Completed Projects
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> {t('projects_menu.completed_projects', 'Completed Projects')}
             </h4>
             {activeCatId ? (
-              completed.length > 0 ? <div className="space-y-0.5">{completed.map(p => <ProjectCard key={p.id} project={p} onClose={onClose} />)}</div> : <EmptyCol text="No completed projects" />
-            ) : <EmptyCol text="👈 Select a category" />}
+              completed.length > 0 ? <div className="space-y-0.5">{completed.map(p => <ProjectCard key={p.id} project={p} onClose={onClose} />)}</div> : <EmptyCol text={t('projects_menu.no_completed', 'No completed projects')} />
+            ) : <EmptyCol text={`👈 ${t('projects_menu.select_category', 'Select a category')}`} />}
           </div>
 
           {/* Column 3: On-going */}
           <div className="flex-1 min-w-[260px] overflow-y-auto scrollbar-thin p-2">
             <h4 className="px-3 py-1.5 text-[10px] font-semibold text-amber-500 uppercase tracking-wider sticky top-0 bg-[var(--g-surface-glass)]/80 backdrop-blur-sm z-10 rounded-md mb-1 flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" /> On-going Projects
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" /> {t('projects_menu.ongoing_projects', 'On-going Projects')}
             </h4>
             {activeCatId ? (
-              ongoing.length > 0 ? <div className="space-y-0.5">{ongoing.map(p => <ProjectCard key={p.id} project={p} onClose={onClose} />)}</div> : <EmptyCol text="No on-going projects" />
-            ) : <EmptyCol text="👈 Select a category" />}
+              ongoing.length > 0 ? <div className="space-y-0.5">{ongoing.map(p => <ProjectCard key={p.id} project={p} onClose={onClose} />)}</div> : <EmptyCol text={t('projects_menu.no_ongoing', 'No on-going projects')} />
+            ) : <EmptyCol text={`👈 ${t('projects_menu.select_category', 'Select a category')}`} />}
           </div>
         </div>
       )}

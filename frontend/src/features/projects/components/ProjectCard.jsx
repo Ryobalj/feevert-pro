@@ -247,7 +247,7 @@ const ProjectCard = ({ project }) => {
             {project.title}
           </h3>
 
-          <p className="text-sm text-white/40 mb-4 line-clamp-2 flex-1 leading-relaxed">
+          <p className="text-sm md:text-base text-white/40 mb-4 line-clamp-2 flex-1 leading-relaxed text-justify hyphens-auto">
             {project.description}
           </p>
 

@@ -328,7 +328,7 @@ const HomePage = () => {
                         <h3 className="text-lg font-bold text-white mb-2 group-hover:text-emerald-400 transition-colors">
                           {project.title}
                         </h3>
-                        <p className="text-white/40 text-sm mb-4 flex-1 line-clamp-2 leading-relaxed">
+                        <p className="text-white/40 text-sm md:text-base mb-4 flex-1 line-clamp-2 leading-relaxed text-justify hyphens-auto">
                           {project.description}
                         </p>
                         <div className="flex items-center justify-between pt-4 border-t border-white/5">
@@ -413,7 +413,7 @@ const HomePage = () => {
                           </svg>
                         ))}
                       </div>
-                      <p className="text-white/60 text-sm italic mb-5 flex-1 leading-relaxed">
+                      <p className="text-white/60 text-sm md:text-base italic mb-5 flex-1 leading-relaxed text-justify hyphens-auto">
                         "{t.content?.substring(0, 150)}{t.content?.length > 150 ? '...' : ''}"
                       </p>
                       <div className="h-px bg-gradient-to-r from-white/5 via-white/10 to-transparent mb-4" />
@@ -468,7 +468,7 @@ const HomePage = () => {
                   <div className="glass-card p-5 hover:border-emerald-400/20 transition-all duration-300">
                     <h3 className="font-semibold text-white mb-2">{faq.question}</h3>
                     <div className="h-px bg-white/5 mb-3" />
-                    <p className="text-white/50 text-sm leading-relaxed">{faq.answer}</p>
+                    <p className="text-white/50 text-sm md:text-base leading-relaxed text-justify hyphens-auto">{faq.answer}</p>
                   </div>
                 </motion.div>
               ))}

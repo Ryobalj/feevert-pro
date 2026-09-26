@@ -113,7 +113,7 @@ const CategoryDetailPage = () => {
           </div>
 
           {category.description && (
-            <p className="text-base md:text-lg leading-relaxed text-white/60 whitespace-pre-line">
+            <p className="text-base md:text-lg leading-relaxed text-white/60 whitespace-pre-line text-justify hyphens-auto">
               {category.description}
             </p>
           )}

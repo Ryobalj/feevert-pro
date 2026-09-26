@@ -188,7 +188,7 @@ const ReviewList = () => {
                       </div>
                       
                       {/* Content */}
-                      <p className="text-white/60 text-sm leading-relaxed">
+                      <p className="text-white/60 text-sm md:text-base leading-relaxed text-justify hyphens-auto">
                         {review.content || review.comment}
                       </p>
                       

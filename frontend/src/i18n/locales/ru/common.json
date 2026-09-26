@@ -130,5 +130,18 @@
     "smaller": "Мельче",
     "normal": "Обычный размер",
     "bigger": "Крупнее"
+  },
+  "projects_menu": {
+    "title": "Меню проектов",
+    "projects": "Проекты",
+    "categories": "Категории",
+    "completed": "Завершённые",
+    "ongoing": "Текущие",
+    "completed_projects": "Завершённые проекты",
+    "ongoing_projects": "Текущие проекты",
+    "no_completed": "Нет завершённых проектов",
+    "no_ongoing": "Нет текущих проектов",
+    "select_category": "Выберите категорию",
+    "no_projects": "Проектов пока нет"
   }
 }

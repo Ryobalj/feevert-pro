@@ -161,7 +161,7 @@ const TeamMemberDetail = () => {
               <span className="w-8 h-8 rounded-lg glass flex items-center justify-center text-sm">📝</span>
               {t('detail.about') || 'About'}
             </h2>
-            <div className="text-white/60 leading-relaxed text-sm pl-10">
+            <div className="text-white/60 leading-relaxed text-sm md:text-base pl-10 text-justify hyphens-auto">
               {member.bio}
             </div>
           </motion.div>

@@ -609,7 +609,7 @@ const ServicesPage = () => {
                             </div>
                           </div>
 
-                          <p className="text-sm text-white/40 mb-5 flex-1 line-clamp-3 leading-relaxed">
+                          <p className="text-sm md:text-base text-white/40 mb-5 flex-1 line-clamp-3 leading-relaxed text-justify hyphens-auto">
                             {service.description}
                           </p>
 

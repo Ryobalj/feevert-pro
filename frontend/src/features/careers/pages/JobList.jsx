@@ -209,7 +209,7 @@ const JobList = () => {
                               )}
                             </div>
                             
-                            <p className="text-sm text-white/40 line-clamp-2 mb-3 leading-relaxed">{job.description}</p>
+                            <p className="text-sm md:text-base text-white/40 line-clamp-2 mb-3 leading-relaxed text-justify hyphens-auto">{job.description}</p>
                           </div>
                           
                           {/* Right Column */}

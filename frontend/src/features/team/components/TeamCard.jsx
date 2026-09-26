@@ -99,7 +99,7 @@ const TeamCard = ({ member }) => {
 
           {/* Bio */}
           {member.bio && (
-            <p className="text-xs text-white/40 line-clamp-2 mb-4 leading-relaxed">
+            <p className="text-sm md:text-base text-white/40 line-clamp-2 mb-4 leading-relaxed text-justify hyphens-auto">
               {member.bio}
             </p>
           )}

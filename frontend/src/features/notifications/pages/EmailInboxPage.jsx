@@ -61,6 +61,8 @@ const EmailInboxPage = () => {
   const [mailbox, setMailbox] = useState(null)
   const [search, setSearch] = useState('')
   const [showList, setShowList] = useState(true)
+  // Folders drawer for screens narrower than lg, where the sidebar is not shown
+  const [foldersOpen, setFoldersOpen] = useState(false)
   const [compose, setCompose] = useState(null) // {to, subject, body, account}
   const [alias, setAlias] = useState(null)      // filter by the address mail was sent to
   const [aliases, setAliases] = useState([])
@@ -446,13 +448,11 @@ ${res.data.error || ''}`)
 
   const folderLabel = FOLDERS.find(f => f.key === folder)?.label || 'Inbox'
 
-  return (
-    <div className="min-h-screen py-5 md:py-8">
-      <div className="container-main max-w-[1600px]">
-        <div className="flex gap-3" style={{ height: 'calc(100vh - 150px)', minHeight: 560 }}>
-
-          {/* ================= SIDEBAR ================= */}
-          <aside className="hidden lg:flex w-60 flex-shrink-0 flex-col glass-card !p-0 overflow-hidden">
+  // One sidebar, shown two ways: fixed on the left from lg up, and as a slide-in
+  // drawer below that (phones, and "desktop site" mode on a phone, which still
+  // reports a viewport narrower than lg).
+  const sidebarContent = (
+    <>
             <div className="p-3">
               <button
                 onClick={() => setCompose({ to: '', subject: '', body: '', account: mailbox })}
@@ -549,13 +549,46 @@ ${res.data.error || ''}`)
                   if (contacts === null) { setOutbox(null); loadContacts() } else setContacts(null)
                 }} />
             </div>
+    </>
+  )
+
+  return (
+    <div className="min-h-screen py-5 md:py-8">
+      <div className="container-main max-w-[1600px]">
+        <div className="flex gap-3" style={{ height: 'calc(100vh - 150px)', minHeight: 560 }}>
+
+          {/* ================= SIDEBAR ================= */}
+          <aside className="hidden lg:flex w-60 flex-shrink-0 flex-col glass-card !p-0 overflow-hidden">
+            {sidebarContent}
           </aside>
+
+          {/* ============ FOLDERS DRAWER (below lg) ============ */}
+          {foldersOpen && (
+            <div className="lg:hidden fixed inset-0 z-50 flex">
+              <div className="absolute inset-0 bg-black/60" onClick={() => setFoldersOpen(false)} />
+              <aside
+                className="relative w-72 max-w-[85vw] h-full flex flex-col glass-card !p-0 overflow-hidden !rounded-none"
+                style={{ background: 'rgba(13, 36, 24, 0.98)' }}
+                onClick={(e) => { if (e.target.closest('button')) { setShowList(true); setFoldersOpen(false) } }}
+              >
+                <div className="flex items-center justify-between px-4 pt-3">
+                  <span className="text-sm font-bold text-white">{t('inbox.folders', 'Folders')}</span>
+                  <button aria-label="Close" className="w-8 h-8 rounded-lg glass flex items-center justify-center text-white/60">✕</button>
+                </div>
+                {sidebarContent}
+              </aside>
+            </div>
+          )}
 
           {/* ================= LIST ================= */}
           <section className={`${showList ? 'flex' : 'hidden'} md:flex w-full md:w-[380px] flex-shrink-0 flex-col glass-card !p-0 overflow-hidden`}>
             <div className="px-4 py-3 border-b border-white/5">
               <div className="flex items-center justify-between gap-2 mb-2">
-                <h2 className="text-base font-bold text-white truncate">
+                <button onClick={() => setFoldersOpen(true)} aria-label={t('inbox.folders', 'Folders')}
+                  className="lg:hidden flex-shrink-0 text-[11px] px-2.5 py-1.5 rounded-lg bg-white/[0.06] text-white/80 hover:bg-white/10 whitespace-nowrap">
+                  ☰ {t('inbox.folders', 'Folders')}
+                </button>
+                <h2 className="text-base font-bold text-white truncate flex-1 min-w-0">
                   {outbox !== null
                     ? `${t('inbox.sent_status', 'Sent mail status')} (${outbox.length})`
                     : contacts !== null

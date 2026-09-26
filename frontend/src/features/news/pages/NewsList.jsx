@@ -247,7 +247,7 @@ const FeaturedCard = ({ item, t, formatDate }) => (
         <h3 className="text-lg font-bold text-white mb-2 group-hover:text-emerald-400 transition-colors line-clamp-2">
           {item.title}
         </h3>
-        <p className="text-sm text-white/40 line-clamp-2 mb-4 leading-relaxed">
+        <p className="text-sm md:text-base text-white/40 line-clamp-2 mb-4 leading-relaxed text-justify hyphens-auto">
           {item.summary || item.content?.substring(0, 150)}...
         </p>
         <div className="flex items-center gap-1 text-sm font-semibold text-emerald-400 group-hover:gap-2 transition-all">
@@ -297,7 +297,7 @@ const NewsGridCard = ({ item, index, t, formatDateShort }) => (
           <h3 className="font-bold text-white mb-2 group-hover:text-emerald-400 transition-colors line-clamp-2">
             {item.title}
           </h3>
-          <p className="text-sm text-white/40 line-clamp-2 mb-4 flex-1 leading-relaxed">
+          <p className="text-sm md:text-base text-white/40 line-clamp-2 mb-4 flex-1 leading-relaxed text-justify hyphens-auto">
             {item.summary || item.content?.substring(0, 120)}...
           </p>
           <div className="flex items-center gap-1 text-sm font-semibold text-emerald-400 group-hover:gap-2 transition-all mt-auto">

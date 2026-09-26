@@ -133,7 +133,7 @@ const JobCard = ({ job }) => {
           </div>
           
           {/* Description */}
-          <p className="text-white/40 text-sm mb-4 line-clamp-2 leading-relaxed">
+          <p className="text-white/40 text-sm md:text-base mb-4 line-clamp-2 leading-relaxed text-justify hyphens-auto">
             {job.description}
           </p>
           

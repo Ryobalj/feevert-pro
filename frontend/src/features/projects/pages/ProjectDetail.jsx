@@ -200,7 +200,7 @@ const ProjectDetail = () => {
           </div>
           
           <div className="h-px bg-white/5 mb-6" />
-          <p className="text-white/60 leading-relaxed">{project.description}</p>
+          <p className="text-base md:text-lg text-white/60 leading-relaxed text-justify hyphens-auto">{project.description}</p>
         </motion.div>
 
         {/* ============ IMAGE GALLERY ============ */}
@@ -302,7 +302,7 @@ const ProjectDetail = () => {
                       </svg>
                     ))}
                   </div>
-                  <p className="text-white/60 italic mb-3 text-sm leading-relaxed">"{t.content}"</p>
+                  <p className="text-white/60 italic mb-3 text-sm md:text-base leading-relaxed text-justify hyphens-auto">"{t.content}"</p>
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-400 to-green-600 flex items-center justify-center text-white font-bold text-xs">
                       {t.client_name?.charAt(0) || 'C'}

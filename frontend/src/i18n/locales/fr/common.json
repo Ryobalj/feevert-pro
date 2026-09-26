@@ -130,5 +130,18 @@
     "smaller": "Texte plus petit",
     "normal": "Taille normale",
     "bigger": "Texte plus grand"
+  },
+  "projects_menu": {
+    "title": "Menu des projets",
+    "projects": "Projets",
+    "categories": "Catégories",
+    "completed": "Terminés",
+    "ongoing": "En cours",
+    "completed_projects": "Projets terminés",
+    "ongoing_projects": "Projets en cours",
+    "no_completed": "Aucun projet terminé",
+    "no_ongoing": "Aucun projet en cours",
+    "select_category": "Sélectionnez une catégorie",
+    "no_projects": "Aucun projet pour le moment"
   }
 }

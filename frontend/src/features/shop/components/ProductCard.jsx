@@ -132,7 +132,7 @@ const ProductCard = ({ product }) => {
           </h3>
           
           {/* Description */}
-          <p className="text-xs text-white/40 mb-3 line-clamp-2 leading-relaxed flex-1">
+          <p className="text-sm md:text-base text-white/40 mb-3 line-clamp-2 leading-relaxed flex-1 text-justify hyphens-auto">
             {product?.short_description || product?.description}
           </p>
 

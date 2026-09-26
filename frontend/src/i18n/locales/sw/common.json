@@ -130,5 +130,18 @@
     "smaller": "Maandishi madogo",
     "normal": "Ukubwa wa kawaida",
     "bigger": "Maandishi makubwa"
+  },
+  "projects_menu": {
+    "title": "Menyu ya Miradi",
+    "projects": "Miradi",
+    "categories": "Kategoria",
+    "completed": "Iliyokamilika",
+    "ongoing": "Inayoendelea",
+    "completed_projects": "Miradi Iliyokamilika",
+    "ongoing_projects": "Miradi Inayoendelea",
+    "no_completed": "Hakuna miradi iliyokamilika",
+    "no_ongoing": "Hakuna miradi inayoendelea",
+    "select_category": "Chagua kategoria",
+    "no_projects": "Bado hakuna miradi"
   }
 }

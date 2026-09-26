@@ -212,7 +212,7 @@ const FaqPage = () => {
                             <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent mb-4" />
                             <div className="flex gap-4">
                               <div className="hidden sm:block w-1 bg-gradient-to-b from-emerald-400 to-transparent rounded-full flex-shrink-0" />
-                              <p className="text-white/60 leading-relaxed text-sm md:text-base">
+                              <p className="text-white/60 leading-relaxed text-sm md:text-base text-justify hyphens-auto">
                                 {faq.answer}
                               </p>
                             </div>

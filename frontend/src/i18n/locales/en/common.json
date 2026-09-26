@@ -130,5 +130,18 @@
     "smaller": "Smaller text",
     "normal": "Normal text size",
     "bigger": "Bigger text"
+  },
+  "projects_menu": {
+    "title": "Projects Menu",
+    "projects": "Projects",
+    "categories": "Categories",
+    "completed": "Completed",
+    "ongoing": "On-going",
+    "completed_projects": "Completed Projects",
+    "ongoing_projects": "On-going Projects",
+    "no_completed": "No completed projects",
+    "no_ongoing": "No on-going projects",
+    "select_category": "Select a category",
+    "no_projects": "No projects yet"
   }
 }

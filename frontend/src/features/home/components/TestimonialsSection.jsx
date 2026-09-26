@@ -93,7 +93,7 @@ const TestimonialsSection = ({ data }) => {
                   </div>
                   
                   {/* Content */}
-                  <p className="text-white/70 leading-relaxed mb-6 flex-1 text-sm italic">
+                  <p className="text-white/70 leading-relaxed mb-6 flex-1 text-sm md:text-base italic text-justify hyphens-auto">
                     "{testimonial.content?.substring(0, 180)}{testimonial.content?.length > 180 ? '...' : ''}"
                   </p>
                   

@@ -200,7 +200,7 @@ const JobDetail = () => {
                     <span className="w-1.5 h-5 bg-emerald-400 rounded-full" />
                     {t('jobs.description')}
                   </h3>
-                  <div className="text-white/60 leading-relaxed text-sm whitespace-pre-line pl-4">
+                  <div className="text-white/60 leading-relaxed text-sm md:text-base whitespace-pre-line pl-4 text-justify hyphens-auto">
                     {job.description}
                   </div>
                 </div>
@@ -211,7 +211,7 @@ const JobDetail = () => {
                       <span className="w-1.5 h-5 bg-amber-400 rounded-full" />
                       {t('jobs.requirements')}
                     </h3>
-                    <div className="text-white/60 leading-relaxed text-sm whitespace-pre-line pl-4">
+                    <div className="text-white/60 leading-relaxed text-sm md:text-base whitespace-pre-line pl-4 text-justify hyphens-auto">
                       {job.requirements}
                     </div>
                   </div>
@@ -223,7 +223,7 @@ const JobDetail = () => {
                       <span className="w-1.5 h-5 bg-blue-400 rounded-full" />
                       {t('jobs.responsibilities')}
                     </h3>
-                    <div className="text-white/60 leading-relaxed text-sm whitespace-pre-line pl-4">
+                    <div className="text-white/60 leading-relaxed text-sm md:text-base whitespace-pre-line pl-4 text-justify hyphens-auto">
                       {job.responsibilities}
                     </div>
                   </div>

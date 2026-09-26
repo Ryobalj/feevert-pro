@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 import { categoryIcon } from '../../utils/iconMap'
 import api from '../../../app/api'
 
@@ -16,6 +17,7 @@ const coreRank = (c) => {
 // Mobile (hamburger) version of the Projects mega-menu: category → then a
 // Completed / On-going split, each project linking to its detail page.
 const MobileProjectsMenu = ({ categories, onClose }) => {
+  const { t } = useTranslation('common')
   const [isOpen, setIsOpen] = useState(false)
   const [expandedCat, setExpandedCat] = useState(null)
   const [projects, setProjects] = useState([])
@@ -54,7 +56,7 @@ const MobileProjectsMenu = ({ categories, onClose }) => {
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center justify-between w-full px-4 py-3 rounded-xl transition-all duration-200 text-[var(--g-text-secondary)] hover:text-[var(--g-color-primary)] hover:bg-[var(--g-liquid-secondary)]"
       >
-        Projects
+        {t('projects_menu.projects', 'Projects')}
         <motion.span className="text-[10px]" animate={{ rotate: isOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>▼</motion.span>
       </button>
 
@@ -79,10 +81,10 @@ const MobileProjectsMenu = ({ categories, onClose }) => {
 
                 {expandedCat === cat.id && (
                   <div className="ml-4 pl-3 border-l border-[var(--g-border-glass)]">
-                    {renderGroup(cat.id, 'completed', 'Completed')}
-                    {renderGroup(cat.id, 'ongoing', 'On-going')}
+                    {renderGroup(cat.id, 'completed', t('projects_menu.completed', 'Completed'))}
+                    {renderGroup(cat.id, 'ongoing', t('projects_menu.ongoing', 'On-going'))}
                     {projects.filter(p => p.category === cat.id).length === 0 && (
-                      <div className="px-3 py-3 text-xs text-[var(--g-text-tertiary)]">No projects yet</div>
+                      <div className="px-3 py-3 text-xs text-[var(--g-text-tertiary)]">{t('projects_menu.no_projects', 'No projects yet')}</div>
                     )}
                   </div>
                 )}

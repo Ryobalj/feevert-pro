@@ -269,7 +269,7 @@ const ProductDetailPage = () => {
 
               {/* Description */}
               <div className="h-px bg-white/5 mb-6" />
-              <p className="text-white/60 leading-relaxed mb-6">{product.description}</p>
+              <p className="text-base md:text-lg text-white/60 leading-relaxed mb-6 text-justify hyphens-auto">{product.description}</p>
 
               {/* Quantity + Add to Cart */}
               {product.in_stock && (

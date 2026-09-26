@@ -60,7 +60,7 @@ const AboutSection = ({ data }) => {
             className="glass-card p-8 md:p-10 mb-8"
           >
             <div className="h-1 w-20 bg-gradient-to-r from-emerald-400 to-transparent rounded-full mb-6" />
-            <p className="text-lg md:text-xl leading-relaxed text-white/70">{data.description}</p>
+            <p className="text-base md:text-lg leading-relaxed text-white/70 text-justify hyphens-auto">{data.description}</p>
           </motion.div>
 
           {/* Mission & Vision */}
@@ -83,7 +83,7 @@ const AboutSection = ({ data }) => {
                         {t('about.mission') || 'Our Mission'}
                       </h3>
                     </div>
-                    <p className="text-white/60 leading-relaxed">{data.mission}</p>
+                    <p className="text-sm md:text-base text-white/60 leading-relaxed text-justify hyphens-auto">{data.mission}</p>
                   </div>
                 </motion.div>
               )}
@@ -105,7 +105,7 @@ const AboutSection = ({ data }) => {
                         {t('about.vision') || 'Our Vision'}
                       </h3>
                     </div>
-                    <p className="text-white/60 leading-relaxed">{data.vision}</p>
+                    <p className="text-sm md:text-base text-white/60 leading-relaxed text-justify hyphens-auto">{data.vision}</p>
                   </div>
                 </motion.div>
               )}

@@ -130,5 +130,18 @@
     "smaller": "缩小文字",
     "normal": "标准大小",
     "bigger": "放大文字"
+  },
+  "projects_menu": {
+    "title": "项目菜单",
+    "projects": "项目",
+    "categories": "类别",
+    "completed": "已完成",
+    "ongoing": "进行中",
+    "completed_projects": "已完成项目",
+    "ongoing_projects": "进行中项目",
+    "no_completed": "暂无已完成项目",
+    "no_ongoing": "暂无进行中项目",
+    "select_category": "请选择类别",
+    "no_projects": "暂无项目"
   }
 }

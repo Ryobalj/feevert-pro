@@ -81,7 +81,7 @@ const renderFaq = (items) => {
     return (
       <div key={i} className="glass rounded-xl p-4 hover:border-emerald-400/20 transition-all duration-300">
         <p className="font-semibold text-white text-sm mb-1.5">{question}</p>
-        {answer && <p className="text-xs text-white/50 leading-relaxed">{answer}</p>}
+        {answer && <p className="text-sm md:text-base text-white/50 leading-relaxed text-justify hyphens-auto">{answer}</p>}
       </div>
     )
   })
@@ -402,7 +402,7 @@ const ServiceDetailPage = () => {
             </div>
           </div>
 
-          <p className="text-lg leading-relaxed text-white/60 mb-6">
+          <p className="text-base md:text-lg leading-relaxed text-white/60 mb-6 text-justify hyphens-auto">
             {service.description}
           </p>
 
