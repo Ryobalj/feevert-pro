@@ -13,13 +13,7 @@ import api from '../../../app/api'
 //   2. Completed projects in that category
 //   3. On-going projects in that category
 // A project card links straight to its detail page (/projects/:id).
-// The three core services keep their usual order at the top; any other
-// category (e.g. Agriculture) follows, so nothing in the database is hidden.
-const CORE_SLUGS = ['beekeeping', 'environment', 'ohs']
-const coreRank = (c) => {
-  const i = CORE_SLUGS.indexOf((c.slug || '').toLowerCase())
-  return i === -1 ? CORE_SLUGS.length : i
-}
+// Every active category is listed, in the order the database gives them.
 
 const ProjectCard = ({ project, onClose }) => (
   <Link
@@ -65,11 +59,9 @@ const ProjectsMegaMenu = ({ categories, onClose, onMouseEnter, onMouseLeave }) =
       .catch(() => {})
   }, [])
 
-  // All categories: core services first (stable order), then the rest by their admin order.
-  const coreCategories = useMemo(() => {
-    return [...(categories || [])].sort((a, b) =>
-      coreRank(a) - coreRank(b) || (a.order ?? 0) - (b.order ?? 0) || String(a.name).localeCompare(String(b.name)))
-  }, [categories])
+  // Categories appear in the order set in the database (the API already returns
+  // them sorted by their `order`, then name), so the menu follows the admin panel.
+  const coreCategories = useMemo(() => [...(categories || [])], [categories])
 
   useEffect(() => {
     if (coreCategories.length > 0 && !activeCatId) setActiveCatId(coreCategories[0].id)

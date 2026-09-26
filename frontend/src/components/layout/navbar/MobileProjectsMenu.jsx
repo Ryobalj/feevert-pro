@@ -7,12 +7,7 @@ import { useTranslation } from 'react-i18next'
 import { categoryIcon } from '../../utils/iconMap'
 import api from '../../../app/api'
 
-// Core services first in their usual order, then any other category, so none is hidden.
-const CORE_SLUGS = ['beekeeping', 'environment', 'ohs']
-const coreRank = (c) => {
-  const i = CORE_SLUGS.indexOf((c.slug || '').toLowerCase())
-  return i === -1 ? CORE_SLUGS.length : i
-}
+// Every active category is listed, in the order the database gives them.
 
 // Mobile (hamburger) version of the Projects mega-menu: category → then a
 // Completed / On-going split, each project linking to its detail page.
@@ -29,10 +24,9 @@ const MobileProjectsMenu = ({ categories, onClose }) => {
       .catch(() => {})
   }, [isOpen, projects.length])
 
-  const coreCategories = useMemo(() => {
-    return [...(categories || [])].sort((a, b) =>
-      coreRank(a) - coreRank(b) || (a.order ?? 0) - (b.order ?? 0) || String(a.name).localeCompare(String(b.name)))
-  }, [categories])
+  // Categories appear in the order set in the database (the API already returns
+  // them sorted by their `order`, then name), so the menu follows the admin panel.
+  const coreCategories = useMemo(() => [...(categories || [])], [categories])
 
   const renderGroup = (catId, workStatus, label) => {
     const items = projects.filter(p => p.category === catId && p.work_status === workStatus)
