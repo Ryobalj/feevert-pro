@@ -4,15 +4,21 @@ import React, { useState, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import Icon from '../../ui/Icon'
-import { iconForName } from '../../utils/iconMap'
+import { categoryIcon } from '../../utils/iconMap'
 import api from '../../../app/api'
 
 // The Projects menu mirrors the Services mega-menu, but its three columns are:
-//   1. Category (only the 3 core-service categories)
+//   1. Category (every active project category)
 //   2. Completed projects in that category
 //   3. On-going projects in that category
 // A project card links straight to its detail page (/projects/:id).
+// The three core services keep their usual order at the top; any other
+// category (e.g. Agriculture) follows, so nothing in the database is hidden.
 const CORE_SLUGS = ['beekeeping', 'environment', 'ohs']
+const coreRank = (c) => {
+  const i = CORE_SLUGS.indexOf((c.slug || '').toLowerCase())
+  return i === -1 ? CORE_SLUGS.length : i
+}
 
 const ProjectCard = ({ project, onClose }) => (
   <Link
@@ -49,7 +55,7 @@ const ProjectsMegaMenu = ({ categories, onClose, onMouseEnter, onMouseLeave }) =
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
-  // Fetch all published projects once - only 7 exist, so filtering
+  // Fetch all published projects once - only a handful exist, so filtering
   // client-side by category + work_status is cheaper than per-hover calls.
   useEffect(() => {
     api.get('/projects/', { params: { page_size: 100 } })
@@ -57,10 +63,10 @@ const ProjectsMegaMenu = ({ categories, onClose, onMouseEnter, onMouseLeave }) =
       .catch(() => {})
   }, [])
 
-  // Only the three core-service categories, in a stable order.
+  // All categories: core services first (stable order), then the rest by their admin order.
   const coreCategories = useMemo(() => {
-    const list = (categories || []).filter(c => CORE_SLUGS.includes((c.slug || '').toLowerCase()))
-    return list.sort((a, b) => CORE_SLUGS.indexOf((a.slug || '').toLowerCase()) - CORE_SLUGS.indexOf((b.slug || '').toLowerCase()))
+    return [...(categories || [])].sort((a, b) =>
+      coreRank(a) - coreRank(b) || (a.order ?? 0) - (b.order ?? 0) || String(a.name).localeCompare(String(b.name)))
   }, [categories])
 
   useEffect(() => {
@@ -134,7 +140,7 @@ const ProjectsMegaMenu = ({ categories, onClose, onMouseEnter, onMouseLeave }) =
                     className={`w-full text-left px-3 py-3 text-sm rounded-lg transition-all duration-200 flex items-center gap-2 ${
                       activeCatId === cat.id ? 'text-[var(--g-color-primary)] bg-[var(--g-liquid-primary)] font-semibold' : 'text-[var(--g-text-secondary)] hover:text-[var(--g-color-primary)] hover:bg-[var(--g-liquid-secondary)]'
                     }`}>
-                    <Icon name={cat.icon || iconForName(cat.name)} size="text-lg" className="flex-shrink-0" />
+                    <span className="text-lg flex-shrink-0" role="img" aria-hidden="true">{categoryIcon(cat)}</span>
                     <span>{cat.name}</span>
                     <svg className="w-4 h-4 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
                   </button>
@@ -173,7 +179,7 @@ const ProjectsMegaMenu = ({ categories, onClose, onMouseEnter, onMouseLeave }) =
                     activeCatId === cat.id ? 'text-[var(--g-color-primary)] bg-[var(--g-liquid-primary)] font-semibold' : 'text-[var(--g-text-secondary)] hover:text-[var(--g-color-primary)] hover:bg-[var(--g-liquid-secondary)]'
                   }`}
                 >
-                  <Icon name={cat.icon || iconForName(cat.name)} size="text-base" className="flex-shrink-0" />
+                  <span className="text-base flex-shrink-0" role="img" aria-hidden="true">{categoryIcon(cat)}</span>
                   <span className="truncate">{cat.name}</span>
                 </button>
               ))}

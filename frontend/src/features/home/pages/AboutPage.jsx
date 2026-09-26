@@ -320,7 +320,7 @@ const AboutPage = () => {
           {about.description && (
             <div className="glass-card p-8 md:p-10 mb-12">
               <div className="h-1 w-20 bg-gradient-to-r from-emerald-400 to-transparent rounded-full mb-8" />
-              <p className="text-lg md:text-xl leading-relaxed text-white/70">{about.description}</p>
+              <p className="text-base md:text-lg leading-relaxed text-white/70 text-justify hyphens-auto">{about.description}</p>
             </div>
           )}
 
@@ -340,7 +340,7 @@ const AboutPage = () => {
                         {t('about.mission') || 'Our Mission'}
                       </h3>
                     </div>
-                    <p className="text-white/60 leading-relaxed">{about.mission}</p>
+                    <p className="text-sm md:text-base text-white/60 leading-relaxed text-justify hyphens-auto">{about.mission}</p>
                   </div>
                 </motion.div>
               )}
@@ -358,7 +358,7 @@ const AboutPage = () => {
                         {t('about.vision') || 'Our Vision'}
                       </h3>
                     </div>
-                    <p className="text-white/60 leading-relaxed">{about.vision}</p>
+                    <p className="text-sm md:text-base text-white/60 leading-relaxed text-justify hyphens-auto">{about.vision}</p>
                   </div>
                 </motion.div>
               )}
@@ -410,7 +410,7 @@ const AboutPage = () => {
                           <Icon name={value.icon} size="text-2xl" />
                         </div>
                         <h4 className="font-bold text-white mb-2 group-hover:text-emerald-400 transition-colors duration-300">{value.title}</h4>
-                        <p className="text-sm text-white/40 leading-relaxed">{value.description}</p>
+                        <p className="text-sm md:text-base text-white/40 leading-relaxed text-justify hyphens-auto">{value.description}</p>
                       </div>
                     </motion.div>
                   )
@@ -486,7 +486,7 @@ const AboutPage = () => {
                           <Icon name={item.icon} size="text-3xl" />
                         </div>
                         <h4 className="font-bold text-white mb-2 group-hover:text-emerald-400 transition-colors duration-300">{item.title}</h4>
-                        <p className="text-sm text-white/40 leading-relaxed">{item.description}</p>
+                        <p className="text-sm md:text-base text-white/40 leading-relaxed text-justify hyphens-auto">{item.description}</p>
                       </div>
                     </motion.div>
                   )

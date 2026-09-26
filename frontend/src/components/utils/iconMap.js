@@ -348,6 +348,20 @@ export const iconForName = (name, fallback = '🗂️') => {
   return fallback;
 };
 
+/**
+ * The icon for a category shown in a menu, as a ready-to-render emoji.
+ *
+ * Uses the icon saved on the record when it is a known :name:, otherwise
+ * picks one that suits the category's name (bee, wheat, leaf, safety vest...).
+ * The pin is only the last resort - when neither gives an answer.
+ * (Icon itself treats any unknown string as "not found" and shows the pin,
+ * which is why an emoji from iconForName must NOT be passed to it as a name.)
+ */
+export const categoryIcon = (cat) => {
+  if (cat?.icon && ICON_MAP[cat.icon]) return ICON_MAP[cat.icon];
+  return iconForName(cat?.name, DEFAULT_ICON);
+};
+
 // ============================================================
 // DEFAULT EXPORT
 // ============================================================

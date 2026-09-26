@@ -3,11 +3,15 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { getIcon } from './IconMap'
-import { iconForName } from '../../utils/iconMap'
+import { categoryIcon } from '../../utils/iconMap'
 import api from '../../../app/api'
 
+// Core services first in their usual order, then any other category, so none is hidden.
 const CORE_SLUGS = ['beekeeping', 'environment', 'ohs']
+const coreRank = (c) => {
+  const i = CORE_SLUGS.indexOf((c.slug || '').toLowerCase())
+  return i === -1 ? CORE_SLUGS.length : i
+}
 
 // Mobile (hamburger) version of the Projects mega-menu: category → then a
 // Completed / On-going split, each project linking to its detail page.
@@ -24,8 +28,8 @@ const MobileProjectsMenu = ({ categories, onClose }) => {
   }, [isOpen, projects.length])
 
   const coreCategories = useMemo(() => {
-    const list = (categories || []).filter(c => CORE_SLUGS.includes((c.slug || '').toLowerCase()))
-    return list.sort((a, b) => CORE_SLUGS.indexOf((a.slug || '').toLowerCase()) - CORE_SLUGS.indexOf((b.slug || '').toLowerCase()))
+    return [...(categories || [])].sort((a, b) =>
+      coreRank(a) - coreRank(b) || (a.order ?? 0) - (b.order ?? 0) || String(a.name).localeCompare(String(b.name)))
   }, [categories])
 
   const renderGroup = (catId, workStatus, label) => {
@@ -69,7 +73,7 @@ const MobileProjectsMenu = ({ categories, onClose }) => {
                   onClick={() => setExpandedCat(expandedCat === cat.id ? null : cat.id)}
                   className="flex items-center justify-between w-full px-4 py-2.5 text-sm text-[var(--g-text-secondary)] hover:text-[var(--g-color-primary)] hover:bg-[var(--g-liquid-secondary)] rounded-lg"
                 >
-                  <span>{cat.icon ? getIcon(cat.icon) : iconForName(cat.name)} {cat.name}</span>
+                  <span>{categoryIcon(cat)} {cat.name}</span>
                   <motion.span className="text-[10px]" animate={{ rotate: expandedCat === cat.id ? 180 : 0 }}>▼</motion.span>
                 </button>
 
