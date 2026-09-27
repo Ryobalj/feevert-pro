@@ -192,6 +192,7 @@ const Navbar = () => {
     { divider: true },
     { path: '/partners', label: t('nav.partners') },
     { path: '/reviews', label: t('nav.reviews') },
+    { path: '/contact', label: t('nav.contact') },
     { divider: true },
     { href: '/documents/feevert-company-profile.pdf', label: `📄 ${t('nav.company_profile')}` },
   ]
