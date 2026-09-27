@@ -204,8 +204,6 @@ const Navbar = () => {
   const resourcesMenu = [
     { path: '/news', label: t('nav.news') },
     { path: '/faq', label: t('nav.faq') },
-    { divider: true },
-    { path: '/contact', label: t('nav.contact') },
   ]
 
   // ✅ Shop Menu - ZINATAFSIRIWA
